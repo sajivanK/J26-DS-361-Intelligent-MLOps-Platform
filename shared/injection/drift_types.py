@@ -63,14 +63,12 @@ def inject_marginal_single(reference_df, feature, magnitude,
                           .fillna(0)
                           .values)
 
-        # Create drifted probabilities by concentrating mass
-        # on most common category proportional to magnitude
-        uniform_probs = np.ones(len(categories)) / len(categories)
-        # Move probability mass from uniform toward most common category
-        # At magnitude=1.0, all mass goes to most common category
-        most_common_idx = np.argmax(original_probs)
-        drifted_probs = (1 - magnitude) * uniform_probs
-        drifted_probs[most_common_idx] += magnitude
+        # Create drifted probabilities by shifting mass to LEAST common category
+        # This makes the distribution maximally different from the reference
+        # At magnitude=1.0, all mass goes to the least common category
+        least_common_idx = np.argmin(original_probs)
+        drifted_probs = (1 - magnitude) * original_probs.copy()
+        drifted_probs[least_common_idx] += magnitude
         drifted_probs = drifted_probs / drifted_probs.sum()
 
         drifted_df[feature] = rng.choice(

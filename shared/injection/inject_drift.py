@@ -198,14 +198,39 @@ def inject_drift(reference_df,
 
     # ── INJECT DRIFT ───────────────────────────────────────────────────────
     if drift_type == "none":
-        drifted_features = inject_none(ref_features, batch_size, rng)
-        # For no-drift, sample matching targets
-        sample_idx = ref_features.sample(
-            n=len(drifted_features),
+        # Sample entire rows together to preserve feature-target alignment
+        n = min(batch_size, len(reference_df))
+        drifted_df = reference_df.sample(
+            n=n,
             replace=False,
             random_state=int(rng.integers(0, 99999))
-        ).index
-        drifted_target = reference_df.loc[sample_idx, target_col].values[:len(drifted_features)]
+        ).reset_index(drop=True)
+
+        # Compute ground truth directly and return early
+        accuracy_metrics = compute_accuracy_drop(model, reference_df, drifted_df, target_col)
+        continuous_feats = [f for f, t in feature_types.items()
+                            if t == 'continuous' and f in ref_features.columns]
+        per_feature_ks = compute_per_feature_ks(ref_features, 
+                            drifted_df.drop(columns=[target_col]), continuous_feats)
+
+        ground_truth = {
+            "drift_type": drift_type, "magnitude": magnitude,
+            "injected_features": features, "interaction_pairs": interaction_pairs,
+            "feature_types": feature_types, "seed": seed,
+            "batch_size": len(drifted_df),
+            "baseline_accuracy": accuracy_metrics["baseline_accuracy"],
+            "drifted_accuracy": accuracy_metrics["drifted_accuracy"],
+            "actual_accuracy_drop": accuracy_metrics["actual_accuracy_drop"],
+            "baseline_auc": accuracy_metrics["baseline_auc"],
+            "drifted_auc": accuracy_metrics["drifted_auc"],
+            "is_malignant": accuracy_metrics["is_malignant"],
+            "severity": get_severity_label(accuracy_metrics["actual_accuracy_drop"]),
+            "per_feature_ks": per_feature_ks
+        }
+        return {"drifted_df": drifted_df, "ground_truth": ground_truth}
+
+        drifted_features = None  # never reached
+        drifted_target = None
 
     elif drift_type == "marginal_single":
         assert len(features) >= 1, "marginal_single requires at least 1 feature"

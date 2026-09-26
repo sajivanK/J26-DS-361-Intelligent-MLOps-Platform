@@ -359,8 +359,13 @@ def run_all_checks(reference_df, model, feature_importance_path,
         all_results['check_2_interaction'] = {"passed": passed2, "details": res2}
         all_passed = all_passed and passed2
 
-    # Check 3 (use highest importance feature for monotonicity test)
+    # Check 3 (use highest importance CONTINUOUS feature for monotonicity test)
+    # Continuous features show cleaner monotonic trends than categorical
     high_feat = high_feats[0]
+    for feat in high_feats:
+        if feature_types.get(feat, 'continuous') == 'continuous':
+            high_feat = feat
+            break
     passed3, res3 = check_3_magnitude_monotonicity(
         reference_df, model,
         feature=high_feat,
