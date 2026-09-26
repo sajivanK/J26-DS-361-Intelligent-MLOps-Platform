@@ -1,0 +1,9 @@
+﻿shared/uci_adult/data/
+shared/uci_adult/models/
+shared/ieee_cis/data/
+shared/ieee_cis/models/
+*.pkl
+*.csv
+__pycache__/
+*.pyc
+.DS_Store
