@@ -1,0 +1,46 @@
+{
+  "dataset": "UCI Adult Census Income",
+  "model": "XGBoost",
+  "baseline_metrics": {
+    "test_accuracy": 0.8744,
+    "test_auc": 0.9298
+  },
+  "shap_importance_ranked": {
+    "marital_status": 0.7425259351730347,
+    "age": 0.7160900235176086,
+    "relationship": 0.5865679383277893,
+    "education_num": 0.5398961901664734,
+    "capital_gain": 0.5143876671791077,
+    "hours_per_week": 0.4039636254310608,
+    "occupation": 0.3466549217700958,
+    "capital_loss": 0.1546899527311325,
+    "sex": 0.1526620239019394,
+    "workclass": 0.0808892548084259,
+    "race": 0.05369729548692703,
+    "native_country": 0.03787677735090256
+  },
+  "feature_groups": {
+    "high_importance": {
+      "features": [
+        "marital_status",
+        "age",
+        "relationship",
+        "education_num",
+        "capital_gain"
+      ],
+      "description": "Top SHAP features. Drift here causes large accuracy drop (malignant).",
+      "n_features": 5
+    },
+    "low_importance": {
+      "features": [
+        "capital_loss",
+        "sex",
+        "workclass",
+        "race",
+        "native_country"
+      ],
+      "description": "Bottom SHAP features. Drift here causes small accuracy drop (benign).",
+      "n_features": 5
+    }
+  }
+}
