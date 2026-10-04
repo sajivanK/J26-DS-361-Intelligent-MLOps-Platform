@@ -1,0 +1,399 @@
+{
+  "schema_version": "1.0",
+  "component": "C4",
+  "component_name": "Conformal Risk-Controlled Model Release Controller",
+  "owner": "Kesigan M (IT23210974)",
+  "endpoint": "POST /c4/release/evaluate",
+  "description": "Final release-governance output produced by C4 after candidate retraining, pre-release validation, future-safety forecasting, joint conformal calibration, risk-policy evaluation, and deterministic hard-gate authorization.",
+  "consumers": ["Platform orchestrator", "Deployment workflow", "Human review interface", "Audit log"],
+
+  "fields": {
+    "decision": {
+      "type": "string",
+      "required": true,
+      "example": "HUMAN_REVIEW",
+      "allowed_values": ["AUTO_DEPLOY", "HUMAN_REVIEW", "ESCALATE"],
+      "description": "Final deterministic release decision produced by C4.",
+      "decision_rules": {
+        "AUTO_DEPLOY": "All mandatory hard gates pass and the conservative lower bounds of all mandatory future-safety intervals satisfy the calibrated release requirements.",
+        "HUMAN_REVIEW": "All mandatory hard gates pass, but at least one uncertainty interval crosses a required safety boundary.",
+        "ESCALATE": "A mandatory hard gate fails, or at least one complete future-safety interval lies below a mandatory safety boundary. Also triggered if C2 diagnosis_stability < 0.5."
+      }
+    },
+    "champion_model_id": {
+      "type": "string",
+      "required": true,
+      "example": "champion-v12",
+      "description": "Identifier of the current production champion model. Must match C1 model_id."
+    },
+    "candidate_model_id": {
+      "type": "string",
+      "required": true,
+      "example": "candidate-v13",
+      "description": "Identifier of the repaired and retrained candidate model evaluated by C4."
+    },
+    "joint_confidence_level": {
+      "type": "float",
+      "required": true,
+      "example": 0.95,
+      "description": "Target simultaneous conformal coverage level for mandatory future-safety margins.",
+      "range": "0.0 to 1.0"
+    },
+    "future_safety_margins": {
+      "type": "object",
+      "required": true,
+      "description": "Forecasted signed future-safety margins. Values >= 0 indicate safety requirement satisfied. Negative values indicate violation.",
+      "fields": {
+        "global_margin": {
+          "type": "float",
+          "example": 0.03,
+          "description": "Forecasted future global candidate-versus-champion safety margin."
+        },
+        "affected_slice_margin": {
+          "type": "float",
+          "example": 0.01,
+          "description": "Forecasted future affected-slice recovery margin. Slice defined by C2 affected_slice_rule."
+        },
+        "non_affected_margin": {
+          "type": "float",
+          "example": 0.02,
+          "description": "Forecasted future non-affected-population safety margin."
+        }
+      }
+    },
+    "future_safety_intervals": {
+      "type": "object",
+      "required": true,
+      "description": "Joint conformal uncertainty intervals for the three mandatory future-safety margins at joint_confidence_level coverage.",
+      "fields": {
+        "global_margin": {
+          "type": "array[float, float]",
+          "example": [-0.01, 0.07],
+          "description": "Lower and upper conformal bounds for global safety margin."
+        },
+        "affected_slice_margin": {
+          "type": "array[float, float]",
+          "example": [-0.18, 0.12],
+          "description": "Lower and upper conformal bounds for affected-slice recovery margin."
+        },
+        "non_affected_margin": {
+          "type": "array[float, float]",
+          "example": [0.00, 0.05],
+          "description": "Lower and upper conformal bounds for non-affected safety margin."
+        }
+      }
+    },
+    "pre_release_evidence": {
+      "type": "object",
+      "required": true,
+      "description": "C4-generated validation evidence measured before the release decision.",
+      "fields": {
+        "validation_global_f1_gain": {
+          "type": "float",
+          "example": 0.06,
+          "description": "Observed candidate-versus-champion global F1 difference on release-validation data."
+        },
+        "validation_affected_slice_recovery": {
+          "type": "float",
+          "example": 0.49,
+          "description": "Observed affected-slice recovery on release-validation data."
+        },
+        "validation_non_affected_margin": {
+          "type": "float",
+          "example": 0.02,
+          "description": "Observed candidate-versus-champion non-affected validation margin."
+        }
+      }
+    },
+    "upstream_evidence_summary": {
+      "type": "object",
+      "required": true,
+      "description": "Summary of all C1, C2, and C3 evidence consumed by C4.",
+      "fields": {
+        "c1": {
+          "type": "object",
+          "fields": {
+            "model_id": {"type": "string", "example": "adult-xgb-v1"},
+            "predicted_harm": {"type": "float", "example": 0.11},
+            "harm_interval": {"type": "array[float, float]", "example": [0.07, 0.15]},
+            "harm_metric": {"type": "string", "example": "accuracy_drop", "allowed_values": ["accuracy_drop", "auc_drop"]},
+            "drift_type": {"type": "string", "example": "marginal"},
+            "drift_severity": {"type": "string", "example": "high"},
+            "affected_features": {"type": "array[string]", "example": ["hours_per_week", "age"]},
+            "evidence_version": {"type": "string", "example": "c1-001"}
+          }
+        },
+        "c2": {
+          "type": "object",
+          "fields": {
+            "root_cause_category": {"type": "string", "example": "marginal"},
+            "root_cause_feature": {"type": "string", "example": "hours_per_week"},
+            "affected_slice_rule": {"type": "string", "example": "age > 45 and hours_per_week < 25"},
+            "slice_support": {"type": "float", "example": 0.18},
+            "diagnosis_stability": {"type": "float", "example": 0.84},
+            "affected_features_ranked": {"type": "array[string]", "example": ["hours_per_week", "age", "occupation"]},
+            "diagnosis_version": {"type": "string", "example": "c2-001"}
+          }
+        },
+        "c3": {
+          "type": "object",
+          "fields": {
+            "repair_dataset_uri": {"type": "string", "example": "data/repairs/repair_adult_20261001_143200.csv"},
+            "repair_package_status": {"type": "string", "example": "APPROVED", "allowed_values": ["APPROVED", "REJECTED"]},
+            "generator": {"type": "string", "example": "CTGAN", "allowed_values": ["CTGAN", "TVAE", "TabDDPM"]},
+            "augmentation_ratio": {"type": "float", "example": 0.30},
+            "fidelity_score": {"type": "float", "example": 0.91},
+            "utility_score": {"type": "float", "example": 0.87},
+            "privacy_status": {"type": "string", "example": "PASS", "allowed_values": ["PASS", "FAIL"]},
+            "repair_version": {"type": "string", "example": "c3-001"}
+          }
+        }
+      }
+    },
+    "hard_gate_status": {
+      "type": "object",
+      "required": true,
+      "description": "Deterministic mandatory release gates. All must PASS before AUTO_DEPLOY is possible.",
+      "fields": {
+        "repair_approved": {
+          "type": "boolean",
+          "example": true,
+          "description": "True if C3 repair_package_status is APPROVED"
+        },
+        "privacy_check": {
+          "type": "string",
+          "example": "PASS",
+          "allowed_values": ["PASS", "FAIL"],
+          "description": "Reads C3 privacy_status directly"
+        },
+        "schema_compatible": {
+          "type": "boolean",
+          "example": true,
+          "description": "Candidate model input schema matches production schema"
+        },
+        "candidate_artifact_valid": {
+          "type": "boolean",
+          "example": true,
+          "description": "Candidate model artifact is loadable and produces valid outputs"
+        },
+        "rollback_ready": {
+          "type": "boolean",
+          "example": true,
+          "description": "Champion model rollback artifact is available if deployment fails"
+        },
+        "overall": {
+          "type": "string",
+          "example": "PASS",
+          "allowed_values": ["PASS", "FAIL"],
+          "description": "PASS only if all individual gates are PASS. Any FAIL triggers ESCALATE."
+        }
+      }
+    },
+    "risk_control": {
+      "type": "object",
+      "required": true,
+      "description": "Calibrated release-policy information used by the C4 release controller.",
+      "fields": {
+        "risk_control_target": {
+          "type": "float",
+          "example": 0.05,
+          "description": "Configured unsafe automatic-release risk target used during policy calibration."
+        },
+        "risk_context": {
+          "type": "string",
+          "example": "MEDIUM",
+          "allowed_values": ["LOW", "MEDIUM", "HIGH"],
+          "description": "Evidence-risk context used by the evidence-adaptive release-policy extension."
+        },
+        "policy_parameter": {
+          "type": "float",
+          "example": 0.12,
+          "description": "Calibrated release-policy parameter for the current risk context."
+        },
+        "policy_version": {
+          "type": "string",
+          "example": "c4-policy-v1"
+        }
+      }
+    },
+    "reason": {
+      "type": "string",
+      "required": true,
+      "example": "The affected-slice uncertainty interval crosses the required future safety boundary, so automatic deployment cannot be justified.",
+      "description": "Human-readable rationale based only on measured evidence, calibrated intervals, hard gates, and the approved release policy."
+    },
+    "required_action": {
+      "type": "string",
+      "required": true,
+      "example": "Human review before controlled staging deployment.",
+      "description": "Operational action required after the C4 decision."
+    },
+    "audit_id": {
+      "type": "string",
+      "required": true,
+      "example": "release-decision-2026-004",
+      "description": "Unique identifier for the complete release-decision audit record."
+    },
+    "policy_version": {
+      "type": "string",
+      "required": true,
+      "example": "c4-policy-v1",
+      "description": "Version of the calibrated deterministic release policy used for the decision."
+    },
+    "forecast_model_version": {
+      "type": "string",
+      "required": true,
+      "example": "quantile-lightgbm-v3",
+      "description": "Version of the Quantile LightGBM future-safety forecasting model."
+    },
+    "conformal_config_version": {
+      "type": "string",
+      "required": true,
+      "example": "joint-conformal-v2",
+      "description": "Version of the joint conformal calibration configuration."
+    },
+    "mlflow_run_id": {
+      "type": "string",
+      "required": true,
+      "example": "7f3a2b1c9d8e4f5a",
+      "description": "MLflow run ID linking the decision to the candidate model experiment."
+    },
+    "decision_timestamp": {
+      "type": "string",
+      "required": true,
+      "format": "ISO-8601",
+      "example": "2026-10-01T17:30:00Z",
+      "description": "Timestamp at which the final C4 release decision was recorded."
+    }
+  },
+
+  "example_outputs": {
+    "auto_deploy": {
+      "decision": "AUTO_DEPLOY",
+      "champion_model_id": "champion-v12",
+      "candidate_model_id": "candidate-v13",
+      "joint_confidence_level": 0.95,
+      "future_safety_margins": {
+        "global_margin": 0.06,
+        "affected_slice_margin": 0.11,
+        "non_affected_margin": 0.04
+      },
+      "future_safety_intervals": {
+        "global_margin": [0.02, 0.10],
+        "affected_slice_margin": [0.04, 0.18],
+        "non_affected_margin": [0.01, 0.07]
+      },
+      "hard_gate_status": {
+        "repair_approved": true,
+        "privacy_check": "PASS",
+        "schema_compatible": true,
+        "candidate_artifact_valid": true,
+        "rollback_ready": true,
+        "overall": "PASS"
+      },
+      "risk_control": {
+        "risk_control_target": 0.05,
+        "risk_context": "LOW",
+        "policy_parameter": 0.08,
+        "policy_version": "c4-policy-v1"
+      },
+      "reason": "All mandatory hard gates pass and the conservative lower bounds of all future-safety intervals satisfy the calibrated release requirements.",
+      "required_action": "Proceed to controlled staging deployment.",
+      "audit_id": "release-decision-2026-001",
+      "policy_version": "c4-policy-v1",
+      "forecast_model_version": "quantile-lightgbm-v3",
+      "conformal_config_version": "joint-conformal-v2",
+      "mlflow_run_id": "7f3a2b1c9d8e4f5a",
+      "decision_timestamp": "2026-10-01T17:30:00Z"
+    },
+    "human_review": {
+      "decision": "HUMAN_REVIEW",
+      "champion_model_id": "champion-v12",
+      "candidate_model_id": "candidate-v14",
+      "joint_confidence_level": 0.95,
+      "future_safety_margins": {
+        "global_margin": 0.03,
+        "affected_slice_margin": 0.01,
+        "non_affected_margin": 0.02
+      },
+      "future_safety_intervals": {
+        "global_margin": [-0.01, 0.07],
+        "affected_slice_margin": [-0.18, 0.12],
+        "non_affected_margin": [0.00, 0.05]
+      },
+      "hard_gate_status": {
+        "repair_approved": true,
+        "privacy_check": "PASS",
+        "schema_compatible": true,
+        "candidate_artifact_valid": true,
+        "rollback_ready": true,
+        "overall": "PASS"
+      },
+      "risk_control": {
+        "risk_control_target": 0.05,
+        "risk_context": "MEDIUM",
+        "policy_parameter": 0.12,
+        "policy_version": "c4-policy-v1"
+      },
+      "reason": "The affected-slice uncertainty interval crosses the required future safety boundary, so automatic deployment cannot be justified.",
+      "required_action": "Human review before controlled staging deployment.",
+      "audit_id": "release-decision-2026-004",
+      "policy_version": "c4-policy-v1",
+      "forecast_model_version": "quantile-lightgbm-v3",
+      "conformal_config_version": "joint-conformal-v2",
+      "mlflow_run_id": "8b4e7d2c1a6f3e91",
+      "decision_timestamp": "2026-10-01T17:35:00Z"
+    },
+    "escalate": {
+      "decision": "ESCALATE",
+      "champion_model_id": "champion-v12",
+      "candidate_model_id": "candidate-v15",
+      "joint_confidence_level": 0.95,
+      "future_safety_margins": {
+        "global_margin": -0.08,
+        "affected_slice_margin": -0.16,
+        "non_affected_margin": 0.01
+      },
+      "future_safety_intervals": {
+        "global_margin": [-0.13, -0.03],
+        "affected_slice_margin": [-0.24, -0.08],
+        "non_affected_margin": [-0.01, 0.03]
+      },
+      "hard_gate_status": {
+        "repair_approved": true,
+        "privacy_check": "PASS",
+        "schema_compatible": true,
+        "candidate_artifact_valid": true,
+        "rollback_ready": true,
+        "overall": "PASS"
+      },
+      "risk_control": {
+        "risk_control_target": 0.05,
+        "risk_context": "HIGH",
+        "policy_parameter": 0.18,
+        "policy_version": "c4-policy-v1"
+      },
+      "reason": "The complete global and affected-slice uncertainty intervals lie below their mandatory safety boundaries, indicating the candidate is confidently predicted to violate critical release requirements.",
+      "required_action": "Escalate for further repair or engineering investigation. Do not deploy the candidate.",
+      "audit_id": "release-decision-2026-005",
+      "policy_version": "c4-policy-v1",
+      "forecast_model_version": "quantile-lightgbm-v3",
+      "conformal_config_version": "joint-conformal-v2",
+      "mlflow_run_id": "9c5f8a3d2b7e4f12",
+      "decision_timestamp": "2026-10-01T17:40:00Z"
+    }
+  },
+
+  "notes": [
+    "Future safety margins are signed values and are NOT restricted to 0.0-1.0 range",
+    "A future safety margin >= 0 indicates satisfaction of its corresponding future requirement",
+    "AUTO_DEPLOY requires all hard gates PASS and all lower interval bounds satisfy calibrated release requirements",
+    "HUMAN_REVIEW is deliberate abstention when uncertainty crosses one or more release boundaries",
+    "ESCALATE when hard gate FAIL, or complete safety interval below boundary, or diagnosis_stability < 0.5",
+    "upstream_evidence_summary.c2.affected_features_ranked matches C2 output field name affected_features_ranked",
+    "C4 does not use a hand-weighted composite risk score as its primary decision mechanism",
+    "Evidence-adaptive risk context and policy parameters must be calibrated using development data only",
+    "AUTO_DEPLOY authorizes controlled staging rollout, not direct production replacement",
+    "Every decision must be traceable to champion model, candidate model, all upstream evidence, and policy version"
+  ]
+}

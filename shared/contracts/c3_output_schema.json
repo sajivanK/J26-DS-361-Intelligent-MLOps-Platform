@@ -1,0 +1,160 @@
+{
+  "schema_version": "1.0",
+  "component": "C3",
+  "component_name": "Adaptive Intelligent Synthetic Data Repair Engine",
+  "owner": "Mathusan K (IT23174580)",
+  "endpoint": "POST /repair",
+  "description": "Validated synthetic repair package produced by C3. Sent to C4 for release decision.",
+  "consumers": ["C4 (Kesigan M)"],
+
+  "input_context": {
+    "note": "C3 receives input from C1 (drift evidence), C2 (repair specification), and data_context from the platform orchestrator. These are documented here for clarity but are not part of the C3 output schema.",
+    "from_c1": {
+      "predicted_harm": "float",
+      "confidence_interval": "array[float, float]",
+      "drift_type": "string",
+      "drift_severity": "string",
+      "affected_features": "array[string]"
+    },
+    "from_c2": {
+      "root_cause_feature": "string",
+      "root_cause_category": "string",
+      "affected_slice_rule": "string",
+      "affected_features_ranked": "array[string]",
+      "affected_value_ranges": "object",
+      "slice_support": "float",
+      "diagnosis_stability": "float",
+      "drift_impact_score": "float",
+      "temporal_window": "integer"
+    },
+    "from_platform_orchestrator": {
+      "model_id": "string",
+      "dataset_id": "string",
+      "reference_dataset_uri": "string",
+      "current_dataset_uri": "string",
+      "target_column": "string",
+      "schema_version": "string",
+      "label_status": "string (AVAILABLE | UNAVAILABLE)",
+      "preprocessing_uri": "string"
+    }
+  },
+
+  "output_fields": {
+    "repair_dataset_uri": {
+      "type": "string",
+      "required": true,
+      "example": "data/repairs/repair_adult_20261001_143200.csv",
+      "description": "Path to the validated synthetic repair dataset. C4 uses this to retrain the candidate model.",
+      "used_by": ["C4"]
+    },
+    "repair_package_status": {
+      "type": "string",
+      "required": true,
+      "example": "APPROVED",
+      "allowed_values": ["APPROVED", "REJECTED"],
+      "description": "Overall validation status. C3 only sends APPROVED packages to C4. REJECTED triggers re-generation internally.",
+      "used_by": ["C4"]
+    },
+    "generator": {
+      "type": "string",
+      "required": true,
+      "example": "CTGAN",
+      "allowed_values": ["CTGAN", "TVAE", "TabDDPM"],
+      "description": "Generative model selected by the Repair Prescription Engine for this condition.",
+      "used_by": ["C4"]
+    },
+    "n_synthetic_rows": {
+      "type": "integer",
+      "required": true,
+      "example": 500,
+      "description": "Number of synthetic rows generated. Determined by the Repair Prescription Engine based on drift severity and slice support.",
+      "used_by": ["C4"]
+    },
+    "augmentation_ratio": {
+      "type": "float",
+      "required": true,
+      "example": 0.30,
+      "range": "0.0 to 1.0",
+      "description": "Ratio of synthetic rows to original training data. 0.30 means 30% augmentation.",
+      "used_by": ["C4"]
+    },
+    "fidelity_score": {
+      "type": "float",
+      "required": true,
+      "example": 0.91,
+      "range": "0.0 to 1.0",
+      "description": "Statistical fidelity of synthetic data vs real data distributions.",
+      "used_by": ["C4"]
+    },
+    "utility_score": {
+      "type": "float",
+      "required": true,
+      "example": 0.87,
+      "range": "0.0 to 1.0",
+      "description": "Downstream model accuracy improvement on affected slice when trained with synthetic data.",
+      "used_by": ["C4"]
+    },
+    "privacy_status": {
+      "type": "string",
+      "required": true,
+      "example": "PASS",
+      "allowed_values": ["PASS", "FAIL"],
+      "description": "Distance to Closest Record (DCR) privacy check result. C4 hard gate rejects FAIL packages.",
+      "used_by": ["C4"]
+    },
+    "target_coverage": {
+      "type": "float",
+      "required": true,
+      "example": 0.93,
+      "range": "0.0 to 1.0",
+      "description": "Fraction of synthetic rows falling within the affected_slice_rule from C2. High coverage means repair targets the right population.",
+      "used_by": ["C4"]
+    },
+    "prescription_confidence": {
+      "type": "float",
+      "required": true,
+      "example": 0.88,
+      "range": "0.0 to 1.0",
+      "description": "Repair Prescription Engine confidence in its generator and quantity selection.",
+      "used_by": ["C4"]
+    },
+    "repair_version": {
+      "type": "string",
+      "required": true,
+      "example": "c3-001",
+      "description": "Version identifier for this repair package. Referenced in C4 audit trail.",
+      "used_by": ["C4"]
+    },
+    "repair_timestamp": {
+      "type": "string",
+      "required": true,
+      "format": "ISO-8601",
+      "example": "2026-10-01T16:45:00Z",
+      "description": "Timestamp when the repair package was produced.",
+      "used_by": ["C4"]
+    }
+  },
+
+  "example_output": {
+    "repair_dataset_uri": "data/repairs/repair_adult_20261001_143200.csv",
+    "repair_package_status": "APPROVED",
+    "generator": "CTGAN",
+    "n_synthetic_rows": 500,
+    "augmentation_ratio": 0.30,
+    "fidelity_score": 0.91,
+    "utility_score": 0.87,
+    "privacy_status": "PASS",
+    "target_coverage": 0.93,
+    "prescription_confidence": 0.88,
+    "repair_version": "c3-001",
+    "repair_timestamp": "2026-10-01T16:45:00Z"
+  },
+
+  "notes": [
+    "C4 must reject the repair package if privacy_status is FAIL regardless of other scores",
+    "C4 hard_gate_status.privacy_check must read C3 privacy_status directly",
+    "repair_version links to C4 upstream_evidence_summary.c3.repair_version for audit tracing",
+    "data_context is NOT passed through C1 or C2. It is injected by the platform orchestrator from onboarding config.",
+    "During independent development, Kesigan generates repair data himself using CTGAN or TVAE and computes these scores directly"
+  ]
+}

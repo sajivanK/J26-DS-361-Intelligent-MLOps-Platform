@@ -1,0 +1,91 @@
+{
+  "schema_version": "1.0",
+  "component": "C2",
+  "component_name": "XAI Root Cause Diagnosis Engine",
+  "owner": "Tharmika N (IT22247940)",
+  "output_name": "Diagnostic Report",
+  "description": "Diagnostic report sent from C2 to C4. Contains root cause summary and diagnosis metadata for Kesigan's joint conformal calibration and release decision.",
+  "consumers": ["C4 (Kesigan M)"],
+
+  "fields": {
+    "root_cause_category": {
+      "type": "string",
+      "required": true,
+      "example": "marginal",
+      "allowed_values": ["marginal", "interaction", "combined", "unknown"],
+      "description": "Type of root cause identified. Used by C4 for risk context assessment.",
+      "used_by": ["C4"]
+    },
+    "root_cause_feature": {
+      "type": "string",
+      "required": true,
+      "example": "hours_per_week",
+      "description": "Primary feature responsible for degradation.",
+      "used_by": ["C4"]
+    },
+    "affected_slice_rule": {
+      "type": "string",
+      "required": true,
+      "example": "age > 45 and hours_per_week < 25",
+      "description": "Queryable rule defining the failing subgroup. C4 uses this to evaluate slice-specific recovery after repair and to define the affected_slice_margin.",
+      "used_by": ["C4"]
+    },
+    "slice_support": {
+      "type": "float",
+      "required": true,
+      "example": 0.18,
+      "range": "0.0 to 1.0",
+      "description": "Fraction of data in the affected slice. C4 uses this to weight the joint conformal calibration.",
+      "used_by": ["C4"]
+    },
+    "diagnosis_stability": {
+      "type": "float",
+      "required": true,
+      "example": 0.84,
+      "range": "0.0 to 1.0",
+      "description": "Diagnosis confidence score. C4 uses this as evidence input to the Quantile LightGBM forecasting model. Values below 0.5 trigger ESCALATE regardless of other signals.",
+      "used_by": ["C4"]
+    },
+    "affected_features_ranked": {
+      "type": "array[string]",
+      "required": true,
+      "example": ["hours_per_week", "age", "occupation"],
+      "description": "Features ranked by Drift Impact Score. C4 references these in the audit trail.",
+      "used_by": ["C4"]
+    },
+    "diagnosis_version": {
+      "type": "string",
+      "required": true,
+      "example": "c2-001",
+      "description": "Version identifier for this diagnosis. Used by C4 for audit tracing.",
+      "used_by": ["C4"]
+    },
+    "diagnosis_timestamp": {
+      "type": "string",
+      "required": true,
+      "format": "ISO-8601",
+      "example": "2026-10-01T14:32:00Z",
+      "description": "Timestamp when the diagnosis was produced. Used in C4 audit trail.",
+      "used_by": ["C4"]
+    }
+  },
+
+  "example_output": {
+    "root_cause_category": "marginal",
+    "root_cause_feature": "hours_per_week",
+    "affected_slice_rule": "age > 45 and hours_per_week < 25",
+    "slice_support": 0.18,
+    "diagnosis_stability": 0.84,
+    "affected_features_ranked": ["hours_per_week", "age", "occupation"],
+    "diagnosis_version": "c2-001",
+    "diagnosis_timestamp": "2026-10-01T14:32:00Z"
+  },
+
+  "notes": [
+    "diagnosis_stability below 0.5 must trigger ESCALATE in C4 regardless of other signals",
+    "affected_features_ranked uses the same field name as C2-to-C3 output for consistency",
+    "C4 uses slice_support together with C3 target_coverage to verify repair addressed the correct subgroup",
+    "diagnosis_version links to C4 upstream_evidence_summary.c2.diagnosis_version for audit tracing",
+    "During independent development, Kesigan uses controlled values for diagnosis_stability (range 0.3 to 0.95)"
+  ]
+}

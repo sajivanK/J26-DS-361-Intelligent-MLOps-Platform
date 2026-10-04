@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "component": "C2",
+  "component_name": "XAI Root Cause Diagnosis Engine",
+  "owner": "Tharmika N (IT22247940)",
+  "output_name": "Repair Specification",
+  "description": "Structured repair specification sent from C2 to C3. Contains the diagnosed root cause and affected subgroup definition that C3 uses to generate targeted synthetic repair data.",
+  "consumers": ["C3 (Mathusan K)"],
+
+  "fields": {
+    "root_cause_feature": {
+      "type": "string",
+      "required": true,
+      "example": "hours_per_week",
+      "description": "Top-ranked feature identified as primary root cause by temporal SHAP analysis.",
+      "used_by": ["C3"]
+    },
+    "root_cause_category": {
+      "type": "string",
+      "required": true,
+      "example": "marginal",
+      "allowed_values": ["marginal", "interaction", "combined", "unknown"],
+      "description": "Category of root cause matching C1 drift_type classification.",
+      "used_by": ["C3"]
+    },
+    "affected_slice_rule": {
+      "type": "string",
+      "required": true,
+      "example": "age > 45 and hours_per_week < 25",
+      "description": "Queryable rule defining the failing data subgroup. Must be a valid pandas DataFrame.query() string. C3 applies this rule to reference data to extract the repair target population.",
+      "used_by": ["C3"]
+    },
+    "affected_features_ranked": {
+      "type": "array[string]",
+      "required": true,
+      "example": ["hours_per_week", "age", "occupation"],
+      "description": "Features ranked by Drift Impact Score contribution. C3 uses this to weight synthetic data generation toward the most impactful features.",
+      "used_by": ["C3"]
+    },
+    "affected_value_ranges": {
+      "type": "object",
+      "required": true,
+      "example": {
+        "age": [46, 90],
+        "hours_per_week": [1, 24]
+      },
+      "description": "Specific value ranges within root cause features defining the affected subgroup. Keys are feature names, values are [min, max] for continuous or list of values for categorical.",
+      "used_by": ["C3"]
+    },
+    "slice_support": {
+      "type": "float",
+      "required": true,
+      "example": 0.18,
+      "range": "0.0 to 1.0",
+      "description": "Fraction of production data falling within the affected slice. C3 uses this to determine synthetic data quantity. slice_support * len(reference_df) gives approximate affected row count.",
+      "used_by": ["C3"]
+    },
+    "diagnosis_stability": {
+      "type": "float",
+      "required": true,
+      "example": 0.84,
+      "range": "0.0 to 1.0",
+      "description": "Confidence score of the diagnosis based on temporal SHAP consistency across monitoring cycles. High stability (>0.8) means diagnosis is reliable. C3 uses this to decide repair aggressiveness.",
+      "used_by": ["C3"]
+    },
+    "drift_impact_score": {
+      "type": "float",
+      "required": true,
+      "example": 0.72,
+      "range": "0.0 to 1.0",
+      "description": "Fused score combining drift magnitude, SHAP value change, and performance impact. C3 uses this to scale repair quantity via the Repair Prescription Engine.",
+      "used_by": ["C3"]
+    },
+    "temporal_window": {
+      "type": "integer",
+      "required": true,
+      "example": 3,
+      "description": "Number of monitoring cycles over which the diagnosis was stable. Higher values indicate a more persistent and reliable diagnosis.",
+      "used_by": ["C3"]
+    }
+  },
+
+  "example_output": {
+    "root_cause_feature": "hours_per_week",
+    "root_cause_category": "marginal",
+    "affected_slice_rule": "age > 45 and hours_per_week < 25",
+    "affected_features_ranked": ["hours_per_week", "age", "occupation"],
+    "affected_value_ranges": {
+      "age": [46, 90],
+      "hours_per_week": [1, 24]
+    },
+    "slice_support": 0.18,
+    "diagnosis_stability": 0.84,
+    "drift_impact_score": 0.72,
+    "temporal_window": 3
+  },
+
+  "notes": [
+    "affected_slice_rule must be a valid pandas DataFrame.query() string",
+    "C3 applies affected_slice_rule to reference_df to get the repair target population",
+    "If diagnosis_stability < 0.5, C3 should apply conservative repair (smaller augmentation ratio)",
+    "slice_support * len(reference_df) gives approximate number of affected rows",
+    "drift_impact_score is a C2 novelty: NOT the same as drift_severity from C1",
+    "During independent development, Mathusan derives these values from injection ground truth and varies diagnosis_stability as a training parameter (range 0.3 to 0.95)"
+  ]
+}
