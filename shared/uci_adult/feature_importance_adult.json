@@ -42,5 +42,19 @@
       "description": "Bottom SHAP features. Drift here causes small accuracy drop (benign).",
       "n_features": 5
     }
+  },
+  "feature_types": {
+    "age": "continuous",
+    "workclass": "categorical",
+    "education_num": "continuous",
+    "marital_status": "categorical",
+    "occupation": "categorical",
+    "relationship": "categorical",
+    "race": "categorical",
+    "sex": "categorical",
+    "capital_gain": "continuous",
+    "capital_loss": "continuous",
+    "hours_per_week": "continuous",
+    "native_country": "continuous"
   }
 }
