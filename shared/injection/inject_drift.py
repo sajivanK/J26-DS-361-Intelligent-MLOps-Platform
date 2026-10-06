@@ -132,7 +132,9 @@ def inject_drift(reference_df,
                  interaction_pairs=None,
                  batch_size=None,
                  target_col='target',
-                 seed=42):
+                 seed=42,
+                 source_df=None,
+                 paired=False):
     """
     Main injection function. Called by all team members.
 
@@ -153,6 +155,17 @@ def inject_drift(reference_df,
         batch_size:         size of drifted batch (default: same as reference)
         target_col:         name of target column in reference_df
         seed:               random seed for reproducibility
+        source_df:          (v1.1, optional) DataFrame the production batch is
+                            drawn from. If None (default) behaviour is exactly
+                            v1.0: the batch is built from reference_df.
+                            If given, `batch_size` rows are sampled from it
+                            (without replacement, seeded) and drift is injected
+                            into THOSE rows. Use unseen data (e.g. test.csv).
+        paired:             (v1.1, optional) If True the harm baseline is the
+                            model's accuracy on the same batch rows BEFORE
+                            injection (cancels sampling noise). If False
+                            (default) the baseline is the model on reference_df
+                            exactly as in v1.0.
 
     Returns:
         dict with keys:
@@ -192,22 +205,40 @@ def inject_drift(reference_df,
     # Create seeded random generator
     rng = np.random.default_rng(seed)
 
+    # v1.1: choose the rows the production batch is built from.
+    # source_df=None keeps v1.0 behaviour (batch built from reference_df).
+    if source_df is None:
+        base_df = reference_df
+    else:
+        assert target_col in source_df.columns, \
+            f"target_col '{target_col}' not found in source_df"
+        n_src = min(batch_size, len(source_df))
+        base_df = source_df.sample(
+            n=n_src, replace=False,
+            random_state=int(rng.integers(0, 99999))
+        ).reset_index(drop=True)
+    # Baseline used for harm: same rows (paired) or the reference set (v1.0)
+    harm_baseline_df = base_df if (paired and source_df is not None) else reference_df
+
     # ── SEPARATE FEATURES AND TARGET ───────────────────────────────────────
     feature_cols = [c for c in reference_df.columns if c != target_col]
-    ref_features = reference_df[feature_cols]
+    ref_features = base_df[feature_cols]
 
     # ── INJECT DRIFT ───────────────────────────────────────────────────────
     if drift_type == "none":
         # Sample entire rows together to preserve feature-target alignment
-        n = min(batch_size, len(reference_df))
-        drifted_df = reference_df.sample(
-            n=n,
-            replace=False,
-            random_state=int(rng.integers(0, 99999))
-        ).reset_index(drop=True)
+        if source_df is None:
+            n = min(batch_size, len(reference_df))
+            drifted_df = reference_df.sample(
+                n=n,
+                replace=False,
+                random_state=int(rng.integers(0, 99999))
+            ).reset_index(drop=True)
+        else:
+            drifted_df = base_df.copy()   # already a sampled batch (v1.1)
 
         # Compute ground truth directly and return early
-        accuracy_metrics = compute_accuracy_drop(model, reference_df, drifted_df, target_col)
+        accuracy_metrics = compute_accuracy_drop(model, harm_baseline_df, drifted_df, target_col)
         continuous_feats = [f for f, t in feature_types.items()
                             if t == 'continuous' and f in ref_features.columns]
         per_feature_ks = compute_per_feature_ks(ref_features, 
@@ -239,14 +270,14 @@ def inject_drift(reference_df,
         drifted_features = inject_marginal_single(
             ref_features, feature, magnitude, ftype, rng
         )
-        drifted_target = reference_df[target_col].values
+        drifted_target = base_df[target_col].values
 
     elif drift_type == "marginal_multi":
         assert len(features) >= 2, "marginal_multi requires at least 2 features"
         drifted_features = inject_marginal_multi(
             ref_features, features, magnitude, feature_types, rng
         )
-        drifted_target = reference_df[target_col].values
+        drifted_target = base_df[target_col].values
 
     elif drift_type == "interaction":
         if interaction_pairs is not None:
@@ -259,7 +290,7 @@ def inject_drift(reference_df,
             drifted_features = inject_interaction(
                 ref_features, features[0], features[1], magnitude, rng
             )
-        drifted_target = reference_df[target_col].values
+        drifted_target = base_df[target_col].values
 
     elif drift_type == "combined":
         assert interaction_pairs is not None, \
@@ -270,7 +301,7 @@ def inject_drift(reference_df,
             ref_features, features, interaction_pairs,
             magnitude, feature_types, rng
         )
-        drifted_target = reference_df[target_col].values
+        drifted_target = base_df[target_col].values
 
     # ── RECONSTRUCT DRIFTED DATAFRAME WITH TARGET ──────────────────────────
     drifted_df = drifted_features.copy()
@@ -279,7 +310,7 @@ def inject_drift(reference_df,
 
     # ── COMPUTE GROUND TRUTH ───────────────────────────────────────────────
     accuracy_metrics = compute_accuracy_drop(
-        model, reference_df, drifted_df, target_col
+        model, harm_baseline_df, drifted_df, target_col
     )
 
     # Per-feature KS scores (for validation)
