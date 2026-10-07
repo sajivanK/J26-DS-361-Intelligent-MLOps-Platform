@@ -1,0 +1,9 @@
+numpy
+pandas
+scipy
+scikit-learn
+xgboost
+joblib
+torch          # LSDD backend
+alibi-detect   # install with --no-deps on Colab (Python 3.13), then: dill catalogue numba
+pytest
