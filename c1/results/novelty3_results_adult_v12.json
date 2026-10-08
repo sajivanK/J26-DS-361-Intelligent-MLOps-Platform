@@ -1,0 +1,314 @@
+{
+  "repeats": 10,
+  "per_feature_columns": [
+    "ks__age",
+    "ks__education_num",
+    "ks__capital_gain",
+    "ks__capital_loss",
+    "ks__hours_per_week",
+    "chi2__workclass",
+    "chi2__marital_status",
+    "chi2__occupation",
+    "chi2__relationship",
+    "chi2__race",
+    "chi2__sex",
+    "chi2__native_country",
+    "psi__age",
+    "psi__education_num",
+    "psi__capital_gain",
+    "psi__capital_loss",
+    "psi__hours_per_week",
+    "psi__workclass",
+    "psi__marital_status",
+    "psi__occupation",
+    "psi__relationship",
+    "psi__race",
+    "psi__sex",
+    "psi__native_country"
+  ],
+  "schemes": {
+    "5class": {
+      "configs": {
+        "detectors_v11": {
+          "accuracy": [
+            0.5356250000000001,
+            0.010428326807307115
+          ],
+          "balanced_accuracy": 0.55392,
+          "macro_f1": 0.5534136013056663,
+          "accuracy_without_point_mass": 0.5034285714285714
+        },
+        "detectors_v12": {
+          "accuracy": [
+            0.5766249999999999,
+            0.009914478049801702
+          ],
+          "balanced_accuracy": 0.5974133333333335,
+          "macro_f1": 0.5933529042693177,
+          "accuracy_without_point_mass": 0.5599999999999999
+        },
+        "v12_plus_per_feature": {
+          "accuracy": [
+            0.5948125,
+            0.00878141681336219
+          ],
+          "balanced_accuracy": 0.6113466666666667,
+          "macro_f1": 0.6085289199781884,
+          "accuracy_without_point_mass": 0.5752380952380952
+        },
+        "v12_per_feature_plus_pred_stats": {
+          "accuracy": [
+            0.657875,
+            0.010024189493420394
+          ],
+          "balanced_accuracy": 0.6660066666666666,
+          "macro_f1": 0.6640342153349944,
+          "accuracy_without_point_mass": 0.6653333333333334
+        }
+      },
+      "best": "v12_per_feature_plus_pred_stats",
+      "per_class_f1": {
+        "none": 0.6800452698230123,
+        "marginal_single": 0.6062103781460693,
+        "marginal_multi": 0.979999807469903,
+        "interaction": 0.7504335971743684,
+        "combined": 0.3034820240616189
+      },
+      "confusion_row_normalised": {
+        "none": {
+          "none": 0.6985,
+          "marginal_single": 0.0,
+          "marginal_multi": 0.0,
+          "interaction": 0.237,
+          "combined": 0.0
+        },
+        "marginal_single": {
+          "none": 0.0,
+          "marginal_single": 0.6172,
+          "marginal_multi": 0.0147,
+          "interaction": 0.0033,
+          "combined": 0.68
+        },
+        "marginal_multi": {
+          "none": 0.0,
+          "marginal_single": 0.002,
+          "marginal_multi": 0.964,
+          "interaction": 0.0,
+          "combined": 0.0
+        },
+        "interaction": {
+          "none": 0.3015,
+          "marginal_single": 0.0208,
+          "marginal_multi": 0.0,
+          "interaction": 0.7597,
+          "combined": 0.0293
+        },
+        "combined": {
+          "none": 0.0,
+          "marginal_single": 0.36,
+          "marginal_multi": 0.0213,
+          "interaction": 0.0,
+          "combined": 0.2907
+        }
+      },
+      "accuracy_by_magnitude": {
+        "none (0.0)": 0.6984999999999999,
+        "low (0.1-0.3)": 0.5497619047619047,
+        "mid (0.4-0.6)": 0.6985714285714286,
+        "high (0.7-1.0)": 0.6939285714285715
+      },
+      "accuracy_by_batch_size": {
+        "500": 0.632,
+        "1000": 0.68175,
+        "2000": 0.63075,
+        "3000": 0.6869999999999999
+      },
+      "lofo": {
+        "marital_status": {
+          "n": 450,
+          "accuracy": 0.29777777777777775
+        },
+        "age": {
+          "n": 450,
+          "accuracy": 0.2644444444444444
+        },
+        "relationship": {
+          "n": 400,
+          "accuracy": 0.5875
+        },
+        "education_num": {
+          "n": 100,
+          "accuracy": 0.94
+        },
+        "capital_gain": {
+          "n": 100,
+          "accuracy": 0.83
+        },
+        "capital_loss": {
+          "n": 450,
+          "accuracy": 0.2288888888888889
+        },
+        "sex": {
+          "n": 450,
+          "accuracy": 0.1688888888888889
+        },
+        "workclass": {
+          "n": 400,
+          "accuracy": 0.43
+        },
+        "race": {
+          "n": 100,
+          "accuracy": 1.0
+        },
+        "native_country": {
+          "n": 100,
+          "accuracy": 0.9
+        }
+      }
+    },
+    "4class": {
+      "configs": {
+        "detectors_v11": {
+          "accuracy": [
+            0.5724375,
+            0.010064052675239724
+          ],
+          "balanced_accuracy": 0.5382708333333335,
+          "macro_f1": 0.5261407953970079,
+          "accuracy_without_point_mass": 0.5513333333333332
+        },
+        "detectors_v12": {
+          "accuracy": [
+            0.5875625,
+            0.008433795483055066
+          ],
+          "balanced_accuracy": 0.5564583333333333,
+          "macro_f1": 0.5479583959132757,
+          "accuracy_without_point_mass": 0.5652380952380953
+        },
+        "v12_plus_per_feature": {
+          "accuracy": [
+            0.6123750000000001,
+            0.008365666440876078
+          ],
+          "balanced_accuracy": 0.5746770833333333,
+          "macro_f1": 0.5680939390819899,
+          "accuracy_without_point_mass": 0.591047619047619
+        },
+        "v12_per_feature_plus_pred_stats": {
+          "accuracy": [
+            0.6692499999999999,
+            0.007734864252202489
+          ],
+          "balanced_accuracy": 0.629,
+          "macro_f1": 0.6244100473226276,
+          "accuracy_without_point_mass": 0.6707619047619048
+        }
+      },
+      "best": "v12_per_feature_plus_pred_stats",
+      "per_class_f1": {
+        "none": 0.6773438391357163,
+        "marginal": 0.7611981484157163,
+        "interaction": 0.7475965000373319,
+        "combined": 0.3115017017017464
+      },
+      "confusion_row_normalised": {
+        "none": {
+          "none": 0.695,
+          "marginal": 0.0,
+          "interaction": 0.238,
+          "combined": 0.0
+        },
+        "marginal": {
+          "none": 0.0,
+          "marginal": 0.771,
+          "interaction": 0.0033,
+          "combined": 0.676
+        },
+        "interaction": {
+          "none": 0.305,
+          "marginal": 0.0131,
+          "interaction": 0.7587,
+          "combined": 0.0327
+        },
+        "combined": {
+          "none": 0.0,
+          "marginal": 0.2159,
+          "interaction": 0.0,
+          "combined": 0.2913
+        }
+      },
+      "accuracy_by_magnitude": {
+        "none (0.0)": 0.695,
+        "low (0.1-0.3)": 0.5809523809523809,
+        "mid (0.4-0.6)": 0.6966666666666667,
+        "high (0.7-1.0)": 0.7057142857142857
+      },
+      "accuracy_by_batch_size": {
+        "500": 0.65575,
+        "1000": 0.68875,
+        "2000": 0.6302500000000001,
+        "3000": 0.7022499999999999
+      },
+      "lofo": {
+        "marital_status": {
+          "n": 450,
+          "accuracy": 0.6311111111111111
+        },
+        "age": {
+          "n": 450,
+          "accuracy": 0.5955555555555555
+        },
+        "relationship": {
+          "n": 400,
+          "accuracy": 0.5975
+        },
+        "education_num": {
+          "n": 100,
+          "accuracy": 0.96
+        },
+        "capital_gain": {
+          "n": 100,
+          "accuracy": 1.0
+        },
+        "capital_loss": {
+          "n": 450,
+          "accuracy": 0.56
+        },
+        "sex": {
+          "n": 450,
+          "accuracy": 0.5
+        },
+        "workclass": {
+          "n": 400,
+          "accuracy": 0.445
+        },
+        "race": {
+          "n": 100,
+          "accuracy": 0.99
+        },
+        "native_country": {
+          "n": 100,
+          "accuracy": 0.93
+        }
+      }
+    }
+  },
+  "importance_5class_best": {
+    "clf_auc": 0.10093427832472386,
+    "psi_mean": 0.07032563613937413,
+    "psi_max": 0.0666086269839099,
+    "mmd": 0.060992339191731,
+    "ks_max": 0.0540870970446622,
+    "chi2_max": 0.050191058150306216,
+    "lsdd": 0.049364464991643674,
+    "ks_mean": 0.044664844008025305,
+    "chi2_mean": 0.036309133012199145,
+    "pos_prob_std": 0.03216824130700134,
+    "psi__sex": 0.027007878485382397,
+    "psi__age": 0.02671172304887564,
+    "ks__age": 0.025865231229294815,
+    "pct_pos_prob_lt_06": 0.023016967863276002,
+    "psi__marital_status": 0.02190266209220076
+  }
+}

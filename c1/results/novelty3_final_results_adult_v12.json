@@ -1,0 +1,217 @@
+{
+  "part1_comparison": {
+    "accuracy": {
+      "RandomForest|5class": [
+        0.65525,
+        0.00797064928346495
+      ],
+      "RandomForest|extent": [
+        0.97525,
+        0.0018791620472966074
+      ],
+      "LightGBM|5class": [
+        0.6465,
+        0.009062284480195927
+      ],
+      "LightGBM|extent": [
+        0.9734999999999999,
+        0.0032977264895682
+      ],
+      "HistGradBoost|5class": [
+        0.6443749999999999,
+        0.007489576089472622
+      ],
+      "HistGradBoost|extent": [
+        0.9734999999999999,
+        0.004175823272122524
+      ],
+      "LogisticReg|5class": [
+        0.6846249999999999,
+        0.005009366227378474
+      ],
+      "LogisticReg|extent": [
+        0.9646250000000001,
+        0.0025186802099512328
+      ]
+    },
+    "logreg_C_sweep_5class": {
+      "0.03": 0.62625,
+      "0.1": 0.6573749999999999,
+      "0.3": 0.670875,
+      "1": 0.6846249999999999,
+      "3": 0.690625,
+      "10": 0.693125
+    },
+    "lofo_5class": {
+      "marital_status": {
+        "n": 450,
+        "RandomForest": 0.4533333333333333,
+        "LogReg_C10": 0.35333333333333333
+      },
+      "age": {
+        "n": 450,
+        "RandomForest": 0.3711111111111111,
+        "LogReg_C10": 0.31333333333333335
+      },
+      "relationship": {
+        "n": 400,
+        "RandomForest": 0.5975,
+        "LogReg_C10": 0.5375
+      },
+      "education_num": {
+        "n": 100,
+        "RandomForest": 0.94,
+        "LogReg_C10": 0.82
+      },
+      "capital_gain": {
+        "n": 100,
+        "RandomForest": 0.78,
+        "LogReg_C10": 0.69
+      },
+      "capital_loss": {
+        "n": 450,
+        "RandomForest": 0.5355555555555556,
+        "LogReg_C10": 0.35777777777777775
+      },
+      "sex": {
+        "n": 450,
+        "RandomForest": 0.4666666666666667,
+        "LogReg_C10": 0.3111111111111111
+      },
+      "workclass": {
+        "n": 400,
+        "RandomForest": 0.4425,
+        "LogReg_C10": 0.435
+      },
+      "race": {
+        "n": 100,
+        "RandomForest": 0.98,
+        "LogReg_C10": 0.82
+      },
+      "native_country": {
+        "n": 100,
+        "RandomForest": 0.91,
+        "LogReg_C10": 0.88
+      }
+    }
+  },
+  "part2_final": {
+    "extent_accuracy": [
+      0.9746874999999999,
+      0.00213325602073451
+    ],
+    "extent_balanced_accuracy": 0.9687722222222221,
+    "extent_per_class_f1": {
+      "none": 0.9797626069158607,
+      "single": 0.974775916029731,
+      "multi": 0.9655971372974326
+    },
+    "extent_confusion": {
+      "none": {
+        "none": 0.992,
+        "single": 0.021,
+        "multi": 0.0
+      },
+      "single": {
+        "none": 0.008,
+        "single": 0.978,
+        "multi": 0.064
+      },
+      "multi": {
+        "none": 0.0,
+        "single": 0.001,
+        "multi": 0.936
+      }
+    },
+    "flag_auc": [
+      0.7517875,
+      0.010453192634310323
+    ],
+    "flag_brier": 0.19317964626758916,
+    "flag_brier_base_rate": 0.234375,
+    "flag_auc_by_magnitude": {
+      "low": 0.7036455555555556,
+      "mid": 0.7729961111111112,
+      "high": 0.7719874999999999
+    },
+    "flag_calibration": {
+      "0.0-0.2": {
+        "n": 430,
+        "mean_predicted": 0.04435191398538723,
+        "observed_rate": 0.07441860465116279
+      },
+      "0.2-0.4": {
+        "n": 395,
+        "mean_predicted": 0.31364447185726524,
+        "observed_rate": 0.40759493670886077
+      },
+      "0.4-0.6": {
+        "n": 430,
+        "mean_predicted": 0.4947816101013528,
+        "observed_rate": 0.4
+      },
+      "0.6-0.8": {
+        "n": 225,
+        "mean_predicted": 0.691476649598308,
+        "observed_rate": 0.5733333333333334
+      },
+      "0.8-1.0": {
+        "n": 120,
+        "mean_predicted": 0.8950867597051253,
+        "observed_rate": 0.8833333333333333
+      }
+    },
+    "lofo": {
+      "marital_status": {
+        "n": 450,
+        "extent_accuracy": 0.7755555555555556,
+        "flag_auc": 0.76194
+      },
+      "age": {
+        "n": 450,
+        "extent_accuracy": 0.7266666666666667,
+        "flag_auc": 0.77373
+      },
+      "relationship": {
+        "n": 400,
+        "extent_accuracy": 0.9625,
+        "flag_auc": 0.8578133333333333
+      },
+      "education_num": {
+        "n": 100,
+        "extent_accuracy": 1.0,
+        "flag_auc": null
+      },
+      "capital_gain": {
+        "n": 100,
+        "extent_accuracy": 0.97,
+        "flag_auc": null
+      },
+      "capital_loss": {
+        "n": 450,
+        "extent_accuracy": 0.9622222222222222,
+        "flag_auc": 0.78559
+      },
+      "sex": {
+        "n": 450,
+        "extent_accuracy": 0.9244444444444444,
+        "flag_auc": 0.73624
+      },
+      "workclass": {
+        "n": 400,
+        "extent_accuracy": 0.9825,
+        "flag_auc": 0.77552
+      },
+      "race": {
+        "n": 100,
+        "extent_accuracy": 1.0,
+        "flag_auc": null
+      },
+      "native_country": {
+        "n": 100,
+        "extent_accuracy": 1.0,
+        "flag_auc": null
+      }
+    }
+  }
+}
