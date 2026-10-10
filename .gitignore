@@ -7,3 +7,4 @@ shared/ieee_cis/models/
 __pycache__/
 *.pyc
 .DS_Store
+.venv/
