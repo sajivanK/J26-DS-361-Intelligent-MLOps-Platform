@@ -1,0 +1,398 @@
+{
+  "engine": {
+    "engine_version": "1.2.1",
+    "trained_at": "2026-10-10 16:31:48",
+    "train_sec": 3.6,
+    "n1_train_conditions": 1276,
+    "n2_calibration_conditions": 324,
+    "n2_quantile_normalised": 3.0369,
+    "calibrated_batch_sizes": [
+      500,
+      1000,
+      2000,
+      3000
+    ],
+    "fixed_baseline_accuracy": 0.8744,
+    "features": [
+      "age",
+      "workclass",
+      "education_num",
+      "marital_status",
+      "occupation",
+      "relationship",
+      "race",
+      "sex",
+      "capital_gain",
+      "capital_loss",
+      "hours_per_week",
+      "native_country"
+    ]
+  },
+  "n_batches": 114,
+  "magnitudes": [
+    0.15,
+    0.55,
+    0.95
+  ],
+  "batch_sizes": [
+    1000,
+    1500,
+    2500
+  ],
+  "by_type": {
+    "combined": {
+      "n": 18,
+      "true_drop_pp": 1.5011,
+      "MAE_fixed": 0.7939,
+      "MAE_paired": 0.9248,
+      "coverage": 0.8889,
+      "width_pp": 4.5261,
+      "extent_acc": 1.0,
+      "mean_p_interaction": 0.4731,
+      "drift_detected": 1.0,
+      "injected_found": 1.0,
+      "top1_correct": 1.0,
+      "n_affected": 1.5556,
+      "detectors_fired": 4.8889,
+      "runtime_s": 0.2936
+    },
+    "interaction": {
+      "n": 18,
+      "true_drop_pp": 0.5899,
+      "MAE_fixed": 0.5789,
+      "MAE_paired": 0.498,
+      "coverage": 1.0,
+      "width_pp": 4.5261,
+      "extent_acc": 1.0,
+      "mean_p_interaction": 0.6926,
+      "drift_detected": 0.1667,
+      "injected_found": null,
+      "top1_correct": null,
+      "n_affected": 0.0,
+      "detectors_fired": 1.5,
+      "runtime_s": 0.2816
+    },
+    "marginal_multi": {
+      "n": 18,
+      "true_drop_pp": 3.7599,
+      "MAE_fixed": 0.8318,
+      "MAE_paired": 0.5748,
+      "coverage": 0.9444,
+      "width_pp": 4.525,
+      "extent_acc": 0.8889,
+      "mean_p_interaction": 0.0287,
+      "drift_detected": 1.0,
+      "injected_found": 1.0,
+      "top1_correct": 1.0,
+      "n_affected": 3.6667,
+      "detectors_fired": 5.9444,
+      "runtime_s": 0.2994
+    },
+    "marginal_single": {
+      "n": 30,
+      "true_drop_pp": 2.1135,
+      "MAE_fixed": 0.7873,
+      "MAE_paired": 0.6674,
+      "coverage": 0.9667,
+      "width_pp": 4.525,
+      "extent_acc": 0.9667,
+      "mean_p_interaction": 0.3116,
+      "drift_detected": 1.0,
+      "injected_found": 0.9667,
+      "top1_correct": 0.9667,
+      "n_affected": 1.4,
+      "detectors_fired": 4.8333,
+      "runtime_s": 0.5096
+    },
+    "none": {
+      "n": 30,
+      "true_drop_pp": -0.1705,
+      "MAE_fixed": 0.579,
+      "MAE_paired": 0.274,
+      "coverage": 1.0,
+      "width_pp": 4.5257,
+      "extent_acc": 1.0,
+      "mean_p_interaction": 0.4669,
+      "drift_detected": 0.0333,
+      "injected_found": null,
+      "top1_correct": null,
+      "n_affected": 0.0,
+      "detectors_fired": 0.5667,
+      "runtime_s": 0.288
+    }
+  },
+  "overall": {
+    "mae_fixed": 0.7076492494094139,
+    "coverage": 0.9649122807017544,
+    "extent_accuracy": 0.9736842105263158,
+    "interaction_auc": 0.7674501424501424,
+    "mean_runtime_s": 0.3479912280701755
+  },
+  "by_batch_size": {
+    "1000": {
+      "covered": 1.0,
+      "width_pp": 5.8566,
+      "abs_err_fixed": 0.6453
+    },
+    "1500": {
+      "covered": 0.9737,
+      "width_pp": 4.56,
+      "abs_err_fixed": 0.7725
+    },
+    "2500": {
+      "covered": 0.9211,
+      "width_pp": 3.16,
+      "abs_err_fixed": 0.7051
+    }
+  },
+  "no_drift": {
+    "false_alarm_rate": 0.03333333333333333,
+    "mean_affected_listed": 0.0
+  },
+  "drift_detected_rate_on_drift": 0.8214285714285714,
+  "examples": {
+    "marginal_single": {
+      "evidence_version": "c1-e64d6455",
+      "engine_version": "1.2.1",
+      "model_id": "adult-xgb-v1",
+      "reference_dataset_uri": "",
+      "current_dataset_uri": "fresh_test_1.csv",
+      "batch_size": 1500,
+      "drift_detected": true,
+      "predicted_harm": 0.0144,
+      "harm_interval": [
+        -0.0084,
+        0.0372
+      ],
+      "harm_metric": "accuracy_drop",
+      "harm_severity": "low",
+      "marginal_extent": "single",
+      "interaction_suspected": 0.431,
+      "affected_features": [
+        "marital_status",
+        "capital_gain"
+      ],
+      "detector_scores": {
+        "ks_mean": 0.0155,
+        "ks_max": 0.0237,
+        "chi2_mean": 0.098,
+        "chi2_max": 0.5862,
+        "psi_mean": 0.2058,
+        "psi_max": 2.39,
+        "mmd": 0.0253,
+        "lsdd": 0.0645,
+        "clf_auc": 0.8552
+      },
+      "detectors_fired": 5,
+      "detectors_fired_list": [
+        "chi2",
+        "psi",
+        "mmd",
+        "lsdd",
+        "classifier"
+      ],
+      "prediction_stats": {
+        "conf_mean": 0.8924,
+        "conf_std": 0.135,
+        "conf_pct_lt_06": 0.0607,
+        "mean_pos_prob": 0.201,
+        "pos_prob_std": 0.2877,
+        "pct_pos_prob_lt_06": 0.8733
+      },
+      "warnings": [],
+      "runtime_sec": 2.499
+    },
+    "marginal_multi": {
+      "evidence_version": "c1-72c09546",
+      "engine_version": "1.2.1",
+      "model_id": "adult-xgb-v1",
+      "reference_dataset_uri": "",
+      "current_dataset_uri": "fresh_test_31.csv",
+      "batch_size": 1500,
+      "drift_detected": true,
+      "predicted_harm": 0.0098,
+      "harm_interval": [
+        -0.013,
+        0.0326
+      ],
+      "harm_metric": "accuracy_drop",
+      "harm_severity": "none",
+      "marginal_extent": "multi",
+      "interaction_suspected": 0.0051,
+      "affected_features": [
+        "marital_status",
+        "age"
+      ],
+      "detector_scores": {
+        "ks_mean": 0.053,
+        "ks_max": 0.2273,
+        "chi2_mean": 0.1137,
+        "chi2_max": 0.6082,
+        "psi_mean": 0.4334,
+        "psi_max": 4.0467,
+        "mmd": 0.0415,
+        "lsdd": 0.1198,
+        "clf_auc": 0.9146
+      },
+      "detectors_fired": 6,
+      "detectors_fired_list": [
+        "ks",
+        "chi2",
+        "psi",
+        "mmd",
+        "lsdd",
+        "classifier"
+      ],
+      "prediction_stats": {
+        "conf_mean": 0.8444,
+        "conf_std": 0.1491,
+        "conf_pct_lt_06": 0.102,
+        "mean_pos_prob": 0.2747,
+        "pos_prob_std": 0.3001,
+        "pct_pos_prob_lt_06": 0.83
+      },
+      "warnings": [],
+      "runtime_sec": 0.307
+    },
+    "interaction": {
+      "evidence_version": "c1-5c9aa4f6",
+      "engine_version": "1.2.1",
+      "model_id": "adult-xgb-v1",
+      "reference_dataset_uri": "",
+      "current_dataset_uri": "fresh_test_49.csv",
+      "batch_size": 1500,
+      "drift_detected": true,
+      "predicted_harm": 0.0008,
+      "harm_interval": [
+        -0.022,
+        0.0236
+      ],
+      "harm_metric": "accuracy_drop",
+      "harm_severity": "none",
+      "marginal_extent": "none",
+      "interaction_suspected": 0.9166,
+      "affected_features": [],
+      "detector_scores": {
+        "ks_mean": 0.0111,
+        "ks_max": 0.0219,
+        "chi2_mean": 0.0103,
+        "chi2_max": 0.0462,
+        "psi_mean": 0.0054,
+        "psi_max": 0.0295,
+        "mmd": 0.0019,
+        "lsdd": 0.0014,
+        "clf_auc": 0.5362
+      },
+      "detectors_fired": 3,
+      "detectors_fired_list": [
+        "mmd",
+        "lsdd",
+        "classifier"
+      ],
+      "prediction_stats": {
+        "conf_mean": 0.8766,
+        "conf_std": 0.1488,
+        "conf_pct_lt_06": 0.0773,
+        "mean_pos_prob": 0.2326,
+        "pos_prob_std": 0.3042,
+        "pct_pos_prob_lt_06": 0.842
+      },
+      "warnings": [],
+      "runtime_sec": 0.271
+    },
+    "combined": {
+      "evidence_version": "c1-4e6ef226",
+      "engine_version": "1.2.1",
+      "model_id": "adult-xgb-v1",
+      "reference_dataset_uri": "",
+      "current_dataset_uri": "fresh_test_67.csv",
+      "batch_size": 1500,
+      "drift_detected": true,
+      "predicted_harm": 0.008,
+      "harm_interval": [
+        -0.0148,
+        0.0308
+      ],
+      "harm_metric": "accuracy_drop",
+      "harm_severity": "none",
+      "marginal_extent": "single",
+      "interaction_suspected": 0.294,
+      "affected_features": [
+        "marital_status",
+        "age"
+      ],
+      "detector_scores": {
+        "ks_mean": 0.0155,
+        "ks_max": 0.0384,
+        "chi2_mean": 0.0944,
+        "chi2_max": 0.6054,
+        "psi_mean": 0.3391,
+        "psi_max": 4.0015,
+        "mmd": 0.0254,
+        "lsdd": 0.1258,
+        "clf_auc": 0.8634
+      },
+      "detectors_fired": 6,
+      "detectors_fired_list": [
+        "ks",
+        "chi2",
+        "psi",
+        "mmd",
+        "lsdd",
+        "classifier"
+      ],
+      "prediction_stats": {
+        "conf_mean": 0.8623,
+        "conf_std": 0.1422,
+        "conf_pct_lt_06": 0.072,
+        "mean_pos_prob": 0.2484,
+        "pos_prob_std": 0.297,
+        "pct_pos_prob_lt_06": 0.838
+      },
+      "warnings": [],
+      "runtime_sec": 0.289
+    },
+    "none": {
+      "evidence_version": "c1-65026439",
+      "engine_version": "1.2.1",
+      "model_id": "adult-xgb-v1",
+      "reference_dataset_uri": "",
+      "current_dataset_uri": "fresh_test_84.csv",
+      "batch_size": 1000,
+      "drift_detected": false,
+      "predicted_harm": 0.0045,
+      "harm_interval": [
+        -0.0247,
+        0.0338
+      ],
+      "harm_metric": "accuracy_drop",
+      "harm_severity": "none",
+      "marginal_extent": "none",
+      "interaction_suspected": 0.3387,
+      "affected_features": [],
+      "detector_scores": {
+        "ks_mean": 0.0113,
+        "ks_max": 0.0169,
+        "chi2_mean": 0.0207,
+        "chi2_max": 0.0651,
+        "psi_mean": 0.0071,
+        "psi_max": 0.0401,
+        "mmd": 0.0011,
+        "lsdd": 0.0007,
+        "clf_auc": 0.4625
+      },
+      "detectors_fired": 0,
+      "detectors_fired_list": [],
+      "prediction_stats": {
+        "conf_mean": 0.8692,
+        "conf_std": 0.1521,
+        "conf_pct_lt_06": 0.087,
+        "mean_pos_prob": 0.2412,
+        "pos_prob_std": 0.304,
+        "pct_pos_prob_lt_06": 0.83
+      },
+      "warnings": [],
+      "runtime_sec": 0.27
+    }
+  }
+}
