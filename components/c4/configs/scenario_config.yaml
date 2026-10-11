@@ -1,0 +1,149 @@
+# Proposed Adult-only PP1 benchmark.
+# Definitions must be resolved and validated before execution.
+
+benchmark_schema_version: "0.1"
+benchmark_version: "adult-pp1-draft-v1"
+status: draft
+execution_enabled: false
+
+dataset: uci_adult
+champion_version: v1
+
+storage:
+  dataset_root_env: C4_DATA_ROOT
+  artifacts_relative_directory: c4_artifacts/scenarios/adult
+
+data_roles:
+  split_seed: 42
+  repair_fraction: 0.4
+  release_validation_fraction: 0.3
+  sealed_future_fraction: 0.3
+  exclude_reference_overlap: true
+  deduplicate_eligible_test: true
+  preserve_source_row_ids: true
+
+# Resolve the numerical threshold from reference data once.
+# Store the resolved SliceRule in the benchmark manifest.
+true_slice:
+  name: age_lower_reference_half
+  feature: age
+  operator: le
+  reference_quantile: 0.5
+  derive_from: reference
+  membership_basis: clean_before_injection
+  preserve_membership_after_injection: true
+
+# These names describe injection strength, not observed harm.
+injection_strengths:
+  low: 0.2
+  medium: 0.5
+  high: 0.8
+
+drift_conditions:
+  - name: marginal_multi
+    mechanism: marginal_multi
+    features:
+      - education_num
+      - hours_per_week
+    interaction_pairs: []
+
+  - name: interaction
+    mechanism: interaction
+    features: []
+    interaction_pairs:
+      - [marital_status, relationship]
+
+  - name: combined
+    mechanism: combined
+    features:
+      - education_num
+      - hours_per_week
+    interaction_pairs:
+      - [marital_status, relationship]
+
+injection_protocol:
+  scope: true_slice_only
+  reference_used_for_training_or_statistics: reference
+  source_role: explicitly_selected_role
+  paired_harm_comparison: true
+  preserve_nonaffected_rows: true
+  apply_preprocessor_again: false
+  measure_harm_separately_from_strength: true
+
+seed_families:
+  - 42
+  - 123
+  - 2026
+  - 3407
+
+# Proposed diagnosis conditions, not measured quality guarantees.
+diagnosis_conditions:
+  - name: exact_slice
+    intended_quality: high
+    diagnosed_slice: same_as_true_slice
+
+  - name: broadened_slice
+    intended_quality: low
+    diagnosed_slice:
+      name: age_lower_reference_three_quarters
+      feature: age
+      operator: le
+      reference_quantile: 0.75
+      derive_from: reference
+
+# Operational C3/mock generation rules remain unresolved.
+# Do not populate fidelity, utility or privacy with invented scores.
+repair_conditions:
+  - name: targeted_repair
+    intended_quality: high
+    source_role: repair
+    generation_method: null
+    generation_parameters: null
+    package_rows: null
+
+  - name: degraded_repair
+    intended_quality: low
+    source_role: repair
+    generation_method: null
+    generation_parameters: null
+    package_rows: null
+
+scenario_grouping:
+  provisional_group_key_fields:
+    - dataset
+    - seed_family
+  keep_related_variants_together: true
+  split_assignment: unresolved
+  independent_replications: unresolved
+
+future_protocol:
+  freeze_pre_release_evidence_before_future_evaluation: true
+  future_outcomes_are_research_targets_only: true
+  expose_future_to_controller: false
+  tune_scenario_definitions_on_future: false
+
+evidence:
+  retain_resolved_configuration: true
+  retain_configuration_sha256: true
+  retain_git_revision: true
+  retain_dataset_and_champion_checksums: true
+  retain_partition_and_membership_manifest: true
+  retain_measured_repair_metrics: true
+  retain_pre_release_evidence: true
+  retain_future_targets_separately: true
+  retain_failures_and_execution_logs: true
+
+design:
+  proposed_factorial_combinations: 144
+  no_drift_controls: specified_separately
+  rationale: >
+    Compare marginal perturbation, interaction permutation and their
+    combination at three injection strengths. Vary diagnosis and repair
+    conditions while retaining the same true affected slice.
+  unresolved:
+    - Exact repair-generation and degradation procedures
+    - Repair-package size and comparable training budgets
+    - Diagnosis evidence fields beyond slice identification
+    - No-drift control specifications
+    - Independent replication and scenario-fold allocation
+    - Shared injector severity boundary correction
