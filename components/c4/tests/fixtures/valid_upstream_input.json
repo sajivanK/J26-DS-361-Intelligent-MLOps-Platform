@@ -1,0 +1,80 @@
+{
+  "c1_evidence": {
+    "evidence_version": "c1-0000002a",
+    "engine_version": "1.2.1",
+    "model_id": "adult-xgb-v1",
+    "reference_dataset_uri": "shared/uci_adult/data/reference.csv",
+    "current_dataset_uri": "data/scenarios/batch_42.csv",
+    "batch_size": 1000,
+    "drift_detected": true,
+    "predicted_harm": 0.142,
+    "harm_interval": [
+      0.1125,
+      0.1715
+    ],
+    "harm_metric": "accuracy_drop",
+    "harm_severity": "high",
+    "marginal_extent": "single",
+    "interaction_suspected": 0.85,
+    "affected_features": [
+      "education_num",
+      "occupation"
+    ],
+    "detector_scores": {
+      "ks_mean": 0.21,
+      "ks_max": 0.42,
+      "chi2_mean": 0.2,
+      "chi2_max": 0.6,
+      "psi_mean": 0.3,
+      "psi_max": 2.5,
+      "mmd": 0.03,
+      "lsdd": 0.08,
+      "clf_auc": 0.86
+    },
+    "detectors_fired": 6,
+    "detectors_fired_list": [
+      "ks",
+      "chi2",
+      "psi",
+      "mmd",
+      "lsdd",
+      "classifier"
+    ],
+    "prediction_stats": {
+      "conf_mean": 0.87,
+      "conf_std": 0.15,
+      "conf_pct_lt_06": 0.08,
+      "mean_pos_prob": 0.24,
+      "pos_prob_std": 0.3,
+      "pct_pos_prob_lt_06": 0.83
+    },
+    "warnings": [],
+    "runtime_sec": 0.041
+  },
+  "c2_diagnosis": {
+    "root_cause_category": "combined",
+    "root_cause_feature": "education_num",
+    "affected_slice_rule": "education_num > 12 AND occupation == 'Tech-support'",
+    "slice_support": 0.18,
+    "diagnosis_stability": 0.85,
+    "affected_features_ranked": [
+      "education_num",
+      "occupation",
+      "age"
+    ],
+    "diagnosis_version": "c2-001"
+  },
+  "c3_repair_package": {
+    "repair_dataset_uri": "data/repairs/repair_adult_20261001_143200.csv",
+    "repair_package_status": "APPROVED",
+    "generator": "CTGAN",
+    "n_synthetic_rows": 500,
+    "augmentation_ratio": 0.3,
+    "fidelity_score": 0.91,
+    "utility_score": 0.87,
+    "privacy_status": "PASS",
+    "target_coverage": 0.93,
+    "prescription_confidence": 0.88,
+    "repair_version": "c3-001"
+  }
+}
