@@ -9,6 +9,12 @@ from c4.data.adult import (
     load_adult_dataset,
     resolve_data_root,
 )
+from c4.data.splits import (
+    AdultRoleSplits,
+    AdultSplitConfig,
+    HoldoutAudit,
+    split_adult_roles,
+)
 
 __all__ = [
     "DATA_ROOT_ENV",
@@ -18,4 +24,9 @@ __all__ = [
     "AdultDataset",
     "load_adult_dataset",
     "resolve_data_root",
+    "AdultRoleSplits",
+    "AdultSplitConfig",
+    "HoldoutAudit",
+    "split_adult_roles",
 ]
+
