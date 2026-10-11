@@ -7,6 +7,10 @@ from c4.models.champion import (
     train_and_save_champion,
     train_champion,
 )
+from c4.models.candidate import (
+    CandidateTrainingResult,
+    train_candidate,
+)
 
 __all__ = [
     "ChampionConfig",
@@ -14,4 +18,6 @@ __all__ = [
     "load_champion",
     "train_and_save_champion",
     "train_champion",
+    "CandidateTrainingResult",
+    "train_candidate",
 ]
