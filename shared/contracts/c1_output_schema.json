@@ -1,191 +1,237 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
+  "previous_version": "1.0",
   "component": "C1",
   "component_name": "Drift Detection Engine",
   "owner": "Sajivan K (IT23172296)",
+  "engine_version": "1.2.1",
   "endpoint": "POST /detect",
-  "description": "Output produced by C1 after detecting drift in a production batch. Sent to C2 and C4.",
-  "consumers": ["C2 (Tharmika N)", "C4 (Kesigan M)"],
+  "description": "Output produced by C1 for one production batch. Sent to C2 and C4 (C3 receives it as evidence). No labels are needed: every value is estimated from the batch features and the monitored model's predictions.",
+  "consumers": ["C2 (Tharmika N)", "C3 (Mathusan K)", "C4 (Kesigan M)"],
+
+  "request": {
+    "method": "POST",
+    "path": "/detect",
+    "content_type": "application/json",
+    "description": "The reference data and the monitored model are fixed at onboarding and stored inside the trained C1 engine file. A request sends only the production batch.",
+    "fields": {
+      "model_id": {"type": "string", "required": true, "example": "adult-xgb-v1", "description": "Monitored model. Must match the model the engine was trained for."},
+      "production_data": {"type": "array[object]", "required": true, "description": "Production batch as a list of row records (pandas to_dict(orient='records')). Must contain every model feature; extra columns (including the label column) are ignored. No NaN. At least 100 rows."},
+      "current_dataset_uri": {"type": "string", "required": false, "example": "data/production/batch_20261001.csv", "description": "Where the batch is stored. Passed through unchanged."},
+      "reference_dataset_uri": {"type": "string", "required": false, "example": "shared/uci_adult/data/reference.csv", "description": "Passed through unchanged."},
+      "seed": {"type": "integer", "required": false, "example": 0, "description": "Seed for the detectors' random subsamples (repeatable outputs)."}
+    },
+    "errors": {
+      "422": "Missing features, NaN values, or fewer than 100 rows. The response body names the problem.",
+      "404": "Unknown model_id (no trained engine for it)."
+    }
+  },
 
   "fields": {
     "evidence_version": {
-      "type": "string",
-      "required": true,
-      "example": "c1-001",
-      "description": "Version identifier for this C1 evidence payload. Used by C4 audit trail.",
-      "used_by": ["C2", "C4"]
+      "type": "string", "required": true, "example": "c1-536b3839",
+      "description": "Unique id of this C1 result ('c1-' + 8 hex characters). Used in C4's audit trail.",
+      "used_by": ["C2", "C3", "C4"]
+    },
+    "engine_version": {
+      "type": "string", "required": true, "example": "1.2.1",
+      "description": "Version of the C1 engine that produced this result. New in v1.1.",
+      "used_by": ["C4"]
     },
     "model_id": {
-      "type": "string",
-      "required": true,
-      "example": "adult-xgb-v1",
-      "description": "Identifier of the deployed champion model being monitored. Passed through from platform onboarding config.",
+      "type": "string", "required": true, "example": "adult-xgb-v1",
+      "description": "Monitored model. Passed through from the request.",
       "used_by": ["C2", "C3", "C4"]
     },
     "reference_dataset_uri": {
-      "type": "string",
-      "required": true,
-      "example": "shared/uci_adult/data/reference.csv",
-      "description": "Path to the reference dataset used during onboarding. Passed through so C2 and C3 can access it.",
+      "type": "string", "required": true, "example": "shared/uci_adult/data/reference.csv",
+      "description": "Passed through from the request or onboarding config. Empty string if not given.",
       "used_by": ["C2", "C3"]
     },
     "current_dataset_uri": {
-      "type": "string",
-      "required": true,
-      "example": "data/production/batch_20261001.csv",
-      "description": "Path to the current production batch that triggered the drift alert.",
+      "type": "string", "required": true, "example": "data/production/batch_20261001.csv",
+      "description": "Passed through from the request. Empty string if not given.",
       "used_by": ["C2", "C3"]
     },
-    "drift_type": {
-      "type": "string",
-      "required": true,
-      "example": "marginal",
-      "allowed_values": ["marginal_single", "marginal_multi", "interaction", "combined", "none"],
-      "description": "Classified type of drift from detector fingerprints. Output of Novelty 3 (drift-type classifier).",
-      "used_by": ["C2", "C4"]
+    "batch_size": {
+      "type": "integer", "required": true, "example": 1500,
+      "description": "Rows in the production batch. New in v1.1.",
+      "used_by": ["C4"]
     },
-    "drift_severity": {
-      "type": "string",
-      "required": true,
-      "example": "high",
-      "allowed_values": ["none", "low", "moderate", "high", "critical"],
-      "description": "Severity label derived from predicted_harm. none=<1pp, low=1-3pp, moderate=3-7pp, high=7-15pp, critical=>15pp.",
+    "drift_detected": {
+      "type": "boolean", "required": true, "example": true,
+      "description": "True if N3 finds a single- or multi-feature change (marginal_extent is not 'none') OR at least 3 of the 6 detectors fired. False-alarm rate on clean batches about 2 to 3%. Catches almost all marginal and combined drift, but only about 11 to 17% of interaction-only drift: read interaction_suspected for that. New in v1.1.",
       "used_by": ["C2", "C3", "C4"]
     },
     "predicted_harm": {
-      "type": "float",
-      "required": true,
-      "example": 0.11,
-      "unit": "proportion (0.0 to 1.0)",
-      "description": "Predicted model accuracy or AUC degradation without production labels. Output of Novelty 1 (GBR meta-learner). Expressed as proportion: 0.11 means 11 percentage point drop.",
-      "used_by": ["C2", "C4"]
+      "type": "float", "required": true, "example": 0.0433,
+      "unit": "proportion (0.0433 = 4.33 percentage points)",
+      "description": "Predicted drop in the monitored model's metric on this batch, without labels (Novelty 1). Can be slightly negative (batch may score better than usual by chance).",
+      "used_by": ["C2", "C3", "C4"]
     },
     "harm_interval": {
-      "type": "array[float, float]",
-      "required": true,
-      "example": [0.07, 0.15],
+      "type": "array[float, float]", "required": true, "example": [0.0205, 0.0661],
       "unit": "proportion [lower, upper]",
-      "description": "95% conformal prediction bounds on predicted_harm [lower, upper]. Output of Novelty 2.",
-      "used_by": ["C4"]
+      "description": "95% conformal interval for the true drop (Novelty 2). Width shrinks with batch size (about 0.059 at 1,000 rows, 0.032 at 2,500). The LOWER BOUND CAN BE NEGATIVE and is not clipped: clipping at 0 would make the interval wrong more often. If the whole interval is above 0, harm is confidently present.",
+      "used_by": ["C3", "C4"]
     },
     "harm_metric": {
-      "type": "string",
-      "required": true,
-      "example": "accuracy_drop",
+      "type": "string", "required": true, "example": "accuracy_drop",
       "allowed_values": ["accuracy_drop", "auc_drop"],
-      "description": "Metric used for predicted_harm and harm_interval. accuracy_drop for balanced datasets, auc_drop for imbalanced (<10% minority class). Selected automatically during onboarding.",
+      "description": "Metric for predicted_harm and harm_interval. UCI Adult: accuracy_drop. IEEE-CIS (imbalanced): auc_drop.",
       "used_by": ["C4"]
     },
+    "harm_severity": {
+      "type": "string", "required": true, "example": "moderate",
+      "allowed_values": ["none", "low", "moderate", "high", "critical"],
+      "description": "Label from predicted_harm only: none < 1 pp, low 1 to 3 pp, moderate 3 to 7 pp, high 7 to 15 pp, critical >= 15 pp. Renamed from drift_severity (same rule as v1.0). 'none' means NO MEANINGFUL HARM, not 'no drift': drift can be present and harmless (check drift_detected).",
+      "used_by": ["C3", "C4"]
+    },
+    "marginal_extent": {
+      "type": "string", "required": true, "example": "multi",
+      "allowed_values": ["none", "single", "multi"],
+      "description": "Novelty 3, part 1: whether one feature's distribution changed ('single'), several ('multi'), or none. About 97% accurate on the benchmark. New in v1.1 (replaces the marginal part of drift_type).",
+      "used_by": ["C2", "C3", "C4"]
+    },
+    "interaction_suspected": {
+      "type": "float", "required": true, "example": 0.0012,
+      "unit": "probability 0.0 to 1.0",
+      "description": "Novelty 3, part 2: probability that the relationship between features changed (interaction or combined drift). A RANKING SCORE, NOT A DECISION: AUC about 0.75 to 0.78, and clean batches average about 0.46. Values near 0.9 are a strong warning; values near 0.5 mean little. New in v1.1 (replaces the interaction part of drift_type).",
+      "used_by": ["C2", "C3", "C4"]
+    },
     "affected_features": {
-      "type": "array[string]",
-      "required": true,
-      "example": ["hours_per_week", "age"],
-      "description": "Ranked list of features most affected by drift. Used by C2 to guide SHAP analysis.",
-      "used_by": ["C2"]
+      "type": "array[string]", "required": true, "example": ["marital_status", "relationship", "age"],
+      "description": "Features whose own distribution changed, strongest first (score above the clean-batch 95th percentile). EMPTY when marginal_extent is 'none', including interaction-only drift, where no single feature looks unusual. Used by C2 to focus SHAP analysis.",
+      "used_by": ["C2", "C3", "C4"]
     },
     "detector_scores": {
-      "type": "object",
-      "required": true,
-      "description": "Raw scores from all 6 detectors.",
+      "type": "object", "required": true,
+      "description": "Raw signals from the 6 detectors (9 numbers). Per-feature detectors report the mean and the max over features; the max is the one that reacts to a single drifted feature. Higher = more different from the reference. Key names changed in v1.1.",
       "used_by": ["C2"],
       "fields": {
-        "ks": {
-          "type": "float",
-          "example": 0.29,
-          "description": "KS test mean statistic across features"
-        },
-        "chi2": {
-          "type": "float",
-          "example": 0.05,
-          "description": "Chi-squared score (normalized)"
-        },
-        "psi": {
-          "type": "float",
-          "example": 0.43,
-          "description": "Population Stability Index mean"
-        },
-        "mmd": {
-          "type": "float",
-          "example": 0.12,
-          "description": "Maximum Mean Discrepancy (RBF kernel)"
-        },
-        "lsdd": {
-          "type": "float",
-          "example": 0.09,
-          "description": "Least-Squares Density Difference"
-        },
-        "classifier_auc": {
-          "type": "float",
-          "example": 0.68,
-          "description": "XGBoost C2ST AUC (0.5=no drift, 1.0=perfect separation). C1 contribution."
-        }
+        "ks_mean": {"type": "float", "example": 0.0795, "description": "Mean KS statistic over continuous features (0 to 1)."},
+        "ks_max": {"type": "float", "example": 0.3571, "description": "Largest KS statistic over continuous features (0 to 1)."},
+        "chi2_mean": {"type": "float", "example": 0.2606, "description": "Mean bias-corrected Cramer's V over categorical features (0 to 1)."},
+        "chi2_max": {"type": "float", "example": 0.9063, "description": "Largest bias-corrected Cramer's V over categorical features (0 to 1)."},
+        "psi_mean": {"type": "float", "example": 1.316, "description": "Mean Population Stability Index over all features (0 upward; above 0.25 is conventionally large)."},
+        "psi_max": {"type": "float", "example": 8.6616, "description": "Largest PSI over all features."},
+        "mmd": {"type": "float", "example": 0.1588, "description": "Maximum Mean Discrepancy, RBF kernel, all features together (0 upward)."},
+        "lsdd": {"type": "float", "example": 0.3611, "description": "Least-Squares Density Difference (alibi-detect), all features together (0 upward)."},
+        "clf_auc": {"type": "float", "example": 0.999, "description": "Classifier two-sample test AUC (XGBoost): 0.5 = cannot tell reference from batch, 1.0 = perfectly separable."}
       }
     },
     "detectors_fired": {
-      "type": "integer",
-      "required": true,
-      "example": 5,
-      "description": "Count of detectors whose score exceeded their individual alarm threshold. Used by C2 to assess detection consensus.",
+      "type": "integer", "required": true, "example": 6,
+      "description": "How many of the 6 detectors are above their clean-batch 95th percentile threshold (0 to 6). Detector consensus for C2.",
       "used_by": ["C2"]
     },
-    "confidence_stats": {
-      "type": "object",
-      "required": true,
-      "description": "Model confidence statistics from production batch predictions.",
+    "detectors_fired_list": {
+      "type": "array[string]", "required": true, "example": ["ks", "chi2", "psi", "mmd", "lsdd", "classifier"],
+      "allowed_values": ["ks", "chi2", "psi", "mmd", "lsdd", "classifier"],
+      "description": "Which detectors fired. New in v1.1.",
+      "used_by": ["C2"]
+    },
+    "prediction_stats": {
+      "type": "object", "required": true,
+      "description": "Label-free statistics of the monitored model's predictions on the batch. Renamed from confidence_stats; now 6 values.",
       "used_by": ["C2"],
       "fields": {
-        "mean_confidence": {
-          "type": "float",
-          "example": 0.81,
-          "description": "Mean max softmax probability on production batch"
-        },
-        "confidence_std": {
-          "type": "float",
-          "example": 0.14,
-          "description": "Standard deviation of prediction probabilities"
-        },
-        "pct_low_confidence": {
-          "type": "float",
-          "example": 0.22,
-          "description": "Fraction of predictions below 0.6 threshold"
-        }
+        "conf_mean": {"type": "float", "example": 0.8579, "description": "Mean max-class probability (was mean_confidence)."},
+        "conf_std": {"type": "float", "example": 0.1302, "description": "Std of max-class probability (was confidence_std)."},
+        "conf_pct_lt_06": {"type": "float", "example": 0.062, "description": "Share of rows with max-class probability below 0.6 (was pct_low_confidence)."},
+        "mean_pos_prob": {"type": "float", "example": 0.2079, "description": "Mean positive-class probability (binary models only)."},
+        "pos_prob_std": {"type": "float", "example": 0.2444, "description": "Std of positive-class probability (binary models only)."},
+        "pct_pos_prob_lt_06": {"type": "float", "example": 0.908, "description": "Share of rows with positive-class probability below 0.6 (binary models only)."}
       }
+    },
+    "warnings": {
+      "type": "array[string]", "required": true, "example": [],
+      "description": "Plain-text cautions: batch size outside the calibrated range (500 to 3,000 for UCI Adult), or category values never seen in the reference (harm_interval may be unreliable then). Empty list when none. New in v1.1.",
+      "used_by": ["C4"]
+    },
+    "runtime_sec": {
+      "type": "float", "required": true, "example": 0.347,
+      "description": "Time C1 took for this batch (about 0.3 s once warm). New in v1.1.",
+      "used_by": []
     }
   },
 
   "example_output": {
-    "evidence_version": "c1-001",
+    "evidence_version": "c1-536b3839",
+    "engine_version": "1.2.1",
     "model_id": "adult-xgb-v1",
     "reference_dataset_uri": "shared/uci_adult/data/reference.csv",
-    "current_dataset_uri": "data/production/batch_20261001.csv",
-    "drift_type": "marginal",
-    "drift_severity": "high",
-    "predicted_harm": 0.11,
-    "harm_interval": [0.07, 0.15],
+    "current_dataset_uri": "demo_batch_C.csv",
+    "batch_size": 1500,
+    "drift_detected": true,
+    "predicted_harm": 0.0433,
+    "harm_interval": [0.0205, 0.0661],
     "harm_metric": "accuracy_drop",
-    "affected_features": ["hours_per_week", "age"],
+    "harm_severity": "moderate",
+    "marginal_extent": "multi",
+    "interaction_suspected": 0.0012,
+    "affected_features": ["marital_status", "relationship", "age"],
     "detector_scores": {
-      "ks": 0.29,
-      "chi2": 0.05,
-      "psi": 0.43,
-      "mmd": 0.12,
-      "lsdd": 0.09,
-      "classifier_auc": 0.68
+      "ks_mean": 0.0795, "ks_max": 0.3571, "chi2_mean": 0.2606, "chi2_max": 0.9063,
+      "psi_mean": 1.316, "psi_max": 8.6616, "mmd": 0.1588, "lsdd": 0.3611, "clf_auc": 0.999
     },
-    "detectors_fired": 5,
-    "confidence_stats": {
-      "mean_confidence": 0.81,
-      "confidence_std": 0.14,
-      "pct_low_confidence": 0.22
+    "detectors_fired": 6,
+    "detectors_fired_list": ["ks", "chi2", "psi", "mmd", "lsdd", "classifier"],
+    "prediction_stats": {
+      "conf_mean": 0.8579, "conf_std": 0.1302, "conf_pct_lt_06": 0.062,
+      "mean_pos_prob": 0.2079, "pos_prob_std": 0.2444, "pct_pos_prob_lt_06": 0.908
+    },
+    "warnings": [],
+    "runtime_sec": 0.347
+  },
+
+  "more_examples": {
+    "drift_but_harmless": {
+      "why": "One feature (marital_status) shifted strongly: 5 of 6 detectors fire, but the model copes. True drop was 0.77 pp.",
+      "drift_detected": true, "predicted_harm": 0.0087, "harm_interval": [-0.0141, 0.0315],
+      "harm_severity": "none", "marginal_extent": "single", "interaction_suspected": 0.19,
+      "affected_features": ["marital_status"], "detectors_fired": 5
+    },
+    "interaction_only": {
+      "why": "Relationship between marital_status and age broken; each feature alone looks normal. Only 2 detectors fire, so drift_detected is false, but harm and interaction_suspected both warn. True drop was 2.71 pp.",
+      "drift_detected": false, "predicted_harm": 0.0137, "harm_interval": [-0.0091, 0.0365],
+      "harm_severity": "low", "marginal_extent": "none", "interaction_suspected": 0.91,
+      "affected_features": [], "detectors_fired": 2
+    },
+    "clean": {
+      "why": "No drift. True drop was 0.64 pp (sampling noise).",
+      "drift_detected": false, "predicted_harm": 0.0037, "harm_interval": [-0.0191, 0.0265],
+      "harm_severity": "none", "marginal_extent": "none", "interaction_suspected": 0.49,
+      "affected_features": [], "detectors_fired": 0
     }
   },
 
+  "changes_from_v1_0": [
+    "REMOVED drift_type. Replaced by marginal_extent (none/single/multi) + interaction_suspected (0-1). Reason: the single 5-class label called about 40% of clean batches 'interaction' on fresh data, because interaction drift is almost invisible to the detectors.",
+    "RENAMED drift_severity -> harm_severity. Same values and same rule as v1.0 (it was always based on predicted_harm). Renamed because 'none' was being read as 'no drift' when drift was present but harmless.",
+    "ADDED drift_detected (bool), marginal_extent, interaction_suspected, detectors_fired_list, warnings, engine_version, batch_size, runtime_sec.",
+    "CHANGED detector_scores keys: ks, chi2, psi, mmd, lsdd, classifier_auc -> ks_mean, ks_max, chi2_mean, chi2_max, psi_mean, psi_max, mmd, lsdd, clf_auc.",
+    "RENAMED confidence_stats -> prediction_stats, keys mean_confidence/confidence_std/pct_low_confidence -> conf_mean/conf_std/conf_pct_lt_06, plus 3 positive-class stats.",
+    "CLARIFIED harm_interval lower bound can be negative (not clipped at 0).",
+    "CLARIFIED affected_features is empty when marginal_extent is 'none'.",
+    "REQUEST: reference data is no longer sent with each request; it is fixed at onboarding inside the engine."
+  ],
+
+  "consumer_guidance": [
+    "Never decide on one field alone. drift_detected says whether the data changed; harm_severity and harm_interval say whether it matters; interaction_suspected warns about relationship changes the detectors miss.",
+    "Is there something worth repairing? Use harm_severity != 'none' (the same test as v1.0's drift_severity != 'none'). Do not gate on drift_detected alone: interaction-only drift can have drift_detected = false with real harm.",
+    "Root-cause category from v1.1 (replaces drift_type.split('_')[0]): marginal_extent != 'none' and interaction_suspected >= 0.5 -> 'combined'; marginal_extent != 'none' -> 'marginal'; interaction_suspected >= 0.5 -> 'interaction'; else 'unknown'. The 0.5 cut-off is a convention, not a calibrated decision; C2 may refine it with its own evidence.",
+    "As model features (C3 Prescription Engine, C4 forecaster): use marginal_extent (encoded none=0, single=1, multi=2) and interaction_suspected as a number, instead of a label-encoded drift_type.",
+    "harm_severity encoding for models: none=0, low=1, moderate=2, high=3, critical=4 (unchanged from drift_severity).",
+    "Interval width = harm_interval[1] - harm_interval[0]; always positive even when the lower bound is negative."
+  ],
+
   "notes": [
-    "predicted_harm is a proportion (0.0-1.0): multiply by 100 to get percentage points",
-    "harm_metric is selected during onboarding: accuracy_drop for balanced, auc_drop for imbalanced datasets",
-    "detectors_fired is computed as count of detectors with score above their individual threshold",
-    "drift_type none means no statistically significant drift detected",
-    "model_id, reference_dataset_uri, current_dataset_uri are passed through from platform onboarding config",
-    "All float values rounded to 4 decimal places"
+    "predicted_harm and harm_interval are proportions: multiply by 100 for percentage points.",
+    "Thresholds (detectors, affected features) are each detector's 95th percentile on clean batches of the same batch size, set at engine training time.",
+    "Calibrated batch sizes for UCI Adult: 500, 1,000, 2,000, 3,000. Other sizes in that range use the nearest calibrated size; outside it a warning is added.",
+    "model_id, reference_dataset_uri, current_dataset_uri are passed through.",
+    "All floats rounded to 4 decimal places.",
+    "Validated on fresh batches (114, engine 1.2.1): harm MAE 0.71 pp, interval coverage 96.5%, marginal_extent accuracy 97.4%, interaction AUC 0.77, clean false-alarm rate 3.3%."
   ]
 }

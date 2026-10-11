@@ -20,7 +20,7 @@
       "required": true,
       "example": "marginal",
       "allowed_values": ["marginal", "interaction", "combined", "unknown"],
-      "description": "Category of root cause matching C1 drift_type classification.",
+      "description": "Category of root cause. Since C1 v1.1 there is no C1 drift_type: C2 derives this from C1 marginal_extent and interaction_suspected (see c1_output_schema.json consumer_guidance) plus its own diagnosis.",
       "used_by": ["C3"]
     },
     "affected_slice_rule": {
@@ -100,7 +100,7 @@
     "C3 applies affected_slice_rule to reference_df to get the repair target population",
     "If diagnosis_stability < 0.5, C3 should apply conservative repair (smaller augmentation ratio)",
     "slice_support * len(reference_df) gives approximate number of affected rows",
-    "drift_impact_score is a C2 novelty: NOT the same as drift_severity from C1",
+    "drift_impact_score is a C2 novelty: NOT the same as harm_severity from C1",
     "During independent development, Mathusan derives these values from injection ground truth and varies diagnosis_stability as a training parameter (range 0.3 to 0.95)"
   ]
 }

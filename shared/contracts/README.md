@@ -1,8 +1,8 @@
 # API Contracts - J26-DS-361
-## Intelligent MLOps Platform — Frozen v1.0
+## Intelligent MLOps Platform: v1.1 (C1 contract updated)
 
 **Maintained by:** Sajivan K (IT23172296)  
-**Status:** FROZEN — all four team members agreed October 2026
+**Status:** v1.0 frozen and agreed by all four members (October 2026). v1.1 changes the C1 contract only (proposed by Sajivan, 11 October 2026, to be agreed by the team). C2, C3 and C4 output fields are unchanged; only their references to C1 fields were updated.
 
 ---
 
@@ -10,7 +10,7 @@
 
 | File | Produced By | Consumed By |
 |------|-------------|-------------|
-| `c1_output_schema.json` | C1 Sajivan | C2, C4 |
+| `c1_output_schema.json` | C1 Sajivan | C2, C3 (evidence), C4 |
 | `c2_output_to_c3_schema.json` | C2 Tharmika | C3 |
 | `c2_output_to_c4_schema.json` | C2 Tharmika | C4 |
 | `c3_output_schema.json` | C3 Mathusan | C4 |
@@ -45,14 +45,33 @@ C4 produces: final release decision
 
 ---
 
+## C1 Contract v1.1 (11 October 2026)
+
+Built from the tested C1 engine 1.2.1 (real outputs, not placeholders). Full details and examples are in `c1_output_schema.json` (`changes_from_v1_0`, `consumer_guidance`, `more_examples`).
+
+| v1.0 | v1.1 | What consumers change |
+|------|------|-----------------------|
+| `drift_type` | removed; use `marginal_extent` (none/single/multi) + `interaction_suspected` (0 to 1) | C2: derive `root_cause_category` (rule in `consumer_guidance`). C3, C4: use the two fields as model inputs |
+| `drift_severity` | `harm_severity` (same values, same rule) | Rename only |
+| (none) | `drift_detected` (bool) | New. Do not gate on it alone: interaction-only drift can be harmful with `drift_detected = false` |
+| `detector_scores.{ks, chi2, psi, mmd, lsdd, classifier_auc}` | `ks_mean, ks_max, chi2_mean, chi2_max, psi_mean, psi_max, mmd, lsdd, clf_auc` | C2: new key names |
+| `confidence_stats` (3 values) | `prediction_stats` (6 values) | Rename keys |
+| `harm_interval` lower bound >= 0 in examples | lower bound can be negative (not clipped) | Width = upper minus lower, still positive |
+| (none) | `detectors_fired_list`, `warnings`, `engine_version`, `batch_size`, `runtime_sec` | Optional to use |
+| request sent reference + production data | request sends production data only | C2 integration call |
+
+Also updated for consistency: `c3_output_schema.json` (`input_context.from_c1`), `c4_output_schema.json` (`upstream_evidence_summary.c1`), and the `root_cause_category` descriptions in both C2 schemas.
+
+---
+
 ## Resolved Contradictions (October 2026)
 
 These were resolved before freezing the contracts:
 
 | Issue | Resolution |
 |-------|------------|
-| C1 field names vs Tharmika's expectations | Keep C1 names: predicted_harm, harm_interval, detector_scores, confidence_stats |
-| drift_severity type (string vs float) | String everywhere: none/low/moderate/high/critical |
+| C1 field names vs Tharmika's expectations | Keep C1 names: predicted_harm, harm_interval, detector_scores, confidence_stats (confidence_stats renamed prediction_stats in v1.1) |
+| drift_severity type (string vs float) | String everywhere: none/low/moderate/high/critical (renamed harm_severity in v1.1) |
 | detectors_fired missing from C1 | Added to C1 output |
 | affected_features_ranked vs important_features | Use affected_features_ranked everywhere. Kesigan updated C4 |
 | C2-to-C4 missing fields | Follow Tharmika's version. Add diagnosis_timestamp. Remove business_report and drift_impact_score |
@@ -71,7 +90,7 @@ You produce `c1_output_schema.json`. Your `api.py` must return a dict matching t
 - You consume `c1_output_schema.json` as input
 - You produce `c2_output_to_c3_schema.json` for Mathusan
 - You produce `c2_output_to_c4_schema.json` for Kesigan
-- During independent development: derive C1 values from injection ground truth
+- During independent development: derive C1 values from injection ground truth (v1.1 fake builder: see your research guide)
 
 ### Mathusan (C3)
 - You consume `c2_output_to_c3_schema.json` as primary input

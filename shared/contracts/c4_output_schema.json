@@ -117,8 +117,10 @@
             "predicted_harm": {"type": "float", "example": 0.11},
             "harm_interval": {"type": "array[float, float]", "example": [0.07, 0.15]},
             "harm_metric": {"type": "string", "example": "accuracy_drop", "allowed_values": ["accuracy_drop", "auc_drop"]},
-            "drift_type": {"type": "string", "example": "marginal"},
-            "drift_severity": {"type": "string", "example": "high"},
+            "drift_detected": {"type": "boolean", "example": true},
+            "harm_severity": {"type": "string", "example": "moderate", "allowed_values": ["none", "low", "moderate", "high", "critical"]},
+            "marginal_extent": {"type": "string", "example": "multi", "allowed_values": ["none", "single", "multi"]},
+            "interaction_suspected": {"type": "float", "example": 0.0012},
             "affected_features": {"type": "array[string]", "example": ["hours_per_week", "age"]},
             "evidence_version": {"type": "string", "example": "c1-001"}
           }
