@@ -1,5 +1,5 @@
 # Proposed Adult-only PP1 benchmark.
-# Definitions must be resolved and validated before execution.
+# This file records draft choices, not completed experiments.
 
 benchmark_schema_version: "0.1"
 benchmark_version: "adult-pp1-draft-v1"
@@ -13,6 +13,24 @@ storage:
   dataset_root_env: C4_DATA_ROOT
   artifacts_relative_directory: c4_artifacts/scenarios/adult
 
+ownership:
+  c4:
+    - validate_upstream_evidence
+    - validate_external_repair_package
+    - train_and_version_candidate
+    - evaluate_pre_release_performance
+    - forecast_and_calibrate_future_safety
+    - make_release_decision
+  c3:
+    - generate_synthetic_repair_data
+    - measure_repair_quality
+    - validate_privacy
+    - approve_and_version_repair_package
+  offline_benchmark:
+    - generate_controlled_scenarios
+    - maintain_true_slice_ground_truth
+    - evaluate_sealed_future_outcomes
+
 data_roles:
   split_seed: 42
   repair_fraction: 0.4
@@ -21,9 +39,17 @@ data_roles:
   exclude_reference_overlap: true
   deduplicate_eligible_test: true
   preserve_source_row_ids: true
+  split_manifest_version: v1
+  split_manifest_sha256: "4a2ee4ced6b50aca9b5ec88bd039125ef7ceda9bdbdbe848afe56df6adf8ef0d"
+  expected_rows:
+    reference: 26048
+    eligible_holdout: 5412
+    repair: 2164
+    release_validation: 1624
+    sealed_future: 1624
 
-# Resolve the numerical threshold from reference data once.
-# Store the resolved SliceRule in the benchmark manifest.
+# Threshold derived from processed reference data.
+# Membership is computed before perturbation and retained afterward.
 true_slice:
   name: age_lower_reference_half
   feature: age
@@ -32,8 +58,17 @@ true_slice:
   derive_from: reference
   membership_basis: clean_before_injection
   preserve_membership_after_injection: true
+  resolved_threshold: -0.1165165384831897
+  reference_members: 13308
+  reference_support: 0.5109029484029484
+  rule_feature_space: processed
+  rationale: >
+    Use a reference-derived age slice without selecting its threshold
+    from release-validation or sealed-future performance. Tied ages
+    mean the inclusive median rule covers slightly more than half
+    of the reference rows.
 
-# These names describe injection strength, not observed harm.
+# Injection strengths are not measured harm severity.
 injection_strengths:
   low: 0.2
   medium: 0.5
@@ -62,13 +97,19 @@ drift_conditions:
       - [marital_status, relationship]
 
 injection_protocol:
+  status: proposed
   scope: true_slice_only
-  reference_used_for_training_or_statistics: reference
+  champion_training_population: reference
+  perturbation_statistics_population: clean_true_slice_of_current_role
   source_role: explicitly_selected_role
   paired_harm_comparison: true
   preserve_nonaffected_rows: true
+  preserve_source_row_ids: true
   apply_preprocessor_again: false
   measure_harm_separately_from_strength: true
+  interaction_interpretation: >
+    Permutation is an experimental perturbation. It is not assumed
+    to change only the named pair's dependence.
 
 seed_families:
   - 42
@@ -76,7 +117,7 @@ seed_families:
   - 2026
   - 3407
 
-# Proposed diagnosis conditions, not measured quality guarantees.
+# These are controlled diagnosis conditions, not measured quality scores.
 diagnosis_conditions:
   - name: exact_slice
     intended_quality: high
@@ -90,10 +131,22 @@ diagnosis_conditions:
       operator: le
       reference_quantile: 0.75
       derive_from: reference
+      resolved_threshold: 0.6898904841861665
+      reference_members: 19951
+      reference_support: 0.7659321253071253
+      rule_feature_space: processed
 
-# Operational C3/mock generation rules remain unresolved.
-# Do not populate fidelity, utility or privacy with invented scores.
-# Proposed repair experiments; not implemented or validated yet.
+diagnosis_protocol:
+  decision_time_slice_basis: c2_diagnosed_slice
+  benchmark_ground_truth_slice_basis: true_injected_slice
+  membership_basis: clean_before_injection
+  preserve_membership_after_injection: true
+  raw_rule_translation: unresolved
+  additional_c2_evidence_generation: unresolved
+  fabricate_diagnosis_confidence_or_stability: false
+
+# Proposed conditions to coordinate with C3.
+# C4 does not implement TVAE or claim these packages already exist.
 repair_conditions:
   - name: targeted_repair
     intended_quality: high
@@ -113,6 +166,8 @@ repair_conditions:
 
 repair_protocol:
   status: proposed
+  generation_owner: C3
+  c4_input: externally_supplied_repair_package
   generator_hyperparameters: unresolved
   internal_validation_split: unresolved
   fidelity_definition: unresolved
@@ -123,10 +178,21 @@ repair_protocol:
   reuse_base_package_across_repair_conditions: true
   corruption_changes_target_only: true
   retain_uncorrupted_package_and_corruption_mask: true
+  changed_package_requires_new_version_and_revalidation: true
+  reuse_original_quality_scores_after_corruption: false
 
   allow_release_validation_for_generator_selection: false
   allow_sealed_future_for_generation_or_scoring: false
   fabricate_upstream_scores: false
+  bypass_approval_or_privacy_gate: false
+
+candidate_training:
+  strategy: fresh_fit_reference_plus_approved_repair
+  configuration_source: verified_champion_metadata
+  use_release_validation_for_training: false
+  use_sealed_future_for_training: false
+  training_budget_comparison: unresolved
+
 scenario_grouping:
   provisional_group_key_fields:
     - dataset
@@ -134,12 +200,17 @@ scenario_grouping:
   keep_related_variants_together: true
   split_assignment: unresolved
   independent_replications: unresolved
+  note: >
+    Four seed families do not make 144 independent observations.
+    Replication, calibration sample size and grouped evaluation
+    must be resolved before statistical claims are made.
 
 future_protocol:
   freeze_pre_release_evidence_before_future_evaluation: true
   future_outcomes_are_research_targets_only: true
   expose_future_to_controller: false
   tune_scenario_definitions_on_future: false
+  future_slice_target_definition: unresolved
 
 evidence:
   retain_resolved_configuration: true
@@ -154,15 +225,23 @@ evidence:
 
 design:
   proposed_factorial_combinations: 144
-  no_drift_controls: specified_separately
+  no_drift_controls: unresolved
   rationale: >
     Compare marginal perturbation, interaction permutation and their
-    combination at three injection strengths. Vary diagnosis and repair
-    conditions while retaining the same true affected slice.
+    combination at three injection strengths. Vary diagnosis and
+    repair conditions while retaining a reference-derived true slice.
+    All settings remain draft until operational definitions and
+    validation requirements are settled.
   unresolved:
-    - Exact repair-generation and degradation procedures
-    - Repair-package size and comparable training budgets
-    - Diagnosis evidence fields beyond slice identification
+    - Shared injector mechanisms and severity boundary verification
+    - C1 evidence-generation procedure and units
+    - C2 evidence generation beyond slice identification
+    - Raw-to-processed C2 rule translation where required
+    - C3 agreement on repair generation and degradation procedures
+    - C3 generator settings and internal validation protocol
+    - Repair scoring definitions and privacy threshold
+    - C3 contract timestamp and signed utility-margin alignment
+    - Comparable candidate training budgets
     - No-drift control specifications
     - Independent replication and scenario-fold allocation
-    - Shared injector severity boundary correction
+    - Future slice-target definition under imperfect diagnosis
