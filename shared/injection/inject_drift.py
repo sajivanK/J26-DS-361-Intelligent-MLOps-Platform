@@ -61,7 +61,14 @@ SEVERITY_THRESHOLDS = {
 
 
 def get_severity_label(accuracy_drop_pct):
-    """Map accuracy drop percentage to severity label."""
+    """Map accuracy drop percentage to severity label.
+
+    Drops below 1 pp, INCLUDING negative drops (the batch scored better than
+    the baseline by chance), are 'none'. Before this fix a negative drop matched
+    no range and fell through to 'critical'.
+    """
+    if accuracy_drop_pct < 1.0:
+        return "none"
     for label, (low, high) in SEVERITY_THRESHOLDS.items():
         if low <= accuracy_drop_pct < high:
             return label
