@@ -17,6 +17,11 @@ from c4.models.candidate import (
 
 from c4.models.evaluation import evaluate_pre_release
 
+from c4.models.pre_release import (
+    PreReleaseArtifact,
+    save_pre_release_evidence,
+)
+
 __all__ = [
     "ChampionConfig",
     "ChampionArtifact",
@@ -29,4 +34,6 @@ __all__ = [
     "load_candidate",
     "train_and_save_candidate",
     "evaluate_pre_release",
+    "PreReleaseArtifact",
+    "save_pre_release_evidence",
 ]
