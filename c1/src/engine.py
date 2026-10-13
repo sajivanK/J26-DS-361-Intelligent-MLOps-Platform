@@ -13,6 +13,24 @@ TRAIN (once, from the v1.2 benchmark)
   Thresholds: no-drift 95th percentile per calibrated batch size, for the six
       detectors and for every per-feature KS / Chi2 / PSI score.
 
+HARM METRIC (1.2.2)
+  accuracy_drop (UCI Adult): sigma(bs) = binomial sampling sd of batch accuracy (finite-population
+      corrected), as in 1.2.1.
+  auc_drop (IEEE-CIS): sigma(bs) = MEASURED sd of clean-batch AUC at the calibrated batch sizes
+      (benchmark config), interpolated on a log-log scale between them.
+  The metric is read from the benchmark CSV ("harm_metric" column; missing = accuracy_drop).
+  1.2.2 also uses the seeded LSDD detector (c1/src/detectors/lsdd_detector.py).
+
+AFFECTED FEATURES (1.2.2)
+  With many features, testing each one at its no-drift 95th percentile lists about 5% of them by
+  chance (17 of 199 on clean IEEE-CIS batches). 1.2.2 lists a feature only when EVERY detector that
+  scores it (KS or Chi2, and PSI) exceeds a strict threshold: the maximum score seen on no-drift
+  benchmark batches at that batch size, floored at 10% of the family's median 95th-percentile
+  threshold (guards near-constant features whose threshold is 0). Ranked by score / threshold.
+  Chosen on both benchmarks: IEEE-CIS precision 0.09 -> 0.68 (20.4 -> 3.1 features listed), recall
+  0.994 -> 0.986; UCI Adult precision 0.64 -> 0.98, recall 1.000 -> 0.987. The 95th-percentile
+  thresholds used by N3 are unchanged, so N1 / N2 / N3 outputs are unchanged.
+
 DETECT (per batch, no labels needed)
   Returns the C1 output dict (see detect()). Output changes in 1.2.1:
     - drift_detected (new): marginal shift found by N3, or at least 3 detectors fired
@@ -27,14 +45,14 @@ import joblib
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.model_selection import StratifiedGroupKFold
 
 from c1.src.profile import ReferenceProfile
 from c1.src.detectors import run_all_detectors, DETECTOR_SIGNALS
 from c1.src.prediction_stats import prediction_stats, CONFIDENCE_SIGNALS, POS_PROB_SIGNALS
 
-ENGINE_VERSION = "1.2.1"
+ENGINE_VERSION = "1.2.2"
 EVIDENCE_VERSION_PREFIX = "c1-"
 ALPHA = 0.05
 NODRIFT_Q = 0.95
@@ -47,6 +65,7 @@ FIRE_SIGNALS = {"ks": "ks_max", "chi2": "chi2_max", "psi": "psi_max",
                 "mmd": "mmd", "lsdd": "lsdd", "classifier": "clf_auc"}
 MIN_DETECTORS_FOR_DRIFT = 3
 SEVERITY = [(1.0, "none"), (3.0, "low"), (7.0, "moderate"), (15.0, "high")]  # pp, else critical
+TARGET_COL = {"accuracy_drop": "actual_accuracy_drop", "auc_drop": "actual_auc_drop"}
 
 
 def _gbr(seed):
@@ -75,7 +94,8 @@ def _severity(pp):
 class C1Engine:
     # ── TRAIN ────────────────────────────────────────────────────────────
     def train(self, bench_csv, reference_csv, test_csv, model_path, feature_types,
-              target_col="target", seed=0):
+              target_col="target", seed=0, noise_sd=None):
+        """noise_sd: {batch_size: clean-batch AUC sd in pp}; required when harm_metric is auc_drop."""
         t0 = time.time()
         df = pd.read_csv(bench_csv)
         assert len(df) == 1600 and (df["benchmark_version"].astype(str) == "1.2").all(), \
@@ -89,13 +109,24 @@ class C1Engine:
         self.profile = ReferenceProfile(ref, feature_types, target_col=target_col)
         self.features = list(self.profile.features)
 
-        # fixed baseline and test-pool size for sigma(bs)
-        self.p = float(accuracy_score(test[target_col].values,
-                                      self.base_model.predict(test[self.features])))
+        # harm metric, fixed baseline and sigma(bs)
+        self.harm_metric = (str(df["harm_metric"].iloc[0]) if "harm_metric" in df.columns
+                            else "accuracy_drop")
+        assert self.harm_metric in TARGET_COL, f"unknown harm metric {self.harm_metric}"
+        self.sizes = sorted(int(b) for b in df["batch_size"].unique())
+        yt, Xt = test[target_col].values, test[self.features]
+        self.p = float(accuracy_score(yt, self.base_model.predict(Xt)))
         self.N = len(test)
         assert abs(round(self.p, 4) - df["fixed_baseline_accuracy"].iloc[0]) < 1.01e-4, \
-            "fixed baseline differs from the benchmark (wrong model or test file?)"
-        self.sizes = sorted(int(b) for b in df["batch_size"].unique())
+            "fixed baseline accuracy differs from the benchmark (wrong model or test file?)"
+        if self.harm_metric == "auc_drop":
+            self.auc = float(roc_auc_score(yt, self.base_model.predict_proba(Xt)[:, 1]))
+            assert abs(round(self.auc, 4) - df["fixed_baseline_auc"].iloc[0]) < 1.01e-4, \
+                "fixed baseline AUC differs from the benchmark (wrong model or test file?)"
+            assert noise_sd is not None, "noise_sd (clean-batch AUC sd per batch size) is required for auc_drop"
+            self.noise_sd = {int(k): float(v) for k, v in noise_sd.items()}
+            missing = [b for b in self.sizes if b not in self.noise_sd]
+            assert not missing, f"noise_sd has no value for batch sizes {missing}"
 
         # per-feature columns in a fixed order
         self.fam_cols = {f: [c for c in df.columns if c.startswith(f + "__")] for f in FAMILIES}
@@ -111,8 +142,22 @@ class C1Engine:
         self.det_thr = {name: {b: float(np.quantile(df.loc[none & (bs == b), sig].values, NODRIFT_Q))
                                for b in self.sizes} for name, sig in FIRE_SIGNALS.items()}
 
+        # affected_features thresholds (strict, floored); N3 keeps using self.thr
+        self.thr_max, self.aff_floor = {}, {}
+        for f, cols in self.fam_cols.items():
+            self.thr_max[f], self.aff_floor[f] = {}, {}
+            for b in self.sizes:
+                ref_sc = df.loc[none & (bs == b), cols].values.astype(float)
+                t95 = self.thr[f][b]
+                self.thr_max[f][b] = ref_sc.max(axis=0)
+                self.aff_floor[f][b] = float(0.1 * np.median(t95[t95 > 0])) if (t95 > 0).any() else 1e-6
+        self.n_fams = {}
+        for f in FAMILIES:
+            for feat in self.fam_feats[f]:
+                self.n_fams[feat] = self.n_fams.get(feat, 0) + 1
+
         # N1 + N2: 80% groups train, 20% groups calibrate
-        y = df["actual_accuracy_drop"].values
+        y = df[TARGET_COL[self.harm_metric]].values
         X1 = df[N1_FEATS].values.astype(float)
         tr, ca = next(StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=seed)
                       .split(df, df["drift_type"], df["group"]))
@@ -140,8 +185,13 @@ class C1Engine:
 
     # ── helpers ──────────────────────────────────────────────────────────
     def _sigma(self, bs):
-        """Sampling sd (pp) of batch accuracy at batch size bs, finite-population corrected."""
+        """Sampling sd (pp) of the harm metric at batch size bs.
+        accuracy_drop: binomial sd of batch accuracy, finite-population corrected.
+        auc_drop: measured clean-batch AUC sd, log-log interpolated between calibrated sizes."""
         bs = np.asarray(bs, dtype=float)
+        if getattr(self, "harm_metric", "accuracy_drop") == "auc_drop":
+            ks = sorted(self.noise_sd)
+            return np.exp(np.interp(np.log(bs), np.log(ks), np.log([self.noise_sd[k] for k in ks])))
         return 100 * np.sqrt(self.p * (1 - self.p) / bs * (self.N - bs) / (self.N - 1))
 
     def _nearest(self, b):
@@ -215,7 +265,17 @@ class C1Engine:
 
         # affected features: only when N3 finds a marginal shift
         affected = []
-        if extent != "none":
+        if extent != "none" and hasattr(self, "thr_max"):
+            hits, ratio = {}, {}
+            for f in FAMILIES:
+                thr = np.maximum(self.thr_max[f][bc], self.aff_floor[f][bc])
+                for j, feat in enumerate(self.fam_feats[f]):
+                    if per[f][feat] > thr[j]:
+                        hits[feat] = hits.get(feat, 0) + 1
+                        ratio[feat] = max(ratio.get(feat, 0.0), per[f][feat] / thr[j])
+            affected = [k for k, _ in sorted(ratio.items(), key=lambda kv: -kv[1])
+                        if hits[k] >= self.n_fams[k]]
+        elif extent != "none":  # engines saved before 1.2.2: original rule
             ratio = {}
             for f in FAMILIES:
                 for j, feat in enumerate(self.fam_feats[f]):
@@ -235,7 +295,7 @@ class C1Engine:
             "drift_detected": drift_detected,
             "predicted_harm": round(harm_pp / 100, 4),
             "harm_interval": [round((harm_pp - half) / 100, 4), round((harm_pp + half) / 100, 4)],
-            "harm_metric": "accuracy_drop",
+            "harm_metric": getattr(self, "harm_metric", "accuracy_drop"),
             "harm_severity": _severity(harm_pp),
             "marginal_extent": extent,
             "interaction_suspected": round(p_int, 4),
@@ -265,4 +325,8 @@ class C1Engine:
                 "n1_train_conditions": self.n_train, "n2_calibration_conditions": self.n_cal,
                 "n2_quantile_normalised": round(self.q, 4),
                 "calibrated_batch_sizes": self.sizes,
-                "fixed_baseline_accuracy": round(self.p, 4), "features": self.features}
+                "harm_metric": getattr(self, "harm_metric", "accuracy_drop"),
+                "fixed_baseline_accuracy": round(self.p, 4),
+                "fixed_baseline_auc": round(self.auc, 4) if hasattr(self, "auc") else None,
+                "noise_sd_pp": getattr(self, "noise_sd", None),
+                "n_features": len(self.features), "features": self.features}
