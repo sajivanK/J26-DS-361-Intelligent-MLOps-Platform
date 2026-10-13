@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "protocol_version": "adult-offline-validation-draft-v1",
+  "status": "draft",
+  "scope": "offline_development_screen_only",
+  "allows_c3_approval_export": false,
+  "design_context": "Defined after viewing development-tvae-exact-v1 diagnostics. Its application to that artifact is exploratory, not prospective validation.",
+  "privacy_screen": {
+    "metric": "equal_weight_mixed_distance_fit_ranges_clipped",
+    "features": "input_features_only",
+    "scale_population": "generator_fit_only",
+    "synthetic_comparison": "synthetic_to_generator_fit",
+    "baseline_comparison": "diagnosed_internal_validation_to_generator_fit",
+    "tail_quantile": 0.05,
+    "maximum_exact_feature_match_rows": 0,
+    "minimum_tail_distance_ratio": 1.0,
+    "zero_baseline_action": "INDETERMINATE",
+    "rationale": "Require no exact fit-feature copies and a synthetic lower-tail distance at least as large as the held-out real lower-tail distance to the same fit reference. This is a conservative exploratory screening choice, not a calibrated privacy guarantee or a published acceptance threshold."
+  },
+  "scores": {
+    "fidelity": "mean_univariate_fidelity_input_features",
+    "utility": "internal_diagnosed_slice_probe_accuracy_minus_champion_accuracy",
+    "target_coverage": "explicit_processed_diagnosed_rule_coverage",
+    "class_balance": "synthetic_vs_generator_fit_binary_target_total_variation",
+    "prescription_confidence": "UNRESOLVED_DO_NOT_FABRICATE",
+    "quality_scores_are_evidence_not_automatic_approval": true
+  },
+  "data_restrictions": {
+    "source_role": "repair",
+    "use_release_validation_for_screen": false,
+    "use_sealed_future_for_screen": false,
+    "refit_generator": false,
+    "overwrite_previous_evidence": false
+  },
+  "remaining_requirements": [
+    "Review this exploratory screening definition before freezing a prospective benchmark protocol.",
+    "Assess sensitivity and uncertainty of distances with only 215 diagnosed internal-validation records.",
+    "Resolve simulated prescription confidence and C3 timestamp/signed utility alignment.",
+    "Freeze the complete benchmark and upstream evidence generation procedures."
+  ]
+}

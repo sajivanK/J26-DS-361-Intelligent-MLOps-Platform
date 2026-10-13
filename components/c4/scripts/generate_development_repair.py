@@ -26,6 +26,40 @@ def verify_generation(directory, preparation, root, manifest_directory):
     synthetic = pd.read_csv(io.BytesIO(contents))
     require(len(synthetic) == metadata['synthetic_rows'], 'Synthetic count differs.')
     require(synthetic['target'].isin([0, 1]).all(), 'Invalid synthetic target labels.')
+    if metadata.get('sampling_variant') is not None:
+        require(metadata['sampling_variant'] == 'fixed_pool_target_stratification',
+                'Unsupported sampling variant.')
+        parent_directory = directory.parent / name(metadata['parent_artifact_version'])
+        parent_metadata, parent_hash = checked_json(parent_directory)
+        require(parent_hash == metadata['parent_metadata_sha256'], 'Parent metadata link differs.')
+        require(parent_metadata['generator_sha256'] == metadata['parent_generator_sha256'],
+                'Parent generator link differs.')
+        checked_bytes(parent_directory / 'generator.pkl', metadata['parent_generator_sha256'])
+        require(parent_metadata['preparation_metadata_sha256'] == metadata['preparation_metadata_sha256'],
+                'Variant and parent preparation differ.')
+        protocol, protocol_hash = checked_json(directory, 'sampling_protocol')
+        require(protocol_hash == metadata['sampling_protocol_sha256'], 'Sampling protocol link differs.')
+        require(protocol['generator_refitted'] is False, 'Variant unexpectedly refits the generator.')
+        pool = pd.read_csv(io.BytesIO(checked_bytes(
+            directory / 'sampling_pool.csv', metadata['sampling_pool_sha256'])))
+        selection = pd.read_csv(io.BytesIO(checked_bytes(
+            directory / 'sampling_selection.csv', metadata['sampling_selection_sha256'])))
+        require(len(pool) == protocol['fixed_pool_rows'], 'Sampling pool count differs.')
+        require(selection['synthetic_row_position'].tolist() == list(range(len(synthetic))),
+                'Synthetic selection order differs.')
+        positions = selection['sampling_pool_position']
+        require(pd.api.types.is_integer_dtype(positions.dtype) and positions.is_unique
+                and positions.between(0, len(pool) - 1).all(), 'Invalid pool selection positions.')
+        pd.testing.assert_frame_equal(synthetic, pool.iloc[positions.to_numpy()].reset_index(drop=True),
+                                      check_exact=True)
+        require(selection['target'].tolist() == synthetic['target'].tolist(), 'Selection labels differ.')
+        from _target_stratified_sampling import binary_quotas
+        fit = pd.read_csv(io.BytesIO(checked_bytes(
+            preparation / 'generator_fit.csv', prepared['files']['generator_fit.csv'])), index_col=0)
+        expected = binary_quotas(fit['target'], len(synthetic))
+        require(protocol['quotas'] == {str(k): v for k, v in expected.items()}, 'Fit-derived quotas differ.')
+        require(synthetic['target'].value_counts().to_dict() == expected, 'Synthetic quotas differ.')
+        print('FIXED POOL / SELECTION / FIT-ONLY QUOTAS: PASS')
     print('DIRECTORY:', directory)
     print('SYNTHETIC ROWS:', len(synthetic))
     print('TARGET COUNTS:', synthetic['target'].value_counts().sort_index().to_dict())
