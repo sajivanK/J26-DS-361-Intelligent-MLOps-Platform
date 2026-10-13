@@ -7,6 +7,7 @@ import sys
 import numpy as np
 
 LSDD_PERMUTATIONS = 50
+LSDD_INIT_SEED = 0   # v1.2.2: alibi-detect picks kernel centres at random on construction
 _CACHE = {}
 
 
@@ -19,9 +20,14 @@ def _get_detector(profile):
             sys.modules["tensorflow"] = None
         from alibi_detect.cd import LSDDDrift
         _CACHE.clear()
-        _CACHE[key] = LSDDDrift(profile.ref_kernel.astype(np.float32),
-                                backend="pytorch", p_val=0.05,
-                                n_permutations=LSDD_PERMUTATIONS)
+        import torch
+        # Seed the construction only (fork_rng restores torch's global RNG afterwards),
+        # so the same reference gives the same LSDD scores in every session.
+        with torch.random.fork_rng():
+            torch.manual_seed(LSDD_INIT_SEED)
+            _CACHE[key] = LSDDDrift(profile.ref_kernel.astype(np.float32),
+                                    backend="pytorch", p_val=0.05,
+                                    n_permutations=LSDD_PERMUTATIONS)
     return _CACHE[key]
 
 
