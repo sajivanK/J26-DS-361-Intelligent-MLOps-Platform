@@ -168,7 +168,20 @@ repair_protocol:
   status: proposed
   generation_owner: C3
   c4_input: externally_supplied_repair_package
-  generator_hyperparameters: unresolved
+  generator_hyperparameters:
+    library: ctgan
+    library_version: "0.12.1"
+    generator: TVAE
+    epochs: 100
+    batch_size: 256
+    embedding_dim: 128
+    compress_dims: [128, 128]
+    decompress_dims: [128, 128]
+    l2scale: 0.00001
+    loss_factor: 2
+    enable_gpu: false
+    seed: 42
+    n_rows: 500
   internal_validation_split:
     source_role: repair
     validation_fraction: 0.2
