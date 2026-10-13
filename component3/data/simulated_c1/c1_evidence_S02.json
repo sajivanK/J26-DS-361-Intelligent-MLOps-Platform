@@ -1,0 +1,31 @@
+{
+  "evidence_version": "c1-sim-s02",
+  "model_id": "adult-xgb-v1",
+  "reference_dataset_uri": "shared/uci_adult/data/reference.csv",
+  "current_dataset_uri": "component3/data/drifted/S02.csv",
+  "drift_type": "marginal_single",
+  "drift_severity": "low",
+  "predicted_harm": 0.0208,
+  "harm_interval": [
+    0.0058,
+    0.0358
+  ],
+  "harm_metric": "accuracy_drop",
+  "affected_features": [
+    "capital_loss"
+  ],
+  "detector_scores": {
+    "ks": 0.1941,
+    "chi2": 0.02,
+    "psi": 0.2717,
+    "mmd": 0.1659,
+    "lsdd": 0.1365,
+    "classifier_auc": 0.6671
+  },
+  "detectors_fired": 5,
+  "confidence_stats": {
+    "mean_confidence": 0.8698,
+    "confidence_std": 0.1514,
+    "pct_low_confidence": 0.0832
+  }
+}
