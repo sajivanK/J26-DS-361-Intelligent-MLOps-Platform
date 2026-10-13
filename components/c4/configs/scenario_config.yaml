@@ -169,7 +169,12 @@ repair_protocol:
   generation_owner: C3
   c4_input: externally_supplied_repair_package
   generator_hyperparameters: unresolved
-  internal_validation_split: unresolved
+  internal_validation_split:
+    source_role: repair
+    validation_fraction: 0.2
+    split_seed: 42
+    stratify_by: target
+    split_before_diagnosed_slice_filtering: true
   fidelity_definition: unresolved
   utility_definition: unresolved
   privacy_distance_and_threshold: unresolved
