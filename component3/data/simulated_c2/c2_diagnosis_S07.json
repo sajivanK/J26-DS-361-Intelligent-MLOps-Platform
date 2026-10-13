@@ -1,0 +1,30 @@
+{
+  "root_cause_feature": "age",
+  "root_cause_category": "combined",
+  "affected_slice_rule": "age > 0.69 and marital_status == 2",
+  "affected_features_ranked": [
+    "age",
+    "marital_status",
+    "relationship"
+  ],
+  "affected_value_ranges": {
+    "age": [
+      0.7632002135197443,
+      3.768899116196436
+    ],
+    "marital_status": [
+      2
+    ],
+    "relationship": [
+      0,
+      1,
+      2,
+      3,
+      5
+    ]
+  },
+  "slice_support": 0.258333,
+  "diagnosis_stability": 0.92,
+  "drift_impact_score": 0.82,
+  "temporal_window": 5
+}
