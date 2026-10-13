@@ -1,0 +1,146 @@
+{
+  "component": "C2",
+  "simulation": true,
+  "purpose": "Independent C3 integration testing",
+  "official_contract": "shared\\contracts\\c2_output_to_c3_schema.json",
+  "uses_actual_temporal_shap": false,
+  "uses_actual_sliceline": false,
+  "scenarios": {
+    "S00": {
+      "scenario_id": "S00",
+      "uses_actual_temporal_shap": false,
+      "uses_actual_sliceline": false,
+      "simulation_method": "Heuristic ground-truth mapping and empirical slice support measurement",
+      "slice_rule": "age > 100",
+      "current_count": 0,
+      "reference_count": 0,
+      "measured_slice_support": 0.0,
+      "c1_predicted_harm": 0.0,
+      "diagnosis_params": {
+        "stability": 0.3,
+        "impact": 0.0,
+        "window": 1
+      },
+      "notes": "Simulated diagnosis specification for C3 interface testing. Root causes, slice definitions, and impact scores are heuristic stand-ins."
+    },
+    "S01": {
+      "scenario_id": "S01",
+      "uses_actual_temporal_shap": false,
+      "uses_actual_sliceline": false,
+      "simulation_method": "Heuristic ground-truth mapping and empirical slice support measurement",
+      "slice_rule": "age > 0.69",
+      "current_count": 2159,
+      "reference_count": 6097,
+      "measured_slice_support": 0.359833,
+      "c1_predicted_harm": 0.0082,
+      "diagnosis_params": {
+        "stability": 0.85,
+        "impact": 0.45,
+        "window": 3
+      },
+      "notes": "Simulated diagnosis specification for C3 interface testing. Root causes, slice definitions, and impact scores are heuristic stand-ins."
+    },
+    "S02": {
+      "scenario_id": "S02",
+      "uses_actual_temporal_shap": false,
+      "uses_actual_sliceline": false,
+      "simulation_method": "Heuristic ground-truth mapping and empirical slice support measurement",
+      "slice_rule": "capital_loss > -0.20",
+      "current_count": 6000,
+      "reference_count": 1223,
+      "measured_slice_support": 1.0,
+      "c1_predicted_harm": 0.0208,
+      "diagnosis_params": {
+        "stability": 0.75,
+        "impact": 0.65,
+        "window": 3
+      },
+      "notes": "Simulated diagnosis specification for C3 interface testing. Root causes, slice definitions, and impact scores are heuristic stand-ins."
+    },
+    "S03": {
+      "scenario_id": "S03",
+      "uses_actual_temporal_shap": false,
+      "uses_actual_sliceline": false,
+      "simulation_method": "Heuristic ground-truth mapping and empirical slice support measurement",
+      "slice_rule": "marital_status == 2",
+      "current_count": 1723,
+      "reference_count": 11999,
+      "measured_slice_support": 0.287167,
+      "c1_predicted_harm": 0.0083,
+      "diagnosis_params": {
+        "stability": 0.8,
+        "impact": 0.42,
+        "window": 3
+      },
+      "notes": "Simulated diagnosis specification for C3 interface testing. Root causes, slice definitions, and impact scores are heuristic stand-ins."
+    },
+    "S04": {
+      "scenario_id": "S04",
+      "uses_actual_temporal_shap": false,
+      "uses_actual_sliceline": false,
+      "simulation_method": "Heuristic ground-truth mapping and empirical slice support measurement",
+      "slice_rule": "race == 2",
+      "current_count": 360,
+      "reference_count": 2462,
+      "measured_slice_support": 0.06,
+      "c1_predicted_harm": 0.0013,
+      "diagnosis_params": {
+        "stability": 0.7,
+        "impact": 0.35,
+        "window": 3
+      },
+      "notes": "Simulated diagnosis specification for C3 interface testing. Root causes, slice definitions, and impact scores are heuristic stand-ins."
+    },
+    "S05": {
+      "scenario_id": "S05",
+      "uses_actual_temporal_shap": false,
+      "uses_actual_sliceline": false,
+      "simulation_method": "Heuristic ground-truth mapping and empirical slice support measurement",
+      "slice_rule": "age > 0.69 and education_num < -0.03",
+      "current_count": 342,
+      "reference_count": 4190,
+      "measured_slice_support": 0.057,
+      "c1_predicted_harm": 0.0232,
+      "diagnosis_params": {
+        "stability": 0.88,
+        "impact": 0.72,
+        "window": 4
+      },
+      "notes": "Simulated diagnosis specification for C3 interface testing. Root causes, slice definitions, and impact scores are heuristic stand-ins."
+    },
+    "S06": {
+      "scenario_id": "S06",
+      "uses_actual_temporal_shap": false,
+      "uses_actual_sliceline": false,
+      "simulation_method": "Heuristic ground-truth mapping and empirical slice support measurement",
+      "slice_rule": "marital_status == 2 and relationship == 0",
+      "current_count": 1674,
+      "reference_count": 10579,
+      "measured_slice_support": 0.279,
+      "c1_predicted_harm": 0.016,
+      "diagnosis_params": {
+        "stability": 0.84,
+        "impact": 0.68,
+        "window": 4
+      },
+      "notes": "Simulated diagnosis specification for C3 interface testing. Root causes, slice definitions, and impact scores are heuristic stand-ins."
+    },
+    "S07": {
+      "scenario_id": "S07",
+      "uses_actual_temporal_shap": false,
+      "uses_actual_sliceline": false,
+      "simulation_method": "Heuristic ground-truth mapping and empirical slice support measurement",
+      "slice_rule": "age > 0.69 and marital_status == 2",
+      "current_count": 1550,
+      "reference_count": 3792,
+      "measured_slice_support": 0.258333,
+      "c1_predicted_harm": 0.028,
+      "diagnosis_params": {
+        "stability": 0.92,
+        "impact": 0.82,
+        "window": 5
+      },
+      "notes": "Simulated diagnosis specification for C3 interface testing. Root causes, slice definitions, and impact scores are heuristic stand-ins."
+    }
+  }
+}
