@@ -1,0 +1,318 @@
+{
+  "schema_version": "1.0",
+  "protocol_version": "adult-simulation-pp1-v2",
+  "status": "proposed_for_review",
+  "dataset": "uci_adult",
+  "evidence_mode": "controlled_simulated_upstream",
+  "production_approval_export": false,
+  "full_execution_enabled": false,
+  "source_versions": {
+    "split_manifest": "v1",
+    "champion": "v1",
+    "raw_split_seed": 42,
+    "repair_fraction": 0.4,
+    "release_validation_fraction": 0.3,
+    "sealed_future_fraction": 0.3
+  },
+  "true_slice": {
+    "name": "age_lower_reference_half",
+    "feature": "age",
+    "operator": "le",
+    "reference_quantile": 0.5,
+    "resolved_threshold": -0.1165165384831897,
+    "membership_basis": "clean_before_injection"
+  },
+  "drift_conditions": [
+    {
+      "name": "marginal_multi",
+      "mechanism": "marginal_multi",
+      "features": [
+        "education_num",
+        "hours_per_week"
+      ],
+      "interaction_pairs": []
+    },
+    {
+      "name": "interaction",
+      "mechanism": "interaction",
+      "features": [],
+      "interaction_pairs": [
+        [
+          "marital_status",
+          "relationship"
+        ]
+      ]
+    },
+    {
+      "name": "combined",
+      "mechanism": "combined",
+      "features": [
+        "education_num",
+        "hours_per_week"
+      ],
+      "interaction_pairs": [
+        [
+          "marital_status",
+          "relationship"
+        ]
+      ]
+    }
+  ],
+  "injection_strengths": {
+    "low": 0.2,
+    "medium": 0.5,
+    "high": 0.8
+  },
+  "injection_protocol": {
+    "scope": "true_slice_only",
+    "statistics": "clean_true_slice_of_current_role",
+    "targets_unchanged": true,
+    "nonaffected_rows_unchanged": true,
+    "preserve_source_row_ids": true,
+    "apply_preprocessor_again": false,
+    "use_low_level_typed_adapter": true,
+    "strength_is_not_measured_harm_severity": true
+  },
+  "diagnosis_conditions": [
+    {
+      "name": "exact_slice",
+      "feature": "age",
+      "operator": "le",
+      "reference_quantile": 0.5,
+      "resolved_threshold": -0.1165165384831897
+    },
+    {
+      "name": "broadened_slice",
+      "feature": "age",
+      "operator": "le",
+      "reference_quantile": 0.75,
+      "resolved_threshold": 0.6898904841861665
+    }
+  ],
+  "diagnosis_evidence": {
+    "rule_origin": "controlled_simulation_not_real_C2",
+    "slice_support": "clean_current_role_membership_fraction",
+    "stability": "mean_bootstrap_reference_quantile_mask_Jaccard_vs_frozen_diagnosed_mask_on_clean_repair_role",
+    "bootstrap_replicates": 100,
+    "bootstrap_seed_source": "manifest_c2_seed",
+    "root_cause_and_ranked_features": "declared_controlled_condition_not_real_C2_prediction",
+    "diagnosis_quality_is_not_guaranteed_by_condition_name": true
+  },
+  "repair_conditions": [
+    {
+      "name": "targeted_repair",
+      "label_flip_fraction": 0.0
+    },
+    {
+      "name": "label_corrupted_repair",
+      "label_flip_fraction": 0.2
+    }
+  ],
+  "repair_generation": {
+    "owner_in_this_study": "offline_C4_support_not_production_C3",
+    "generator": "TVAE",
+    "ctgan_version": "0.12.1",
+    "epochs": 100,
+    "batch_size": 256,
+    "n_rows": 500,
+    "embedding_dim": 128,
+    "compress_dims": [
+      128,
+      128
+    ],
+    "decompress_dims": [
+      128,
+      128
+    ],
+    "l2scale": 1e-05,
+    "loss_factor": 2,
+    "enable_gpu": false,
+    "internal_validation_fraction": 0.2,
+    "internal_split_seed": 42,
+    "split_before_diagnosed_slice_filtering": true,
+    "fit_only_diagnosed_internal_training": true,
+    "sampling": "one_unstratified_500_row_sample_no_adaptive_resampling",
+    "base_package_shared_only_between_repair_variants_of_same_diagnosed_condition": true,
+    "label_corruption": "flip_exactly_100_unique_positions_using_manifest_corruption_seed",
+    "each_variant_requires_own_metrics_and_screen": true,
+    "fit_or_sampling_failure": "retain_failure_without_replacement_seed"
+  },
+  "measured_repair_evidence": {
+    "fidelity": "mean_input_feature_1_minus_KS_continuous_and_1_minus_TV_categorical_vs_diagnosed_internal_validation",
+    "utility": "diagnosed_internal_validation_probe_accuracy_minus_champion_accuracy_fraction",
+    "coverage": "synthetic_fraction_satisfying_diagnosed_processed_rule",
+    "target_TV": "binary_label_TV_synthetic_vs_generator_fit",
+    "prescription_confidence": "mean_fidelity_coverage_and_1_minus_target_TV",
+    "confidence_origin": "computed_simulation_proxy_not_real_C3_prescription",
+    "negative_utility_allowed": true,
+    "do_not_reuse_uncorrupted_quality_scores": true
+  },
+  "admission": {
+    "scope": "simulation_only_not_production_privacy_certification",
+    "mandatory": [
+      "valid_schema",
+      "finite_values",
+      "binary_labels",
+      "known_category_codes",
+      "verified_row_provenance",
+      "verified_champion_and_source_links",
+      "distance_screen_pass",
+      "diagnosis_stability_at_least_0.50",
+      "artifact_runtime_checks"
+    ],
+    "distance_metric": "equal_weight_mixed_fit_range_distance_clipped_at_one",
+    "distance_features": "12_inputs_excluding_target_and_ID",
+    "maximum_exact_fit_feature_copies": 0,
+    "tail_quantile": 0.05,
+    "minimum_synthetic_p05_over_real_internal_validation_p05_to_same_fit": 1.0,
+    "zero_baseline": "INDETERMINATE_STOP",
+    "privacy_rule_status": "exploratory_heuristic_fixed_before_this_benchmark",
+    "fail_action": "record_simulation_ESCALATE_no_candidate_or_future_evaluation",
+    "screen_pass_action": "scoped_simulation_admission_only_standard_gates_still_required",
+    "quality_metrics_are_features_not_additional_tuned_acceptance_thresholds": true,
+    "outcome_driven_threshold_changes": false
+  },
+  "c1_evidence": {
+    "builder": "shared/contracts/c1_fake_output.py",
+    "origin": "labelled_oracle_informed_simulation",
+    "harm_input": "paired_champion_clean_vs_transformed_current_release_accuracy_drop_percentage_points",
+    "payload_harm_units": "fraction_after_shared_builder_divides_by_100",
+    "detector_and_prediction_fields": "shared_mock_values_with_measured_KS_inputs",
+    "interval": "shared_mock_formula_not_calibrated_for_this_study",
+    "actual_C1_accuracy_or_coverage_claims_allowed": false,
+    "requires_shared_builder_checksum": true
+  },
+  "replication": {
+    "seed_namespaces": [
+      42,
+      123,
+      2026,
+      3407
+    ],
+    "replications_per_namespace": 20,
+    "group_key": [
+      "dataset",
+      "namespace",
+      "replication_index"
+    ],
+    "namespace_is_not_dependency_group": true,
+    "shared_between_groups": "fixed_source_data_and_reference_only_champion",
+    "fresh_fitted_generators_between_groups": true,
+    "child_seeds": "SHA256_canonical_group_and_component_label_first_4_bytes",
+    "independence_claim": "distinct_RNG_stream_design_conditional_on_fixed_data_not_proof_of_population_independence",
+    "prior_development_artifacts_excluded": true
+  },
+  "scenario_split": {
+    "fold_seed": 8147,
+    "per_namespace": {
+      "forecast_train": 8,
+      "conformal_calibration": 5,
+      "policy_calibration": 3,
+      "outer_test": 4
+    },
+    "assignment": "sort_replication_indices_by_SHA256_fold_seed_namespace_index_then_take_fixed_blocks",
+    "all_related_variants_stay_with_group": true,
+    "outcomes_used_for_assignment": false
+  },
+  "no_drift_controls": {
+    "per_replication_group": 1,
+    "mechanism": "none",
+    "magnitude": 0.0,
+    "diagnosis_condition": "exact_slice",
+    "repair_condition": "targeted_repair",
+    "same_admission_and_evaluation_rules": true
+  },
+  "candidate": {
+    "training": "fresh_fit_reference_plus_scoped_simulation_admitted_repair",
+    "configuration": "verified_champion_configuration_same_budget_for_all_conditions",
+    "pre_release_populations": [
+      "global",
+      "C2_diagnosed_slice",
+      "diagnosed_slice_complement"
+    ],
+    "no_release_or_future_rows_in_training": true
+  },
+  "pre_release_freeze": {
+    "requires": [
+      "protocol_and_manifest_hashes",
+      "source_and_split_hashes",
+      "scenario_config",
+      "labelled_C1_C2_C3_evidence",
+      "admission_and_runtime_gate_results",
+      "champion_candidate_and_repair_hashes",
+      "clean_and_transformed_release_hashes",
+      "true_and_diagnosed_membership_hashes",
+      "global_slice_nonaffected_pre_release_metrics"
+    ],
+    "freeze_marker": "immutable_JSON_listing_all_evidence_hashes_plus_sidecar_SHA256",
+    "verify_dependencies_unchanged_before_future": true,
+    "future_targets_in_controller_features": false
+  },
+  "future_targets": {
+    "units": "accuracy_margin_fraction",
+    "sign": "candidate_minus_champion",
+    "primary_populations": [
+      "global",
+      "true_injected_slice",
+      "true_slice_complement"
+    ],
+    "diagnosed_slice_future_metrics": "secondary_diagnostic_only_not_primary_targets",
+    "membership": "clean_before_future_injection",
+    "inject_only_after_pre_release_freeze": true,
+    "failed_or_indeterminate_admission": "no_future_targets_missing_not_zero",
+    "no_future_use_in_training_calibration_policy_or_scenario_selection": true
+  },
+  "meta_dataset": {
+    "one_record_per_planned_scenario": true,
+    "retain_failed_scenarios_in_admission_table": true,
+    "N1_target_rows": "only_admitted_scenarios_with_verified_frozen_evidence_and_all_three_future_targets",
+    "no_imputation_of_missing_future_targets": true,
+    "no_injected_ground_truth_or_scenario_factor_labels_in_N1_feature_matrix": true,
+    "source_scope": "controlled_simulated_upstream_not_real_producer_validation"
+  },
+  "N2": {
+    "alpha": 0.05,
+    "raw_quantiles": [
+      0.05,
+      0.5,
+      0.95
+    ],
+    "joint_score": "max_over_three_targets_of_max_0_lower_minus_y_y_minus_upper",
+    "calibration_unit": "replication_group",
+    "group_score": "max_joint_score_across_admitted_variants_within_group",
+    "quantile_rank": "ceil((nonempty_calibration_groups_plus_1)*0.95)",
+    "empty_groups": "reported_excluded_without_adaptive_replacement",
+    "too_few_nonempty_groups": "uninformative_margin_bounds_and_disable_AUTO_DEPLOY_no_informative_95_percent_claim",
+    "assumption": "exchangeable_calibration_and_new_groups_conditional_on_fixed_training_and_study_design_not_established_by_seed_count",
+    "coverage_evaluated_by": "outer_test_group_and_dimension_results"
+  },
+  "limitations": [
+    "This expands the original possible 144 combinations: planned 80 replication groups, 2880 drift variants and 80 controls.",
+    "Shared processed Adult rows do not create independent datasets. State conditional simulation assumptions and assess their limits.",
+    "Twenty assigned calibration groups may yield fewer usable groups after admission. Never silently replace failures.",
+    "Earlier pilots informed this protocol; all earlier pilot artifacts are excluded from the benchmark.",
+    "Mock C1 is oracle-informed and may make downstream forecasting easier; report results under simulated evidence only.",
+    "The exploratory distance screen is not differential privacy, attack validation, or production C3 certification.",
+    "Baseline/ablation configurations and policy hyperparameters need their own pre-outcome specifications before their evaluation."
+  ],
+  "runtime_checks": {
+    "schema_compatible": "exact_12_feature_order_numeric_finite_binary_target_known_categorical_codes_and_champion_feature_schema_match",
+    "rollback_ready": "verified_champion_hash_native_reload_then_temp_copy_reload_and_prediction_equality_on_ten_reference_rows",
+    "rollback_scope": "offline_artifact_restore_smoke_not_live_production_rollback",
+    "unknown_or_failed_runtime_check": "ESCALATE_stop_before_candidate_training",
+    "must_not_use_default_True_placeholders": true
+  },
+  "simulated_C3_contract_mapping": {
+    "repair_package_status": "APPROVED_only_with_scoped_simulation_screen_pass_otherwise_REJECTED",
+    "privacy_status": "PASS_or_FAIL_under_named_exploratory_screen_only_never_production_privacy_certification",
+    "indeterminate": "STOP_do_not_construct_approved_payload",
+    "augmentation_ratio": "synthetic_rows_divided_by_reference_rows",
+    "repair_timestamp": "stored_in_provenance_sidecar_until_production_contract_alignment_is_resolved",
+    "signed_utility_range": [
+      -1,
+      1
+    ],
+    "confidence_proxy_must_be_labelled": true,
+    "actual_C3_approval_claims_allowed": false
+  }
+}
