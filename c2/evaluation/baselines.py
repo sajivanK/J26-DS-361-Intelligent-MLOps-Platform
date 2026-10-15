@@ -1,0 +1,107 @@
+"""
+Baselines for Novelty 1: the EXISTING approaches C2 must beat.
+J26-DS-361 | C2 XAI Root Cause Diagnosis Engine | Tharmika N (IT22247940)
+
+Baseline A - Drift-only ranking (proposal Section 3.3, Baseline 1)
+    Rank features by how much their DATA distribution changed, the way common
+    drift tools (e.g. Evidently AI) do it: KS test for continuous features,
+    chi-square test for categorical features, ranked by -log10(p-value) so
+    both test types are on the same scale. The model is never consulted.
+
+Baseline B - Snapshot SHAP ranking (proposal Section 3.3, Baseline 2)
+    Rank features by the change in mean |SHAP| between the reference data and
+    ONE production batch. This is the single-point comparison used by Arize AI /
+    Fiddler AI and by the compute_temporal_shap() in the C2 research guide.
+    It has no notion of noise and no memory of previous cycles.
+
+Both return a dict {feature: score} sorted from most to least suspicious.
+"""
+import numpy as np
+import shap
+from scipy.stats import chi2_contingency, ks_2samp
+
+from c2.src.config import TARGET_COL
+
+_P_FLOOR = 1e-300   # avoid log10(0)
+
+
+def _features(df):
+    return [c for c in df.columns if c != TARGET_COL]
+
+
+def _sorted(scores):
+    return dict(sorted(scores.items(), key=lambda kv: kv[1], reverse=True))
+
+
+# ── BASELINE A: DRIFT-ONLY ─────────────────────────────────────────────────
+def drift_only_ranking(ref_df, cur_df, feature_types):
+    """
+    Score = -log10(p) of a two-sample test per feature.
+    Higher score = stronger evidence the feature's distribution changed.
+    """
+    scores, pvalues = {}, {}
+    for f in _features(ref_df):
+        ref, cur = ref_df[f].values, cur_df[f].values
+        if feature_types.get(f) == "categorical":
+            cats = np.union1d(ref, cur)
+            table = np.array([[np.sum(ref == c) for c in cats],
+                              [np.sum(cur == c) for c in cats]])
+            table = table[:, table.sum(axis=0) > 0]
+            p = 1.0 if table.shape[1] < 2 else chi2_contingency(table)[1]
+        else:
+            p = ks_2samp(ref, cur).pvalue
+        pvalues[f] = float(p)
+        scores[f] = float(-np.log10(max(p, _P_FLOOR)))
+    return {"ranking": _sorted(scores), "pvalues": pvalues}
+
+
+# ── BASELINE B: SNAPSHOT SHAP ──────────────────────────────────────────────
+class SnapshotSHAP:
+    """
+    Single-point SHAP comparison. The reference mean |SHAP| is computed once
+    (as a production tool would cache it); each call compares one batch to it.
+    """
+
+    def __init__(self, model, ref_df, sample_size=1000, seed=42):
+        self.explainer = shap.TreeExplainer(model)
+        self.features = _features(ref_df)
+        X_ref = ref_df[self.features].sample(
+            n=min(sample_size, len(ref_df)), random_state=seed)
+        self.ref_mean_abs = np.abs(self.explainer.shap_values(X_ref)).mean(axis=0)
+        self.sample_size = sample_size
+        self.seed = seed
+
+    def mean_abs_shap(self, df):
+        X = df[self.features]
+        if len(X) > self.sample_size:
+            X = X.sample(n=self.sample_size, random_state=self.seed)
+        return np.abs(self.explainer.shap_values(X)).mean(axis=0)
+
+    def rank(self, cur_df):
+        change = np.abs(self.mean_abs_shap(cur_df) - self.ref_mean_abs)
+        return {"ranking": _sorted(dict(zip(self.features, change.tolist())))}
+
+
+if __name__ == "__main__":
+    # Quick self-check: python3.11 -m c2.evaluation.baselines
+    from c2.src.scenarios import artifacts, make_scenario
+
+    a = artifacts()
+    snap = SnapshotSHAP(a["model"], a["ref_df"])
+    cases = [
+        ("marginal_single", ["education_num"], 0.6),
+        ("marginal_single", ["marital_status"], 0.6),
+        ("marginal_single", ["native_country"], 0.6),
+        ("interaction", ["education_num", "occupation"], 0.8),
+        ("none", [], 0.0),
+    ]
+    print(f"{'scenario':<40} {'Baseline A top-3':<45} Baseline B top-3")
+    for dtype, feats, mag in cases:
+        s = make_scenario(dtype, feats, mag)
+        A = list(drift_only_ranking(a["ref_df"], s["drifted_df"],
+                                    a["feature_types"])["ranking"])[:3]
+        B = list(snap.rank(s["drifted_df"])["ranking"])[:3]
+        name = f"{dtype} {'+'.join(feats) or '-'} m={mag}"
+        print(f"{name:<40} {str(A):<45} {B}")
+    print("BASELINES OK")
+    
