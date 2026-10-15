@@ -1,18 +1,22 @@
 {
   "engine": {
-    "engine_version": "1.2.1",
-    "trained_at": "2026-10-10 16:31:48",
-    "train_sec": 3.6,
+    "engine_version": "1.2.2",
+    "trained_at": "2026-10-15 12:43:06",
+    "train_sec": 6.0,
     "n1_train_conditions": 1276,
     "n2_calibration_conditions": 324,
-    "n2_quantile_normalised": 3.0369,
+    "n2_quantile_normalised": 3.0368,
     "calibrated_batch_sizes": [
       500,
       1000,
       2000,
       3000
     ],
+    "harm_metric": "accuracy_drop",
     "fixed_baseline_accuracy": 0.8744,
+    "fixed_baseline_auc": null,
+    "noise_sd_pp": null,
+    "n_features": 12,
     "features": [
       "age",
       "workclass",
@@ -43,106 +47,106 @@
     "combined": {
       "n": 18,
       "true_drop_pp": 1.5011,
-      "MAE_fixed": 0.7939,
-      "MAE_paired": 0.9248,
+      "MAE_fixed": 0.7712,
+      "MAE_paired": 0.9276,
       "coverage": 0.8889,
       "width_pp": 4.5261,
       "extent_acc": 1.0,
-      "mean_p_interaction": 0.4731,
+      "mean_p_interaction": 0.4783,
       "drift_detected": 1.0,
       "injected_found": 1.0,
       "top1_correct": 1.0,
-      "n_affected": 1.5556,
+      "n_affected": 1.0,
       "detectors_fired": 4.8889,
-      "runtime_s": 0.2936
+      "runtime_s": 0.4525
     },
     "interaction": {
       "n": 18,
       "true_drop_pp": 0.5899,
-      "MAE_fixed": 0.5789,
-      "MAE_paired": 0.498,
+      "MAE_fixed": 0.5606,
+      "MAE_paired": 0.4785,
       "coverage": 1.0,
       "width_pp": 4.5261,
       "extent_acc": 1.0,
-      "mean_p_interaction": 0.6926,
+      "mean_p_interaction": 0.696,
       "drift_detected": 0.1667,
       "injected_found": null,
       "top1_correct": null,
       "n_affected": 0.0,
       "detectors_fired": 1.5,
-      "runtime_s": 0.2816
+      "runtime_s": 0.4022
     },
     "marginal_multi": {
       "n": 18,
       "true_drop_pp": 3.7599,
-      "MAE_fixed": 0.8318,
-      "MAE_paired": 0.5748,
+      "MAE_fixed": 0.8607,
+      "MAE_paired": 0.6019,
       "coverage": 0.9444,
-      "width_pp": 4.525,
+      "width_pp": 4.5239,
       "extent_acc": 0.8889,
-      "mean_p_interaction": 0.0287,
+      "mean_p_interaction": 0.0282,
       "drift_detected": 1.0,
       "injected_found": 1.0,
       "top1_correct": 1.0,
-      "n_affected": 3.6667,
-      "detectors_fired": 5.9444,
-      "runtime_s": 0.2994
+      "n_affected": 3.3333,
+      "detectors_fired": 6.0,
+      "runtime_s": 0.4521
     },
     "marginal_single": {
       "n": 30,
       "true_drop_pp": 2.1135,
-      "MAE_fixed": 0.7873,
-      "MAE_paired": 0.6674,
+      "MAE_fixed": 0.7853,
+      "MAE_paired": 0.6421,
       "coverage": 0.9667,
-      "width_pp": 4.525,
+      "width_pp": 4.5253,
       "extent_acc": 0.9667,
-      "mean_p_interaction": 0.3116,
+      "mean_p_interaction": 0.3096,
       "drift_detected": 1.0,
       "injected_found": 0.9667,
       "top1_correct": 0.9667,
-      "n_affected": 1.4,
-      "detectors_fired": 4.8333,
-      "runtime_s": 0.5096
+      "n_affected": 0.9667,
+      "detectors_fired": 4.8,
+      "runtime_s": 0.4342
     },
     "none": {
       "n": 30,
       "true_drop_pp": -0.1705,
-      "MAE_fixed": 0.579,
-      "MAE_paired": 0.274,
+      "MAE_fixed": 0.59,
+      "MAE_paired": 0.261,
       "coverage": 1.0,
-      "width_pp": 4.5257,
+      "width_pp": 4.5243,
       "extent_acc": 1.0,
-      "mean_p_interaction": 0.4669,
+      "mean_p_interaction": 0.4616,
       "drift_detected": 0.0333,
       "injected_found": null,
       "top1_correct": null,
       "n_affected": 0.0,
-      "detectors_fired": 0.5667,
-      "runtime_s": 0.288
+      "detectors_fired": 0.4333,
+      "runtime_s": 0.433
     }
   },
   "overall": {
-    "mae_fixed": 0.7076492494094139,
+    "mae_fixed": 0.7080878459006418,
     "coverage": 0.9649122807017544,
     "extent_accuracy": 0.9736842105263158,
-    "interaction_auc": 0.7674501424501424,
-    "mean_runtime_s": 0.3479912280701755
+    "interaction_auc": 0.7792022792022792,
+    "mean_runtime_s": 0.4345526315789473
   },
   "by_batch_size": {
     "1000": {
       "covered": 1.0,
-      "width_pp": 5.8566,
-      "abs_err_fixed": 0.6453
+      "width_pp": 5.8553,
+      "abs_err_fixed": 0.6488
     },
     "1500": {
       "covered": 0.9737,
       "width_pp": 4.56,
-      "abs_err_fixed": 0.7725
+      "abs_err_fixed": 0.7993
     },
     "2500": {
       "covered": 0.9211,
       "width_pp": 3.16,
-      "abs_err_fixed": 0.7051
+      "abs_err_fixed": 0.6761
     }
   },
   "no_drift": {
@@ -152,25 +156,24 @@
   "drift_detected_rate_on_drift": 0.8214285714285714,
   "examples": {
     "marginal_single": {
-      "evidence_version": "c1-e64d6455",
-      "engine_version": "1.2.1",
+      "evidence_version": "c1-f2748cdd",
+      "engine_version": "1.2.2",
       "model_id": "adult-xgb-v1",
       "reference_dataset_uri": "",
       "current_dataset_uri": "fresh_test_1.csv",
       "batch_size": 1500,
       "drift_detected": true,
-      "predicted_harm": 0.0144,
+      "predicted_harm": 0.0158,
       "harm_interval": [
-        -0.0084,
-        0.0372
+        -0.007,
+        0.0386
       ],
       "harm_metric": "accuracy_drop",
       "harm_severity": "low",
       "marginal_extent": "single",
-      "interaction_suspected": 0.431,
+      "interaction_suspected": 0.4615,
       "affected_features": [
-        "marital_status",
-        "capital_gain"
+        "marital_status"
       ],
       "detector_scores": {
         "ks_mean": 0.0155,
@@ -180,7 +183,7 @@
         "psi_mean": 0.2058,
         "psi_max": 2.39,
         "mmd": 0.0253,
-        "lsdd": 0.0645,
+        "lsdd": 0.0609,
         "clf_auc": 0.8552
       },
       "detectors_fired": 5,
@@ -200,25 +203,25 @@
         "pct_pos_prob_lt_06": 0.8733
       },
       "warnings": [],
-      "runtime_sec": 2.499
+      "runtime_sec": 0.399
     },
     "marginal_multi": {
-      "evidence_version": "c1-72c09546",
-      "engine_version": "1.2.1",
+      "evidence_version": "c1-44f8713e",
+      "engine_version": "1.2.2",
       "model_id": "adult-xgb-v1",
       "reference_dataset_uri": "",
       "current_dataset_uri": "fresh_test_31.csv",
       "batch_size": 1500,
       "drift_detected": true,
-      "predicted_harm": 0.0098,
+      "predicted_harm": 0.0093,
       "harm_interval": [
-        -0.013,
-        0.0326
+        -0.0135,
+        0.0321
       ],
       "harm_metric": "accuracy_drop",
       "harm_severity": "none",
       "marginal_extent": "multi",
-      "interaction_suspected": 0.0051,
+      "interaction_suspected": 0.0292,
       "affected_features": [
         "marital_status",
         "age"
@@ -231,7 +234,7 @@
         "psi_mean": 0.4334,
         "psi_max": 4.0467,
         "mmd": 0.0415,
-        "lsdd": 0.1198,
+        "lsdd": 0.1139,
         "clf_auc": 0.9146
       },
       "detectors_fired": 6,
@@ -252,11 +255,11 @@
         "pct_pos_prob_lt_06": 0.83
       },
       "warnings": [],
-      "runtime_sec": 0.307
+      "runtime_sec": 0.391
     },
     "interaction": {
-      "evidence_version": "c1-5c9aa4f6",
-      "engine_version": "1.2.1",
+      "evidence_version": "c1-a0b7b53b",
+      "engine_version": "1.2.2",
       "model_id": "adult-xgb-v1",
       "reference_dataset_uri": "",
       "current_dataset_uri": "fresh_test_49.csv",
@@ -270,7 +273,7 @@
       "harm_metric": "accuracy_drop",
       "harm_severity": "none",
       "marginal_extent": "none",
-      "interaction_suspected": 0.9166,
+      "interaction_suspected": 0.9309,
       "affected_features": [],
       "detector_scores": {
         "ks_mean": 0.0111,
@@ -280,7 +283,7 @@
         "psi_mean": 0.0054,
         "psi_max": 0.0295,
         "mmd": 0.0019,
-        "lsdd": 0.0014,
+        "lsdd": 0.0012,
         "clf_auc": 0.5362
       },
       "detectors_fired": 3,
@@ -298,28 +301,27 @@
         "pct_pos_prob_lt_06": 0.842
       },
       "warnings": [],
-      "runtime_sec": 0.271
+      "runtime_sec": 0.399
     },
     "combined": {
-      "evidence_version": "c1-4e6ef226",
-      "engine_version": "1.2.1",
+      "evidence_version": "c1-e695d81f",
+      "engine_version": "1.2.2",
       "model_id": "adult-xgb-v1",
       "reference_dataset_uri": "",
       "current_dataset_uri": "fresh_test_67.csv",
       "batch_size": 1500,
       "drift_detected": true,
-      "predicted_harm": 0.008,
+      "predicted_harm": 0.0065,
       "harm_interval": [
-        -0.0148,
-        0.0308
+        -0.0163,
+        0.0293
       ],
       "harm_metric": "accuracy_drop",
       "harm_severity": "none",
       "marginal_extent": "single",
-      "interaction_suspected": 0.294,
+      "interaction_suspected": 0.3786,
       "affected_features": [
-        "marital_status",
-        "age"
+        "marital_status"
       ],
       "detector_scores": {
         "ks_mean": 0.0155,
@@ -329,7 +331,7 @@
         "psi_mean": 0.3391,
         "psi_max": 4.0015,
         "mmd": 0.0254,
-        "lsdd": 0.1258,
+        "lsdd": 0.1189,
         "clf_auc": 0.8634
       },
       "detectors_fired": 6,
@@ -350,25 +352,25 @@
         "pct_pos_prob_lt_06": 0.838
       },
       "warnings": [],
-      "runtime_sec": 0.289
+      "runtime_sec": 0.488
     },
     "none": {
-      "evidence_version": "c1-65026439",
-      "engine_version": "1.2.1",
+      "evidence_version": "c1-51ef8201",
+      "engine_version": "1.2.2",
       "model_id": "adult-xgb-v1",
       "reference_dataset_uri": "",
       "current_dataset_uri": "fresh_test_84.csv",
       "batch_size": 1000,
       "drift_detected": false,
-      "predicted_harm": 0.0045,
+      "predicted_harm": 0.0044,
       "harm_interval": [
-        -0.0247,
-        0.0338
+        -0.0249,
+        0.0336
       ],
       "harm_metric": "accuracy_drop",
       "harm_severity": "none",
       "marginal_extent": "none",
-      "interaction_suspected": 0.3387,
+      "interaction_suspected": 0.3195,
       "affected_features": [],
       "detector_scores": {
         "ks_mean": 0.0113,
@@ -378,7 +380,7 @@
         "psi_mean": 0.0071,
         "psi_max": 0.0401,
         "mmd": 0.0011,
-        "lsdd": 0.0007,
+        "lsdd": 0.0005,
         "clf_auc": 0.4625
       },
       "detectors_fired": 0,
@@ -392,7 +394,7 @@
         "pct_pos_prob_lt_06": 0.83
       },
       "warnings": [],
-      "runtime_sec": 0.27
+      "runtime_sec": 0.375
     }
   }
 }
