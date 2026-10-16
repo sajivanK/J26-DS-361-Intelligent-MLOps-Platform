@@ -31,6 +31,18 @@ AFFECTED FEATURES (1.2.2)
   0.994 -> 0.986; UCI Adult precision 0.64 -> 0.98, recall 1.000 -> 0.987. The 95th-percentile
   thresholds used by N3 are unchanged, so N1 / N2 / N3 outputs are unchanged.
 
+N2 MONDRIAN (1.2.3)
+  Split conformal guarantees coverage only marginally over the condition mix; marginal_multi was
+  under-covered on both benchmarks (0.87 to 0.92). 1.2.3 calibrates one normalised quantile per
+  N3-predicted marginal_extent (none / single / multi), which detect() knows before the interval is
+  built. The calibration rows are grouped by OUT-OF-FOLD N3 predictions (group 5-fold on all
+  1,600 conditions), because N3 itself is trained on all rows and its in-sample predictions would be
+  optimistic. A group with fewer than MIN_GROUP calibration rows uses the global quantile.
+  Validated by c1/scripts/run_mondrian_check_v12.py (100 splits, both datasets): multi coverage
+  0.96 to 0.97, worst drift-type coverage 0.93 to 0.96, intervals 10 to 20% wider on average.
+  N1, N3, thresholds, affected_features and all output fields are unchanged; only harm_interval
+  changes. Engines saved before 1.2.3 keep the single global quantile.
+
 DETECT (per batch, no labels needed)
   Returns the C1 output dict (see detect()). Output changes in 1.2.1:
     - drift_detected (new): marginal shift found by N3, or at least 3 detectors fired
@@ -52,7 +64,7 @@ from c1.src.profile import ReferenceProfile
 from c1.src.detectors import run_all_detectors, DETECTOR_SIGNALS
 from c1.src.prediction_stats import prediction_stats, CONFIDENCE_SIGNALS, POS_PROB_SIGNALS
 
-ENGINE_VERSION = "1.2.2"
+ENGINE_VERSION = "1.2.3"
 EVIDENCE_VERSION_PREFIX = "c1-"
 ALPHA = 0.05
 NODRIFT_Q = 0.95
@@ -66,6 +78,8 @@ FIRE_SIGNALS = {"ks": "ks_max", "chi2": "chi2_max", "psi": "psi_max",
 MIN_DETECTORS_FOR_DRIFT = 3
 SEVERITY = [(1.0, "none"), (3.0, "low"), (7.0, "moderate"), (15.0, "high")]  # pp, else critical
 TARGET_COL = {"accuracy_drop": "actual_accuracy_drop", "auc_drop": "actual_auc_drop"}
+EXTENTS = ["none", "single", "multi"]
+MIN_GROUP = 19  # ceil((n+1)(1-alpha)) <= n needs n >= 19 at alpha = 0.05
 
 
 def _gbr(seed):
@@ -165,7 +179,8 @@ class C1Engine:
         # StratifiedGroupKFold yields (train, test); the 20% test fold is our calibration set
         self.n1 = _gbr(seed).fit(X1[tr], y[tr])
         sig_ca = self._sigma(df["batch_size"].values[ca].astype(float))
-        self.q = _conformal_q(np.abs(y[ca] - self.n1.predict(X1[ca])) / sig_ca)
+        scores_ca = np.abs(y[ca] - self.n1.predict(X1[ca])) / sig_ca
+        self.q = _conformal_q(scores_ca)  # global quantile (1.2.2 behaviour, also the fallback)
         self.n_train, self.n_cal = len(tr), len(ca)
 
         # N3 (Option B) on all 1,600 rows
@@ -178,6 +193,20 @@ class C1Engine:
                         self._fingerprint(Ms, bs)])
         self.n3_extent = _rf(seed).fit(X3, y_ext)
         self.n3_flag = _rf(seed).fit(X3, y_flag)
+
+        # N2 Mondrian (1.2.3): one quantile per N3-predicted extent, calibration rows grouped by
+        # OUT-OF-FOLD N3 predictions (the in-sample ones above would be optimistic)
+        oof_ext = np.empty(len(df), dtype=object)
+        for f_tr, f_te in StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=seed).split(
+                df, y5, df["group"]):
+            oof_ext[f_te] = _rf(seed).fit(X3[f_tr], y_ext[f_tr]).predict(X3[f_te])
+        self.n3_oof_extent_accuracy = float((oof_ext == y_ext).mean())
+        g_ca = oof_ext[ca]
+        self.q_ext, self.n_cal_ext = {}, {}
+        for g in EXTENTS:
+            m = g_ca == g
+            self.n_cal_ext[g] = int(m.sum())
+            self.q_ext[g] = _conformal_q(scores_ca[m]) if m.sum() >= MIN_GROUP else self.q
 
         self.trained_at = time.strftime("%Y-%m-%d %H:%M:%S")
         self.train_sec = round(time.time() - t0, 1)
@@ -252,13 +281,16 @@ class C1Engine:
         # N1 + N2
         x1 = np.array([[scores[k] for k in DETECTOR_SIGNALS] + [ps[k] for k in PRED] + [bs]])
         harm_pp = float(self.n1.predict(x1)[0])
-        half = float(self.q * self._sigma(bs))
 
         # N3
         Ms = {f: np.array([[per[f][feat] for feat in self.fam_feats[f]]]) for f in FAMILIES}
         x3 = np.hstack([x1, self._fingerprint(Ms, np.array([bc]))])
         extent = str(self.n3_extent.predict(x3)[0])
         p_int = float(self.n3_flag.predict_proba(x3)[0][list(self.n3_flag.classes_).index(1)])
+
+        # N2 interval: Mondrian quantile for the predicted extent (engines before 1.2.3: global)
+        q = getattr(self, "q_ext", {}).get(extent, self.q)
+        half = float(q * self._sigma(bs))
 
         # detectors fired
         fired = [name for name, sig in FIRE_SIGNALS.items() if scores[sig] > self.det_thr[name][bc]]
@@ -324,6 +356,12 @@ class C1Engine:
                 "train_sec": self.train_sec,
                 "n1_train_conditions": self.n_train, "n2_calibration_conditions": self.n_cal,
                 "n2_quantile_normalised": round(self.q, 4),
+                "n2_method": "mondrian_extent" if hasattr(self, "q_ext") else "global",
+                "n2_quantile_by_extent": ({g: round(v, 4) for g, v in self.q_ext.items()}
+                                          if hasattr(self, "q_ext") else None),
+                "n2_calibration_by_extent": getattr(self, "n_cal_ext", None),
+                "n3_oof_extent_accuracy": (round(self.n3_oof_extent_accuracy, 4)
+                                           if hasattr(self, "n3_oof_extent_accuracy") else None),
                 "calibrated_batch_sizes": self.sizes,
                 "harm_metric": getattr(self, "harm_metric", "accuracy_drop"),
                 "fixed_baseline_accuracy": round(self.p, 4),
