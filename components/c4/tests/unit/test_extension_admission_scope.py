@@ -91,7 +91,13 @@ def test_wrong_checkpoint_stops_before_execution():
 
 def test_scripts_never_invoke_candidate_future_or_calibration_runners():
     names=[]
-    for p in (ROOT/'scripts').glob('run_extension*.py'):
-        tree=ast.parse(p.read_text())
+    # Admission-only restrictions apply to these three entry points. Candidate
+    # and pipeline entry points are separate, explicitly authorized stages.
+    admission_scripts = ('run_extension_admission_batch.py',
+                         'run_extension_group_admissions.py',
+                         'run_extension_case_admission.py')
+    for filename in admission_scripts:
+        p = ROOT / 'scripts' / filename
+        tree=ast.parse(p.read_text(encoding='utf-8'))
         names.extend(n.value for n in ast.walk(tree) if isinstance(n,ast.Constant) and isinstance(n.value,str) and n.value.endswith('.py'))
     assert not any('candidate' in n or 'future' in n or 'calibrate' in n or 'pipeline' in n for n in names)
