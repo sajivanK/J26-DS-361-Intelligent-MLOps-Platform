@@ -1,0 +1,253 @@
+{
+  "protocol_version": "pp1-evaluation-spec-v1",
+  "dataset": "adult",
+  "scope": "Adult accuracy-margin pilot with controlled simulated upstream evidence",
+  "primary_forecaster": "lightgbm",
+  "secondary_forecaster": "linear",
+  "primary_policy_family": "adaptive",
+  "outer_assigned_groups": 16,
+  "planned_outer_cases": 592,
+  "target_units": "accuracy_margin_fraction",
+  "safety_boundaries": {
+    "future_global_margin": 0.0,
+    "future_slice_margin": 0.0,
+    "future_nonaffected_margin": -0.02
+  },
+  "population_basis": "True injected slice and complement are research targets; C2-diagnosed slice supplies decision-time evidence. No operational true-membership input.",
+  "origin": "Baseline/ablation families follow the C4 proposal. Exact accuracy rules, score thresholds, cost weights and statistical settings below are investigator-defined PP1 choices frozen after development results and before outer outcomes.",
+  "shared_controls": {
+    "hard_gates_retained": true,
+    "gate_failure": "ESCALATE",
+    "admission_rule_unchanged": true,
+    "primary_target_population": "all admitted outer scenarios with verified paired outcomes; no favorable-case filtering",
+    "blocked_target_imputation": false,
+    "blocked_cases": "retain every admission record; report gate/admission exclusion separately; no counterfactual performance labels",
+    "baseline_fit_folds": "forecast_train only for forecasting; pooled original+extension conformal for intervals; policy_calibration only for empirical policy selection",
+    "original_artifacts": "immutable; every comparison that needs fitting receives a separate artifact version",
+    "tuning_after_outer_outcomes": false,
+    "synthetic_controller_fixtures_in_research_tables": false
+  },
+  "baselines": [
+    {
+      "id": "B1",
+      "name": "global accuracy-margin threshold",
+      "decision": "After hard gates, AUTO_DEPLOY if decision-time c4_global_candidate_minus_champion_accuracy >= 0, otherwise ESCALATE.",
+      "proposal_difference": "PP1 accuracy-margin adaptation of the proposed global F1 threshold; do not label it an implemented F1 baseline."
+    },
+    {
+      "id": "B2",
+      "name": "global plus diagnosed-slice accuracy rule",
+      "decision": "After hard gates, AUTO_DEPLOY if both decision-time global and affected_slice candidate-minus-champion accuracy margins >= 0; otherwise ESCALATE. affected_slice is the diagnosed slice here."
+    },
+    {
+      "id": "B3",
+      "name": "hand-weighted evidence-quality score",
+      "decision": "After hard gates, AUTO_DEPLOY if the frozen benchmark_policy.evidence_context quality >= 0.75; otherwise HUMAN_REVIEW.",
+      "interpretation": "Heuristic threshold baseline; not a calibrated safety probability. No future labels as decision inputs."
+    },
+    {
+      "id": "B4",
+      "name": "uncalibrated point forecast",
+      "decision": "Use frozen LightGBM medians for three margins. After hard gates, AUTO_DEPLOY if every median >= its fixed boundary; otherwise ESCALATE. No conformal or empirical policy-selection support claim."
+    },
+    {
+      "id": "B5",
+      "name": "Bonferroni marginal CQR with global policy",
+      "decision": "Same N1 lower/upper forecasts; per-target nonconformity max(0,L-y,y-U); max across admitted variants within group separately per target; rank ceil((n+1)*(1-0.05/3)). Expand each target separately. Insufficient rank gives [-1,1] and no AUTO_DEPLOY. Select a global buffer only by frozen policy-fold rule.",
+      "base_quantiles": [
+        0.05,
+        0.95
+      ],
+      "interpretation": "CQR can correct a fixed initial band; this uses the same initial N1 bands for fair reuse, not newly trained alpha/6 quantiles."
+    },
+    {
+      "id": "B6",
+      "name": "always deploy after mandatory gates",
+      "decision": "AUTO_DEPLOY for admitted cases that pass mandatory gates; otherwise ESCALATE. Comparator signal only, never actual deployment."
+    },
+    {
+      "id": "B7",
+      "name": "always review after mandatory gates",
+      "decision": "HUMAN_REVIEW for admitted cases that pass mandatory gates; otherwise ESCALATE."
+    },
+    {
+      "id": "B8",
+      "name": "joint conformal plus frozen global policy",
+      "decision": "Use the measured controller global family with exactly the saved N1/N2-v2/N3 boundaries and selected global fallback. Do not replace its review-only result."
+    }
+  ],
+  "ablations": [
+    {
+      "id": "A1",
+      "name": "remove direct C1 predictors from N1",
+      "scope": "N1_feature_ablation_with_other_controls_retained",
+      "drop_rule": "all columns beginning c1_",
+      "procedure": "Refit N1 on the unchanged training rows with these columns removed before varying-feature filtering. Recalibrate its own joint N2 and adaptive policy using only their assigned folds. Keep hard gates, candidate construction and predeclared evidence-quality contexts unchanged.",
+      "limitation": "Tests direct C1 predictor contribution only; C1 still exists in fixed policy context and upstream scenario construction."
+    },
+    {
+      "id": "A2",
+      "name": "remove diagnosis-stability predictor from N1",
+      "scope": "N1_feature_ablation_with_other_controls_retained",
+      "drop_rule": "exact column c2_diagnosis_stability",
+      "procedure": "Refit N1, recalibrate its own N2 and adaptive policy on the same assigned folds. Retain the diagnosis-stability hard gate and context formula.",
+      "limitation": "Tests direct forecasting-feature contribution; it does not remove C2 or the safety gate."
+    },
+    {
+      "id": "A3",
+      "name": "remove direct C3 quality predictors from N1",
+      "scope": "N1_feature_ablation_with_other_controls_retained",
+      "drop_columns": [
+        "c3_fidelity_score",
+        "c3_utility_score",
+        "c3_target_coverage",
+        "c3_prescription_confidence"
+      ],
+      "procedure": "Refit N1 and recalibrate its N2/adaptive policy on their unchanged folds. Retain mandatory repair/privacy gates, repair data and fixed evidence contexts.",
+      "limitation": "Tests four quality predictors only; repair size/ratio, approval flags and C3 repair packages remain."
+    },
+    {
+      "id": "A4",
+      "name": "remove affected-slice decision target",
+      "scope": "target_and_safety_requirement_ablation",
+      "procedure": "Reuse frozen global/complement N1 models, omit future_slice_margin from joint score and N3/policy safety requirements, recalibrate the two-target group-max interval and adaptive policy. Keep original three-target unsafe definition for final evaluation, so missed slice harm remains a failure."
+    },
+    {
+      "id": "A5",
+      "name": "quantile bands to point plus joint residual conformal",
+      "scope": "uncertainty_model_ablation",
+      "procedure": "Reuse frozen N1 medians as point forecasters; initial lower=upper=median. Calibrate max absolute residual across targets and variants per group at alpha .05, then use unchanged N3 and separately calibrated adaptive policy. This differs from B4, which has no conformal intervals."
+    },
+    {
+      "id": "A6",
+      "name": "joint max score to Bonferroni marginal CQR",
+      "scope": "joint_calibration_ablation",
+      "reuse_interval_artifacts": "B5",
+      "procedure": "Use B5 intervals and support flags with an independently selected adaptive policy on the same policy fold. Mandatory fallback cannot be overridden."
+    },
+    {
+      "id": "A7",
+      "name": "remove empirical risk-policy tuning",
+      "scope": "policy_selection_ablation",
+      "procedure": "Use frozen N1/N2/N3 and an adaptive policy with all three buffers fixed at zero; no outcome-based policy selection. Keep pre-release context-support restrictions and mandatory gates. Only N3-safe cases can AUTO_DEPLOY."
+    },
+    {
+      "id": "A8",
+      "name": "adaptive to globally selected policy",
+      "scope": "adaptive_policy_ablation",
+      "reuse": "B8",
+      "procedure": "Exactly reuse B8 results and hashes; report this equivalence, not an independent experiment."
+    }
+  ],
+  "comparison_model_preparation": {
+    "before_outer_outcomes": true,
+    "A1_A2_A3": "Same frozen N1 hyperparameters, grouped folds, group weights and training-only constant filtering; no calibration/policy values used to select features or fit forecasters.",
+    "models_for_ablations": "LightGBM primary only; linear remains the existing secondary forecast comparison.",
+    "quantile_crossing": "same sort/clip rule; raw predictions retained",
+    "separate_policy_calibration": "Any changed forecast/interval/target variant gets its own frozen-rule policy selection; never inherit a deployment-eligible policy by assumption.",
+    "reuse_saved_future_labels": "Development/calibration/policy labels already saved may be used in their assigned roles; do not retrain candidate classifiers or rerun TVAE for comparison preparation.",
+    "execution_gate": "Do not open outer outcomes until all comparison model/calibration/policy artifacts, executable implementations and this protocol have a separate readiness freeze."
+  },
+  "bonferroni": {
+    "targets": 3,
+    "joint_alpha": 0.05,
+    "current_usable_calibration_groups": 37,
+    "rank_clipping_allowed": false,
+    "insufficient_support": "full_margin_bounds_disable_AUTO_DEPLOY",
+    "minimum_groups_for_finite_three_target_adjustment": 59,
+    "additional_groups_authorized": false
+  },
+  "metrics": {
+    "unsafe_oracle": "any observed one of the original three future margins < its unchanged boundary",
+    "primary_governance": [
+      "equal_group_unsafe_auto_frequency",
+      "equal_group_automation",
+      "equal_group_conditional_unsafe_rate"
+    ],
+    "equal_group_unsafe_auto_frequency": "mean_g(unsafe_AUTO_count_g / admitted_count_g), nonempty groups only",
+    "equal_group_automation": "mean_g(AUTO_count_g / admitted_count_g), nonempty groups only",
+    "equal_group_conditional_unsafe_rate": "mean_g(unsafe_AUTO_count_g / AUTO_count_g), groups with AUTO only; null if none",
+    "safe_automation_coverage": "mean_g(safe_AUTO_count_g / safe_count_g), groups with at least one truly safe admitted scenario; null if none",
+    "safe_automation_yield": "mean_g(safe_AUTO_count_g / admitted_count_g), nonempty groups only",
+    "human_review_burden": "mean_g(HUMAN_REVIEW_count_g / admitted_count_g)",
+    "correct_escalation_recall": "mean_g(unsafe_ESCALATE_count_g / unsafe_count_g), groups with unsafe admitted cases; null if none",
+    "escalation_precision": "mean_g(unsafe_ESCALATE_count_g / ESCALATE_count_g), groups with ESCALATE; null if none",
+    "report_secondary": "Also report scenario-weighted quantities and all numerators, denominators, active-group counts; never silently switch weighting.",
+    "forecast": [
+      "MAE",
+      "RMSE",
+      "R2",
+      "pinball at .05,.5,.95"
+    ],
+    "forecast_R2": "null for zero target variance; no coercion to a perfect score",
+    "interval": [
+      "marginal coverage",
+      "scenario simultaneous three-target coverage",
+      "group all-variant all-target coverage",
+      "width fraction",
+      "width divided by physical margin range 2",
+      "interval score"
+    ],
+    "interval_score": "for joint CQR bands, width + (2/alpha)*max(L-y,0) + (2/alpha)*max(y-U,0), alpha=.05; Bonferroni additionally reports native per-target alpha=.05/3 score labelled separately",
+    "independent_evaluation": "Outer groups are held out in the scenario protocol but share Adult source rows; neither independence of new datasets nor universal coverage is established."
+  },
+  "risk_coverage": {
+    "operational_points": "Report each frozen method actual automation/risk point. A disabled policy has automation=0 and conditional risk=null.",
+    "diagnostic_curve": "Optional separately labelled score-ranking analysis on admitted hard-gate-passing scenarios; forces deployment of score prefixes and does not describe the frozen operational policy or authorize threshold tuning.",
+    "scores": {
+      "B1": "pre-release global accuracy margin",
+      "B2": "min(pre-release global margin, diagnosed-slice margin)",
+      "B3": "quality - .75",
+      "B4": "min_target(median-boundary)",
+      "B5": "min_target(calibrated lower-boundary)",
+      "B8_and_proposed": "min_target(joint calibrated lower-boundary); if selected policy is supported, subtract its applicable buffer; review-only fallback retains the diagnostic score but remains disabled"
+    },
+    "ties": "Add all exactly tied scores as one block, never choose favorable outcomes within ties.",
+    "AURC": "Right-step sum over tied score blocks of conditional unsafe rate at the block endpoint times increase in coverage. Coverage zero has undefined risk and contributes no interval; no artificial zero-risk observation.",
+    "constant_or_missing_scores": "AURC null for B6/B7 or any method with fewer than two distinct valid score blocks. No claims of a complete risk-coverage ranking for such methods."
+  },
+  "cost": {
+    "formula": "mean_g((C_U*unsafe_AUTO_count + C_H*HUMAN_REVIEW_count + C_E*safe_ESCALATE_count)/admitted_count)",
+    "primary_weights": {
+      "unsafe_auto": 10.0,
+      "human_review": 1.0,
+      "unnecessary_escalation": 2.0
+    },
+    "sensitivity_unsafe_auto_weights": [
+      1.0,
+      5.0,
+      10.0,
+      20.0,
+      100.0
+    ],
+    "interpretation": "Investigator-defined illustrative costs, not measured business costs; report all sensitivity points without selecting one after observing a winner."
+  },
+  "statistics": {
+    "bootstrap_replicates": 2000,
+    "bootstrap_seed": 20261016,
+    "bootstrap_unit": "assigned_replication_group_with_replacement",
+    "paired_draws_shared_across_methods": true,
+    "confidence_interval": "percentile .025/.975; exploratory conditional simulation uncertainty, not formal coverage of independent datasets",
+    "resampled_group_duplicates": "Each sampled copy is a separate group instance; do not deduplicate group IDs after sampling.",
+    "all_blocked_groups": "Include in assigned-group sampling and admission accounting; contribute no invented target observations to admitted-case metrics.",
+    "zero_deployment_conditional_risk": "null_not_zero",
+    "minimum_valid_bootstrap_fraction": 0.95,
+    "undefined_bootstrap": "Report valid/undefined replicate counts; CI null if fewer than 95% of draws define the statistic. Never fill undefined values with zero.",
+    "paired_comparisons": "Same outer group instances and saved scenario IDs; report proposed minus each comparator with paired bootstrap CI for primary metrics.",
+    "multiplicity": "Exploratory paired CIs, not multiplicity-controlled significance tests; no claims of significance from unadjusted multiple comparisons.",
+    "stability": "Report per namespace, per group, mechanism, nominal perturbation strength and diagnosis condition counts/metrics; subgroup small support explicitly shown. No severity-of-observed-harm relabelling.",
+    "no_posthoc_tuning": true
+  },
+  "reporting_limits": [
+    "Adult-only, simulated C1/C2/C3 evidence; no real producer validation.",
+    "Original N2 fallback, calibration extension and all failed attempts retained.",
+    "Review-only measured policy cannot establish autonomous deployment benefit or adaptive-policy superiority.",
+    "Acceptance fixtures verify branches only and are excluded from research metrics.",
+    "A1-A3 are controlled forecasting feature ablations, narrower than whole-component removal.",
+    "B8 and A8 are the same comparison.",
+    "No ELEC2/IEEE or held-out-dataset claims; no formal conditional-risk guarantee."
+  ],
+  "comparison_implementations_verified": false,
+  "outer_execution_authorized": false,
+  "production_release_authorized": false
+}
