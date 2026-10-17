@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 import pandas as pd
 import torch
@@ -17,7 +19,49 @@ class TabDDPMGenerator(BaseGenerator):
         batch_size: int = 256,
         num_timesteps: int = 100,
         learning_rate: float = 0.001,
+        discrete_columns: list[str] | tuple[str, ...] | None = None,
     ):
+        if not isinstance(epochs, int) or isinstance(epochs, bool):
+            raise ValueError("epochs must be a positive integer")
+        if epochs <= 0:
+            raise ValueError("epochs must be positive")
+
+        if not isinstance(batch_size, int) or isinstance(batch_size, bool):
+            raise ValueError("batch_size must be a positive integer")
+        if batch_size <= 0:
+            raise ValueError("batch_size must be positive")
+
+        if not isinstance(num_timesteps, int) or isinstance(num_timesteps, bool):
+            raise ValueError("num_timesteps must be a positive integer")
+        if num_timesteps <= 0:
+            raise ValueError("num_timesteps must be positive")
+
+        if (
+            isinstance(learning_rate, bool)
+            or not isinstance(learning_rate, (int, float))
+            or not np.isfinite(learning_rate)
+        ):
+            raise ValueError("learning_rate must be a positive number")
+        if learning_rate <= 0:
+            raise ValueError("learning_rate must be positive")
+
+        if discrete_columns is not None:
+            if not isinstance(discrete_columns, (list, tuple)):
+                raise ValueError("discrete_columns must be a list or tuple")
+            if (
+                any(
+                    not isinstance(column, str) or not column
+                    for column in discrete_columns
+                )
+                or len(set(discrete_columns)) != len(discrete_columns)
+            ):
+                raise ValueError(
+                    "discrete_columns must contain unique, non-empty string column names"
+                )
+            self.discrete_columns = tuple(discrete_columns)
+        else:
+            self.discrete_columns = None
+
         self.epochs = epochs
         self.batch_size = batch_size
         self.num_timesteps = num_timesteps
@@ -33,6 +77,7 @@ class TabDDPMGenerator(BaseGenerator):
         self.num_columns = []
         self.cat_columns = []
         self.original_columns = []
+        self.numerical_ranges = {}
 
     def fit(self, data: pd.DataFrame) -> None:
         if not isinstance(data, pd.DataFrame):
@@ -44,23 +89,41 @@ class TabDDPMGenerator(BaseGenerator):
         if data.isna().any().any():
             raise ValueError("Missing values must be handled before training.")
 
+        # Reset previous training state before starting a new fit.
         self.is_fitted = False
         self.model = None
         self.diffusion = None
-        self.original_columns = data.columns.tolist()
-        self.original_dtypes = data.dtypes.to_dict()
+        self.num_scaler = None
+        self.cat_encoder = None
+        self.training_array = None
+        self.num_classes = np.array([0])
+        # Work with an isolated copy of the training data.
+        training_data = data.copy(deep=True)
+        self.original_columns = training_data.columns.tolist()
+        self.original_dtypes = training_data.dtypes.to_dict()
+        # Use explicit categorical metadata when supplied.
+        # Otherwise preserve the existing dtype-based behavior.
+        if self.discrete_columns is not None:
+            missing_columns = [
+                column
+                for column in self.discrete_columns
+                if column not in training_data.columns
+            ]
+            if missing_columns:
+                raise ValueError(
+                    f"Unknown discrete columns: {missing_columns}"
+                )
+            discrete_set = set(self.discrete_columns)
+            self.cat_columns = [
+                column
+                for column in self.original_columns
+                if column in discrete_set
+            ]
+        else:
+            self.cat_columns = training_data.select_dtypes(
+                include=["object", "category", "bool"]
+            ).columns.tolist()
 
-        # Store observed numerical ranges for later validation.
-        self.numerical_ranges = {}
-        for column in data.select_dtypes(include=["number"]).columns:
-            self.numerical_ranges[column] = {
-                "min": data[column].min(),
-                "max": data[column].max()
-            }
-
-        self.cat_columns = data.select_dtypes(
-            include=["object", "category", "bool"]
-        ).columns.tolist()
         self.num_columns = [
             col for col in self.original_columns
             if col not in self.cat_columns
@@ -68,6 +131,15 @@ class TabDDPMGenerator(BaseGenerator):
 
         if not self.num_columns and not self.cat_columns:
             raise ValueError("No supported columns found.")
+
+        # Store observed numerical ranges for later validation.
+        self.numerical_ranges = {}
+        for column in self.num_columns:
+            if pd.api.types.is_numeric_dtype(training_data[column]):
+                self.numerical_ranges[column] = {
+                    "min": training_data[column].min(),
+                    "max": training_data[column].max(),
+                }
 
         if self.num_columns:
             n_rows = len(data)
@@ -78,7 +150,7 @@ class TabDDPMGenerator(BaseGenerator):
                 random_state=42
             )
             x_num = self.num_scaler.fit_transform(
-                data[self.num_columns]
+                training_data[self.num_columns]
             )
         else:
             self.num_scaler = None
@@ -89,7 +161,7 @@ class TabDDPMGenerator(BaseGenerator):
                 dtype=np.int64
             )
             x_cat = self.cat_encoder.fit_transform(
-                data[self.cat_columns]
+                training_data[self.cat_columns]
             )
             self.num_classes = np.array(
                 [len(categories) for categories in self.cat_encoder.categories_],
