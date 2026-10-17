@@ -7,8 +7,8 @@
   "affected_features_ranked": [
     "capital_gain",
     "marital_status",
-    "hours_per_week"
+    "education_num"
   ],
-  "diagnosis_version": "c2-003-3503a8",
-  "diagnosis_timestamp": "2026-10-17T20:12:46Z"
+  "diagnosis_version": "c2-003-d1f53e",
+  "diagnosis_timestamp": "2026-10-17T21:12:19Z"
 }

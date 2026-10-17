@@ -18,17 +18,26 @@ Endpoints
                           "production_data": [row, ...]}
                    returns {"to_c3": {...}, "to_c4": {...}, "details": {...},
                             "contract_problems": {"to_c3": [], "to_c4": []}}
+                   c1_output may be missing or malformed (NFR7): C2 then
+                   diagnoses from its own evidence and reports it in
+                   details.c1_status / details.warnings.
+  GET  /audit      last N audit-log records (FR9), ?last=5
   POST /reset      clear the cycle history
+
+Errors are always structured JSON: {"error": <code>, "message": ..., "problems": [...]}
 
 Rows are pandas to_dict(orient="records") records with every model feature and
 the label column "target" (the performance evidence and localization need
 labels). Both outputs are validated against the team contracts before returning.
 """
+import json
 import time
 import warnings
+from typing import Optional
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from c2.src.config import TARGET_COL
@@ -45,8 +54,13 @@ class WarmupRequest(BaseModel):
 
 
 class DiagnoseRequest(BaseModel):
-    c1_output: dict
+    c1_output: Optional[dict] = None
     production_data: list[dict]
+
+
+def _error(status, code, message, problems=None):
+    return HTTPException(status, {"error": code, "message": message,
+                                  "problems": problems or []})
 
 
 def _engine():
@@ -61,10 +75,30 @@ def _frame(rows):
     needed = eng.a["feature_names"] + [TARGET_COL]
     missing = [c for c in needed if c not in df.columns]
     if missing:
-        raise HTTPException(422, f"production_data is missing columns: {missing}")
+        raise _error(422, "bad_production_data", "production_data is missing columns",
+                     [f"missing column '{c}'" for c in missing])
     if len(df) < 100:
-        raise HTTPException(422, "need at least 100 rows per batch")
+        raise _error(422, "bad_production_data", "need at least 100 rows per batch",
+                     [f"got {len(df)} rows"])
+    bad = [c for c in needed if not pd.api.types.is_numeric_dtype(df[c])]
+    if bad:
+        raise _error(422, "bad_production_data", "columns must be numeric (preprocessed)",
+                     [f"column '{c}' is not numeric" for c in bad])
     return df[needed]
+
+
+@app.exception_handler(HTTPException)
+def http_error(request: Request, exc: HTTPException):
+    body = exc.detail if isinstance(exc.detail, dict) else {
+        "error": "request_error", "message": str(exc.detail), "problems": []}
+    return JSONResponse(status_code=exc.status_code, content=body)
+
+
+@app.exception_handler(Exception)
+def unexpected_error(request: Request, exc: Exception):
+    return JSONResponse(status_code=500, content={
+        "error": "diagnosis_failed", "message": f"{type(exc).__name__}: {exc}",
+        "problems": []})
 
 
 @app.on_event("startup")
@@ -83,7 +117,7 @@ def health():
 @app.post("/warmup")
 def warmup(req: WarmupRequest):
     if not req.batches:
-        raise HTTPException(422, "send at least one clean batch")
+        raise _error(422, "bad_warmup", "send at least one clean batch")
     frames = [_frame(b) for b in req.batches]
     _engine().warmup(frames)
     ENGINE["warmed_up"], ENGINE["cycles"] = True, 0
@@ -93,7 +127,7 @@ def warmup(req: WarmupRequest):
 @app.post("/diagnose")
 def diagnose(req: DiagnoseRequest):
     if not ENGINE["warmed_up"]:
-        raise HTTPException(409, "call /warmup with clean batches first")
+        raise _error(409, "not_warmed_up", "call /warmup with clean batches first")
     df = _frame(req.production_data)
     t = time.time()
     result = _engine().diagnose(df, req.c1_output)
@@ -105,6 +139,15 @@ def diagnose(req: DiagnoseRequest):
     }
     result["details"]["latency_s"] = round(time.time() - t, 3)
     return result
+
+
+@app.get("/audit")
+def audit(last: int = 5):
+    path = _engine().log_path
+    if path is None or not path.exists():
+        return {"records": []}
+    lines = path.read_text().splitlines()[-max(last, 1):]
+    return {"records": [json.loads(x) for x in lines]}
 
 
 @app.post("/reset")

@@ -9,7 +9,7 @@ Streams: 51 (scenario suite + clean), 2 warm-up + 3 diagnosed cycles each, C1 in
 | root_cause_category accuracy (C2 evidence only) | 92.2% |
 | root_cause_category accuracy (C2 + C1 hints) | 98.0% |
 | Diagnosis latency per cycle, median | 0.16 s |
-| Diagnosis latency per cycle, max | 0.43 s |
+| Diagnosis latency per cycle, max | 0.36 s |
 
 The fake C1 is built from the injection answer key, so the C2-only category accuracy is the honest figure until real C1 output is connected.
 

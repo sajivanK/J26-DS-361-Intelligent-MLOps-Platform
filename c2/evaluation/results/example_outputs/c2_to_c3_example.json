@@ -5,7 +5,7 @@
   "affected_features_ranked": [
     "capital_gain",
     "marital_status",
-    "hours_per_week"
+    "education_num"
   ],
   "affected_value_ranges": {
     "capital_gain": [
@@ -15,6 +15,6 @@
   },
   "slice_support": 0.29,
   "diagnosis_stability": 1.0,
-  "drift_impact_score": 0.9325,
+  "drift_impact_score": 0.8874,
   "temporal_window": 3
 }

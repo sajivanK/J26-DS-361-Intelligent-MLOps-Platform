@@ -30,7 +30,7 @@ TRUE_CATEGORY = {"marginal_single": "marginal", "interaction": "interaction",
 
 
 def main():
-    engine = C2DiagnosisEngine()
+    engine = C2DiagnosisEngine(log_path=None)
     ref = engine.a["ref_df"]
     specs = scenario_suite() + [("none", [], 0.0, None, "none")] * 4
     rows, t0 = [], time.time()

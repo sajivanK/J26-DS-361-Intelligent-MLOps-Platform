@@ -48,6 +48,22 @@ def main():
     print("\nLast repair specification sent to C3:")
     print(json.dumps(out["to_c3"], indent=2))
     ok = r.status_code == 200 and not any(out["contract_problems"].values())
+
+    # NFR7: missing C1 output still gives a diagnosis, flagged in details
+    s = stream[-1]
+    r2 = requests.post(f"{URL}/diagnose", timeout=300,
+                       json={"production_data": rows(s["drifted_df"])})
+    print(f"\nwithout C1: HTTP {r2.status_code}, c1_status="
+          f"{r2.json()['details']['c1_status']}")
+    # NFR7: bad production data gives a structured error, not a crash
+    r3 = requests.post(f"{URL}/diagnose", timeout=60,
+                       json={"production_data": [{"age": 1.0}] * 5})
+    print(f"bad data:   HTTP {r3.status_code}, error={r3.json().get('error')}")
+    # FR9: audit trail
+    a = requests.get(f"{URL}/audit", params={"last": 2}, timeout=30).json()
+    print(f"audit:      {len(a['records'])} latest records, last version "
+          f"{a['records'][-1]['diagnosis_version']}")
+    ok = ok and r2.status_code == 200 and r3.status_code == 422
     print("\nAPI DEMO OK" if ok else "\nAPI DEMO FAILED")
 
 
