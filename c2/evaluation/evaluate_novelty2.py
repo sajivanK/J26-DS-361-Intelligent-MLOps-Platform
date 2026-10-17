@@ -11,7 +11,10 @@ Methods (proposal Section 3.3)
   B2_explanation  Baseline 2, explanation-only     (Novelty 1 temporal SHAP z)
   B3_performance  Baseline 3, performance-only     (restore-test z)
   B4_subgroup     Baseline 4, subgroup-only        (SliceLine slice score)
-  N2_DIS          Novelty 2, fused Drift Impact Score (default weights 0.4/0.2/0.4)
+  G_subgroup_chg  the subgroup signal used INSIDE the DIS on its own (largest
+                  slice error-rate rise vs the clean warm-up cycles)
+  N2_DIS          Novelty 2, fused Drift Impact Score, four signals
+                  (default weights E/D/P/G = 0.35/0.15/0.35/0.15)
 
 Metrics
   top1 / top3          correct root cause ranked 1st / in top 3
@@ -19,7 +22,8 @@ Metrics
                        accuracy drop, over all streams (does the score track damage?)
   harm estimate        N2 estimated harm vs true harm (Spearman, mean abs error)
   malignant detection  team definition: true drop > 2pp
-  weight ablation      top-1 for every weight combination on a 0.1 grid
+  weight ablation      top-1 for every 4-signal weight combination on a 0.1 grid,
+                       including the earlier 3-signal setting (0.4/0.2/0.4/0)
 
 Run:   python3.11 -m c2.evaluation.evaluate_novelty2            (full, ~8 min)
        python3.11 -m c2.evaluation.evaluate_novelty2 --quick    (~2 min)
@@ -44,7 +48,9 @@ from c2.src.temporal_shap import TemporalSHAPMonitor
 warnings.filterwarnings("ignore", category=UserWarning)
 
 N_CYCLES, ONSET = 5, 2
-METHODS = ["B1_drift", "B2_explanation", "B3_performance", "B4_subgroup", "N2_DIS"]
+METHODS = ["B1_drift", "B2_explanation", "B3_performance", "B4_subgroup",
+           "G_subgroup_chg", "N2_DIS"]
+SIGNALS = ("E", "D", "P", "G")
 GROUPS = ["high_importance", "low_importance", "interaction", "combined"]
 
 
@@ -73,6 +79,7 @@ def run_stream(spec, seed, a, mon, scorer):
         "B2_explanation": {f: v["E"] for f, v in raw.items()},
         "B3_performance": {f: v["P"] for f, v in raw.items()},
         "B4_subgroup": sub["ranking"],
+        "G_subgroup_chg": {f: v["G"] for f, v in raw.items()},
         "N2_DIS": out["drift_impact_scores"],
     }
     row = {"group": group, "drift_type": dtype, "features": "+".join(causes) or "-",
@@ -90,7 +97,7 @@ def run_stream(spec, seed, a, mon, scorer):
         row[f"{m}_top3"] = any(f in causes for f in order[:3]) if causes else np.nan
     # keep normalised signals for the offline weight ablation
     for f, v in norm.items():
-        for k in ("E", "D", "P"):
+        for k in SIGNALS:
             row[f"sig_{k}_{f}"] = v[k]
     row["_causes"] = causes
     return row
@@ -98,22 +105,25 @@ def run_stream(spec, seed, a, mon, scorer):
 
 def weight_grid(step=0.1):
     vals = np.round(np.arange(0, 1 + 1e-9, step), 2)
-    return [(e, d, round(1 - e - d, 2)) for e, d in itertools.product(vals, vals)
-            if e + d <= 1 + 1e-9]
+    grid = [(e, d, p, abs(round(1 - e - d - p, 2)))
+            for e, d, p in itertools.product(vals, vals, vals) if e + d + p <= 1 + 1e-9]
+    return grid + [(0.35, 0.15, 0.35, 0.15)]
 
 
 def ablation(df, features):
     drifted = df[df["drift_type"] != "none"]
+    sig = {k: drifted[[f"sig_{k}_{f}" for f in features]].values for k in SIGNALS}
+    causes = list(drifted["_causes"])
     out = []
     for w in weight_grid():
-        hits = []
-        for _, row in drifted.iterrows():
-            dis = {f: w[0] * row[f"sig_E_{f}"] + w[1] * row[f"sig_D_{f}"]
-                   + w[2] * row[f"sig_P_{f}"] for f in features}
-            hits.append(_rank(dis)[0] in row["_causes"])
+        dis = sum(wk * sig[k] for wk, k in zip(w, SIGNALS))
+        top = [features[i] for i in dis.argmax(axis=1)]
+        hits = [t in c for t, c in zip(top, causes)]
         out.append({"w_explanation": w[0], "w_drift": w[1], "w_performance": w[2],
-                    "top1": float(np.mean(hits))})
-    return pd.DataFrame(out).sort_values("top1", ascending=False)
+                    "w_subgroup": w[3], "top1": float(np.mean(hits))})
+    return (pd.DataFrame(out).drop_duplicates(
+        subset=["w_explanation", "w_drift", "w_performance", "w_subgroup"])
+        .sort_values("top1", ascending=False))
 
 
 def pct(v):
@@ -166,19 +176,32 @@ def summarise(df, abl):
         acc = (pred == y).mean()
         L.append(f"| {name} | {pct(prec)} | {pct(rec)} | {pct(f1)} | {pct(acc)} |")
 
+    cols = ["w_explanation", "w_drift", "w_performance", "w_subgroup"]
     L.append("\n### Weight ablation (top-1 on drifted streams)\n")
-    L.append("| w_explanation | w_drift | w_performance | top1 |")
-    L.append("|---|---|---|---|")
-    default = abl[(abl.w_explanation == 0.4) & (abl.w_drift == 0.2)]
-    corners = abl[(abl[["w_explanation", "w_drift", "w_performance"]] == 1.0).any(axis=1)]
-    shown = pd.concat([abl.head(5), default, corners]).drop_duplicates()
-    for _, r in shown.iterrows():
-        tag = " (default)" if (r.w_explanation == 0.4 and r.w_drift == 0.2) else ""
-        tag = tag or (" (single signal)" if max(r.w_explanation, r.w_drift,
-                                                r.w_performance) == 1.0 else "")
-        L.append(f"| {r.w_explanation:.1f} | {r.w_drift:.1f} | {r.w_performance:.1f} | "
-                 f"{pct(r.top1)}{tag} |")
-    L.append("\nWeights are reported as a sensitivity analysis on the same streams; "
+    L.append("| w_explanation | w_drift | w_performance | w_subgroup | top1 |")
+    L.append("|---|---|---|---|---|")
+
+    def is_w(r, w):
+        return all(abs(r[c] - x) < 1e-9 for c, x in zip(cols, w))
+
+    named = {(0.35, 0.15, 0.35, 0.15): " (default, 4 signals)",
+             (0.4, 0.2, 0.4, 0.0): " (earlier 3-signal setting)"}
+    picks = [abl.head(5)]
+    for w in named:
+        picks.append(abl[abl.apply(lambda r: is_w(r, w), axis=1)])
+    picks.append(abl[(abl[cols] == 1.0).any(axis=1)])
+    for _, r in pd.concat(picks).drop_duplicates().iterrows():
+        tag = next((t for w, t in named.items() if is_w(r, w)), "")
+        tag = tag or (" (single signal)" if max(r[c] for c in cols) == 1.0 else "")
+        L.append(f"| {r.w_explanation:.2f} | {r.w_drift:.2f} | {r.w_performance:.2f} | "
+                 f"{r.w_subgroup:.2f} | {pct(r.top1)}{tag} |")
+    n_ge = int((abl["top1"] >= abl["top1"].max() - 1e-9).sum())
+    with_g = abl[abl.w_subgroup > 0]["top1"].max()
+    without_g = abl[abl.w_subgroup == 0]["top1"].max()
+    L.append(f"\n{n_ge} of {len(abl)} weight combinations reach the best top-1. "
+             f"Best with the subgroup signal: {pct(with_g)}; best without it: "
+             f"{pct(without_g)}.")
+    L.append("Weights are reported as a sensitivity analysis on the same streams; "
              "the default weights were fixed before this run.")
     return "\n".join(L)
 
@@ -208,7 +231,7 @@ def main():
     df.drop(columns=["_causes"]).to_csv(RESULTS_DIR / "novelty2_runs.csv", index=False)
     header = (f"# Novelty 2 results: Drift Impact Score vs single-evidence baselines\n\n"
               f"Streams: {len(df)} ({N_CYCLES} cycles, onset at cycle {ONSET}, batch 1000 "
-              f"from test.csv, seeds {seeds}). Default weights (E, D, P) = "
+              f"from test.csv, seeds {seeds}). Default weights (E, D, P, G) = "
               f"{scorer.weights}.\n")
     text = header + summarise(df, abl) + "\n"
     (RESULTS_DIR / "novelty2_summary.md").write_text(text)

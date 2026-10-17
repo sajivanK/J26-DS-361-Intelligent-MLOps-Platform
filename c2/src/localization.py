@@ -25,6 +25,9 @@ draws). Each level then picks the rule that best matches the harmed rows (F1),
 and a level is only kept if it improves the match by at least `min_gain`.
 
 Output fields map onto the C2 -> C3 contract:
+Privacy (NFR4): every candidate slice must contain at least MIN_GROUP_SIZE rows
+(and at least min_support of the batch), so no reported subgroup is small enough
+to risk re-identifying individuals.
     affected_slice_rule      pandas query string, e.g. "capital_gain > 1.21"
     affected_value_ranges    {feature: [low, high]} or {feature: [categories]}
     slice_support            fraction of the batch matched by the rule
@@ -34,7 +37,7 @@ import numpy as np
 from c2.src.config import TARGET_COL
 
 _INF = float("inf")
-
+MIN_GROUP_SIZE = 20   # NFR4 privacy: no slice smaller than this is scored or reported
 
 def _fmt(v):
     return f"{float(v):.4g}"
@@ -132,7 +135,7 @@ class HierarchicalLocalizer:
         h = self.drift_harm(cur_df, root) if harm is None else np.asarray(harm, float)
         if harm is None and self.harm_threshold is not None:
             h = (h >= self.harm_threshold).astype(float)
-        min_rows = max(int(self.min_support * n), 5)
+        min_rows = max(int(self.min_support * n), MIN_GROUP_SIZE)
         result = {"root_cause_feature": root,
                   "affected_features_ranked": list(ranked_features or [root])[:3],
                   "harmed_rows_estimate": round(float(h.sum()), 1)}

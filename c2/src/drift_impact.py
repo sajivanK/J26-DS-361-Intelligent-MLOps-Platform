@@ -3,7 +3,7 @@ Novelty 2: Drift Impact Score (DIS).
 J26-DS-361 | C2 XAI Root Cause Diagnosis Engine | Tharmika N (IT22247940)
 
 Question it answers: not just "which feature changed" but "which feature change
-actually HURTS the model". It fuses three evidence sources PER FEATURE:
+actually HURTS the model". It fuses four evidence sources PER FEATURE:
 
     E  explanation evidence  Novelty 1 temporal SHAP z-score (changes in the
                              model's reasoning, including interaction drift)
@@ -15,10 +15,16 @@ actually HURTS the model". It fuses three evidence sources PER FEATURE:
                              (restoring a feature always costs some loss through
                              normal permutation importance, so the raw gain must
                              be judged against that feature's own clean baseline)
+    G  subgroup evidence     largest rise in error rate inside one value slice of
+                             the feature (category or quantile bin), compared with
+                             the same slice in the clean warm-up cycles, as a
+                             two-proportion z-score (where the errors concentrate
+                             NOW that did not before; static error hot-spots such
+                             as SliceLine finds are cancelled out)
 
 Fix over the C2 research guide's draft: there, the performance and detector
 signals were one global number added equally to every feature, so they never
-changed the ranking and the "fusion" reduced to SHAP alone. Here all three
+changed the ranking and the "fusion" reduced to SHAP alone. Here all four
 signals are per feature.
 
 Every signal is first expressed as evidence against noise (z-score or -log10 p)
@@ -26,7 +32,9 @@ and then mapped to [0, 1) with s(x) = x / (x + c), where c is that signal's own
 significance level, so s = 0.5 exactly where the signal becomes significant.
 Scores are therefore comparable across batches, not just within one.
 
-    DIS_f = wE * E_f + wD * D_f + wP * P_f         (default weights 0.4 / 0.2 / 0.4)
+    DIS_f = wE * E_f + wD * D_f + wP * P_f + wG * G_f
+            (default weights 0.35 / 0.15 / 0.35 / 0.15; a 3-tuple of weights
+             means wG = 0, i.e. the three-signal version)
 
 Malignant vs benign (team definition: accuracy drop > 2pp): flagged malignant
 when the top feature's performance evidence is significant (P_f >= 0.5) AND its
@@ -44,9 +52,11 @@ import pandas as pd
 
 from c2.evaluation.baselines import drift_only_ranking
 from c2.src.config import TARGET_COL
+from c2.src.localization import MIN_GROUP_SIZE
 
-DEFAULT_WEIGHTS = (0.4, 0.2, 0.4)   # (explanation, drift, performance)
+DEFAULT_WEIGHTS = (0.35, 0.15, 0.35, 0.15)   # (explanation, drift, performance, subgroup)
 P_Z_SIGNIFICANT = 3.0               # performance z treated as significant
+G_Z_SIGNIFICANT = 3.0               # subgroup z treated as significant
 MALIGNANT_PP = 2.0                  # team definition (inject_drift): drop > 2pp
 _EPS = 1e-9
 
@@ -75,8 +85,49 @@ class DriftImpactScorer:
         self.c_E = float(z_thresh)                                 # Novelty 1 alarm level
         self.c_D = float(-np.log10(0.05 / len(self.features)))    # Bonferroni 5%
         self.c_P = P_Z_SIGNIFICANT
+        self.c_G = G_Z_SIGNIFICANT
         self.mu_P = None
         self.sd_P = None
+        self.warm_slices = None
+        self.edges = {}
+        for f in self.features:
+            if feature_types.get(f) != "categorical":
+                self.edges[f] = np.unique(np.quantile(ref_df[f], np.linspace(0, 1, 11)))
+
+    # ── subgroup evidence ──────────────────────────────────────────────────
+    def _slices(self, df, f):
+        x = df[f].values
+        if f not in self.edges:
+            return x.astype(int)
+        e = self.edges[f]
+        return np.clip(np.searchsorted(e, x, side="right") - 1, 0, len(e) - 2)
+
+    def _slice_counts(self, df):
+        """{feature: {slice: (n_rows, n_errors)}} for one batch."""
+        err = self.model.predict(df[self.features]) != df[TARGET_COL].values
+        out = {}
+        for f in self.features:
+            s = self._slices(df, f)
+            out[f] = {int(v): (int((s == v).sum()), int(err[s == v].sum()))
+                      for v in np.unique(s)}
+        return out
+
+    def subgroup_z(self, cur_df):
+        """Largest per-slice error-rate rise vs warm-up, as a z-score, per feature."""
+        cur = self._slice_counts(cur_df)
+        min_n = max(int(0.02 * len(cur_df)), MIN_GROUP_SIZE)
+        z = {}
+        for f in self.features:
+            best = 0.0
+            for v, (n1, k1) in cur[f].items():
+                n0, k0 = self.warm_slices[f].get(v, (0, 0))
+                if n1 < min_n or n0 < 10:
+                    continue
+                p = (k1 + k0) / (n1 + n0)
+                se = np.sqrt(max(p * (1 - p), 1e-6) * (1 / n1 + 1 / n0))
+                best = max(best, (k1 / n1 - k0 / n0) / se)
+            z[f] = float(best)
+        return z
 
     # ── performance evidence ───────────────────────────────────────────────
     def restore_gains(self, df, seed=0):
@@ -122,30 +173,36 @@ class DriftImpactScorer:
         self.mu_P = dict(zip(self.features, rows.mean(0)))
         self.sd_P = dict(zip(self.features, np.maximum(rows.std(0), 1e-3)))
         self.mu_acc = dict(zip(self.features, accs.mean(0)))
+        self.warm_slices = self._slice_counts(pool)
         return self
 
     # ── signals and fusion ─────────────────────────────────────────────────
     def signals(self, cur_df, shap_result):
-        """Evidence (E, D, P) per feature, raw and normalised to [0, 1)."""
+        """Evidence (E, D, P, G) per feature, raw and normalised to [0, 1)."""
         if self.mu_P is None:
             raise RuntimeError("call calibrate_performance(clean_batches) first")
         z = shap_result["ranking"]                       # Novelty 1 (EWMA z)
         drift = drift_only_ranking(self.ref_df, cur_df, self.feature_types)
         gains, accs = self.restore_gains(cur_df, seed=self.seed)
+        g = self.subgroup_z(cur_df)
         raw = {}
         for f in self.features:
             raw[f] = {"E": float(z[f]),
                       "D": float(drift["ranking"][f]),
                       "P": float((gains[f] - self.mu_P[f]) / self.sd_P[f]),
+                      "G": g[f],
                       "harm_pp": float(accs[f] - self.mu_acc[f])}
         norm = {f: {"E": _sat(r["E"], self.c_E),
                     "D": _sat(r["D"], self.c_D),
-                    "P": _sat(r["P"], self.c_P)} for f, r in raw.items()}
+                    "P": _sat(r["P"], self.c_P),
+                    "G": _sat(r["G"], self.c_G)} for f, r in raw.items()}
         return raw, norm
 
     def fuse(self, norm, weights=None):
-        wE, wD, wP = weights or self.weights
-        dis = {f: wE * s["E"] + wD * s["D"] + wP * s["P"] for f, s in norm.items()}
+        w = tuple(weights or self.weights)
+        wE, wD, wP, wG = w if len(w) == 4 else (*w, 0.0)
+        dis = {f: wE * s["E"] + wD * s["D"] + wP * s["P"] + wG * s["G"]
+               for f, s in norm.items()}
         return dict(sorted(dis.items(), key=lambda kv: kv[1], reverse=True))
 
     def score(self, cur_df, shap_result, weights=None):
