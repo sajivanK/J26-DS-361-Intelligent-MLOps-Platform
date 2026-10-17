@@ -11,6 +11,7 @@ import time
 
 from ..settings import C1_ENGINES, DATASETS, REPO_ROOT
 from .base import Component
+from .c1_results import RECORDED
 
 sys.path.insert(0, str(REPO_ROOT))
 from c1.src.engine import ENGINE_VERSION  # noqa: E402
@@ -60,7 +61,9 @@ class C1Component(Component):
     def info(self, dataset):
         eng = self.engine(dataset)
         return {"dataset": dataset, "label": DATASETS[dataset]["label"], "model_id": DATASETS[dataset]["model_id"],
-                "engine_version": ENGINE_VERSION, "min_rows": 100, **eng.summary()}
+                "engine_version": ENGINE_VERSION, "min_rows": 100, **eng.summary(),
+                "n_continuous": len(eng.profile.continuous), "n_categorical": len(eng.profile.categorical),
+                "recorded": RECORDED.get(dataset)}
 
     def run(self, batch, upstream):
         ctx = upstream["context"]

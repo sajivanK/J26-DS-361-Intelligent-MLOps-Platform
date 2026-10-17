@@ -1,0 +1,46 @@
+/*
+  Design tokens: the ONLY place colours, fonts and radii are defined.
+  Every page uses these variables (var(--accent), ...) instead of raw colour codes.
+  J26-DS-361 | Intelligent MLOps Platform | confirmed design: light body, Deep navy sidebar, teal accent.
+*/
+:root {
+  /* body */
+  --bg: #F5F7F9;          /* page background */
+  --surface: #FFFFFF;     /* cards */
+  --line: #E2E6EB;        /* borders, dividers */
+  --fg: #111827;          /* main text */
+  --muted: #5B6573;       /* secondary text */
+  --track: #E9EDF1;       /* empty bars, neutral tags */
+
+  /* brand */
+  --accent: #0F766E;      /* teal: buttons, key numbers, active states */
+  --accent-2: #0D9488;    /* lighter teal: chart marks */
+  --tint: #E6F6F4;        /* teal background for selected things */
+
+  /* status */
+  --warn-bg: #FFF7E6; --warn-line: #F59E0B; --warn-fg: #7C3A06;   /* alarm, severity >= low */
+  --ok-bg: #ECF7EF;   --ok-line: #86C79A;   --ok-fg: #1F5F35;     /* calm, contract ok */
+  --bad-bg: #FDECEC;  --bad-fg: #9B1C1C;                          /* errors, missed */
+  --truth: #E69F00;       /* the true harm marker (diamond) and the 1 pp line */
+
+  /* real / fake component badges */
+  --real-fg: #0F766E; --real-bg: #E6F6F4; --real-line: #0F766E;
+  --fake-fg: #4B3F9E; --fake-bg: #F1F0FB; --fake-line: #C9C3F0;
+
+  /* sidebar: Deep navy */
+  --side: #0E1A2B;
+  --side-2: #182A42;      /* active item */
+  --side-fg: #E8EEF7;
+  --side-mute: #9DB0C8;
+  --side-dim: #6E819B;
+  --side-line: #1E314A;
+  --side-accent: #2DD4BF;
+  --dot-real: #2DD4BF; --dot-fake: #A78BFA; --dot-off: #F87171;
+
+  /* type and shape */
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --sidebar-w: 248px;
+}

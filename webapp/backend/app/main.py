@@ -12,7 +12,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .components import PIPELINE
-from .routers import c1, health, pipeline
+from .routers import c1, health, lab, pipeline
 from .settings import FRONTEND_ORIGINS
 
 
@@ -29,3 +29,4 @@ app.add_middleware(CORSMiddleware, allow_origins=FRONTEND_ORIGINS, allow_methods
 app.include_router(health.router)
 app.include_router(c1.router)
 app.include_router(pipeline.router)
+app.include_router(lab.router)

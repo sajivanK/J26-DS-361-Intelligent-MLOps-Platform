@@ -24,6 +24,21 @@ C1_ENGINES = {
     "ieee": os.environ.get("C1_ENGINE_IEEE", str(DATA_DIR / "ieee" / "c1_engine_ieeecis_v12.pkl")),
 }
 
+# Drift Lab (platform test bench): unseen labelled rows to build batches from, and the feature groups
+# (high / low importance) used in the C1 benchmark. Loaded on first use, not at startup.
+LAB_SOURCE = {
+    "uci": os.environ.get("LAB_SOURCE_UCI", str(DATA_DIR / "uci" / "test.csv")),
+    "ieee": os.environ.get("LAB_SOURCE_IEEE", str(DATA_DIR / "ieee" / "test.csv")),
+}
+LAB_FEATURE_INFO = {
+    "uci": os.environ.get("LAB_FEATURES_UCI", str(DATA_DIR / "uci" / "feature_importance_adult_v11.json")),
+    "ieee": os.environ.get("LAB_FEATURES_IEEE", str(DATA_DIR / "ieee" / "feature_importance_ieeecis_v12.json")),
+}
+TARGET_COL = "target"
+
+# Latest pipeline run, kept so the Overview page can show it after a restart (outside the repo).
+RUNS_DIR = Path(os.environ.get("J26_RUNS_DIR", str(DATA_DIR / "platform_runs")))
+
 # C2 / C3 / C4: add your own paths here when your real code is plugged in, e.g.
 # C2_MODEL_DIR = os.environ.get("C2_MODEL_DIR", str(DATA_DIR / "c2"))
 
