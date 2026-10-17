@@ -6,10 +6,18 @@ hyperparameters) so its scores can be checked against v1.1.
 Trees split on label-encoded categoricals without assuming a numeric meaning
 beyond ordering, which is acceptable for a separability test.
 """
+import os
+
 import numpy as np
 import pandas as pd
 
 CLASSIFIER_SUBSAMPLE = 1000
+
+# The 3 CV folds run in joblib worker processes when n_jobs=-1. On Linux these are cheap forks; on
+# Windows each worker is a freshly spawned interpreter, which crashed XGBoost (stack overflow) and
+# ran out of memory on a 16-core laptop. Fold results do not depend on n_jobs (same data and seed per
+# fold), so Windows runs the folds in-process. Override with the C1_CV_JOBS environment variable.
+CV_JOBS = int(os.environ.get("C1_CV_JOBS", "1" if os.name == "nt" else "-1"))
 
 
 def clf_detector(profile, batch, seed=0):
@@ -24,4 +32,4 @@ def clf_detector(profile, batch, seed=0):
     clf = XGBClassifier(n_estimators=50, max_depth=3, learning_rate=0.1,
                         eval_metric="logloss", random_state=42, verbosity=0)
     return {"clf_auc": float(np.mean(cross_val_score(clf, X, y, cv=3,
-                                                       scoring="roc_auc", n_jobs=-1)))}
+                                                       scoring="roc_auc", n_jobs=CV_JOBS)))}
