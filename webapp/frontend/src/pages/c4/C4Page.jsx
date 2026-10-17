@@ -26,6 +26,22 @@ function reason(r){
  if(r.selected_policy_kind==="review_only")return "The selected policy requires human review even when interval safety is established.";
  return r.decision==="AUTO_DEPLOY"?"The evidence meets the configured release eligibility requirements.":value(r.reason);
 }
+
+function c4ErrorMessage(error){
+ if(!error)return null;
+ const message=String(error?.message??error);
+ if(/cannot reach|failed to fetch|networkerror|network request failed/i.test(message)){
+  return "Unable to reach the C4 backend. Check that the server is running on port 8000, then reload this page and retry.";
+ }
+ if(/^503\b/.test(message)){
+  return "C4 model or evidence artifacts are unavailable. Check the backend configuration and artifact paths. No new decision was produced.";
+ }
+ if(/^5\d\d\b/.test(message)){
+  return "The C4 request could not be completed. Check that the backend is running and inspect its logs. No new decision was produced.";
+ }
+ return message;
+}
+
 export default function C4Page(){
  const info=useApi(c4Api.info,[]);
  const [method,setMethod]=useState("lightgbm"),[family,setFamily]=useState("adaptive");
@@ -43,7 +59,8 @@ export default function C4Page(){
     <label>Policy family<select value={family} disabled={state.busy} onChange={e=>setFamily(e.target.value)}><option value="adaptive">Evidence-adaptive</option><option value="global">Global</option></select></label>
    </div><p className="small muted">Changes apply on the next evaluation. This reuses the trained candidate's recorded evidence; no retraining or deployment runs.</p></Details>
   </section>
-  <ErrorBox error={info.error||state.error}/>
+  <ErrorBox error={c4ErrorMessage(state.error||info.error)}/>
+  {saved&&(state.busy||state.error||info.error)&&<p className="small muted" role="status">Previous successful result shown below. {state.busy?"A new evaluation is in progress.":"The latest request failed; this is not a new decision."}</p>}
   {saved?<Assessment payload={saved}/>:<Empty>Evaluate the recorded case to see candidate performance, future-safety intervals and the release decision.</Empty>}
   <SupportingResearch/>
   <ControllerVerification/>
@@ -94,12 +111,12 @@ function SupportingResearch(){
 }
 function ResearchSummary(){
  const result=useApi(c4Api.results,[]),d=result.data;
- if(!d)return <><ErrorBox error={result.error}/><p className="small muted">{result.loading?"Loading…":"Research evidence unavailable."}</p></>;
+ if(!d)return <><ErrorBox error={c4ErrorMessage(result.error)}/><p className="small muted">{result.loading?"Loading…":"Research evidence unavailable."}</p></>;
  const primary=d.governance.find(x=>x.comparison==="PROPOSED"),coverage=d.intervals.PROPOSED;
  return <><p className="small muted">Held-out Adult simulation results, separate from the selected case.</p><KV rows={[["Assigned outer groups",d.counts.assigned_groups],["Admitted / blocked scenarios",`${d.counts.admitted} / ${d.counts.blocked}`],["AUTO_DEPLOY / HUMAN_REVIEW / ESCALATE",`${primary.count_auto} / ${primary.count_review} / ${primary.count_escalate}`],["Scenario joint coverage",percent(coverage.scenario_simultaneous_coverage)],["Whole-group joint coverage",percent(coverage.group_all_variant_simultaneous_coverage)]]}/><p className="small">Nominal calibration target: 95%. Observed whole-group coverage was 85.71%; the pilot does not establish a 95% held-out group-level guarantee. With zero deployments, conditional deployment risk is undefined.</p></>;
 }
 function ControllerVerification(){
  const [verify,state]=useAction(c4Api.fixtures),[results,setResults]=useState(null);
  async function run(){const out=await verify();if(out)setResults(out);}
- return <Details title="Controller verification · synthetic technical checks"><p className="small muted">Not research performance evidence. These fixtures run the actual controller class with synthetic forecasters and explicit test policies.</p><button className="btn" type="button" disabled={state.busy} onClick={run}>{state.busy?"Checking…":"Run acceptance checks"}</button><ErrorBox error={state.error}/>{results?.fixtures.map(f=><div className="c4-fixture c4-between" key={f.fixture_id}><span>{f.fixture_id}</span><strong className={f.passed?"c4-pass":"c4-fail"}>{f.passed?"PASS":"FAIL"} · {f.actual_decision}</strong></div>)}</Details>;
+ return <Details title="Controller verification · synthetic technical checks"><p className="small muted">Not research performance evidence. These fixtures run the actual controller class with synthetic forecasters and explicit test policies.</p><button className="btn" type="button" disabled={state.busy} onClick={run}>{state.busy?"Checking…":"Run acceptance checks"}</button><ErrorBox error={c4ErrorMessage(state.error)}/>{results?.fixtures.map(f=><div className="c4-fixture c4-between" key={f.fixture_id}><span>{f.fixture_id}</span><strong className={f.passed?"c4-pass":"c4-fail"}>{f.passed?"PASS":"FAIL"} · {f.actual_decision}</strong></div>)}</Details>;
 }
