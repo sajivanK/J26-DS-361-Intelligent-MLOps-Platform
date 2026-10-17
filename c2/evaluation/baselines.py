@@ -14,7 +14,17 @@ Baseline B - Snapshot SHAP ranking (proposal Section 3.3, Baseline 2)
     Fiddler AI and by the compute_temporal_shap() in the C2 research guide.
     It has no notion of noise and no memory of previous cycles.
 
-Both return a dict {feature: score} sorted from most to least suspicious.
+Baseline 4 - Subgroup-only ranking (proposal Section 3.3, Baseline 4)
+    Rank features by how strongly the model's errors concentrate in one of the
+    feature's value slices, using the SliceLine slice score (Sagadeeva & Boehm,
+    2021) on the current batch. Finds WHERE the model fails now, with no
+    explanation or drift evidence.
+
+(Baseline 3, performance-only, is the P signal of the Drift Impact Score used
+on its own; it lives in c2/src/drift_impact.py and is ranked in the Novelty 2
+evaluation.)
+
+All return a dict {feature: score} sorted from most to least suspicious.
 """
 import numpy as np
 import shap
@@ -82,6 +92,45 @@ class SnapshotSHAP:
         return {"ranking": _sorted(dict(zip(self.features, change.tolist())))}
 
 
+# ── BASELINE 4: SUBGROUP-ONLY (SLICELINE STYLE) ───────────────────────────
+def subgroup_only_ranking(cur_df, model, feature_types, ref_df=None,
+                          n_bins=10, alpha=0.95, min_support=0.05):
+    """
+    SliceLine score for single-feature slices (one category, or one quantile
+    bin of a continuous feature):
+        score(s) = alpha * (err_s / err_all - 1) - (1 - alpha) * (n / |s| - 1)
+    A feature's score is its best slice. Slices smaller than min_support of the
+    batch are ignored (SliceLine's minimum support constraint).
+    """
+    feats = _features(cur_df)
+    X = cur_df[feats]
+    err = (model.predict(X) != cur_df[TARGET_COL].values).astype(float)
+    n, err_all = len(err), max(err.mean(), 1e-9)
+    edge_src = ref_df if ref_df is not None else cur_df
+    scores, best = {}, {}
+    for f in feats:
+        x = X[f].values
+        if feature_types.get(f) == "categorical":
+            groups = x
+        else:
+            edges = np.unique(np.quantile(edge_src[f].values,
+                                          np.linspace(0, 1, n_bins + 1)))
+            groups = np.clip(np.searchsorted(edges, x, side="right") - 1,
+                             0, len(edges) - 2)
+        top, top_g = -np.inf, None
+        for g in np.unique(groups):
+            m = groups == g
+            size = m.sum()
+            if size < min_support * n:
+                continue
+            sc = alpha * (err[m].mean() / err_all - 1) - (1 - alpha) * (n / size - 1)
+            if sc > top:
+                top, top_g = sc, g
+        scores[f] = float(top) if np.isfinite(top) else -1.0
+        best[f] = top_g
+    return {"ranking": _sorted(scores), "best_slice": best}
+
+
 if __name__ == "__main__":
     # Quick self-check: python3.11 -m c2.evaluation.baselines
     from c2.src.scenarios import artifacts, make_scenario
@@ -95,13 +144,14 @@ if __name__ == "__main__":
         ("interaction", ["education_num", "occupation"], 0.8),
         ("none", [], 0.0),
     ]
-    print(f"{'scenario':<40} {'Baseline A top-3':<45} Baseline B top-3")
+    print(f"{'scenario':<40} {'Baseline A top-3':<45} {'Baseline B top-3':<50} Baseline 4 top-3")
     for dtype, feats, mag in cases:
         s = make_scenario(dtype, feats, mag)
         A = list(drift_only_ranking(a["ref_df"], s["drifted_df"],
                                     a["feature_types"])["ranking"])[:3]
         B = list(snap.rank(s["drifted_df"])["ranking"])[:3]
+        G = list(subgroup_only_ranking(s["drifted_df"], a["model"], a["feature_types"],
+                                       ref_df=a["ref_df"])["ranking"])[:3]
         name = f"{dtype} {'+'.join(feats) or '-'} m={mag}"
-        print(f"{name:<40} {str(A):<45} {B}")
+        print(f"{name:<40} {str(A):<45} {str(B):<50} {G}")
     print("BASELINES OK")
-    
