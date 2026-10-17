@@ -1,0 +1,50 @@
+{
+  "dataset": "ieee_cis",
+  "benchmark_version": "1.2",
+  "target_col": "target",
+  "harm_metric": "auc_drop",
+  "batch_sizes": [
+    2000,
+    4000,
+    6000,
+    10000
+  ],
+  "fixed_baseline_auc": 0.9493,
+  "fixed_baseline_accuracy": 0.9542,
+  "test_rows": 40000,
+  "reference_rows": 160000,
+  "fraud_rate_test": 0.0301,
+  "high_importance": [
+    "card1",
+    "TransactionAmt",
+    "card2",
+    "addr1",
+    "C13"
+  ],
+  "low_importance": [
+    "V33",
+    "V94",
+    "V117",
+    "V120",
+    "V122"
+  ],
+  "clean_batch_auc_noise": {
+    "2000": {
+      "auc_sd_pp": 1.611,
+      "mean_fraud_cases": 60.2
+    },
+    "4000": {
+      "auc_sd_pp": 1.115,
+      "mean_fraud_cases": 120.5
+    },
+    "6000": {
+      "auc_sd_pp": 0.903,
+      "mean_fraud_cases": 180.8
+    },
+    "10000": {
+      "auc_sd_pp": 0.659,
+      "mean_fraud_cases": 301.2
+    }
+  },
+  "data_note": "test.csv rebuilt 2026-10-13 with the preprocessing v1.1 imputation fix (reference fill values reused); old files in ieee_cis_archive/v1_imputation_bug"
+}

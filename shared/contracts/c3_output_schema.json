@@ -11,10 +11,13 @@
     "note": "C3 receives input from C1 (drift evidence), C2 (repair specification), and data_context from the platform orchestrator. These are documented here for clarity but are not part of the C3 output schema.",
     "from_c1": {
       "predicted_harm": "float",
-      "confidence_interval": "array[float, float]",
-      "drift_type": "string",
-      "drift_severity": "string",
-      "affected_features": "array[string]"
+      "harm_interval": "array[float, float]",
+      "harm_severity": "string",
+      "drift_detected": "boolean",
+      "marginal_extent": "string",
+      "interaction_suspected": "float",
+      "affected_features": "array[string]",
+      "note": "C1 contract v1.1: drift_type removed, drift_severity renamed harm_severity."
     },
     "from_c2": {
       "root_cause_feature": "string",

@@ -9,6 +9,10 @@ Files needed: train_transaction.csv (train_identity.csv optional)
 IMPORTANT:
 - All transforms fitted on REFERENCE split only
 - Never refit on production/drifted data
+- v1.1 fix: transform() fills missing values with the REFERENCE median (continuous)
+  and REFERENCE mode (categorical) stored at fit time. v1.0 used the batch's own
+  median and the first label-encoder class, so test.csv differed from
+  reference.csv in 21 features before any drift was injected.
 - Uses random split (not temporal) for injection-based drift experiments
 - ELEC2 reserved for PP2 temporal drift validation
 """
@@ -157,6 +161,7 @@ class IEEECISPreprocessor:
         self.feature_columns = None
         self.dropped_cols = []
         self.is_fitted = False
+        self.fill_values = {}  # v1.1: reference median / mode per column
 
     def fit_transform(self, df):
         """Fit on reference data and transform."""
@@ -181,12 +186,14 @@ class IEEECISPreprocessor:
         for col in self.continuous_cols:
             if col in df.columns:
                 median_val = df[col].median()
+                self.fill_values[col] = median_val
                 df[col] = df[col].fillna(median_val)
 
         # Categorical: mode imputation + encode
         for col in self.categorical_cols:
             if col in df.columns:
                 mode_val = df[col].mode()[0] if len(df[col].mode()) > 0 else 'Unknown'
+                self.fill_values[col] = mode_val
                 df[col] = df[col].fillna(mode_val).astype(str)
                 le = LabelEncoder()
                 df[col] = le.fit_transform(df[col])
@@ -207,6 +214,8 @@ class IEEECISPreprocessor:
     def transform(self, df):
         """Transform new data using fitted encoders and scaler."""
         assert self.is_fitted, "Preprocessor must be fitted before transform"
+        assert getattr(self, "fill_values", None), (
+            "preprocessor was fitted before v1.1 (no stored reference fill values); refit it")
 
         df = df.copy()
 
@@ -224,8 +233,7 @@ class IEEECISPreprocessor:
         # Fill and encode categoricals
         for col, le in self.label_encoders.items():
             if col in df.columns:
-                mode_val = str(le.classes_[0])
-                df[col] = df[col].fillna(mode_val).astype(str)
+                df[col] = df[col].fillna(self.fill_values[col]).astype(str)
                 known = set(le.classes_)
                 df[col] = df[col].apply(
                     lambda x: x if x in known else le.classes_[0]
@@ -235,7 +243,7 @@ class IEEECISPreprocessor:
         # Fill and scale continuous
         cont_present = [c for c in self.continuous_cols if c in df.columns]
         for col in cont_present:
-            df[col] = df[col].fillna(df[col].median())
+            df[col] = df[col].fillna(self.fill_values[col])
         df[cont_present] = self.scaler.transform(df[cont_present])
 
         # Ensure only feature columns present and in correct order
