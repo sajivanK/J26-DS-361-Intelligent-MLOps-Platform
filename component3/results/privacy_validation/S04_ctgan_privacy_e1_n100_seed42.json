@@ -1,0 +1,42 @@
+{
+  "experiment": "sprint05_task04_s04_privacy_validation",
+  "scenario": "S04",
+  "dataset": "uci_adult",
+  "generator": "ctgan",
+  "slice_rule": "race == 2",
+  "seed": 42,
+  "epochs": 1,
+  "n_samples": 100,
+  "current_rows": 6000,
+  "affected_slice_rows": 360,
+  "generator_training_rows": 360,
+  "generated_rows": 100,
+  "training_seconds": 7.2616,
+  "sampling_seconds": 0.0825,
+  "readiness_source": "synthetic_experiment_decision",
+  "privacy_validation": {
+    "stage": "privacy",
+    "status": "PASS",
+    "metrics": {
+      "synthetic_rows": 100,
+      "reference_rows": 360,
+      "exact_matches": {
+        "exact_match_count": 0,
+        "exact_match_ratio": 0.0,
+        "max_allowable_ratio": 0.0
+      },
+      "dcr_metrics": {
+        "dcr_min": 0.1387,
+        "dcr_p05": 0.4101,
+        "dcr_p50": 0.51,
+        "dcr_mean": 0.5037,
+        "near_duplicate_count": 0,
+        "near_duplicate_ratio": 0.0,
+        "min_dcr_p05_threshold": 0.02
+      },
+      "holdout_comparison": null
+    },
+    "reasons": []
+  },
+  "created_at_utc": "2026-10-18T08:48:58.625734+00:00"
+}

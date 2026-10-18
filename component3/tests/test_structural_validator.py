@@ -244,3 +244,28 @@ def test_result_to_dict_serialization(prepared_data, valid_synthetic):
     assert d["status"] == "PASS"
     assert isinstance(d["metrics"], dict)
     assert isinstance(d["reasons"], list)
+
+
+def test_boolean_continuous_column_fails(prepared_data):
+    synthetic = pd.DataFrame(
+        {
+            "age": [True, False, True, False],
+            "race": [2, 2, 2, 2],
+        }
+    )
+    result = validate_structural(synthetic, prepared_data)
+    assert result.status == ValidationStatus.FAIL
+    assert any("not numeric: age" in r for r in result.reasons)
+
+
+def test_mixed_type_unseen_categories_handled_safely(prepared_data):
+    synthetic = pd.DataFrame(
+        {
+            "age": [25.0, 35.0],
+            "race": ["unknown", 99],
+        }
+    )
+    result = validate_structural(synthetic, prepared_data)
+    assert result.status == ValidationStatus.FAIL
+    assert any("unseen categories" in r for r in result.reasons)
+

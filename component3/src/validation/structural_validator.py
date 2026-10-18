@@ -170,10 +170,10 @@ def validate_structural(
 
     # Validate continuous columns.
     for column in continuous:
-        if not pd.api.types.is_numeric_dtype(synthetic[column]):
+        if not pd.api.types.is_numeric_dtype(synthetic[column]) or pd.api.types.is_bool_dtype(synthetic[column]):
             reasons.append(f"Continuous feature is not numeric: {column}")
             continue
-        if not pd.api.types.is_numeric_dtype(reference[column]):
+        if not pd.api.types.is_numeric_dtype(reference[column]) or pd.api.types.is_bool_dtype(reference[column]):
             reasons.append(f"Reference continuous feature is not numeric: {column}")
             continue
 
@@ -212,10 +212,11 @@ def validate_structural(
         syn_categories = set(synthetic[column].dropna().unique())
         unseen = syn_categories - ref_categories
         if unseen:
+            sorted_unseen = sorted(list(unseen), key=lambda x: str(x))
             reasons.append(
-                f"Categorical feature '{column}' contains unseen categories: {sorted(list(unseen))[:5]}"
+                f"Categorical feature '{column}' contains unseen categories: {sorted_unseen[:5]}"
             )
-            metrics["unseen_categories"][column] = sorted(list(unseen))
+            metrics["unseen_categories"][column] = sorted_unseen
 
     # Evaluate target coverage if a slice rule is provided.
     if slice_rule:
