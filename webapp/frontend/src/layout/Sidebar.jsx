@@ -20,7 +20,7 @@ export default function Sidebar() {
 
       <div className="navgrp">Platform</div>
       {PLATFORM_PAGES.map((p) => (
-        <NavLink key={p.path} to={p.path} end className={navClass}>
+        <NavLink key={p.path} to={p.path} end={p.path === "/"} className={navClass}>
           <span className="lft"><Icon name={p.icon} /><span className="txt">{p.label}{p.sub && <small>{p.sub}</small>}</span></span>
         </NavLink>
       ))}

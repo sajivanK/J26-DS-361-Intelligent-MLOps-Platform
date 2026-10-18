@@ -12,7 +12,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .components import PIPELINE
-from .routers import c1, health, lab, pipeline
+from .routers import c1, health, lab, pipeline, runs
 from .settings import FRONTEND_ORIGINS
 
 
@@ -24,9 +24,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="J26-DS-361 Intelligent MLOps Platform API", version="0.1.0", lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=FRONTEND_ORIGINS, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=FRONTEND_ORIGINS, allow_methods=["*"], allow_headers=["*"],
+                   expose_headers=["X-Run-Id"])
 
 app.include_router(health.router)
 app.include_router(c1.router)
 app.include_router(pipeline.router)
 app.include_router(lab.router)
+app.include_router(runs.router)

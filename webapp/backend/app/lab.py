@@ -99,7 +99,7 @@ class DriftLab:
             raise LabError(f"batch size must be between 100 and {n}")
 
     def make_batch(self, engine, dataset, drift_type, features, magnitude, batch_size, seed):
-        """Return (batch without labels, truth dict, injection dict)."""
+        """Return (batch without labels, truth dict, injection dict, batch WITH labels)."""
         self.check(engine, dataset, drift_type, features, magnitude, batch_size, seed)
         src = self.source(dataset)
         types = self.feature_info(dataset, engine)["types"]
@@ -122,13 +122,14 @@ class DriftLab:
         if metric == "auc_drop":
             auc_b = roc_auc_score(drifted[TARGET_COL].values, engine.base_model.predict_proba(X)[:, 1])
             fixed, paired = (engine.auc - auc_b) * 100, (gt["baseline_auc"] - auc_b) * 100
-            base, after = engine.auc, auc_b
+            base, after, before = engine.auc, auc_b, gt["baseline_auc"]
         else:
             fixed, paired = (engine.p - gt["drifted_accuracy"]) * 100, gt["actual_accuracy_drop"]
-            base, after = engine.p, gt["drifted_accuracy"]
+            base, after, before = engine.p, gt["drifted_accuracy"], gt["baseline_accuracy"]
         truth = {"harm_metric": metric, "true_harm_pp": round(float(fixed), 4),
                  "true_harm_paired_pp": round(float(paired), 4),
                  "baseline": round(float(base), 4), "on_batch": round(float(after), 4),
+                 "same_rows_before": round(float(before), 4),
                  "note": "fixed baseline (whole test set) minus the model on this batch; labels never reach the components"}
         injection = {"dataset": dataset, "drift_type": drift_type, "features": list(features),
                      "shifted": kw["features"] if drift_type != "interaction" else [],
@@ -136,7 +137,7 @@ class DriftLab:
                                            [list(p) for p in (kw["interaction_pairs"] or [])]),
                      "magnitude": mag, "batch_size": len(X), "seed": int(seed),
                      "inject_sec": round(time.time() - t0, 3)}
-        return X, truth, injection
+        return X, truth, injection, drifted
 
 
 LAB = DriftLab()

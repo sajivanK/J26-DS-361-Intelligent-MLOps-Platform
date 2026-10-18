@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import Sidebar from "./layout/Sidebar.jsx";
-import { PIPELINE_PAGES, PLATFORM_PAGES } from "./pages.js";
+import { EXTRA_ROUTES, PIPELINE_PAGES, PLATFORM_PAGES } from "./pages.js";
 import ComponentPlaceholder from "./pages/ComponentPlaceholder.jsx";
 
 export default function App() {
@@ -10,6 +10,7 @@ export default function App() {
       <main className="main">
         <Routes>
           {PLATFORM_PAGES.map(({ path, page: Page }) => <Route key={path} path={path} element={<Page />} />)}
+          {EXTRA_ROUTES.map(({ path, page: Page }) => <Route key={path} path={path} element={<Page />} />)}
           {PIPELINE_PAGES.map((p) => (
             <Route key={p.path} path={p.path}
               element={p.page ? <p.page /> : <ComponentPlaceholder step={p} />} />

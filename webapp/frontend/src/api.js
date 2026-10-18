@@ -10,6 +10,10 @@ async function request(path, options = {}) {
   const text = await res.text();
   let body = null;
   try { body = text ? JSON.parse(text) : null; } catch { body = text; }
+  // a saved run's id comes back in a header (the body stays the exact component output);
+  // it is attached as a hidden property, so JSON.stringify(body) is unchanged
+  const runId = res.headers.get("X-Run-Id");
+  if (runId && body && typeof body === "object") Object.defineProperty(body, "runId", { value: runId, enumerable: false });
   if (!res.ok) {
     const d = body && body.detail !== undefined ? body.detail : body;
     const msg = typeof d === "string" ? d : JSON.stringify(d, null, 2);
@@ -36,6 +40,12 @@ export const api = {
   // Drift Lab
   labOptions: (dataset) => get(`/api/lab/options?dataset=${encodeURIComponent(dataset)}`),
   labRun: (params) => postJson("/api/lab/run", params),
+  // saved runs (Run history)
+  runs: () => get("/api/runs"),
+  run: (id) => get(`/api/runs/${encodeURIComponent(id)}`),
+  runFileUrl: (id) => `/api/runs/${encodeURIComponent(id)}`,
+  runBatchUrl: (id) => `/api/runs/${encodeURIComponent(id)}/batch`,
+  runsExportUrl: () => "/api/runs/export.csv",
   // C1
   c1EngineInfo: (dataset) => get(`/api/c1/engine-info?dataset=${encodeURIComponent(dataset)}`),
   c1Detect: (dataset, file) => postForm("/api/c1/detect", { dataset, file }),

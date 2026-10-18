@@ -31,6 +31,7 @@ class LabRun(BaseModel):
     batch_size: int = 1500
     seed: int = 42
     mode: Literal["c1", "pipeline"] = "c1"
+    save_batch: bool = False          # also save the batch CSV (with labels) next to the run
 
 
 def _engine(dataset):
@@ -60,28 +61,33 @@ def run(req: LabRun):
     """Build a batch with a known drift, then run C1 only or the full pipeline on it (labels removed)."""
     eng = _engine(req.dataset)
     try:
-        batch, truth, injection = LAB.make_batch(eng, req.dataset, req.drift_type, req.features,
+        batch, truth, injection, labelled = LAB.make_batch(eng, req.dataset, req.drift_type, req.features,
                                                  req.magnitude, req.batch_size, req.seed)
     except LabError as e:
         raise HTTPException(422, str(e))
     except FileNotFoundError as e:
         raise HTTPException(503, f"lab data not found: {e}")
 
-    uri = f"drift_lab://{req.dataset}/{req.drift_type}/seed{req.seed}"
+    run_id = runs.new_run_id()
+    uri = f"drift_lab://{req.dataset}/{run_id}"
     context = {"dataset": req.dataset, "model_id": DATASETS[req.dataset]["model_id"], "current_dataset_uri": uri}
-    out = {"truth": truth, "injection": injection, "mode": req.mode}
+    out = {"run_id": run_id, "truth": truth, "injection": injection, "mode": req.mode}
     if req.mode == "c1":
         c1 = C1.run(batch, {"context": context})["c1"]
         out["c1"] = c1
         out["contract_errors"] = contracts.validate("c1", c1)
-        return out
+    else:
+        result = run_pipeline(batch, context)
+        names = ", ".join(req.features) or "clean"
+        result["origin"] = {"kind": "drift_lab", "rows": len(batch), "run_ref": run_id,
+                            "label": f"Drift Lab: {req.drift_type.replace('marginal_', '')} ({names})",
+                            "truth": truth}
+        runs.save_latest(result)
+        out["pipeline"] = result
+        out["c1"] = result["outputs"].get("c1")
 
-    result = run_pipeline(batch, context)
-    names = ", ".join(req.features) or "clean"
-    result["origin"] = {"kind": "drift_lab", "rows": len(batch),
-                        "label": f"Drift Lab: {req.drift_type.replace('marginal_', '')} ({names})",
-                        "truth": truth}
-    runs.save_latest(result)
-    out["pipeline"] = result
-    out["c1"] = result["outputs"].get("c1")
+    record = {"run_id": run_id, "source": "drift_lab", "mode": req.mode, "dataset": req.dataset,
+              "injection": injection, "truth": truth, "upload": None, "c1": out["c1"],
+              "reference_prediction_stats": C1.reference_stats(req.dataset), "pipeline": out.get("pipeline")}
+    out["summary"] = runs.save_run(record, labelled if req.save_batch else None)
     return out

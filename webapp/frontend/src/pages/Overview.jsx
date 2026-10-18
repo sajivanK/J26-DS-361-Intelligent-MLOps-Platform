@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { useApi } from "../hooks.js";
 import { componentInfo, componentState, usePlatform } from "../platform.jsx";
@@ -61,6 +61,7 @@ export default function Overview() {
           {run && (
             <span className="small muted mono">
               run {run.run_id} · {run.origin?.label || run.context?.current_dataset_uri} · {run.context?.dataset?.toUpperCase()} · {(run.origin?.rows ?? "?").toLocaleString()} rows · {run.runtime_sec} s
+              {run.origin?.run_ref && <> · <Link to={`/runs/${run.origin.run_ref}`}>open</Link></>}
             </span>
           )}
         </div>

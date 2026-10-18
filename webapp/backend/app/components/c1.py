@@ -16,6 +16,7 @@ from .c1_results import RECORDED
 sys.path.insert(0, str(REPO_ROOT))
 from c1.src.engine import ENGINE_VERSION  # noqa: E402
 from c1.src.engine_io import load_engine  # noqa: E402
+from c1.src.prediction_stats import prediction_stats  # noqa: E402
 
 
 class C1Component(Component):
@@ -27,7 +28,7 @@ class C1Component(Component):
 
     def __init__(self):
         super().__init__()
-        self.engines, self.engine_status = {}, {}
+        self.engines, self.engine_status, self.ref_stats = {}, {}, {}
         self._locks = {k: threading.Lock() for k in C1_ENGINES}
 
     def load(self):
@@ -38,6 +39,10 @@ class C1Component(Component):
                 t1 = time.time()
                 n = min(eng.sizes[0], len(eng.profile.ref))
                 eng.detect(eng.profile.ref.sample(n, random_state=1), seed=1)   # warm-up
+                ref = eng.profile.ref
+                ref = ref.sample(min(5000, len(ref)), random_state=0)
+                # the model's label-free prediction stats on reference data, shown next to each batch's stats
+                self.ref_stats[key] = {k: round(v, 4) for k, v in prediction_stats(eng.base_model, ref).items()}
                 self.engines[key] = eng
                 self.engine_status[key] = {"loaded": True, "path": path, "load_sec": round(t1 - t0, 1),
                                            "warmup_sec": round(time.time() - t1, 1)}
@@ -64,6 +69,9 @@ class C1Component(Component):
                 "engine_version": ENGINE_VERSION, "min_rows": 100, **eng.summary(),
                 "n_continuous": len(eng.profile.continuous), "n_categorical": len(eng.profile.categorical),
                 "recorded": RECORDED.get(dataset)}
+
+    def reference_stats(self, dataset):
+        return self.ref_stats.get(dataset)
 
     def run(self, batch, upstream):
         ctx = upstream["context"]

@@ -3,7 +3,7 @@ import { useApi } from "../hooks.js";
 import { componentInfo, componentState, usePlatform } from "../platform.jsx";
 import { JsonBox, PageHeader, SourceBadge } from "../ui/parts.jsx";
 
-// Shown for C2, C3 and C4 until the owner builds the real page (see webapp/UI_GUIDE.md).
+// Shown for C2, C3 and C4 until the owner builds the real page (see the UI guide shared in the team group).
 const OUTPUTS = { c2: ["c2_to_c3", "c2_to_c4"], c3: ["c3"], c4: ["c4"] };
 
 export default function ComponentPlaceholder({ step }) {
@@ -20,7 +20,7 @@ export default function ComponentPlaceholder({ step }) {
         <div className="row"><h2>Page not built yet</h2><SourceBadge source={st} /></div>
         <p className="muted">{step.owner} builds this page. The component itself already runs in the pipeline
           {st === "fake" ? " as a fake made from the contract example" : st === "real" ? " with real code" : ""}
-          {comp?.error ? ` (error: ${comp.error})` : ""}. How to build the page: <span className="mono">webapp/UI_GUIDE.md</span>.</p>
+          {comp?.error ? ` (error: ${comp.error})` : ""}. How to build the page: the UI guide shared in the team group.</p>
       </div>
       <JsonBox title="This component's output in the latest pipeline run" data={Object.keys(mine).length ? mine : null}
         note="Run the full pipeline in the Drift Lab to fill this." />

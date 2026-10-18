@@ -2,6 +2,7 @@
 from fastapi import APIRouter, File, Form, UploadFile
 
 from .. import runs
+from ..components import C1
 from ..orchestrator import run_pipeline
 from ..uploads import read_batch
 
@@ -16,6 +17,13 @@ def run(dataset: str = Form("uci"), file: UploadFile = File(...)):
     result["labels_removed"] = removed
     result["origin"] = {"kind": "upload", "label": context["current_dataset_uri"], "rows": len(batch)}
     runs.save_latest(result)
+    summary = runs.save_run({"run_id": result["run_id"], "source": "pipeline_upload", "mode": "pipeline",
+                             "dataset": dataset, "injection": None, "truth": None,
+                             "c1": result["outputs"].get("c1"), "pipeline": result,
+                             "upload": {"file": context["current_dataset_uri"], "rows": len(batch),
+                                        "labels_removed": removed},
+                             "reference_prediction_stats": C1.reference_stats(dataset)})
+    result["origin"]["run_ref"] = summary["run_id"]
     return result
 
 

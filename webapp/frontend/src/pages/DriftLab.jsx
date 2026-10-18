@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { api } from "../api.js";
 import { useAction, useApi } from "../hooks.js";
 import { useSession } from "../session.jsx";
-import { c1View, isC1Alert, isClassicAlarm, sg } from "../ui/c1format.js";
+import { c1View, isC1Alert, isClassicAlarm, OUTCOME_CLASS, OUTCOME_HELP, outcomeOf, sg } from "../ui/c1format.js";
 import ClassicVsC1 from "../ui/ClassicVsC1.jsx";
-import IntervalLine from "../ui/IntervalLine.jsx";
 import { ErrorBox, PageHeader, Verdict } from "../ui/parts.jsx";
 import PipelineSteps from "../ui/PipelineSteps.jsx";
+import TruthVsC1 from "../ui/TruthVsC1.jsx";
 import "./DriftLab.css";
 
 const TYPE_LABEL = {
@@ -27,7 +28,10 @@ function presetSettings(p, ds, F) {
 }
 
 export default function DriftLab() {
-  const [ds, setDs] = useState("uci");
+  // "Run again with these settings" (run detail page) opens /lab?ds=..&type=..&f=..&mag=..&bs=..&seed=..
+  const [params] = useSearchParams();
+  const fromQuery = useRef(params.get("type") ? params : null);
+  const [ds, setDs] = useState(params.get("ds") || "uci");
   const opts = useApi(() => api.labOptions(ds), [ds]);
   const O = opts.data;
   const [type, setType] = useState("none");
@@ -41,14 +45,24 @@ export default function DriftLab() {
   const [runs, setRuns] = useSession("lab:runs", []);
   const [doRun, { busy, error }] = useAction(api.labRun);
   const [mode, setMode] = useState(null);
+  const [saveBatch, setSaveBatch] = useState(false);
 
   const rule = O?.drift_types.find((d) => d.id === type) || { min: 0, max: 0, help: "" };
   const valid = sel.length >= rule.min && sel.length <= rule.max;
   const unseen = O ? sel.filter((f) => O.features.other.includes(f)) : [];
 
-  // when the options for a dataset arrive: default batch size, start on the "loud but harmless" preset
+  // when the options for a dataset arrive: settings from the link if any, else default batch size and
+  // the "loud but harmless" preset
   useEffect(() => {
     if (!O) return;
+    const q = fromQuery.current;
+    if (q && O.dataset === (q.get("ds") || "uci")) {
+      fromQuery.current = null;
+      setType(q.get("type")); setSel((q.get("f") || "").split(",").filter(Boolean));
+      setMag(+q.get("mag") || 0.8); setBs(+q.get("bs") || O.default_batch_size); setSeed(+q.get("seed") || 0);
+      setPreset(null);
+      return;
+    }
     setBs(O.default_batch_size);
     apply("loud", O);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -68,7 +82,7 @@ export default function DriftLab() {
   }
   async function run(m) {
     setMode(m);
-    const res = await doRun({ dataset: ds, drift_type: type, features: sel, magnitude: mag, batch_size: bs, seed, mode: m });
+    const res = await doRun({ dataset: ds, drift_type: type, features: sel, magnitude: mag, batch_size: bs, seed, mode: m, save_batch: saveBatch });
     if (!res) return;
     const entry = { ...res, at: Date.now(), dataset: ds };
     setLast(entry);
@@ -149,6 +163,8 @@ export default function DriftLab() {
               <button className={`btn ${busy ? "busy" : ""}`} type="button" disabled={!valid || busy} onClick={() => run("pipeline")}>
                 {busy && mode === "pipeline" ? "Running…" : "Run full pipeline"}</button>
             </div>
+            <label className="row small lab-save"><input type="checkbox" checked={saveBatch} onChange={(e) => setSaveBatch(e.target.checked)} />
+              Save the batch CSV with this run (about 0.2 MB for UCI, several MB for IEEE)</label>
           </>)}
           {opts.loading && <p className="small muted">Loading features…</p>}
         </section>
@@ -188,6 +204,11 @@ function LabResult({ r }) {
       <Verdict title={title} text={text} tone={tone}
         aside={`${inj.dataset.toUpperCase()} · ${SHORT[inj.drift_type]} · ${inj.batch_size.toLocaleString()} rows · seed ${inj.seed}`} />
       {v.warnings.map((w) => <div key={w} className="warnline">{w}</div>)}
+      <div className="row lab-runref">
+        <span className={`outcome ${OUTCOME_CLASS[outcomeOf(t, v.sev)]}`} title={OUTCOME_HELP[outcomeOf(t, v.sev)]}>{outcomeOf(t, v.sev)}</span>
+        {r.run_id && <Link className="linkbtn" to={`/runs/${r.run_id}`}>Open full analysis</Link>}
+        {r.run_id && <span className="small muted mono">run {r.run_id}</span>}
+      </div>
       <div className="card grid2">
         <div className="kpi"><span className="k">Truth (from labels)</span><span className="v">{sg(t)} pp</span>
           <span className="small muted">{v.metric} on this batch vs the whole test set · paired {sg(r.truth.true_harm_paired_pp)} pp</span></div>
@@ -197,8 +218,8 @@ function LabResult({ r }) {
       <div className="card stack tight">
         <div className="head"><h3>Is the truth inside C1's 95% interval?</h3>
           <span className="chip" style={{ color: inside ? "var(--ok-fg)" : "var(--bad-fg)" }}>{inside ? "✓ inside" : "✗ outside"}</span></div>
-        <IntervalLine harm={v.harm} lo={v.lo} hi={v.hi} truth={t} />
-        <p className="small muted">Band: C1's interval ({sg(v.lo)} to {sg(v.hi)} pp, margin for "{v.ext}" drift). Diamond: true harm. About 1 batch in 20 should fall outside.</p>
+        <TruthVsC1 truth={t} harm={v.harm} lo={v.lo} hi={v.hi} />
+        <p className="small muted">C1's interval is sized for "{v.ext}" drift and {v.bs.toLocaleString()} rows. About 1 batch in 20 should fall outside.</p>
       </div>
       <ClassicVsC1 v={v} />
       <div className="card stack">
@@ -229,7 +250,9 @@ function Scoreboard({ runs, onClear }) {
   const mae = n ? rows.reduce((a, { r, v }) => a + Math.abs(r.truth.true_harm_pp - v.harm), 0) / n : 0;
   return (
     <section className="card stack">
-      <div className="head"><h3>3 · Session scoreboard</h3><button className="pbtn" type="button" onClick={onClear}>Clear</button></div>
+      <div className="head"><h3>3 · Session scoreboard</h3>
+        <div className="row"><button className="pbtn" type="button" onClick={onClear}>Clear</button>
+          <Link className="pbtn lab-histlink" to="/runs">Open run history</Link></div></div>
       <div className="score">
         <div className="s"><b>{n}</b><span>runs</span></div>
         <div className="s"><b>{n ? `${inside}/${n}` : "-"}</b><span>truth inside interval</span></div>
@@ -239,7 +262,7 @@ function Scoreboard({ runs, onClear }) {
       </div>
       <div className="scroll-x">
         <table className="tbl">
-          <thead><tr><th>#</th><th>Data</th><th>Drift</th><th>Features</th><th className="mono">Strength</th><th className="mono">Truth</th><th className="mono">C1</th><th>Inside?</th><th>Classic</th><th>C1 says</th></tr></thead>
+          <thead><tr><th>#</th><th>Data</th><th>Drift</th><th>Features</th><th className="mono">Strength</th><th className="mono">Truth</th><th className="mono">C1</th><th>Inside?</th><th>Classic</th><th>C1 says</th><th>Outcome</th><th /></tr></thead>
           <tbody>
             {n ? rows.slice().reverse().map(({ r, v }, i) => {
               const t = r.truth.true_harm_pp;
@@ -251,8 +274,10 @@ function Scoreboard({ runs, onClear }) {
                   <td className="mono">{sg(t)}</td><td className="mono">{sg(v.harm)}</td>
                   <td>{t >= v.lo && t <= v.hi ? "✓" : "✗"}</td>
                   <td>{isClassicAlarm(v) ? "ALARM" : "-"}</td><td>{isC1Alert(v) ? "repair" : "no repair"}</td>
+                  <td><span className={`outcome ${OUTCOME_CLASS[outcomeOf(t, v.sev)]}`} title={OUTCOME_HELP[outcomeOf(t, v.sev)]}>{outcomeOf(t, v.sev)}</span></td>
+                  <td>{r.run_id && <Link className="linkbtn" to={`/runs/${r.run_id}`}>View</Link>}</td>
                 </tr>);
-            }) : <tr><td colSpan="10" className="muted">No runs yet.</td></tr>}
+            }) : <tr><td colSpan="12" className="muted">No runs yet.</td></tr>}
           </tbody>
         </table>
       </div>

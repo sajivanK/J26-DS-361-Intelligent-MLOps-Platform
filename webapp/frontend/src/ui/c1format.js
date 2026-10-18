@@ -45,3 +45,22 @@ export function classicText(v) {
   if (isClassicAlarm(v)) return `ALARM: ${n} of 6 detectors fired`;
   return n ? `${n} detector${n > 1 ? "s" : ""} fired, no alarm` : "Nothing";
 }
+
+// Outcome of a run with a known truth: does C1's repair decision agree with the truth (1 pp threshold)?
+// Same rule as the backend (webapp/backend/app/runs.py).
+export function outcomeOf(truthPp, severity) {
+  if (truthPp == null) return "no truth";
+  const harmful = truthPp >= 1, alert = severity !== "none";
+  if (alert) return harmful ? "correct alert" : "false alert";
+  return harmful ? "missed harm" : "correct quiet";
+}
+export const OUTCOME_CLASS = {
+  "correct alert": "ok", "correct quiet": "ok", "false alert": "fa", "missed harm": "miss", "no truth": "na",
+};
+export const OUTCOME_HELP = {
+  "correct alert": "C1 said repair and the truth is 1 pp or more",
+  "correct quiet": "C1 said no repair and the truth is under 1 pp",
+  "false alert": "C1 said repair but the truth is under 1 pp",
+  "missed harm": "C1 said no repair but the truth is 1 pp or more",
+  "no truth": "uploaded batch: no labels, so the truth is unknown",
+};

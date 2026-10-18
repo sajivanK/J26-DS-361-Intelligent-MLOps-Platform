@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../../api.js";
 import { useAction, useApi } from "../../hooks.js";
 import { useSession } from "../../session.jsx";
@@ -23,7 +24,7 @@ export default function C1Page() {
     const out = await detect(ds, file);
     if (!out) return;
     const short = file.name.replace(/\.csv$/i, "").slice(0, 14);
-    setRuns((r) => [...r, { out, v: c1View(out), file: file.name, short }]);
+    setRuns((r) => [...r, { out, v: c1View(out), file: file.name, short, runId: out.runId }]);
     setSel(runs.length);
   }
 
@@ -79,6 +80,8 @@ function Answer({ b }) {
     <>
       <Verdict title={t} text={s} tone={tone} aside={`${b.file} · ${v.bs.toLocaleString()} rows`} />
       {v.warnings.map((w) => <div key={w} className="warnline">{w}</div>)}
+      {b.runId && <div className="row"><Link className="linkbtn" to={`/runs/${b.runId}`}>Open full analysis</Link>
+        <span className="small muted mono">saved as run {b.runId}</span></div>}
       <div className="hero">
         <div><span className="q">How much will it hurt?</span><span className="a">{sg(v.harm)} pp</span>
           <span className="s">predicted {v.metric} drop, no labels used</span></div>

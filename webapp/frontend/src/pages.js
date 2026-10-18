@@ -3,11 +3,19 @@
 import C1Page from "./pages/c1/C1Page.jsx";
 import DriftLab from "./pages/DriftLab.jsx";
 import Overview from "./pages/Overview.jsx";
+import RunDetail from "./pages/runs/RunDetail.jsx";
+import RunHistory from "./pages/runs/RunHistory.jsx";
 import { STEPS } from "./steps.js";
 
 export const PLATFORM_PAGES = [
   { path: "/", label: "Overview", icon: "overview", page: Overview },
   { path: "/lab", label: "Drift Lab", sub: "test the system yourself", icon: "lab", page: DriftLab },
+  { path: "/runs", label: "Run history", sub: "every saved run", icon: "runs", page: RunHistory },
+];
+
+// pages reached from other pages (not in the sidebar)
+export const EXTRA_ROUTES = [
+  { path: "/runs/:id", page: RunDetail },
 ];
 
 // component -> page. A step without a page shows a placeholder until its owner builds it.
