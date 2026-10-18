@@ -1,0 +1,217 @@
+{
+  "part1_comparison": {
+    "accuracy": {
+      "RandomForest|5class": [
+        0.55725,
+        0.006999999999999996
+      ],
+      "RandomForest|extent": [
+        0.993375,
+        0.0006373774391990845
+      ],
+      "LightGBM|5class": [
+        0.5702499999999999,
+        0.0065263887411032995
+      ],
+      "LightGBM|extent": [
+        0.991,
+        0.001457737973711336
+      ],
+      "HistGradBoost|5class": [
+        0.576,
+        0.013894693231590276
+      ],
+      "HistGradBoost|extent": [
+        0.991375,
+        0.0007288689868556814
+      ],
+      "LogisticReg|5class": [
+        0.5923749999999999,
+        0.012153960259931738
+      ],
+      "LogisticReg|extent": [
+        0.978875,
+        0.0009999999999999786
+      ]
+    },
+    "logreg_C_sweep_5class": {
+      "0.03": 0.5547500000000001,
+      "0.1": 0.5678749999999999,
+      "0.3": 0.5818749999999999,
+      "1": 0.5923749999999999,
+      "3": 0.5985,
+      "10": 0.603
+    },
+    "lofo_5class": {
+      "card1": {
+        "n": 450,
+        "RandomForest": 0.24444444444444444,
+        "LogReg_C10": 0.21777777777777776
+      },
+      "TransactionAmt": {
+        "n": 450,
+        "RandomForest": 0.17333333333333334,
+        "LogReg_C10": 0.20444444444444446
+      },
+      "card2": {
+        "n": 400,
+        "RandomForest": 0.475,
+        "LogReg_C10": 0.4875
+      },
+      "addr1": {
+        "n": 100,
+        "RandomForest": 0.65,
+        "LogReg_C10": 0.53
+      },
+      "C13": {
+        "n": 100,
+        "RandomForest": 1.0,
+        "LogReg_C10": 1.0
+      },
+      "V33": {
+        "n": 450,
+        "RandomForest": 0.2222222222222222,
+        "LogReg_C10": 0.22444444444444445
+      },
+      "V94": {
+        "n": 450,
+        "RandomForest": 0.15777777777777777,
+        "LogReg_C10": 0.19777777777777777
+      },
+      "V117": {
+        "n": 400,
+        "RandomForest": 0.4725,
+        "LogReg_C10": 0.45
+      },
+      "V120": {
+        "n": 100,
+        "RandomForest": 0.85,
+        "LogReg_C10": 0.71
+      },
+      "V122": {
+        "n": 100,
+        "RandomForest": 0.78,
+        "LogReg_C10": 0.75
+      }
+    }
+  },
+  "part2_final": {
+    "extent_accuracy": [
+      0.9928750000000001,
+      0.000976281209488348
+    ],
+    "extent_balanced_accuracy": 0.9935833333333333,
+    "extent_per_class_f1": {
+      "none": 0.9910802775024778,
+      "single": 0.99284644140536,
+      "multi": 0.9959770683074984
+    },
+    "extent_confusion": {
+      "none": {
+        "none": 1.0,
+        "single": 0.011,
+        "multi": 0.0
+      },
+      "single": {
+        "none": 0.0,
+        "single": 0.989,
+        "multi": 0.008
+      },
+      "multi": {
+        "none": 0.0,
+        "single": 0.0,
+        "multi": 0.992
+      }
+    },
+    "flag_auc": [
+      0.6365316666666667,
+      0.009299613671784683
+    ],
+    "flag_brier": 0.23966805556092483,
+    "flag_brier_base_rate": 0.234375,
+    "flag_auc_by_magnitude": {
+      "low": 0.6342361111111112,
+      "mid": 0.6365755555555556,
+      "high": 0.6382204166666667
+    },
+    "flag_calibration": {
+      "0.0-0.2": {
+        "n": 404,
+        "mean_predicted": 0.04378375433883028,
+        "observed_rate": 0.07673267326732673
+      },
+      "0.2-0.4": {
+        "n": 306,
+        "mean_predicted": 0.3062461545663636,
+        "observed_rate": 0.6503267973856209
+      },
+      "0.4-0.6": {
+        "n": 476,
+        "mean_predicted": 0.4982267276049416,
+        "observed_rate": 0.35294117647058826
+      },
+      "0.6-0.8": {
+        "n": 379,
+        "mean_predicted": 0.6811620010048364,
+        "observed_rate": 0.48548812664907653
+      },
+      "0.8-1.0": {
+        "n": 35,
+        "mean_predicted": 0.8198792443645375,
+        "observed_rate": 0.5142857142857142
+      }
+    },
+    "lofo": {
+      "card1": {
+        "n": 450,
+        "extent_accuracy": 0.6666666666666666,
+        "flag_auc": 0.56141
+      },
+      "TransactionAmt": {
+        "n": 450,
+        "extent_accuracy": 0.6666666666666666,
+        "flag_auc": 0.50423
+      },
+      "card2": {
+        "n": 400,
+        "extent_accuracy": 1.0,
+        "flag_auc": 0.5500799999999999
+      },
+      "addr1": {
+        "n": 100,
+        "extent_accuracy": 1.0,
+        "flag_auc": null
+      },
+      "C13": {
+        "n": 100,
+        "extent_accuracy": 1.0,
+        "flag_auc": null
+      },
+      "V33": {
+        "n": 450,
+        "extent_accuracy": 0.6622222222222223,
+        "flag_auc": 0.67759
+      },
+      "V94": {
+        "n": 450,
+        "extent_accuracy": 0.66,
+        "flag_auc": 0.72626
+      },
+      "V117": {
+        "n": 400,
+        "extent_accuracy": 0.9875,
+        "flag_auc": 0.6646666666666666
+      },
+      "V120": {
+        "n": 100,
+        "extent_accuracy": 0.96,
+        "flag_auc": null
+      },
+      "V122": {
+        "n": 100,
+        "extent_accuracy": 1.0,
+        "flag_auc": null
+      }
+    }
+  }
+}
