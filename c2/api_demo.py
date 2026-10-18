@@ -7,7 +7,9 @@ J26-DS-361 | C2 XAI Root Cause Diagnosis Engine | Tharmika N (IT22247940)
 
 It sends 2 clean warm-up batches, then 3 drifted cycles (capital_gain drift)
 with C1 output from the team's shared v1.1 fake builder, exactly as the real C1
-API will send it during integration week.
+API will send it during integration week. Every cycle is stored in the run
+history; the demo then reads the history and the business report of the
+latest run (FR7, written by OpenAI when OPENAI_API_KEY is set on the server).
 """
 import json
 import warnings
@@ -28,6 +30,7 @@ def rows(df):
 
 def main():
     print("health:", requests.get(f"{URL}/health", timeout=30).json())
+    requests.post(f"{URL}/reset", timeout=30)          # start a fresh run history
     stream = make_temporal_stream("marginal_single", ["capital_gain"], 0.6, seed=22)
 
     r = requests.post(f"{URL}/warmup", timeout=300,
@@ -37,9 +40,10 @@ def main():
     for s in stream[2:]:
         c1 = build_fake_c1_output(s["ground_truth"], seed=s["spec"]["seed"])
         r = requests.post(f"{URL}/diagnose", timeout=300,
-                          json={"c1_output": c1, "production_data": rows(s["drifted_df"])})
+                          json={"c1_output": c1, "production_data": rows(s["drifted_df"]),
+                                "source": "demo · capital_gain shift 0.6"})
         out = r.json()
-        print(f"\ncycle {s['cycle']}: HTTP {r.status_code}  "
+        print(f"\nrun {out.get('run')}: HTTP {r.status_code}  "
               f"root={out['to_c3']['root_cause_feature']}  "
               f"stability={out['to_c3']['diagnosis_stability']}  "
               f"latency={out['details']['latency_s']}s  "
@@ -63,7 +67,22 @@ def main():
     a = requests.get(f"{URL}/audit", params={"last": 2}, timeout=30).json()
     print(f"audit:      {len(a['records'])} latest records, last version "
           f"{a['records'][-1]['diagnosis_version']}")
-    ok = ok and r2.status_code == 200 and r3.status_code == 422
+    # Run history and business report (FR7)
+    h = requests.get(f"{URL}/runs", timeout=30).json()
+    print(f"history:    {len(h['runs'])} runs stored, newest first: "
+          + ", ".join(f"#{x['run']} {x['state']}" for x in h["runs"]))
+    n = h["runs"][0]["run"]
+    rep = requests.get(f"{URL}/runs/{n}/report", timeout=120).json()
+    print(f"\nreport for run #{n} (written by {rep['writer']}"
+          f"{', ' + rep['fallback_reason'] if rep['fallback_reason'] else ''}):")
+    print(f"  {rep['title']}")
+    print(f"  decision: {rep['decision']['head']}")
+    print(f"  summary:  {rep['sections']['summary']}")
+    print(f"  claim check passed: {rep['claim_check']['passed']}")
+    md = requests.get(f"{URL}/runs/{n}/report.md", timeout=60)
+    print(f"  markdown export: HTTP {md.status_code}, {len(md.text)} characters")
+    ok = (ok and r2.status_code == 200 and r3.status_code == 422
+          and rep["claim_check"]["passed"] and md.status_code == 200)
     print("\nAPI DEMO OK" if ok else "\nAPI DEMO FAILED")
 
 

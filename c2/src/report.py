@@ -1,0 +1,328 @@
+"""
+Business report (FR7 / Objective 5): a readable model health report per run.
+J26-DS-361 | C2 XAI Root Cause Diagnosis Engine | Tharmika N (IT22247940)
+
+Pipeline
+  1. report_evidence()  turns one stored run into a small set of aggregate
+                        facts in business language (no data rows ever leave
+                        C2, NFR5): accuracy lost, extra wrong predictions per
+                        1,000, the affected group in plain words, how many
+                        recent runs agree, the run-by-run trend.
+  2. decision()         rule-based, never written by the language model:
+                        no action / watch / approve targeted repair, with owners.
+  3. writer             OpenAI (if OPENAI_API_KEY is set) writes four short
+                        sections from the evidence only; otherwise a template.
+  4. claim_check()      every number in the text must match the evidence, and
+                        no feature may be named that the evidence does not
+                        contain. Any failure -> template text, reason recorded.
+  5. charts             data for the report visuals: accuracy lost per run,
+                        biggest factors, affected-group share, reliance shift.
+
+Configuration (environment variables, never committed):
+    OPENAI_API_KEY   enables the language-model writer
+    OPENAI_MODEL     optional, default below
+    OPENAI_BASE_URL  optional: any OpenAI-compatible service, e.g. free ones
+                     Gemini  https://generativelanguage.googleapis.com/v1beta/openai/
+                     Groq    https://api.groq.com/openai/v1
+                     Ollama  http://localhost:11434/v1   (local, key = "ollama")
+"""
+import json
+import os
+import re
+from datetime import datetime, timezone
+
+from c2.src.plain import NAMES, PlainLanguage
+
+DEFAULT_MODEL = "gpt-4o-mini"
+MALIGNANT_PP = 2.0
+SECTIONS = ["summary", "what_changed", "who_is_affected", "outlook"]
+SECTION_TITLES = {"summary": "Summary", "what_changed": "What changed",
+                  "who_is_affected": "Who is affected", "outlook": "What happens next"}
+
+SYSTEM_PROMPT = """You write short model health reports for business managers who
+are not data scientists. You receive JSON evidence from a drift diagnosis of a
+production income-prediction model. Write four sections as a JSON object with
+keys "summary", "what_changed", "who_is_affected", "outlook".
+
+Rules:
+- Use ONLY facts and numbers present in the evidence. Do not compute new
+  numbers, do not estimate money, do not round differently than given.
+- 1 to 3 plain sentences per section. No jargon: never say SHAP, z-score,
+  EWMA, drift impact score, or feature. Say "factor" or name it in words.
+- Use the plain names given (e.g. "capital gain"), not code names.
+- If state is "clean" or "harmless", say plainly that no repair is needed.
+- If state is "suspected", say it is not confirmed yet.
+- The decision is already made (evidence.decision); explain it, do not change it.
+- Return only the JSON object."""
+
+
+# ── 1. evidence ────────────────────────────────────────────────────────────
+def report_evidence(record, history, plain=None):
+    """Aggregate, plain-language facts for one run. `history` = all stored runs."""
+    pl = plain or PlainLanguage()
+    c3, ts, ev, loc = (record["to_c3"], record["temporal_shap"],
+                       record["evidence"], record["localization"])
+    state, root, n = record["state"], c3["root_cause_feature"], record.get("n_rows") or 1000
+    harm = round(max(ev["estimated_harm_pp"], 0.0), 1)
+    ref_now = ts["mean_abs_shap_ref"].get(root) or 0.0
+    reliance = round(ts["mean_abs_shap_now"].get(root, 0.0) / ref_now, 1) if ref_now else None
+    runs_agree = int(round(c3["diagnosis_stability"] * 3))
+    others = sorted(((f, h) for f, h in ev["harm_pp_by_feature"].items() if f != root),
+                    key=lambda kv: kv[1], reverse=True)[:2]
+    upto = [r for r in history if r["run"] <= record["run"]][-6:]
+    out = {
+        "run": record["run"],
+        "date": record["timestamp"][:10],
+        "model": "income prediction model (UCI Adult, XGBoost)",
+        "state": state,
+        "rows_in_batch": n,
+        "accuracy_lost_points": harm,
+        "harmful_above_points": MALIGNANT_PP,
+        "extra_wrong_predictions_per_1000": int(round(harm * 10)),
+        "trend": [{"run": r["run"], "accuracy_lost_points":
+                   round(max(r["evidence"]["estimated_harm_pp"], 0.0), 1),
+                   "state": r["state"]} for r in upto],
+    }
+    if state != "clean":
+        out.update({
+            "root_cause": pl.feature(root),
+            "root_cause_kind": c3["root_cause_category"].replace("_", " "),
+            "model_reliance_vs_normal": reliance,
+            "recent_runs_agreeing": runs_agree,
+            "runs_checked": 3,
+            "change_first_seen_run": record["run"] - c3["temporal_window"] + 1,
+            "affected_group": pl.rule(c3["affected_slice_rule"]),
+            "affected_share_percent": round(100 * c3["slice_support"], 1),
+            "affected_rows": int(round(c3["slice_support"] * n)),
+            "training_share_percent": (None if loc["ref_share"] is None
+                                       else round(100 * loc["ref_share"], 1)),
+            "next_factors": [{"factor": pl.feature(f), "accuracy_lost_points": round(max(h, 0), 1)}
+                             for f, h in others],
+        })
+        pred = (record.get("c1") or {}).get("predicted_harm")
+        if pred is not None:
+            # C1 contract v1.1: predicted_harm is a proportion (0.0433 = 4.33 pp)
+            out["detection_step_predicted_points"] = round(100 * float(pred), 1)
+    out["decision"] = decision(out)
+    return out
+
+
+# ── 2. decision (rules, not the language model) ─────────────────────────────
+def decision(ev):
+    s = ev["state"]
+    if s in ("clean", "harmless"):
+        return {"level": "ok", "head": "No action needed",
+                "text": "Keep the model in production and keep monitoring.",
+                "actions": [{"action": "Keep the model in production", "owner": "Platform"},
+                            {"action": "Check the next batch as usual", "owner": "C1, C2"}]}
+    root = ev["root_cause"]
+    if s == "suspected":
+        return {"level": "watch", "head": "Watch, do not repair yet",
+                "text": f"A change in {root} looks harmful but is seen in one run only. "
+                        "Confirm it with the next batch before repairing.",
+                "actions": [{"action": "Run the next batch to confirm the cause", "owner": "C2"},
+                            {"action": "Hold any retraining until it is confirmed", "owner": "C4"},
+                            {"action": f"Ask the data owner why {root} values changed",
+                             "owner": "Business"}]}
+    acts = [{"action": "Generate repair data for the affected group", "owner": "C3"},
+            {"action": "Retrain and run the release safety check", "owner": "C4"},
+            {"action": f"Ask the data owner why {root} values changed", "owner": "Business"}]
+    if ev.get("next_factors"):
+        acts.append({"action": f"Keep watching {ev['next_factors'][0]['factor']}, "
+                               "the next most affected factor", "owner": "C2"})
+    return {"level": "act", "head": "Approve targeted repair",
+            "text": f"Repair the affected group, retrain, and let the release check decide. "
+                    f"Expected recovery: about {ev['accuracy_lost_points']} points of accuracy.",
+            "actions": acts}
+
+
+# ── 3. writers ─────────────────────────────────────────────────────────────
+def template_text(ev):
+    s = ev["state"]
+    if s == "clean":
+        return {"summary": f"The {ev['model']} handled run #{ev['run']} normally. No change in "
+                           "the incoming data is hurting its predictions.",
+                "what_changed": "Nothing harmful. Small day-to-day changes stayed within "
+                                "normal noise.",
+                "who_is_affected": "No group of customers is affected.",
+                "outlook": "No repair is needed. The next batch will be checked as usual."}
+    harm, root = ev["accuracy_lost_points"], ev["root_cause"]
+    if s == "harmless":
+        return {"summary": f"{root.capitalize()} changed in run #{ev['run']}, but the change "
+                           f"costs only {harm} points of accuracy, below the "
+                           f"{ev['harmful_above_points']} point harm line.",
+                "what_changed": f"The values of {root} shifted, and the model reads them "
+                                "differently, but its answers stay correct.",
+                "who_is_affected": "No group needs repair.",
+                "outlook": "No repair is needed. The change stays under watch."}
+    rel = ev.get("model_reliance_vs_normal")
+    summary = (f"Since run #{ev['change_first_seen_run']}, the reported {root} of incoming "
+               f"customers has changed, and the model now leans on it {rel} times more than "
+               f"normal. It gets about {ev['extra_wrong_predictions_per_1000']} more predictions "
+               f"wrong per 1,000 customers ({harm} points of accuracy).")
+    if s == "confirmed":
+        what = (f"The same cause was found in {ev['recent_runs_agreeing']} of the last "
+                f"{ev['runs_checked']} runs, so it is confirmed.")
+    else:
+        what = "This is the first run that shows the change, so it is not confirmed yet."
+    if "detection_step_predicted_points" in ev:
+        what += (f" The detection step also flagged the batch, predicting a "
+                 f"{ev['detection_step_predicted_points']} point drop.")
+    who = (f"The damage sits in one group: {ev['affected_group']}. That is "
+           f"{ev['affected_rows']} of {ev['rows_in_batch']:,} records "
+           f"({ev['affected_share_percent']}%)")
+    who += (f", against {ev['training_share_percent']}% of the data the model learned from."
+            if ev.get("training_share_percent") is not None else ".")
+    outlook = ("Repairing this group is expected to recover about "
+               f"{harm} points of accuracy." if s == "confirmed"
+               else "If the next run shows the same cause, repair will be recommended.")
+    return {"summary": summary, "what_changed": what, "who_is_affected": who,
+            "outlook": outlook}
+
+
+def writer_name():
+    """openai:<model>, or <host>:<model> for another OpenAI-compatible service."""
+    base = os.environ.get("OPENAI_BASE_URL", "")
+    host = re.sub(r"^https?://([^/:]+).*$", r"\1", base) if base else "openai"
+    return f"{host}:{os.environ.get('OPENAI_MODEL', DEFAULT_MODEL)}"
+
+
+def openai_text(ev, model=None, timeout=30):
+    """Four sections written by the OpenAI model. Raises on any problem."""
+    from openai import OpenAI          # optional dependency, only needed here
+    client = OpenAI(timeout=timeout)   # reads OPENAI_API_KEY and OPENAI_BASE_URL
+    resp = client.chat.completions.create(
+        model=model or os.environ.get("OPENAI_MODEL", DEFAULT_MODEL),
+        temperature=0.2,
+        response_format={"type": "json_object"},
+        messages=[{"role": "system", "content": SYSTEM_PROMPT},
+                  {"role": "user", "content": json.dumps(ev)}])
+    data = json.loads(resp.choices[0].message.content)
+    missing = [k for k in SECTIONS if not isinstance(data.get(k), str) or not data[k].strip()]
+    if missing:
+        raise ValueError(f"model reply missing sections {missing}")
+    return {k: data[k].strip() for k in SECTIONS}
+
+
+# ── 4. claim check ─────────────────────────────────────────────────────────
+_NUM = re.compile(r"(?<![\w#.])-?\d[\d,]*(?:\.\d+)?")
+
+
+def _numbers(obj):
+    if isinstance(obj, bool):
+        return []
+    if isinstance(obj, (int, float)):
+        return [float(obj)]
+    if isinstance(obj, str):
+        return [float(x.replace(",", "")) for x in _NUM.findall(obj)]
+    if isinstance(obj, dict):
+        return [x for v in obj.values() for x in _numbers(v)]
+    if isinstance(obj, list):
+        return [x for v in obj for x in _numbers(v)]
+    return []
+
+
+def claim_check(sections, ev):
+    """Every number must come from the evidence; no unknown factor may be named."""
+    allowed = set(_numbers(ev)) | {1000.0, 100.0}
+    allowed |= {float(r) for r in range(0, 11)}            # counting words: "2 of 3"
+    problems, checked = [], 0
+    for key, text in sections.items():
+        for x in _numbers(text):
+            checked += 1
+            if not any(abs(x - a) <= max(0.051, 0.005 * abs(a)) for a in allowed):
+                problems.append(f"{key}: number {x:g} is not in the evidence")
+    known = json.dumps(ev).lower()
+    for f, name in NAMES.items():
+        for key, text in sections.items():
+            if re.search(rf"\b{re.escape(name)}\b", text.lower()) and name not in known:
+                problems.append(f"{key}: names '{name}', which the evidence does not")
+    return {"passed": not problems, "numbers_checked": checked, "problems": problems}
+
+
+# ── 5. charts and assembly ─────────────────────────────────────────────────
+def charts(record, plain):
+    ts, ev = record["temporal_shap"], record["evidence"]
+    factors = sorted(((plain.feature(f), round(max(h, 0.0), 2))
+                      for f, h in ev["harm_pp_by_feature"].items()),
+                     key=lambda kv: kv[1], reverse=True)[:5]
+    reliance = sorted(((f, ts["mean_abs_shap_ref"][f], ts["mean_abs_shap_now"][f])
+                       for f in ts["mean_abs_shap_ref"]), key=lambda t: -max(t[1], t[2]))[:8]
+    return {"factors": [{"factor": f, "accuracy_lost_points": v} for f, v in factors],
+            "reliance": [{"feature": f, "factor": plain.feature(f), "normal": a, "now": b}
+                         for f, a, b in reliance]}
+
+
+def build_report(record, history, plain=None, use_openai=True):
+    pl = plain or PlainLanguage()
+    ev = report_evidence(record, history, pl)
+    writer, reason, sections = "template", None, None
+    if use_openai and os.environ.get("OPENAI_API_KEY"):
+        try:
+            sections = openai_text(ev)
+            check = claim_check(sections, ev)
+            if check["passed"]:
+                writer = writer_name()
+            else:
+                reason = "claim check failed: " + "; ".join(check["problems"][:3])
+                sections = None
+        except Exception as e:  # noqa: BLE001  network, key, quota, bad reply
+            reason = f"writer {writer_name()} unavailable: {type(e).__name__}"
+            sections = None
+    elif use_openai:
+        reason = "OPENAI_API_KEY not set"
+    if sections is None:
+        sections = template_text(ev)
+    check = claim_check(sections, ev)
+    root = ev.get("root_cause")
+    title = (f"Run #{ev['run']}: the model is healthy" if ev["state"] == "clean" else
+             f"Run #{ev['run']}: {root} {'is costing' if ev['state'] == 'confirmed' else 'may be costing'} "
+             f"{ev['accuracy_lost_points']} points of accuracy"
+             if ev["state"] != "harmless" else f"Run #{ev['run']}: harmless change in {root}")
+    return {
+        "run": ev["run"],
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "writer": writer,
+        "fallback_reason": reason,
+        "title": title,
+        "decision": ev["decision"],
+        "sections": sections,
+        "section_titles": SECTION_TITLES,
+        "kpis": {"accuracy_lost_points": ev["accuracy_lost_points"],
+                 "extra_wrong_predictions_per_1000": ev["extra_wrong_predictions_per_1000"],
+                 "affected_share_percent": ev.get("affected_share_percent", 0.0),
+                 "training_share_percent": ev.get("training_share_percent"),
+                 "recent_runs_agreeing": ev.get("recent_runs_agreeing", 0),
+                 "runs_checked": 3},
+        "charts": dict(charts(record, pl), trend=ev["trend"]),
+        "claim_check": check,
+        "evidence": ev,
+        "plain_language_decoded": pl.decoded,
+    }
+
+
+def report_markdown(report, record=None):
+    lines = [f"# {report['title']}", "",
+             f"Model health report · C2 Root Cause Diagnosis · generated {report['generated_at']}",
+             f"Written by: {report['writer']}", "",
+             f"**Decision: {report['decision']['head']}.** {report['decision']['text']}", ""]
+    k = report["kpis"]
+    lines += ["| Accuracy lost | Extra wrong per 1,000 | Customers affected | Runs agreeing |",
+              "|---|---|---|---|",
+              f"| {k['accuracy_lost_points']} pp | {k['extra_wrong_predictions_per_1000']} | "
+              f"{k['affected_share_percent']}% | {k['recent_runs_agreeing']} of {k['runs_checked']} |", ""]
+    for s in SECTIONS:
+        lines += [f"## {SECTION_TITLES[s]}", report["sections"][s], ""]
+    lines += ["## Accuracy lost per run", "", "| Run | Accuracy lost (pp) | Result |", "|---|---|---|"]
+    lines += [f"| #{t['run']} | {t['accuracy_lost_points']} | {t['state']} |"
+              for t in report["charts"]["trend"]]
+    lines += ["", "## Recommended actions"]
+    lines += [f"{i}. {a['action']} (owner: {a['owner']})"
+              for i, a in enumerate(report["decision"]["actions"], 1)]
+    c = report["claim_check"]
+    lines += ["", f"Claim check: {'passed' if c['passed'] else 'FAILED'} "
+                  f"({c['numbers_checked']} numbers checked)"]
+    if record is not None:
+        lines += ["", "## Technical appendix", "```json",
+                  json.dumps({"to_c3": record["to_c3"], "to_c4": record["to_c4"]}, indent=2), "```"]
+    return "\n".join(lines) + "\n"

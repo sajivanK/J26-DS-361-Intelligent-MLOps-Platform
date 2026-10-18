@@ -21,8 +21,18 @@ Endpoints
                    c1_output may be missing or malformed (NFR7): C2 then
                    diagnoses from its own evidence and reports it in
                    details.c1_status / details.warnings.
+                   also stores the run in the run history and returns its number
+  GET  /runs                 run history table (newest first) + temporal SHAP
+                             z per feature across all stored runs
+  GET  /runs/latest          full record of the latest run
+  GET  /runs/{n}             full record of run n (temporal SHAP, evidence,
+                             localization, outputs)
+  GET  /runs/{n}/report      business report (FR7): OpenAI-written if
+                             OPENAI_API_KEY is set, claim-checked, template
+                             fallback; cached, ?refresh=true rewrites it
+  GET  /runs/{n}/report.md   the report as a Markdown download
   GET  /audit      last N audit-log records (FR9), ?last=5
-  POST /reset      clear the cycle history
+  POST /reset      clear the cycle history and the run history
 
 Errors are always structured JSON: {"error": <code>, "message": ..., "problems": [...]}
 
@@ -37,16 +47,21 @@ from typing import Optional
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel
 
 from c2.src.config import TARGET_COL
+from c2.src.history import RunHistory, build_run_record
 from c2.src.outputs import C3_SCHEMA, C4_SCHEMA, C2DiagnosisEngine, validate_output
+from c2.src.plain import PlainLanguage
+from c2.src.report import build_report, report_markdown
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
 app = FastAPI(title="C2 XAI Root Cause Diagnosis Engine", version="1.0")
 ENGINE = {"engine": None, "warmed_up": False, "cycles": 0}
+HISTORY = RunHistory()
+PLAIN = PlainLanguage()
 
 
 class WarmupRequest(BaseModel):
@@ -56,6 +71,7 @@ class WarmupRequest(BaseModel):
 class DiagnoseRequest(BaseModel):
     c1_output: Optional[dict] = None
     production_data: list[dict]
+    source: str = ""               # shown in the run history, e.g. "Drift Lab"
 
 
 def _error(status, code, message, problems=None):
@@ -138,7 +154,51 @@ def diagnose(req: DiagnoseRequest):
         "to_c4": validate_output(result["to_c4"], C4_SCHEMA, ref),
     }
     result["details"]["latency_s"] = round(time.time() - t, 3)
+    record = HISTORY.add(build_run_record(
+        _engine(), result, source=req.source, latency_s=time.time() - t,
+        c1_output=req.c1_output, n_rows=len(df)))
+    result["run"] = record["run"]
     return result
+
+
+def _run(n):
+    try:
+        return HISTORY.get(n)
+    except KeyError as e:
+        raise _error(404, "run_not_found", str(e.args[0]))
+
+
+@app.get("/runs")
+def runs():
+    return {"runs": HISTORY.summaries(), "temporal_shap": HISTORY.z_matrix()}
+
+
+@app.get("/runs/latest")
+def run_latest():
+    if not HISTORY.runs:
+        raise _error(404, "run_not_found", "no runs yet")
+    return HISTORY.latest()
+
+
+@app.get("/runs/{n}")
+def run_detail(n: int):
+    return _run(n)
+
+
+@app.get("/runs/{n}/report")
+def run_report(n: int, refresh: bool = False):
+    record = _run(n)
+    if record["report"] is None or refresh:
+        HISTORY.set_report(n, build_report(record, HISTORY.runs, PLAIN))
+    return record["report"]
+
+
+@app.get("/runs/{n}/report.md")
+def run_report_md(n: int):
+    report = run_report(n)
+    return PlainTextResponse(report_markdown(report, _run(n)), media_type="text/markdown",
+                             headers={"Content-Disposition":
+                                      f'attachment; filename="c2-report-run-{n}.md"'})
 
 
 @app.get("/audit")
@@ -156,4 +216,5 @@ def reset():
         ENGINE["engine"].monitor.reset()
         ENGINE["engine"].root_history = []
     ENGINE["warmed_up"], ENGINE["cycles"] = False, 0
+    HISTORY.clear()
     return {"status": "reset"}
