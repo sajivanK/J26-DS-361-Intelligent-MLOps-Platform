@@ -3,7 +3,7 @@ import logging
 from typing import Literal
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, ConfigDict
-from ..components import c4_service as service
+from ..components import c4_worker_client as service
 
 router = APIRouter(prefix="/api/c4", tags=["C4 Release Control"])
 log = logging.getLogger(__name__)
@@ -17,6 +17,8 @@ class CaseRequest(BaseModel):
 def call(fn, *args):
     try:
         return fn(*args)
+    except HTTPException:
+        raise
     except KeyError:
         raise HTTPException(status_code=404, detail="Unknown recorded C4 case.")
     except service.C4Unavailable as exc:
@@ -28,7 +30,7 @@ def call(fn, *args):
 
 @router.get("/info")
 def info():
-    return service.catalog()
+    return call(service.catalog)
 
 @router.get("/research-results")
 def research_results():
