@@ -1,0 +1,35 @@
+/* Run history and run detail */
+.runs-summary { display: flex; flex-wrap: wrap; gap: 22px; }
+.runs-summary .s { display: flex; flex-direction: column; }
+.runs-summary .s b { font-family: var(--mono); font-size: 1.25rem; }
+.runs-summary .s span { font-size: .74rem; color: var(--muted); }
+.runs-filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.runs-filters .field { width: 170px; }
+.runs-export { display: inline-flex; align-items: center; text-decoration: none; color: inherit; }
+.src { font-family: var(--mono); font-size: .7rem; color: var(--muted); }
+
+.run-crumbs { font-size: .82rem; color: var(--muted); }
+.run-crumbs a { color: var(--accent); text-decoration: none; }
+.run-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.run-actions .btn { min-height: 38px; font-size: .84rem; }
+.run-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.run-grid3 .kpi .v.mid { font-size: 1.3rem; }
+.run-cmp { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px 14px; font-size: .85rem; align-items: center; }
+.run-cmp .h { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.run-cmp .m { font-family: var(--mono); overflow-wrap: anywhere; }
+.run-ok { font-family: var(--mono); font-weight: 600; }
+.run-ok.y { color: var(--ok-fg); }
+.run-ok.n { color: var(--bad-fg); }
+.run-bars { display: grid; grid-template-columns: 120px minmax(0, 1fr) 70px 56px; gap: 7px 10px; align-items: center; font-size: .83rem; }
+.run-bars .bar { height: 8px; background: var(--track); border-radius: 4px; overflow: hidden; }
+.run-bars .bar i { display: block; height: 100%; background: var(--muted); }
+.run-bars .bar i.on { background: var(--accent-2); }
+.run-bars .pill { font-family: var(--mono); font-size: .68rem; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); text-align: center; }
+.run-bars .pill.on { color: var(--accent); border-color: var(--accent); background: var(--tint); }
+
+@media (max-width: 900px) {
+  .run-grid3 { grid-template-columns: minmax(0, 1fr); }
+  .run-cmp { grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); }
+  .run-cmp .run-ok { grid-column: span 3; }
+  .run-bars { grid-template-columns: 84px minmax(0, 1fr) 60px 50px; }
+}
