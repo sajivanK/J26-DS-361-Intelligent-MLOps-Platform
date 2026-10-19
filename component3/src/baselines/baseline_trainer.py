@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from enum import Enum
 import json
 from pathlib import Path
+import time
 from typing import Any
 import joblib
 import numpy as np
@@ -25,6 +26,12 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 import xgboost
+
+try:
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    HAS_PSUTIL = False
 
 try:
     import lightgbm as lgb
@@ -69,6 +76,12 @@ class BaselineExperimentRecord:
     test_metrics: ModelMetrics
     dependency_versions: dict[str, str]
     model_path: str | None = None
+    train_samples: int = 0
+    val_samples: int = 0
+    test_samples: int = 0
+    training_duration_seconds: float = 0.0
+    peak_memory_mb: float = 0.0
+    dataset_fingerprint: str = ""
     created_at_utc: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
     def to_dict(self) -> dict[str, Any]:
@@ -85,6 +98,17 @@ class BaselineExperimentRecord:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w", encoding="utf-8") as f:
             json.dump(self.to_dict(), f, indent=2)
+
+    @classmethod
+    def load(cls, filepath: Path | str) -> BaselineExperimentRecord:
+        """Load experiment record from JSON."""
+        path = Path(filepath)
+        with path.open("r", encoding="utf-8") as f:
+            d = json.load(f)
+        d["train_metrics"] = ModelMetrics(**d["train_metrics"])
+        d["val_metrics"] = ModelMetrics(**d["val_metrics"])
+        d["test_metrics"] = ModelMetrics(**d["test_metrics"])
+        return cls(**d)
 
 
 class BaselineModelTrainer:
@@ -205,10 +229,18 @@ class BaselineModelTrainer:
         seed: int = 42,
         class_weights: dict[int, float] | None = None,
         model_save_path: Path | str | None = None,
+        dataset_fingerprint: str = "",
     ) -> tuple[Any, BaselineExperimentRecord]:
         """Fit model on train set, evaluate on train/val/test, and log experiment record."""
         model = cls.create_model(family=family, hyperparams=hyperparams, seed=seed, class_weights=class_weights)
+        
+        # Track memory and execution time
+        mem_start = psutil.Process().memory_info().rss / (1024 * 1024) if HAS_PSUTIL else 0.0
+        t0 = time.perf_counter()
         model.fit(X_train, y_train)
+        duration = time.perf_counter() - t0
+        mem_end = psutil.Process().memory_info().rss / (1024 * 1024) if HAS_PSUTIL else 0.0
+        peak_mem = max(mem_start, mem_end)
 
         train_m = cls.evaluate_model(model, X_train, y_train)
         val_m = cls.evaluate_model(model, X_val, y_val)
@@ -233,6 +265,12 @@ class BaselineModelTrainer:
             test_metrics=test_m,
             dependency_versions=cls.get_dependencies(),
             model_path=save_str,
+            train_samples=int(len(y_train)),
+            val_samples=int(len(y_val)),
+            test_samples=int(len(y_test)),
+            training_duration_seconds=round(duration, 4),
+            peak_memory_mb=round(peak_mem, 2),
+            dataset_fingerprint=dataset_fingerprint,
         )
 
         return model, record

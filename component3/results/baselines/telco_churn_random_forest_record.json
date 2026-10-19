@@ -1,0 +1,79 @@
+{
+  "experiment_id": "telco_churn_random_forest_seed42",
+  "dataset_id": "telco_churn",
+  "model_family": "random_forest",
+  "model_config": {
+    "n_estimators": 100,
+    "max_depth": 10,
+    "n_jobs": 2,
+    "random_state": 42
+  },
+  "training_seed": 42,
+  "train_metrics": {
+    "accuracy": 0.8795,
+    "precision": 0.6917,
+    "recall": 0.9855,
+    "f1": 0.8129,
+    "roc_auc": 0.9675,
+    "confusion_matrix": [
+      [
+        3047,
+        575
+      ],
+      [
+        19,
+        1290
+      ]
+    ],
+    "support": 4931
+  },
+  "val_metrics": {
+    "accuracy": 0.7595,
+    "precision": 0.5333,
+    "recall": 0.7429,
+    "f1": 0.6209,
+    "roc_auc": 0.8466,
+    "confusion_matrix": [
+      [
+        594,
+        182
+      ],
+      [
+        72,
+        208
+      ]
+    ],
+    "support": 1056
+  },
+  "test_metrics": {
+    "accuracy": 0.7405,
+    "precision": 0.5075,
+    "recall": 0.7214,
+    "f1": 0.5959,
+    "roc_auc": 0.8162,
+    "confusion_matrix": [
+      [
+        580,
+        196
+      ],
+      [
+        78,
+        202
+      ]
+    ],
+    "support": 1056
+  },
+  "dependency_versions": {
+    "sklearn": "1.9.1",
+    "xgboost": "3.2.0",
+    "lightgbm": "4.7.0"
+  },
+  "model_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\models\\baselines\\telco_churn_random_forest.joblib",
+  "train_samples": 4931,
+  "val_samples": 1056,
+  "test_samples": 1056,
+  "training_duration_seconds": 0.1957,
+  "peak_memory_mb": 463.52,
+  "dataset_fingerprint": "d98bfddedb7ee4b2",
+  "created_at_utc": "2026-10-19T14:03:42.117977+00:00"
+}

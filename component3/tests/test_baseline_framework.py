@@ -215,3 +215,126 @@ def test_baseline_artifact_save_and_reload_consistency(tmp_path):
     assert 0.0 <= metrics.f1 <= 1.0
 
 
+@pytest.mark.parametrize("dataset_id", ["uci_adult_full", "telco_churn", "bank_marketing"])
+def test_saved_split_manifest_reuse_and_zero_leakage(dataset_id):
+    """Verify split manifests can be reloaded and reproduce zero cross-partition duplicate leakage."""
+    import pandas as pd
+    from pathlib import Path
+    from component3.src.datasets.dataset_acquisition import DatasetAcquisitionManager
+    from component3.src.splitting.splitter import (
+        DataSplits,
+        SplitManifest,
+        assert_no_duplicate_feature_leakage,
+        assert_no_split_leakage,
+        compute_dataset_fingerprint,
+    )
+
+    manifest_path = Path("component3/results/split_manifests") / f"{dataset_id}_split_manifest.json"
+    assert manifest_path.is_file(), f"Manifest missing: {manifest_path}"
+
+    manifest = SplitManifest.load(manifest_path)
+    assert_no_split_leakage(manifest)
+
+    acq = DatasetAcquisitionManager()
+    data_path, _ = acq.acquire_dataset(dataset_id)
+    df = pd.read_csv(data_path)
+    meta = acq.registry.get(dataset_id)
+
+    # Verify fingerprint
+    fp = compute_dataset_fingerprint(df)
+    assert fp == manifest.dataset_fingerprint
+
+    # Sliced partitions must be non-empty and match manifest sizes
+    df_indexed = df.reset_index(drop=True)
+    train_df = df_indexed.iloc[manifest.train_indices].copy()
+    val_df = df_indexed.iloc[manifest.val_indices].copy()
+    test_df = df_indexed.iloc[manifest.test_indices].copy()
+
+    assert len(train_df) == manifest.train_size
+    assert len(val_df) == manifest.val_size
+    assert len(test_df) == manifest.test_size
+
+    # Check zero duplicate feature leakage
+    splits = DataSplits(train=train_df, val=val_df, test=test_df)
+    res = assert_no_duplicate_feature_leakage(
+        splits=splits,
+        feature_columns=meta.feature_columns,
+        missing_representations=meta.missing_representations,
+    )
+    assert res["status"] == "PASS"
+    assert res["cross_partition_overlap"] == 0
+
+
+def test_baseline_experiment_record_serialization_roundtrip(tmp_path, synthetic_classification_data):
+    """Verify BaselineExperimentRecord tracks duration, memory, samples, and roundtrips through JSON."""
+    from component3.src.baselines.baseline_trainer import BaselineExperimentRecord
+
+    X_train, y_train, X_val, y_val, X_test, y_test = synthetic_classification_data
+    save_path = tmp_path / "model_rf.joblib"
+    rec_path = tmp_path / "rec.json"
+
+    model, record = BaselineModelTrainer.train_and_evaluate(
+        dataset_id="test_bench",
+        family=ModelFamily.RANDOM_FOREST,
+        X_train=X_train,
+        y_train=y_train,
+        X_val=X_val,
+        y_val=y_val,
+        X_test=X_test,
+        y_test=y_test,
+        hyperparams={"n_estimators": 5, "max_depth": 3},
+        seed=42,
+        model_save_path=save_path,
+        dataset_fingerprint="abc12345",
+    )
+
+    assert record.train_samples == 100
+    assert record.val_samples == 25
+    assert record.test_samples == 25
+    assert record.training_duration_seconds >= 0.0
+    assert record.dataset_fingerprint == "abc12345"
+
+    record.save(rec_path)
+    reloaded = BaselineExperimentRecord.load(rec_path)
+
+    assert reloaded.experiment_id == record.experiment_id
+    assert reloaded.dataset_id == record.dataset_id
+    assert reloaded.model_family == record.model_family
+    assert reloaded.test_metrics.f1 == record.test_metrics.f1
+    assert reloaded.test_metrics.roc_auc == record.test_metrics.roc_auc
+    assert reloaded.train_samples == record.train_samples
+
+
+@pytest.mark.parametrize("dataset_id", ["uci_adult_full", "telco_churn", "bank_marketing"])
+def test_serialized_baseline_models_reload_and_predict(dataset_id):
+    """Verify that serialized models and preprocessors in component3/models/baselines can be loaded and predict."""
+    from pathlib import Path
+    import pandas as pd
+    from component3.src.baselines.model_adapter import BaselineModelAdapter
+    from component3.src.datasets.dataset_acquisition import DatasetAcquisitionManager
+
+    models_dir = Path("component3/models/baselines")
+    prep_path = models_dir / f"{dataset_id}_preprocessor.joblib"
+    assert prep_path.is_file(), f"Preprocessor missing: {prep_path}"
+
+    acq = DatasetAcquisitionManager()
+    data_path, _ = acq.acquire_dataset(dataset_id)
+    df_sample = pd.read_csv(data_path, nrows=20)
+
+    for fam in ["xgboost", "random_forest", "lightgbm"]:
+        m_path = models_dir / f"{dataset_id}_{fam}.joblib"
+        assert m_path.is_file(), f"Model missing: {m_path}"
+
+        adapter = BaselineModelAdapter.load(
+            model_path=m_path,
+            model_family=fam,
+            preprocessor_path=prep_path,
+        )
+        preds = adapter.predict(df_sample)
+        probs = adapter.predict_proba(df_sample)
+
+        assert len(preds) == len(df_sample)
+        assert probs.shape == (len(df_sample), 2)
+        assert (preds >= 0).all() and (preds <= 1).all()
+
+

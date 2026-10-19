@@ -1,8 +1,10 @@
-# Re-include audited Component 3 experiment research datasets
+# Re-include audited Component 3 experiment research datasets and summaries
 !data/repair_experiments_clean.csv
 !data/repair_experiments_raw.csv
+!results/baselines/baseline_evaluation_summary.csv
 
 # Ignore local colab workspace and serialized models
 colab_workspace/
+models/
 *.joblib
 *.tmp
