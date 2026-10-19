@@ -22,6 +22,7 @@ DEFAULT_RAW_DIR = ROOT / "component3" / "data" / "raw"
 
 # Authoritative public open-access URLs for non-credentialed datasets
 PUBLIC_DATASET_URLS: dict[str, str] = {
+    "uci_adult": "https://raw.githubusercontent.com/jbrownlee/Datasets/master/adult-all.csv",
     "telco_churn": "https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv",
     "bank_marketing": "https://raw.githubusercontent.com/madmashup/targeted-marketing-predictive-engine/master/banking.csv",
 }
@@ -44,7 +45,7 @@ class DatasetAcquisitionManager:
         """Acquire dataset if available, verify schema and integrity, and update registry."""
         meta = self.registry.get(dataset_id)
 
-        # 1. Check if already verified local asset (like UCI Adult)
+        # 1. Check if already verified local asset (like UCI Adult on local repo)
         if meta.dataset_id == "uci_adult":
             p = meta.get_absolute_path()
             if p and p.is_file():
@@ -59,7 +60,19 @@ class DatasetAcquisitionManager:
             if not target_path.is_file() or force_download:
                 url = PUBLIC_DATASET_URLS[dataset_id]
                 logger.info("Downloading %s from %s...", dataset_id, url)
-                urllib.request.urlretrieve(url, target_path)
+                if dataset_id == "uci_adult":
+                    adult_names = [
+                        "age", "workclass", "fnlwgt", "education", "education_num",
+                        "marital_status", "occupation", "relationship", "race", "sex",
+                        "capital_gain", "capital_loss", "hours_per_week", "native_country", "target"
+                    ]
+                    raw_adult = pd.read_csv(url, header=None, names=adult_names)
+                    for col in raw_adult.select_dtypes(include="object").columns:
+                        raw_adult[col] = raw_adult[col].astype(str).str.strip()
+                    clean_adult = raw_adult.drop(columns=["fnlwgt", "education"])
+                    clean_adult.to_csv(target_path, index=False)
+                else:
+                    urllib.request.urlretrieve(url, target_path)
 
             # Verify downloaded asset
             report = self.verifier.verify(dataset_id, filepath=target_path)

@@ -73,10 +73,25 @@ class BaselineModelAdapter:
         preds = self.model.predict(features)
         return np.column_stack([1.0 - preds, preds])
 
+    def _prepare_targets(self, y: np.ndarray | pd.Series) -> np.ndarray:
+        """Map target labels to binary integers using preprocessor mapping if available."""
+        if isinstance(y, pd.Series):
+            y_series = y
+        else:
+            y_series = pd.Series(y)
+
+        mapping = getattr(self.preprocessor, "target_mapping", None)
+        if mapping:
+            mapped = y_series.map(mapping)
+            if not mapped.isna().all():
+                return mapped.fillna(0).to_numpy(dtype=int)
+
+        return pd.to_numeric(y_series, errors="coerce").fillna(0).to_numpy(dtype=int)
+
     def evaluate(self, X: np.ndarray | pd.DataFrame, y: np.ndarray | pd.Series) -> ModelMetrics:
         """Calculate standardized classification metrics."""
         features = self._prepare_features(X)
-        targets = np.asarray(y).astype(int)
+        targets = self._prepare_targets(y)
         return BaselineModelTrainer.evaluate_model(self.model, features, targets)
 
     def evaluate_slice(
@@ -87,7 +102,7 @@ class BaselineModelAdapter:
     ) -> tuple[ModelMetrics, ModelMetrics]:
         """Evaluate performance partitioned into affected slice vs non-affected population."""
         features = self._prepare_features(X)
-        targets = np.asarray(y).astype(int)
+        targets = self._prepare_targets(y)
         mask = np.asarray(slice_mask).astype(bool)
 
         if not np.any(mask):

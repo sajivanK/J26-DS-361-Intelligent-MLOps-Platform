@@ -140,3 +140,78 @@ def test_baseline_adapter_legacy_preprocessor_tuple_handling():
     assert probs.shape == (10, 2)
     assert np.allclose(probs.sum(axis=1), 1.0)
 
+
+@pytest.mark.parametrize("dataset_id", ["uci_adult", "telco_churn", "bank_marketing"])
+def test_baseline_training_real_datasets(dataset_id):
+    """Verify baseline training workflow on real tabular benchmarks with leak-free preprocessing."""
+    import pandas as pd
+    from component3.src.datasets.dataset_acquisition import DatasetAcquisitionManager
+    from component3.src.preprocessing.tabular_preprocessor import get_preprocessor_for_dataset
+    from component3.src.splitting.splitter import DataSplitter
+
+    acq = DatasetAcquisitionManager()
+    path, report = acq.acquire_dataset(dataset_id)
+    assert path.is_file()
+
+    meta = acq.registry.get(dataset_id)
+    df = pd.read_csv(path, nrows=150)
+
+    splits, _ = DataSplitter.split(df, meta, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15, seed=42)
+    prep = get_preprocessor_for_dataset(dataset_id)
+    train_b = prep.fit_transform(splits.train)
+    val_b = prep.transform(splits.val)
+    test_b = prep.transform(splits.test)
+
+    assert train_b.X.shape[0] == len(splits.train)
+    assert val_b.X.shape[0] == len(splits.val)
+    assert test_b.X.shape[0] == len(splits.test)
+
+    # Train XGBoost baseline
+    model, record = BaselineModelTrainer.train_and_evaluate(
+        dataset_id=dataset_id,
+        family=ModelFamily.XGBOOST,
+        X_train=train_b.X,
+        y_train=train_b.y,
+        X_val=val_b.X,
+        y_val=val_b.y,
+        X_test=test_b.X,
+        y_test=test_b.y,
+        hyperparams={"n_estimators": 5, "max_depth": 3},
+        seed=42,
+    )
+    assert 0.0 <= record.test_metrics.accuracy <= 1.0
+    assert 0.0 <= record.test_metrics.f1 <= 1.0
+
+
+def test_baseline_artifact_save_and_reload_consistency(tmp_path):
+    """Verify that saving (model, preprocessor) and reloading via BaselineModelAdapter produces exact predictions."""
+    import joblib
+    import pandas as pd
+    from component3.src.datasets.dataset_acquisition import DatasetAcquisitionManager
+    from component3.src.preprocessing.tabular_preprocessor import get_preprocessor_for_dataset
+    from component3.src.splitting.splitter import DataSplitter
+
+    acq = DatasetAcquisitionManager()
+    path, _ = acq.acquire_dataset("telco_churn")
+    meta = acq.registry.get("telco_churn")
+    df = pd.read_csv(path, nrows=150)
+
+    splits, _ = DataSplitter.split(df, meta, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15, seed=42)
+    prep = get_preprocessor_for_dataset("telco_churn")
+    train_b = prep.fit_transform(splits.train)
+
+    m_path = tmp_path / "telco_rf.joblib"
+    p_path = tmp_path / "telco_prep.joblib"
+
+    model = BaselineModelTrainer.create_model(ModelFamily.RANDOM_FOREST, hyperparams={"n_estimators": 10}, seed=42)
+    model.fit(train_b.X, train_b.y)
+    joblib.dump(model, m_path)
+    joblib.dump(prep, p_path)
+
+    adapter = BaselineModelAdapter.load(model_path=m_path, model_family="random_forest", preprocessor_path=p_path)
+    metrics = adapter.evaluate(splits.test, splits.test["Churn"])
+
+    assert 0.0 <= metrics.accuracy <= 1.0
+    assert 0.0 <= metrics.f1 <= 1.0
+
+

@@ -340,3 +340,10 @@ def get_dataset_registry() -> DatasetRegistry:
     if _GLOBAL_REGISTRY is None:
         _GLOBAL_REGISTRY = DatasetRegistry()
     return _GLOBAL_REGISTRY
+
+
+def reset_dataset_registry() -> None:
+    """Reset the global dataset registry singleton (useful for isolated testing)."""
+    global _GLOBAL_REGISTRY
+    _GLOBAL_REGISTRY = None
+

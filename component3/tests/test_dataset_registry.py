@@ -34,7 +34,7 @@ def test_uci_adult_metadata():
 
 
 def test_pending_datasets_metadata():
-    reg = get_dataset_registry()
+    reg = DatasetRegistry()
     telco = reg.get("telco_churn")
     assert telco.status == DatasetStatus.PENDING_DOWNLOAD
     assert telco.target_column == "Churn"
@@ -45,6 +45,10 @@ def test_pending_datasets_metadata():
     assert bank.status == DatasetStatus.PENDING_DOWNLOAD
     assert "duration" in bank.drop_columns
     assert "duration" not in bank.feature_columns
+
+    home = reg.get("home_credit")
+    assert home.status == DatasetStatus.PENDING_DOWNLOAD
+    assert home.target_column == "TARGET"
 
 
 def test_load_dataset_missing_raises_informative_error():
