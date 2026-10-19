@@ -26,6 +26,8 @@ class SplitStrategy(str, Enum):
     STRATIFIED = "STRATIFIED"
     TIME_BASED = "TIME_BASED"
     GROUP_AWARE = "GROUP_AWARE"
+    DUPLICATE_SAFE_STRATIFIED = "DUPLICATE_SAFE_STRATIFIED"
+
 
 
 @dataclass
@@ -189,6 +191,38 @@ class DatasetRegistry:
                 label_provenance="census_survey_ground_truth",
                 preprocessing_notes="Standardized reference benchmark in shared/uci_adult/data/reference.csv",
                 local_path="shared/uci_adult/data/reference.csv",
+            )
+        )
+
+        # 1b. UCI Adult Census Income - Full Benchmark (48,842 rows)
+        self.register(
+            DatasetMetadata(
+                dataset_id="uci_adult_full",
+                display_name="UCI Adult Census Income (Full Benchmark)",
+                version="1.0.0",
+                source="https://archive.ics.uci.edu/ml/datasets/adult",
+                license_info="CC BY 4.0 / Open Access",
+                status=DatasetStatus.VERIFIED if (ROOT / "component3/data/raw/uci_adult_full.csv").is_file() else DatasetStatus.PENDING_DOWNLOAD,
+                target_column="target",
+                target_mapping={"<=50K": 0, ">50K": 1, 0: 0, 1: 1},
+                numerical_features=[
+                    "age", "education_num", "capital_gain", "capital_loss", "hours_per_week"
+                ],
+                categorical_features=[
+                    "workclass", "marital_status", "occupation",
+                    "relationship", "race", "sex", "native_country"
+                ],
+                missing_representations=["?", " ?", "", "NA", "null"],
+                id_columns=[],
+                leakage_prone_columns=[],
+                drop_columns=["fnlwgt", "education"],
+                class_distribution={0: 0.761, 1: 0.239},
+                split_strategy=SplitStrategy.STRATIFIED,
+                split_column=None,
+                label_availability="fully_labeled",
+                label_provenance="census_survey_ground_truth_full_48k",
+                preprocessing_notes="Full 48,842-record UCI Adult benchmark (adult.data + adult.test).",
+                local_path="component3/data/raw/uci_adult_full.csv",
             )
         )
 

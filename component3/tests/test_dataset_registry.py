@@ -14,11 +14,13 @@ def test_registry_contains_default_datasets():
     reg = get_dataset_registry()
     datasets = reg.list_datasets()
     assert "uci_adult" in datasets
+    assert "uci_adult_full" in datasets
     assert "telco_churn" in datasets
     assert "home_credit" in datasets
     assert "ieee_cis" in datasets
     assert "bank_marketing" in datasets
-    assert len(datasets) == 5
+    assert len(datasets) == 6
+
 
 
 def test_uci_adult_metadata():

@@ -23,9 +23,11 @@ DEFAULT_RAW_DIR = ROOT / "component3" / "data" / "raw"
 # Authoritative public open-access URLs for non-credentialed datasets
 PUBLIC_DATASET_URLS: dict[str, str] = {
     "uci_adult": "https://raw.githubusercontent.com/jbrownlee/Datasets/master/adult-all.csv",
+    "uci_adult_full": "https://raw.githubusercontent.com/jbrownlee/Datasets/master/adult-all.csv",
     "telco_churn": "https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv",
     "bank_marketing": "https://raw.githubusercontent.com/madmashup/targeted-marketing-predictive-engine/master/banking.csv",
 }
+
 
 
 class DatasetAcquisitionManager:
@@ -60,7 +62,7 @@ class DatasetAcquisitionManager:
             if not target_path.is_file() or force_download:
                 url = PUBLIC_DATASET_URLS[dataset_id]
                 logger.info("Downloading %s from %s...", dataset_id, url)
-                if dataset_id == "uci_adult":
+                if dataset_id in ("uci_adult", "uci_adult_full"):
                     adult_names = [
                         "age", "workclass", "fnlwgt", "education", "education_num",
                         "marital_status", "occupation", "relationship", "race", "sex",
@@ -69,8 +71,8 @@ class DatasetAcquisitionManager:
                     raw_adult = pd.read_csv(url, header=None, names=adult_names)
                     for col in raw_adult.select_dtypes(include="object").columns:
                         raw_adult[col] = raw_adult[col].astype(str).str.strip()
-                    clean_adult = raw_adult.drop(columns=["fnlwgt", "education"])
-                    clean_adult.to_csv(target_path, index=False)
+                    raw_adult.to_csv(target_path, index=False)
+
                 else:
                     urllib.request.urlretrieve(url, target_path)
 
