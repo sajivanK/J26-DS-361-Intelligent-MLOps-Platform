@@ -255,7 +255,7 @@ class DatasetRegistry:
                 label_availability="fully_labeled",
                 label_provenance="telecom_operational_logs",
                 preprocessing_notes="TotalCharges contains whitespace for new customers with tenure=0 (impute as 0.0).",
-                local_path="component3/data/datasets/telco_churn.csv",
+                local_path="component3/data/raw/telco_churn.csv",
             )
         )
 

@@ -2,6 +2,7 @@
 !data/repair_experiments_clean.csv
 !data/repair_experiments_raw.csv
 !results/baselines/baseline_evaluation_summary.csv
+!results/drift/drift_simulation_summary.csv
 
 # Ignore local colab workspace and serialized models
 colab_workspace/

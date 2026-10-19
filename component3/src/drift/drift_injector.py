@@ -43,6 +43,10 @@ class DriftInjectionResult:
     drifted_df: pd.DataFrame
     manifest: dict[str, Any]
     created_at_utc: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    feature_wasserstein_statistics: dict[str, float] = field(default_factory=dict)
+    flip_rate: float | None = None
+    label_validity_status: str = "stress_test_uncertain"
+    is_label_valid: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         """Convert result summary to dictionary (excluding raw DataFrame)."""
@@ -78,6 +82,12 @@ class DriftInjector:
 
         feature_ks: dict[str, float] = {}
         feature_tvd: dict[str, float] = {}
+        feature_wasserstein: dict[str, float] = {}
+
+        # Resolve target mapping for classification
+        mapping = metadata.target_mapping if metadata else {}
+        pos_keys = [k for k, v in mapping.items() if v == 1] or [1, "1", "Yes", "yes", ">50K"]
+        neg_keys = [k for k, v in mapping.items() if v == 0] or [0, "0", "No", "no", "<=50K"]
 
         # ----------------------------------------------------------------------
         # 1. Execute Drift Operator Based on Category
@@ -86,7 +96,8 @@ class DriftInjector:
             for col in target_features:
                 if col in drifted.columns:
                     orig_series = pd.to_numeric(drifted[col], errors="coerce").dropna()
-                    std = float(orig_series.std()) if orig_series.std() > 0 else 1.0
+                    frozen_stds = config.metadata.get("frozen_feature_std", {})
+                    std = frozen_stds.get(col, float(orig_series.std()) if orig_series.std() > 0 else 1.0)
                     shift = strength * std * 1.5
                     noise = self.rng.normal(0, std * 0.1, len(drifted))
                     drifted[col] = pd.to_numeric(drifted[col], errors="coerce") + shift + noise
@@ -94,19 +105,19 @@ class DriftInjector:
         elif cat == DriftCategory.CATEGORICAL_DISTRIBUTION_SHIFT:
             for col in target_features:
                 if col in drifted.columns:
-                    # Select dominant category or highest frequency category
                     val_counts = drifted[col].value_counts()
-                    dominant_val = val_counts.index[0] if len(val_counts) > 0 else "shifted"
-                    # Perturb fraction of rows proportional to strength
+                    dominant_val = config.metadata.get("frozen_dominant_val", {}).get(
+                        col, val_counts.index[0] if len(val_counts) > 0 else "shifted"
+                    )
                     mask = self.rng.random(len(drifted)) < (strength * 0.8)
                     drifted.loc[mask, col] = dominant_val
 
         elif cat == DriftCategory.MIXED_FEATURE_SHIFT:
-            # Shift numerical features and categorical features simultaneously
             for col in target_features:
                 if col in drifted.columns:
                     if pd.api.types.is_numeric_dtype(drifted[col]):
-                        std = float(drifted[col].std()) if drifted[col].std() > 0 else 1.0
+                        frozen_stds = config.metadata.get("frozen_feature_std", {})
+                        std = frozen_stds.get(col, float(drifted[col].std()) if drifted[col].std() > 0 else 1.0)
                         drifted[col] = drifted[col] + (strength * std)
                     else:
                         dominant_val = drifted[col].mode().iloc[0] if not drifted[col].mode().empty else "shifted"
@@ -114,14 +125,12 @@ class DriftInjector:
                         drifted.loc[mask, col] = dominant_val
 
         elif cat == DriftCategory.MISSINGNESS_SHIFT:
-            # Introduce missing tokens / NaNs into target features
             for col in target_features:
                 if col in drifted.columns:
                     mask = self.rng.random(len(drifted)) < (strength * 0.5)
                     drifted.loc[mask, col] = np.nan
 
         elif cat == DriftCategory.FEATURE_CORRELATION_SHIFT:
-            # Shift correlation between pairs of features
             if len(target_features) >= 2:
                 col1, col2 = target_features[0], target_features[1]
                 if col1 in drifted.columns and col2 in drifted.columns:
@@ -130,10 +139,11 @@ class DriftInjector:
                     drifted[col2] = (1.0 - strength) * num2 + strength * num1
 
         elif cat == DriftCategory.CLASS_PRIOR_SHIFT:
-            # Shift target class distribution P(Y)
             if target_col in drifted.columns:
-                pos = drifted[drifted[target_col] == 1]
-                neg = drifted[drifted[target_col] == 0]
+                pos_mask = drifted[target_col].isin(pos_keys)
+                neg_mask = drifted[target_col].isin(neg_keys)
+                pos = drifted[pos_mask]
+                neg = drifted[neg_mask]
                 if len(pos) > 0 and len(neg) > 0:
                     target_pos_ratio = max(0.05, min(0.95, 0.5 + (strength - 0.5) * 0.8))
                     n_pos = int(len(drifted) * target_pos_ratio)
@@ -143,21 +153,52 @@ class DriftInjector:
                     drifted = pd.concat([sampled_pos, sampled_neg]).sample(frac=1.0, random_state=self.seed).reset_index(drop=True)
 
         elif cat == DriftCategory.COVARIATE_SHIFT:
-            # Subpopulation covariate shift: shift feature values on a slice without altering P(Y|X)
             for col in target_features:
                 if col in drifted.columns:
-                    std = float(pd.to_numeric(drifted[col], errors="coerce").std()) or 1.0
-                    sub_mask = self.rng.random(len(drifted)) < 0.5
+                    frozen_stds = config.metadata.get("frozen_feature_std", {})
+                    std = frozen_stds.get(col, float(pd.to_numeric(drifted[col], errors="coerce").std()) or 1.0)
+                    if config.slice_rule:
+                        try:
+                            sub_mask = evaluate_slice_rule(drifted, config.slice_rule)
+                        except Exception:
+                            sub_mask = self.rng.random(len(drifted)) < 0.5
+                    else:
+                        sub_mask = self.rng.random(len(drifted)) < 0.5
                     drifted.loc[sub_mask, col] = pd.to_numeric(drifted.loc[sub_mask, col], errors="coerce") + (strength * std * 2.0)
 
         elif cat == DriftCategory.GENUINE_CONCEPT_DRIFT:
-            # Genuine Concept Drift: change the feature-target relationship P(Y|X) directly on an identified slice
-            if target_col in drifted.columns and len(target_features) > 0:
-                cond_col = target_features[0]
-                median_val = pd.to_numeric(drifted[cond_col], errors="coerce").median()
-                slice_mask = pd.to_numeric(drifted[cond_col], errors="coerce") > median_val
-                # Invert labels for subpopulation
-                drifted.loc[slice_mask, target_col] = 1 - drifted.loc[slice_mask, target_col]
+            if target_col in drifted.columns:
+                # Prioritize frozen slice rule or frozen threshold over dynamic partition median
+                if config.slice_rule:
+                    try:
+                        slice_mask = evaluate_slice_rule(drifted, config.slice_rule)
+                    except Exception:
+                        slice_mask = pd.Series(True, index=drifted.index)
+                elif len(target_features) > 0 and "frozen_threshold" in config.metadata:
+                    cond_col = target_features[0]
+                    thresh = config.metadata["frozen_threshold"]
+                    slice_mask = (pd.to_numeric(drifted[cond_col], errors="coerce") > thresh).fillna(False)
+                elif len(target_features) > 0:
+                    cond_col = target_features[0]
+                    median_val = pd.to_numeric(drifted[cond_col], errors="coerce").median()
+                    slice_mask = (pd.to_numeric(drifted[cond_col], errors="coerce") > median_val).fillna(False)
+                else:
+                    slice_mask = pd.Series(True, index=drifted.index)
+
+                # Invert labels for subpopulation preserving data types
+                if mapping:
+                    if pd.api.types.is_numeric_dtype(drifted[target_col]):
+                        inv_map = {1: 1, 0: 0}
+                    else:
+                        str_pos = [k for k, v in mapping.items() if v == 1 and isinstance(k, str)]
+                        str_neg = [k for k, v in mapping.items() if v == 0 and isinstance(k, str)]
+                        pos_repr = str_pos[0] if str_pos else (pos_keys[0] if isinstance(pos_keys[0], (str, int, np.integer)) else 1)
+                        neg_repr = str_neg[0] if str_neg else (neg_keys[0] if isinstance(neg_keys[0], (str, int, np.integer)) else 0)
+                        inv_map = {1: pos_repr, 0: neg_repr}
+                    mapped_target = drifted.loc[slice_mask, target_col].map(mapping).fillna(0).astype(int)
+                    drifted.loc[slice_mask, target_col] = (1 - mapped_target).map(inv_map)
+                else:
+                    drifted.loc[slice_mask, target_col] = 1 - pd.to_numeric(drifted.loc[slice_mask, target_col], errors="coerce").fillna(0).astype(int)
 
         # ----------------------------------------------------------------------
         # 2. Measure Empirical Statistical Drift
@@ -171,7 +212,9 @@ class DriftInjector:
                     drift_clean = pd.to_numeric(drifted[col], errors="coerce").dropna()
                     if len(orig_clean) > 0 and len(drift_clean) > 0:
                         ks_stat, _ = ks_2samp(orig_clean, drift_clean)
+                        w_dist = wasserstein_distance(orig_clean, drift_clean)
                         feature_ks[col] = round(float(ks_stat), 4)
+                        feature_wasserstein[col] = round(float(w_dist), 4)
                         drift_scores.append(float(ks_stat))
                 else:
                     # Categorical TVD
@@ -198,7 +241,7 @@ class DriftInjector:
         slice_support = round(slice_count / max(len(drifted), 1), 4)
 
         # ----------------------------------------------------------------------
-        # 4. Measure Model Performance Degradation (if model provided)
+        # 4. Measure Model Predictions, Flip Rate & Degradation
         # ----------------------------------------------------------------------
         pre_f1: float | None = None
         post_f1: float | None = None
@@ -206,29 +249,55 @@ class DriftInjector:
         pre_slice_f1: float | None = None
         post_slice_f1: float | None = None
         delta_slice_f1: float | None = None
+        flip_rate: float | None = None
 
-        if model_adapter is not None and target_col in df.columns and target_col in drifted.columns:
+        # Determine label validity status
+        label_validity_str = getattr(config, "label_validity", None)
+        if hasattr(label_validity_str, "value"):
+            validity_status = label_validity_str.value
+        elif isinstance(label_validity_str, str):
+            validity_status = label_validity_str
+        elif cat == DriftCategory.GENUINE_CONCEPT_DRIFT or config.is_concept_drift:
+            validity_status = "synthetic_concept_truth"
+        elif cat == DriftCategory.CLASS_PRIOR_SHIFT:
+            validity_status = "verified_resampled_ground_truth"
+        elif cat == DriftCategory.MISSINGNESS_SHIFT:
+            validity_status = "verified_observational_missingness"
+        elif cat == DriftCategory.COVARIATE_SHIFT:
+            validity_status = "verified_observational_ground_truth"
+        else:
+            validity_status = "stress_test_uncertain"
+
+        is_valid_label = validity_status != "stress_test_uncertain"
+
+        if model_adapter is not None:
+            # Prediction flip rate on aligned rows
             try:
-                # Pre-drift metrics on reference
-                y_ref = df[target_col].to_numpy().astype(int)
-                ref_m = model_adapter.evaluate(df, y_ref)
-                pre_f1 = ref_m.f1
-
-                # Post-drift metrics on drifted
-                y_drift = drifted[target_col].to_numpy().astype(int)
-                drift_m = model_adapter.evaluate(drifted, y_drift)
-                post_f1 = drift_m.f1
-                delta_f1 = round(post_f1 - pre_f1, 4)
-
-                # Slice-level metrics if slice has minimum support
-                if 0 < slice_count < len(drifted):
-                    ref_slice_m, _ = model_adapter.evaluate_slice(df, y_ref, slice_mask_arr)
-                    drift_slice_m, _ = model_adapter.evaluate_slice(drifted, y_drift, slice_mask_arr)
-                    pre_slice_f1 = ref_slice_m.f1
-                    post_slice_f1 = drift_slice_m.f1
-                    delta_slice_f1 = round(post_slice_f1 - pre_slice_f1, 4)
-            except Exception as exc:
+                if len(df) == len(drifted):
+                    orig_preds = model_adapter.predict(df)
+                    drift_preds = model_adapter.predict(drifted)
+                    flip_rate = round(float(np.mean(orig_preds != drift_preds)), 4)
+            except Exception:
                 pass
+
+            if target_col in df.columns and target_col in drifted.columns:
+                try:
+                    ref_m = model_adapter.evaluate(df, df[target_col])
+                    pre_f1 = ref_m.f1
+
+                    drift_m = model_adapter.evaluate(drifted, drifted[target_col])
+                    post_f1 = drift_m.f1
+                    delta_f1 = round(post_f1 - pre_f1, 4)
+
+                    # Slice-level metrics if slice has valid support
+                    if 0 < slice_count < len(drifted):
+                        ref_slice_m, _ = model_adapter.evaluate_slice(df, df[target_col], slice_mask_arr[:len(df)])
+                        drift_slice_m, _ = model_adapter.evaluate_slice(drifted, drifted[target_col], slice_mask_arr)
+                        pre_slice_f1 = ref_slice_m.f1
+                        post_slice_f1 = drift_slice_m.f1
+                        delta_slice_f1 = round(post_slice_f1 - pre_slice_f1, 4)
+                except Exception:
+                    pass
 
         # ----------------------------------------------------------------------
         # 5. Build Diagnostic Manifest (C1/C2 Compatibility)
@@ -242,9 +311,11 @@ class DriftInjector:
             "target_features": target_features,
             "feature_ks": feature_ks,
             "feature_tvd": feature_tvd,
+            "feature_wasserstein": feature_wasserstein,
             "slice_rule": config.slice_rule,
             "slice_rows": slice_count,
             "slice_support": slice_support,
+            "flip_rate": flip_rate,
             "pre_drift_overall_f1": pre_f1,
             "post_drift_overall_f1": post_f1,
             "delta_overall_f1": delta_f1,
@@ -253,6 +324,8 @@ class DriftInjector:
             "delta_slice_f1": delta_slice_f1,
             "is_concept_drift": config.is_concept_drift or (cat == DriftCategory.GENUINE_CONCEPT_DRIFT),
             "label_provenance": "ground_truth_retained" if (config.is_concept_drift or cat == DriftCategory.GENUINE_CONCEPT_DRIFT) else "simulation_injected",
+            "label_validity_status": validity_status,
+            "is_label_valid": is_valid_label,
         }
 
         return DriftInjectionResult(
@@ -273,4 +346,8 @@ class DriftInjector:
             delta_slice_f1=delta_slice_f1,
             drifted_df=drifted,
             manifest=manifest,
+            feature_wasserstein_statistics=feature_wasserstein,
+            flip_rate=flip_rate,
+            label_validity_status=validity_status,
+            is_label_valid=is_valid_label,
         )

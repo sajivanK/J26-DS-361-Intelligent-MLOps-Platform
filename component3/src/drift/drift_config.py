@@ -39,6 +39,15 @@ class DriftSeverityTier(str, Enum):
     CRITICAL = "critical"
 
 
+class LabelValidityStatus(str, Enum):
+    """Provenance and scientific validity status of target labels under drift."""
+    VERIFIED_OBSERVATIONAL_GROUND_TRUTH = "verified_observational_ground_truth"
+    VERIFIED_RESAMPLED_GROUND_TRUTH = "verified_resampled_ground_truth"
+    VERIFIED_OBSERVATIONAL_MISSINGNESS = "verified_observational_missingness"
+    SYNTHETIC_CONCEPT_TRUTH = "synthetic_concept_truth"
+    STRESS_TEST_UNCERTAIN = "stress_test_uncertain"
+
+
 @dataclass
 class DriftScenarioConfig:
     """Configuration specification for a controlled drift injection scenario."""
@@ -55,6 +64,8 @@ class DriftScenarioConfig:
     model_degradation_metric: str | None = None
     model_degradation_value: float | None = None
     description: str = ""
+    label_validity: LabelValidityStatus = LabelValidityStatus.STRESS_TEST_UNCERTAIN
+    concept_policy_description: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
     created_at_utc: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
@@ -77,6 +88,7 @@ class DriftScenarioConfig:
         d = asdict(self)
         d["category"] = self.category.value
         d["severity_tier"] = self.severity_tier.value
+        d["label_validity"] = self.label_validity.value
         return d
 
     def save(self, filepath: Path | str) -> None:
@@ -94,6 +106,8 @@ class DriftScenarioConfig:
             data = json.load(f)
         data["category"] = DriftCategory(data["category"])
         data["severity_tier"] = DriftSeverityTier(data.get("severity_tier", "moderate"))
+        if "label_validity" in data:
+            data["label_validity"] = LabelValidityStatus(data["label_validity"])
         return cls(**data)
 
 
@@ -268,6 +282,378 @@ class DriftScenarioRegistry:
                 model_degradation_metric="delta_f1",
                 model_degradation_value=-0.082,
                 description="Simulated genuine concept drift with altered P(Income | Education, Hours) under verified ground truth.",
+            )
+        )
+
+        # ----------------------------------------------------------------------
+        # Calibrated Multi-Dataset Benchmark Scenarios (8 Types x 3 Datasets)
+        # ----------------------------------------------------------------------
+        # UCI Adult Full
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="ADULT_NUM",
+                dataset_id="uci_adult_full",
+                category=DriftCategory.NUMERICAL_DISTRIBUTION_SHIFT,
+                target_features=["age"],
+                injected_strength=0.5,
+                slice_rule="age > 45",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.STRESS_TEST_UNCERTAIN,
+                description="Right-skewed continuous shift on age feature isolating elder population slice.",
+                metadata={
+                    "frozen_feature_std": {"age": 13.7000},
+                    "std_source": "train_partition_std",
+                    "scenario_version": "1.0.0",
+                },
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="ADULT_CAT",
+                dataset_id="uci_adult_full",
+                category=DriftCategory.CATEGORICAL_DISTRIBUTION_SHIFT,
+                target_features=["marital_status"],
+                injected_strength=0.5,
+                slice_rule="marital_status == 'Married-civ-spouse'",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.STRESS_TEST_UNCERTAIN,
+                description="Frequency redistribution on marital status attribute.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="ADULT_MIXED",
+                dataset_id="uci_adult_full",
+                category=DriftCategory.MIXED_FEATURE_SHIFT,
+                target_features=["age", "education_num"],
+                injected_strength=0.5,
+                slice_rule="age > 40 and education_num < 10",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.STRESS_TEST_UNCERTAIN,
+                description="Simultaneous continuous shift on age and education level.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="ADULT_MISS",
+                dataset_id="uci_adult_full",
+                category=DriftCategory.MISSINGNESS_SHIFT,
+                target_features=["occupation", "workclass"],
+                injected_strength=0.35,
+                slice_rule="age > 30",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.VERIFIED_OBSERVATIONAL_MISSINGNESS,
+                description="Targeted missingness injection into occupation and employment fields.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="ADULT_CORR",
+                dataset_id="uci_adult_full",
+                category=DriftCategory.FEATURE_CORRELATION_SHIFT,
+                target_features=["marital_status", "relationship"],
+                injected_strength=0.6,
+                slice_rule="marital_status == 'Married-civ-spouse'",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.STRESS_TEST_UNCERTAIN,
+                description="Correlation break decoupling marital status and household relationship.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="ADULT_PRIOR",
+                dataset_id="uci_adult_full",
+                category=DriftCategory.CLASS_PRIOR_SHIFT,
+                target_features=["target"],
+                injected_strength=0.6,
+                slice_rule="target == '>50K'",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.VERIFIED_RESAMPLED_GROUND_TRUTH,
+                description="Prior probability shift P(Y) shifting high-earner ratio via authentic stratified resampling.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="ADULT_COV",
+                dataset_id="uci_adult_full",
+                category=DriftCategory.COVARIATE_SHIFT,
+                target_features=["education_num"],
+                injected_strength=0.5,
+                slice_rule="education_num > 10",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.VERIFIED_OBSERVATIONAL_GROUND_TRUTH,
+                description="Subpopulation covariate shift focused on higher education cohort.",
+                metadata={
+                    "frozen_feature_std": {"education_num": 2.5645},
+                    "std_source": "train_partition_std",
+                    "scenario_version": "1.0.0",
+                },
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="ADULT_CONCEPT",
+                dataset_id="uci_adult_full",
+                category=DriftCategory.GENUINE_CONCEPT_DRIFT,
+                target_features=["hours_per_week"],
+                injected_strength=0.5,
+                slice_rule="hours_per_week > 40.0",
+                is_concept_drift=True,
+                label_validity=LabelValidityStatus.SYNTHETIC_CONCEPT_TRUTH,
+                concept_policy_description="Controlled synthetic label-inversion simulation altering P(Y|X) for high-hours subpopulation under frozen development threshold (hours_per_week > 40.0).",
+                description="Controlled synthetic label-inversion simulation altering conditional income probability P(Y|X) for hours_per_week > 40.0.",
+                metadata={
+                    "frozen_threshold": 40.0,
+                    "threshold_source": "train_partition_median",
+                    "threshold_feature": "hours_per_week",
+                    "scenario_version": "1.0.0",
+                },
+            )
+        )
+
+        # Telco Customer Churn
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="TELCO_NUM",
+                dataset_id="telco_churn",
+                category=DriftCategory.NUMERICAL_DISTRIBUTION_SHIFT,
+                target_features=["MonthlyCharges"],
+                injected_strength=0.5,
+                slice_rule="MonthlyCharges > 70",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.STRESS_TEST_UNCERTAIN,
+                description="Continuous inflation shift on monthly charges feature.",
+                metadata={
+                    "frozen_feature_std": {"MonthlyCharges": 30.0196},
+                    "std_source": "train_partition_std",
+                    "scenario_version": "1.0.0",
+                },
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="TELCO_CAT",
+                dataset_id="telco_churn",
+                category=DriftCategory.CATEGORICAL_DISTRIBUTION_SHIFT,
+                target_features=["Contract"],
+                injected_strength=0.5,
+                slice_rule="Contract == 'Month-to-month'",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.STRESS_TEST_UNCERTAIN,
+                description="Contract plan proportion shift towards month-to-month subscriptions.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="TELCO_MIXED",
+                dataset_id="telco_churn",
+                category=DriftCategory.MIXED_FEATURE_SHIFT,
+                target_features=["MonthlyCharges", "Contract"],
+                injected_strength=0.5,
+                slice_rule="MonthlyCharges > 65",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.STRESS_TEST_UNCERTAIN,
+                description="Simultaneous shift on monthly charges and contract tenure types.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="TELCO_MISS",
+                dataset_id="telco_churn",
+                category=DriftCategory.MISSINGNESS_SHIFT,
+                target_features=["TotalCharges", "TechSupport"],
+                injected_strength=0.35,
+                slice_rule="tenure > 12",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.VERIFIED_OBSERVATIONAL_MISSINGNESS,
+                description="Targeted missingness in billing history and technical support records.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="TELCO_CORR",
+                dataset_id="telco_churn",
+                category=DriftCategory.FEATURE_CORRELATION_SHIFT,
+                target_features=["tenure", "TotalCharges"],
+                injected_strength=0.6,
+                slice_rule="tenure > 24",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.STRESS_TEST_UNCERTAIN,
+                description="Correlation break decoupling tenure longevity from accumulated total charges.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="TELCO_PRIOR",
+                dataset_id="telco_churn",
+                category=DriftCategory.CLASS_PRIOR_SHIFT,
+                target_features=["Churn"],
+                injected_strength=0.65,
+                slice_rule="Churn == 'Yes'",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.VERIFIED_RESAMPLED_GROUND_TRUTH,
+                description="Macro churn surge shifting churn prevalence from 26.5% to ~45% via authentic resampling.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="TELCO_COV",
+                dataset_id="telco_churn",
+                category=DriftCategory.COVARIATE_SHIFT,
+                target_features=["tenure"],
+                injected_strength=0.5,
+                slice_rule="Contract == 'Month-to-month'",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.VERIFIED_OBSERVATIONAL_GROUND_TRUTH,
+                description="Subpopulation covariate shift evaluating month-to-month subscriber segment.",
+                metadata={
+                    "frozen_feature_std": {"tenure": 24.6110},
+                    "std_source": "train_partition_std",
+                    "scenario_version": "1.0.0",
+                },
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="TELCO_CONCEPT",
+                dataset_id="telco_churn",
+                category=DriftCategory.GENUINE_CONCEPT_DRIFT,
+                target_features=["tenure"],
+                injected_strength=0.5,
+                slice_rule="tenure > 29.0",
+                is_concept_drift=True,
+                label_validity=LabelValidityStatus.SYNTHETIC_CONCEPT_TRUTH,
+                concept_policy_description="Controlled synthetic label-inversion simulation altering P(Y|X) for established customers under frozen development threshold (tenure > 29.0).",
+                description="Controlled synthetic label-inversion simulation altering churn relationship for established tenure accounts (tenure > 29.0).",
+                metadata={
+                    "frozen_threshold": 29.0,
+                    "threshold_source": "train_partition_median",
+                    "threshold_feature": "tenure",
+                    "scenario_version": "1.0.0",
+                },
+            )
+        )
+
+        # Bank Marketing
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="BANK_NUM",
+                dataset_id="bank_marketing",
+                category=DriftCategory.NUMERICAL_DISTRIBUTION_SHIFT,
+                target_features=["euribor3m"],
+                injected_strength=0.5,
+                slice_rule="euribor3m > 3.0",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.STRESS_TEST_UNCERTAIN,
+                description="Macroeconomic interest rate shift on euribor 3-month rate indicator.",
+                metadata={
+                    "frozen_feature_std": {"euribor3m": 1.7340},
+                    "std_source": "train_partition_std",
+                    "scenario_version": "1.0.0",
+                },
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="BANK_CAT",
+                dataset_id="bank_marketing",
+                category=DriftCategory.CATEGORICAL_DISTRIBUTION_SHIFT,
+                target_features=["contact"],
+                injected_strength=0.5,
+                slice_rule="contact == 'cellular'",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.STRESS_TEST_UNCERTAIN,
+                description="Communication channel shift altering contact method distribution.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="BANK_MIXED",
+                dataset_id="bank_marketing",
+                category=DriftCategory.MIXED_FEATURE_SHIFT,
+                target_features=["euribor3m", "job"],
+                injected_strength=0.5,
+                slice_rule="euribor3m > 2.0",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.STRESS_TEST_UNCERTAIN,
+                description="Joint macroeconomic and professional employment category shift.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="BANK_MISS",
+                dataset_id="bank_marketing",
+                category=DriftCategory.MISSINGNESS_SHIFT,
+                target_features=["poutcome", "education"],
+                injected_strength=0.35,
+                slice_rule="age > 35",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.VERIFIED_OBSERVATIONAL_MISSINGNESS,
+                description="Targeted missingness injection into previous outcome and education records.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="BANK_CORR",
+                dataset_id="bank_marketing",
+                category=DriftCategory.FEATURE_CORRELATION_SHIFT,
+                target_features=["emp_var_rate", "euribor3m"],
+                injected_strength=0.6,
+                slice_rule="euribor3m > 1.5",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.STRESS_TEST_UNCERTAIN,
+                description="Correlation break decoupling employment variation rate from euribor interest index.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="BANK_PRIOR",
+                dataset_id="bank_marketing",
+                category=DriftCategory.CLASS_PRIOR_SHIFT,
+                target_features=["y"],
+                injected_strength=0.6,
+                slice_rule="y == 'yes'",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.VERIFIED_RESAMPLED_GROUND_TRUTH,
+                description="Term deposit conversion surge from 11.3% to ~25% via authentic stratified resampling.",
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="BANK_COV",
+                dataset_id="bank_marketing",
+                category=DriftCategory.COVARIATE_SHIFT,
+                target_features=["euribor3m"],
+                injected_strength=0.5,
+                slice_rule="poutcome == 'success'",
+                is_concept_drift=False,
+                label_validity=LabelValidityStatus.VERIFIED_OBSERVATIONAL_GROUND_TRUTH,
+                description="Subpopulation covariate shift focused on historically successful campaign contacts.",
+                metadata={
+                    "frozen_feature_std": {"euribor3m": 1.7340},
+                    "std_source": "train_partition_std",
+                    "scenario_version": "1.0.0",
+                },
+            )
+        )
+        self.register(
+            DriftScenarioConfig(
+                scenario_id="BANK_CONCEPT",
+                dataset_id="bank_marketing",
+                category=DriftCategory.GENUINE_CONCEPT_DRIFT,
+                target_features=["euribor3m"],
+                injected_strength=0.5,
+                slice_rule="euribor3m > 4.857",
+                is_concept_drift=True,
+                label_validity=LabelValidityStatus.SYNTHETIC_CONCEPT_TRUTH,
+                concept_policy_description="Controlled synthetic label-inversion simulation altering P(Y|X) for high euribor3m subpopulation under frozen development threshold (euribor3m > 4.857).",
+                description="Controlled synthetic label-inversion simulation altering deposit propensity under frozen economic indicator threshold (euribor3m > 4.857).",
+                metadata={
+                    "frozen_threshold": 4.857,
+                    "threshold_source": "train_partition_median",
+                    "threshold_feature": "euribor3m",
+                    "scenario_version": "1.0.0",
+                },
             )
         )
 
