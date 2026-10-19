@@ -3,9 +3,14 @@
 !data/repair_experiments_raw.csv
 !results/baselines/baseline_evaluation_summary.csv
 !results/drift/drift_simulation_summary.csv
+!results/generators/telco_churn_generator_pilot_summary.csv
+!results/generators/telco_churn_generator_improvement_summary.csv
 
-# Ignore local colab workspace and serialized models
+# Ignore local colab workspace, temporary checkpoints, and serialized models
 colab_workspace/
 models/
+results/checkpoints/
+results/repair_experiments/
 *.joblib
 *.tmp
+
