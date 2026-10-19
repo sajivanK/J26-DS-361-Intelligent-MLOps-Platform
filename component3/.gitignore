@@ -5,6 +5,8 @@
 !results/drift/drift_simulation_summary.csv
 !results/generators/telco_churn_generator_pilot_summary.csv
 !results/generators/telco_churn_generator_improvement_summary.csv
+!results/augmentation/telco_churn_minority_augmentation_summary.csv
+!results/augmentation/telco_churn_validation_predictions_audit.csv
 
 # Ignore local colab workspace, temporary checkpoints, and serialized models
 colab_workspace/
