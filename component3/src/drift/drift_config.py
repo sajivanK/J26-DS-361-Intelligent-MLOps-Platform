@@ -504,8 +504,8 @@ class DriftScenarioRegistry:
                 injected_strength=0.5,
                 slice_rule="Contract == 'Month-to-month'",
                 is_concept_drift=False,
-                label_validity=LabelValidityStatus.VERIFIED_OBSERVATIONAL_GROUND_TRUTH,
-                description="Subpopulation covariate shift evaluating month-to-month subscriber segment.",
+                label_validity=LabelValidityStatus.STRESS_TEST_UNCERTAIN,
+                description="Subpopulation covariate shift evaluating month-to-month subscriber segment via feature perturbation (tenure shift).",
                 metadata={
                     "frozen_feature_std": {"tenure": 24.6110},
                     "std_source": "train_partition_std",

@@ -1,0 +1,47 @@
+{
+  "protocol_name": "Batch_5K_Controlled_Synthetic_Repair_Utility_Evaluation",
+  "dataset_id": "telco_churn",
+  "drift_scenario": "TELCO_CONCEPT",
+  "execution_environment": {
+    "os": "win32",
+    "python_version": "3.11.0",
+    "torch_version": "2.14.1+cpu",
+    "sklearn_version": "1.9.1",
+    "total_elapsed_seconds": 103.66,
+    "peak_process_rss_mb": 490.06
+  },
+  "verified_hashes": {
+    "canonical_split": "e80e253f91e8712143e15e05dbb4d5c8d2039a69beb23423eec5a87ca217de68",
+    "adaptation_split": "34fa2bb2bcfad28961287343368ceeb87803f3f04542a57595fa89bc444d9c59",
+    "leakage_audit": "884d9d6983b1f589ff302749438f93bda84c5d4a2a7d5d90e7f793c0a2008518",
+    "source_model": "256a692be95a0ea840d9afe03891131bc15c93090d72e3c62f815ac337b75bd0",
+    "source_prep": "a188f0285e6cf07741bbb69be8b3df44eece492e69166c78d92353f1f4d41224"
+  },
+  "candidate_file_hashes": {
+    "TVAE": "df37d48d836fa74421e8244751725c5a09d4f7f54463e0e91f0ba540d2727279",
+    "CTGAN": "1b8f450350f401d74dba72e6102b470f002969d26848e7c77c395540f93a2fa0",
+    "TabDDPM": "5dcea3560e9e46a109dd82f7cc887205f794935fb5be2a274b15acf18a892222"
+  },
+  "partition_sizes": {
+    "D_source_train": 3452,
+    "B200": 200,
+    "D_dev_val": 292,
+    "D_source_eval": 493,
+    "D_target_eval": 493
+  },
+  "comparison_arms": {
+    "B0": "Frozen source model (N=3,452)",
+    "B1_B200": "Naive authentic pooling (N=3,652)",
+    "B2_B200_K200": "Authentic Random OverSampling (N=3,852)",
+    "B4_B200": "Target-only B200 model (N=200)",
+    "S1_TVAE_K50": "Source + B200 + 50 TVAE records (N=3,702)",
+    "S2_CTGAN_K50": "Source + B200 + 50 CTGAN records (N=3,702)",
+    "S3_TabDDPM_K50": "Source + B200 + 50 TabDDPM records (N=3,702)"
+  },
+  "infeasible_arms": {
+    "S4_TVAE_K200": "Pre-registered INFEASIBLE: sampling budget limit and continuous distortion",
+    "S5_CTGAN_K200": "Pre-registered INFEASIBLE: sampling budget limit and continuous distortion",
+    "S6_TabDDPM_K200": "Pre-registered INFEASIBLE: sampling budget limit and continuous distortion"
+  },
+  "created_at_utc": "2026-10-20T08:15:09.914093+00:00"
+}

@@ -57,6 +57,9 @@ class CTGANGenerator(BaseGenerator):
 
         training_data = data.copy(deep=True)
 
+        auto_discrete = training_data.select_dtypes(
+            include=["object", "category", "bool"]
+        ).columns.tolist()
         if self.discrete_columns is not None:
             missing_columns = [
                 column
@@ -67,11 +70,9 @@ class CTGANGenerator(BaseGenerator):
                 raise ValueError(
                     f"Configured discrete columns missing from data: {missing_columns}"
                 )
-            discrete_columns = list(self.discrete_columns)
+            discrete_columns = list(dict.fromkeys(list(self.discrete_columns) + auto_discrete))
         else:
-            discrete_columns = training_data.select_dtypes(
-                include=["object", "category", "bool"]
-            ).columns.tolist()
+            discrete_columns = auto_discrete
 
         self.model.fit(
             training_data,

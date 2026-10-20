@@ -62,6 +62,9 @@ class TVAEGenerator(BaseGenerator):
         if data.isna().any().any():
             raise ValueError("Training data cannot contain missing values")
 
+        auto_discrete = data.select_dtypes(
+            include=["object", "category", "bool"]
+        ).columns.tolist()
         if self.discrete_columns is not None:
             missing_columns = [
                 column
@@ -72,11 +75,9 @@ class TVAEGenerator(BaseGenerator):
                 raise ValueError(
                     f"Discrete columns not found: {missing_columns}"
                 )
-            discrete_columns = list(self.discrete_columns)
+            discrete_columns = list(dict.fromkeys(list(self.discrete_columns) + auto_discrete))
         else:
-            discrete_columns = data.select_dtypes(
-                include=["object", "category", "bool"]
-            ).columns.tolist()
+            discrete_columns = auto_discrete
 
         training_data = data.copy(deep=True)
         self.model.fit(

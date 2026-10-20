@@ -1,0 +1,71 @@
+{
+  "TVAE": {
+    "status": "AUDITED_FROZEN",
+    "candidate_file": "batch05j_synthetic_candidates_tvae.csv",
+    "csv_artifact": "batch05j_synthetic_candidates_tvae.csv",
+    "candidate_file_sha256": "ce22c1adb3d7a0cc332d6b1c993e739b4b17b25156f45129e84667b74b40ddf9",
+    "candidates_requested": 200,
+    "candidates_returned": 200,
+    "tier1_structural_valid_count": 200,
+    "tier2_physical_valid_count": 167,
+    "tier2_unique_hard_valid_count": 167,
+    "tier3_plausible_unique_count": 65,
+    "class_distribution": {
+      "Yes": 153,
+      "No": 47
+    },
+    "churn_rate_tenure_gt_29_pct": 100.0,
+    "churn_rate_tenure_le_29_pct": 69.87,
+    "conditional_difference_delta_pct": 30.13,
+    "mean_ks_statistic": 0.2667,
+    "mean_tvd": 0.2697,
+    "dcr_p05": 0.0246,
+    "near_duplicates_under_0_01": 0
+  },
+  "CTGAN": {
+    "status": "AUDITED_FROZEN",
+    "candidate_file": "batch05j_synthetic_candidates_ctgan.csv",
+    "csv_artifact": "batch05j_synthetic_candidates_ctgan.csv",
+    "candidate_file_sha256": "1d8b1f4c79c81041d66de1986f5559d505b469a9c5da0a85d531b09e8e021c63",
+    "candidates_requested": 200,
+    "candidates_returned": 200,
+    "tier1_structural_valid_count": 200,
+    "tier2_physical_valid_count": 115,
+    "tier2_unique_hard_valid_count": 115,
+    "tier3_plausible_unique_count": 30,
+    "class_distribution": {
+      "Yes": 121,
+      "No": 79
+    },
+    "churn_rate_tenure_gt_29_pct": 62.5,
+    "churn_rate_tenure_le_29_pct": 59.87,
+    "conditional_difference_delta_pct": 2.63,
+    "mean_ks_statistic": 0.2467,
+    "mean_tvd": 0.0565,
+    "dcr_p05": 0.0551,
+    "near_duplicates_under_0_01": 0
+  },
+  "TabDDPM": {
+    "status": "AUDITED_FROZEN",
+    "candidate_file": "batch05j_synthetic_candidates_tabddpm.csv",
+    "csv_artifact": "batch05j_synthetic_candidates_tabddpm.csv",
+    "candidate_file_sha256": "14b3112d0ec92f037128c7e30a1c9969e8231f66377e6817e7564d997877a6ec",
+    "candidates_requested": 200,
+    "candidates_returned": 200,
+    "tier1_structural_valid_count": 200,
+    "tier2_physical_valid_count": 200,
+    "tier2_unique_hard_valid_count": 169,
+    "tier3_plausible_unique_count": 42,
+    "class_distribution": {
+      "Yes": 126,
+      "No": 74
+    },
+    "churn_rate_tenure_gt_29_pct": 86.46,
+    "churn_rate_tenure_le_29_pct": 41.35,
+    "conditional_difference_delta_pct": 45.11,
+    "mean_ks_statistic": 0.5483,
+    "mean_tvd": 0.2218,
+    "dcr_p05": 0.0,
+    "near_duplicates_under_0_01": 15
+  }
+}

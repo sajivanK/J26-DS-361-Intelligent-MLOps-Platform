@@ -1,0 +1,73 @@
+{
+  "timestamp_utc": "2026-10-20T17:37:45.336053+00:00",
+  "execution_platform": "Windows 10",
+  "python_version": "3.11.0",
+  "total_workflows": 5,
+  "workflows_passed": 5,
+  "timings": {
+    "wf1_live_generator_seconds": 2.638,
+    "wf2_approved_repair_seconds": 6.698,
+    "wf3_rejection_seconds": 3.654,
+    "wf4_abstain_seconds": 0.636,
+    "wf5_learned_advisory_seconds": 0.005
+  },
+  "workflow_results": {
+    "wf1_live_generator": {
+      "generator": "TVAE",
+      "samples_generated": 50,
+      "validation_status": "ACCEPT",
+      "supervised_retraining_approved": true,
+      "fidelity_passed": true,
+      "privacy_score": 0.0,
+      "duration_seconds": 2.638,
+      "passed": true
+    },
+    "wf2_approved_repair": {
+      "request_id": "PHASE4-DEMO-SUCCESS-02",
+      "status": "APPROVED_FOR_REVIEW",
+      "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+      "target_delta_f1": 0.0123,
+      "source_delta_f1": 0.0074,
+      "candidate_model_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\phase4_demonstration\\wf2_approved_repair\\pkg-49de7b715580_candidate_model.joblib",
+      "candidate_model_sha256": "838aac29d7fa30763fe3ead022458893137775ec03401c3248a118a988e2c0f8",
+      "c4_contract_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\phase4_demonstration\\wf2_c4_handoff_contract.json",
+      "duration_seconds": 6.698,
+      "passed": true
+    },
+    "wf3_rejection": {
+      "request_id": "PHASE4-DEMO-REJECT-03",
+      "status": "REJECTED",
+      "rejection_reasons": [
+        "Target adaptation performance gain (+0.0036) is below minimum practical utility margin (+0.0100) vs baseline."
+      ],
+      "duration_seconds": 3.654,
+      "passed": true
+    },
+    "wf4_abstain": {
+      "request_id": "PHASE4-DEMO-ABSTAIN-04",
+      "status": "ABSTAINED_NO_REPAIR",
+      "strategy": "NO_REPAIR",
+      "duration_seconds": 0.636,
+      "passed": true
+    },
+    "wf5_learned_advisory": {
+      "in_distribution_is_ood": false,
+      "in_distribution_prediction": "NO_REPAIR",
+      "in_distribution_delta_f1": 0.0,
+      "out_of_distribution_is_ood": true,
+      "out_of_distribution_reasons": [
+        "Feature 'in_dataset_num_features' value 5000.0 out of expected range [12.00, 19.00].",
+        "Feature 'in_dataset_num_numerical' value 2500.0 out of expected range [3.00, 9.00].",
+        "Feature 'in_dataset_num_categorical' value 2500.0 out of expected range [7.00, 16.00].",
+        "Feature 'in_dataset_imbalance_ratio' value 0.001 out of expected range [0.11, 0.27].",
+        "Feature 'in_available_adaptation_budget' value 10000.0 out of expected range [0.00, 200.00]."
+      ],
+      "duration_seconds": 0.005,
+      "passed": true
+    }
+  },
+  "scientific_validation_status": "PILOT_EXPLORATORY_EVIDENCE",
+  "production_mode": "RULE_BASED",
+  "advisory_mode": "LEARNED",
+  "verdict": "READY FOR RESEARCH DEMONSTRATION"
+}

@@ -1,0 +1,36 @@
+{
+  "demo1_success": {
+    "request_id": "PHASE3-DEMO-SUCCESS-01",
+    "status": "APPROVED_FOR_REVIEW",
+    "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+    "quantity": 50,
+    "target_f1_delta": 0.0193,
+    "source_f1_delta": null,
+    "manifest_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\phase3_demonstration\\demo1_success\\pkg-0af2e7393bd7_manifest.json",
+    "passed": true
+  },
+  "demo2_rejection": {
+    "request_id": "PHASE3-DEMO-REJECT-02",
+    "status": "REJECTED",
+    "rejection_reasons": [
+      "Candidate validation rejected at K=25: [\"Fidelity validation failed: ['Mean KS statistic (0.382) exceeds threshold (0.350)']\"]",
+      "Retraining evaluation rejected at K=50: ['Source retention degraded by -0.0177 (tolerance: -0.0001).']",
+      "Candidate validation rejected at K=100: [\"Fidelity validation failed: ['Mean KS statistic (0.372) exceeds threshold (0.350)']\"]",
+      "Retraining evaluation rejected at K=200: ['Source retention degraded by -0.0197 (tolerance: -0.0001).', 'Target adaptation performance gain (-0.0273) is below minimum practical utility margin (+0.0100) vs baseline.']"
+    ],
+    "passed": true
+  },
+  "demo3_abstain": {
+    "request_id": "PHASE3-DEMO-ABSTAIN-03",
+    "status": "ABSTAINED_NO_REPAIR",
+    "strategy": "NO_REPAIR",
+    "passed": true
+  },
+  "demo4_learned": {
+    "request_id": "PHASE3-DEMO-LEARNED-04",
+    "status": "REJECTED",
+    "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+    "decision_mode": "LEARNED",
+    "passed": true
+  }
+}

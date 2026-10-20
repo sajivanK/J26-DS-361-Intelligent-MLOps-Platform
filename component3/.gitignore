@@ -7,6 +7,11 @@
 !results/generators/telco_churn_generator_improvement_summary.csv
 !results/augmentation/telco_churn_minority_augmentation_summary.csv
 !results/augmentation/telco_churn_validation_predictions_audit.csv
+!results/prescription_baselines_comparison.csv
+!results/expanded_prescription_training_dataset.csv
+!results/prescription_training_dataset.csv
+!results/expanded_multidataset_benchmark_results.csv
+!results/multidataset_benchmark_results.csv
 
 # Ignore local colab workspace, temporary checkpoints, and serialized models
 colab_workspace/

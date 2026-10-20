@@ -1,0 +1,27 @@
+{
+  "dataset_id": "telco_churn",
+  "drift_scenario": "TELCO_CONCEPT",
+  "target_adapt_pool_total": 493,
+  "b200_total": 200,
+  "raw_unused_adaptation_pool_total": 293,
+  "duplicate_signature_exclusions": 1,
+  "clean_dev_val_realized_count": 292,
+  "original_class_distribution": {
+    "No": 214,
+    "Yes": 78
+  },
+  "transformed_class_distribution": {
+    "Yes": 194,
+    "No": 98
+  },
+  "affected_slice_tenure_gt_29_count": 148,
+  "preserved_slice_tenure_le_29_count": 144,
+  "cross_partition_signature_overlaps": {
+    "with_b200": 0,
+    "with_source_train": 0,
+    "with_source_eval": 0,
+    "with_locked_target_eval": 0
+  },
+  "leakage_verification_status": "PASS",
+  "created_at_utc": "2026-10-20T06:50:17.402281+00:00"
+}

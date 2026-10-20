@@ -1,0 +1,50 @@
+{
+  "A1-B50": {
+    "arm": "A1-B50",
+    "f1_target": 0.4033,
+    "f1_a0_reference": 0.4139,
+    "delta_f1_observed": -0.0107,
+    "bootstrap_95_ci_lower": -0.0243,
+    "bootstrap_95_ci_upper": 0.0015,
+    "bootstrap_mean_difference": -0.0105,
+    "permutation_two_sided_p_value": 0.1215,
+    "recovery_fraction_percentage": -5.53,
+    "ci_includes_zero": true,
+    "bonferroni_adjusted_p_value": 0.3645,
+    "statistically_significant_bonferroni": false,
+    "benjamini_hochberg_fdr_p_value": 0.3645,
+    "statistically_significant_fdr": false
+  },
+  "A1-B100": {
+    "arm": "A1-B100",
+    "f1_target": 0.409,
+    "f1_a0_reference": 0.4139,
+    "delta_f1_observed": -0.0049,
+    "bootstrap_95_ci_lower": -0.02,
+    "bootstrap_95_ci_upper": 0.0104,
+    "bootstrap_mean_difference": -0.0048,
+    "permutation_two_sided_p_value": 0.609,
+    "recovery_fraction_percentage": -2.53,
+    "ci_includes_zero": true,
+    "bonferroni_adjusted_p_value": 1.0,
+    "statistically_significant_bonferroni": false,
+    "benjamini_hochberg_fdr_p_value": 0.9135,
+    "statistically_significant_fdr": false
+  },
+  "A1-B200": {
+    "arm": "A1-B200",
+    "f1_target": 0.4141,
+    "f1_a0_reference": 0.4139,
+    "delta_f1_observed": 0.0001,
+    "bootstrap_95_ci_lower": -0.0121,
+    "bootstrap_95_ci_upper": 0.0119,
+    "bootstrap_mean_difference": 0.0001,
+    "permutation_two_sided_p_value": 1.0,
+    "recovery_fraction_percentage": 0.05,
+    "ci_includes_zero": true,
+    "bonferroni_adjusted_p_value": 1.0,
+    "statistically_significant_bonferroni": false,
+    "benjamini_hochberg_fdr_p_value": 1.0,
+    "statistically_significant_fdr": false
+  }
+}

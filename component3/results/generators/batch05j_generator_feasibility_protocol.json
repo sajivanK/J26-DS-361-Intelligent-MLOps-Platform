@@ -1,0 +1,76 @@
+{
+  "protocol_name": "Batch_5J_Generator_Feasibility",
+  "audit_version": "Batch_5J_Audit",
+  "dataset_id": "telco_churn",
+  "drift_scenario": "TELCO_CONCEPT",
+  "hardware_environment": {
+    "device": "CPU",
+    "os": "win32",
+    "python_version": "3.11.0",
+    "torch_version": "2.10.0+cpu"
+  },
+  "training_data_provenance": {
+    "source_dataset_fingerprint": "",
+    "b200_input_fingerprint": "f77680d71f12b93a",
+    "b200_row_count": 200,
+    "b200_feature_count": 20,
+    "b200_affected_tenure_gt_29_flips": 97,
+    "b200_class_distribution": {
+      "Yes": 124,
+      "No": 76
+    },
+    "source_preprocessor_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\models\\experimental\\telco_preprocessor_experimental_source.joblib",
+    "source_preprocessor_refitted": false
+  },
+  "strategy": {
+    "chosen_strategy": "Strategy A: Joint Generation (Features + Post-Drift Target Churn)",
+    "rejected_strategy": "Strategy B: Class-Specific Generation",
+    "justification": "Post-drift B200 contains only 76 minority ('No') and 124 majority ('Yes') records. Splitting 200 samples across 19 features into class-specific pools causes severe sample starvation, extreme mode collapse, and numerical instability. Joint generation trains on all 200 records and enables direct empirical evaluation of macroscopic conditional associations."
+  },
+  "generator_configurations": {
+    "TVAE": {
+      "epochs": 150,
+      "discrete_columns_count": 17,
+      "device": "cpu",
+      "sample_count": 200
+    },
+    "CTGAN": {
+      "epochs": 150,
+      "discrete_columns_count": 17,
+      "device": "cpu",
+      "sample_count": 200
+    },
+    "TabDDPM": {
+      "epochs": 20,
+      "batch_size": 64,
+      "num_timesteps": 50,
+      "learning_rate": 0.001,
+      "discrete_columns_count": 17,
+      "device": "cpu",
+      "sample_count": 200
+    }
+  },
+  "validation_tiers": {
+    "Tier_1_Structural": "Schema matching, correct column count/order, 0 NaNs, 0 Infs, valid categories",
+    "Tier_2_Hard_Constraints": "Physical ranges (tenure in [0, 72], non-negative charges), unique candidates, 0 exact B200 copies, 0 forbidden signature overlaps",
+    "Tier_3_Empirical_Plausibility": "Billing ratio screen in [0.5, 1.5], continuous KS-test, categorical TVD, DCR p05 nearest-neighbor privacy"
+  },
+  "frozen_benchmark_references_reconciled": {
+    "B0_Frozen_Source": {
+      "f1_dev": 0.4055,
+      "f1_source": 0.6075,
+      "notes": "Verified from telco_authentic_controls_dev_metrics_corrected.json on clean D_dev_val (N=292)"
+    },
+    "B2_B200_K200_ROS": {
+      "f1_dev": 0.4497,
+      "f1_source": 0.589,
+      "notes": "Primary non-synthetic Random OverSampling control arm"
+    },
+    "B4_B200_Target_Only": {
+      "f1_dev": 0.766,
+      "f1_source": 0.3492,
+      "notes": "Reconciled from 0.3089 transcription error; verified from telco_authentic_controls_source_retention.json"
+    }
+  },
+  "audit_timestamp_utc": "2026-10-20T07:50:37.137217+00:00"
+}

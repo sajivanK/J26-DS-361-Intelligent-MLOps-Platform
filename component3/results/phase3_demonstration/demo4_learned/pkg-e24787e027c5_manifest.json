@@ -1,0 +1,109 @@
+{
+  "package_id": "PKG-E24787E027C5",
+  "schema_version": "1.0.0",
+  "request_id": "PHASE3-DEMO-LEARNED-04",
+  "run_id": "RUN-83D3B9F81F",
+  "created_at_utc": "2026-10-20T11:41:02.154494+00:00",
+  "dataset_id": "telco_churn",
+  "model_id": "telco_rf_experimental_source",
+  "drift_summary": {
+    "drift_detected": true,
+    "drift_type": "COVARIATE_SHIFT",
+    "drift_severity": "MEDIUM",
+    "severity_score": 0.35
+  },
+  "diagnostic_summary": {},
+  "chosen_strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+  "generator_info": {
+    "generator": "NONE",
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0
+    }
+  },
+  "quantity_selected": 0,
+  "candidate_dataset_path": null,
+  "candidate_dataset_sha256": null,
+  "candidate_model_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\phase3_demonstration\\demo4_learned\\pkg-e24787e027c5_candidate_model.joblib",
+  "candidate_model_sha256": "9755daa920ead3138166cdfe4d6352e703e9c94fab5e416e168609c3a291bfa5",
+  "validation_report": {},
+  "fidelity_indicators": {},
+  "privacy_risk_indicators": {},
+  "utility_metrics": {
+    "status": "EVALUATED",
+    "is_acceptable": false,
+    "rejection_reasons": [
+      "Target adaptation performance gain (-0.0278) is below minimum practical utility margin (+0.0100) vs baseline."
+    ],
+    "target_positive_f1": 0.5966,
+    "target_macro_f1": 0.7101,
+    "target_balanced_accuracy": 0.7335,
+    "target_accuracy": 0.7545,
+    "target_precision": 0.5259,
+    "target_recall": 0.6893,
+    "source_positive_f1": 0.5993,
+    "source_retention_delta": -0.0082,
+    "source_retention_preserved": true,
+    "delta_target_f1_vs_baseline": -0.0278,
+    "bootstrap_ci_95": [
+      -0.0607,
+      0.0007
+    ],
+    "uncertainty_ci_width": 0.0614,
+    "uncertainty_flag": false,
+    "delta_vs_authentic_control": null,
+    "min_practical_utility_margin": 0.01,
+    "training_rows": 3552,
+    "training_duration_seconds": 0.216
+  },
+  "source_retention_metrics": {
+    "source_f1": 0.5993,
+    "source_delta": -0.0082,
+    "source_retention_preserved": true
+  },
+  "execution_status": "COMPLETED",
+  "package_status": "REJECTED",
+  "rejection_reasons": [
+    "Target adaptation performance gain (-0.0278) is below minimum practical utility margin (+0.0100) vs baseline."
+  ],
+  "evidence_limitations": [
+    "Exploratory pilot evidence only; does not claim verified real-world drift recovery.",
+    "Candidate labels reflect generative distribution modeling, not observational ground truth.",
+    "Candidate model requires explicit human sign-off prior to production deployment."
+  ],
+  "requires_human_approval": true,
+  "downstream_handoff_metadata": {
+    "pre_decision_features": {
+      "dataset_id": "telco_churn",
+      "total_features_count": 19,
+      "numerical_features_count": 3,
+      "categorical_features_count": 16,
+      "drift_detected": true,
+      "drift_type": "COVARIATE_SHIFT",
+      "drift_severity": "MEDIUM",
+      "drift_severity_score": 0.35,
+      "affected_features_count": 1,
+      "diagnostic_slice_identified": false,
+      "diagnostic_slice_support": null,
+      "has_authentic_adaptation_labels": true,
+      "adaptation_budget_size": 100,
+      "source_retention_tolerance": 0.05,
+      "repair_objective": "BALANCED_RETENTION",
+      "max_cpu_cores": 2,
+      "max_memory_mb": 4096.0,
+      "max_runtime_seconds": 300.0
+    },
+    "governance_checks_passed": [
+      "GATE_1_REQUEST_VALIDATION",
+      "GATE_2_DRIFT_SEVERITY_VERIFIED",
+      "GATE_3_AUTHENTIC_LABELS_AVAILABLE",
+      "GATE_4_SOURCE_MODEL_COMPATIBILITY",
+      "GATE_5_RESOURCE_LIMITS_CHECKED",
+      "GATE_6_BUDGET_SUFFICIENCY_CHECKED",
+      "GATE_7_TARGETED_REPAIR_EVALUATED"
+    ],
+    "search_history": [],
+    "decision_mode": "RULE_BASED",
+    "predicted_delta_f1": null
+  }
+}

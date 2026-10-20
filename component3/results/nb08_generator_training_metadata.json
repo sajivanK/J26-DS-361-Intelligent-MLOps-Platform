@@ -1,0 +1,14 @@
+{
+  "notebook": "08_generator_prediction_training.ipynb",
+  "executed_at_utc": "2026-10-20T12:59:00.388768+00:00",
+  "num_benchmarks": 144,
+  "num_generator_records": 90,
+  "tvae_mean_delta_f1": -0.0364,
+  "ctgan_mean_delta_f1": -0.0364,
+  "tabddpm_mean_delta_f1": -0.0381,
+  "tvae_mean_duration_s": 1.6,
+  "ctgan_mean_duration_s": 2.23,
+  "tabddpm_mean_duration_s": 0.86,
+  "is_separate_generator_predictor_justified": false,
+  "verdict": "RULE_BASED_GENERATOR_SELECTION_REQUIRED"
+}

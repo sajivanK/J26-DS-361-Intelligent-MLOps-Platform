@@ -1,0 +1,35 @@
+{
+  "protocol_name": "Batch_5L_Targeted_and_Weighted_Synthetic_Repair",
+  "dataset_id": "telco_churn",
+  "drift_scenario": "TELCO_CONCEPT",
+  "targeted_repair_status": "BLOCKED (No legitimate non-oracle diagnostic slice from Components 1/2)",
+  "evaluation_isolation_status": "STRICT_PASS (D_target_eval never loaded or accessed)",
+  "execution_telemetry": {
+    "total_elapsed_seconds": 96.53,
+    "peak_rss_mb": 258.51,
+    "os": "win32",
+    "python_version": "3.11.0"
+  },
+  "verified_hashes": {
+    "canonical_split": "e80e253f91e8712143e15e05dbb4d5c8d2039a69beb23423eec5a87ca217de68",
+    "adaptation_split": "34fa2bb2bcfad28961287343368ceeb87803f3f04542a57595fa89bc444d9c59",
+    "source_model": "256a692be95a0ea840d9afe03891131bc15c93090d72e3c62f815ac337b75bd0",
+    "source_prep": "a188f0285e6cf07741bbb69be8b3df44eece492e69166c78d92353f1f4d41224"
+  },
+  "evaluated_arms": [
+    "B0",
+    "B1_B200",
+    "B2_B200_K50",
+    "B2_B200_K200",
+    "B5_B200_w2",
+    "B5_B200_w5",
+    "S1_TVAE_K50",
+    "B2_B200_K50_w2",
+    "B2_B200_K50_w5",
+    "H1_TVAE_K50_w2",
+    "H1_TVAE_K50_w5",
+    "H2_TVAE_K50_w2_disc",
+    "H2_TVAE_K50_w5_disc"
+  ],
+  "created_at_utc": "2026-10-20T08:40:06.888030+00:00"
+}

@@ -1,0 +1,998 @@
+{
+  "registry_metadata": {
+    "title": "Component 3 Repair Experiment Evidence Registry",
+    "description": "Auditable, machine-readable repository of empirical repair experiments across Batches 5I\u20135L.",
+    "dataset_id": "telco_churn",
+    "simulated_drift_scenario": "TELCO_CONCEPT",
+    "source_train_fingerprint": "0348ebce7a8c776d",
+    "dev_val_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+    "dev_val_count": 292,
+    "source_eval_count": 493,
+    "created_at_utc": "2026-10-20T14:30:00Z",
+    "independent_scenario_count": 1,
+    "total_experiments_recorded": 16
+  },
+  "experiments": {
+    "EXP_5I_B0": {
+      "experiment_id": "EXP_5I_B0",
+      "arm_id": "B0",
+      "batch_origin": "Batch 5I",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "NO_REPAIR",
+      "generator_or_control": "NONE",
+      "adaptation_budget": 0,
+      "synthetic_quantity": 0,
+      "weighting_strategy": "(1.0, -, -)",
+      "training_input_provenance": "D_source_train (3452) + B_0 (authentic) + 0 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_experimental_source.joblib",
+      "model_artifact_sha256": "256a692be95a0ea840d9afe03891131bc15c93090d72e3c62f815ac337b75bd0",
+      "prediction_artifact_path": "component3/results/experimental_models/telco_authentic_controls_predictions_audit.csv",
+      "prediction_artifact_sha256": "6097d6bd43f0e88a133b710867dd95dc1248c4543530c2705e15284f77d0b509",
+      "target_dev_performance": {
+        "positive_f1": 0.4055,
+        "macro_f1": 0.4075,
+        "accuracy": 0.4075,
+        "balanced_accuracy": 0.4582,
+        "precision": 0.6082,
+        "recall": 0.3041,
+        "roc_auc": 0.4238,
+        "average_precision": 0.6511,
+        "confusion_matrix": [
+          [
+            60,
+            38
+          ],
+          [
+            135,
+            59
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.6075,
+      "affected_slice_f1": 0.1351,
+      "preserved_slice_f1": 0.6853,
+      "statistical_uncertainty": "NOT_APPLICABLE (BASELINE)",
+      "resource_measurements": {
+        "fit_time_seconds": 0.0,
+        "peak_rss_mb": 189.16
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "CONFIRMATORY_BENCHMARK"
+    },
+    "EXP_5I_B1_B200": {
+      "experiment_id": "EXP_5I_B1_B200",
+      "arm_id": "B1_B200",
+      "batch_origin": "Batch 5I",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+      "generator_or_control": "AUTHENTIC_ONLY",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 0,
+      "weighting_strategy": "(1.0, 1.0, -)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 0 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_a1_b200.joblib",
+      "model_artifact_sha256": "57c5b24169d3119e10dd8d8c782e0dd064273af3ac686c392b9010063514e389",
+      "prediction_artifact_path": "component3/results/experimental_models/telco_authentic_controls_predictions_audit.csv",
+      "prediction_artifact_sha256": "6097d6bd43f0e88a133b710867dd95dc1248c4543530c2705e15284f77d0b509",
+      "target_dev_performance": {
+        "positive_f1": 0.415,
+        "macro_f1": 0.4109,
+        "accuracy": 0.411,
+        "balanced_accuracy": 0.4582,
+        "precision": 0.61,
+        "recall": 0.3144,
+        "roc_auc": 0.458,
+        "average_precision": 0.6619,
+        "confusion_matrix": [
+          [
+            59,
+            39
+          ],
+          [
+            133,
+            61
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.5993,
+      "affected_slice_f1": 0.16,
+      "preserved_slice_f1": 0.6806,
+      "statistical_uncertainty": "MISSING (Evaluated in 5I paired comparisons)",
+      "resource_measurements": {
+        "fit_time_seconds": 0.0,
+        "peak_rss_mb": 210.17
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "CONFIRMATORY_BENCHMARK"
+    },
+    "EXP_5I_B2_B200_K50": {
+      "experiment_id": "EXP_5I_B2_B200_K50",
+      "arm_id": "B2_B200_K50",
+      "batch_origin": "Batch 5I",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "AUTHENTIC_OVERSAMPLING",
+      "generator_or_control": "AUTHENTIC_ROS",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 0,
+      "weighting_strategy": "(1.0, 1.0, 1.0)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 0 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_b2_b200_k50.joblib",
+      "model_artifact_sha256": "d1f01569f55e8c81c3536db26036b45f893ecf1d4787b05bc079961b543c45e7",
+      "prediction_artifact_path": "component3/results/experimental_models/telco_authentic_controls_predictions_audit.csv",
+      "prediction_artifact_sha256": "6097d6bd43f0e88a133b710867dd95dc1248c4543530c2705e15284f77d0b509",
+      "target_dev_performance": {
+        "positive_f1": 0.4028,
+        "macro_f1": 0.4108,
+        "accuracy": 0.411,
+        "balanced_accuracy": 0.4658,
+        "precision": 0.617,
+        "recall": 0.299,
+        "roc_auc": 0.4598,
+        "average_precision": 0.6539,
+        "confusion_matrix": [
+          [
+            62,
+            36
+          ],
+          [
+            136,
+            58
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.6111,
+      "affected_slice_f1": 0.1351,
+      "preserved_slice_f1": 0.6857,
+      "statistical_uncertainty": "PRIMARY_MATCHED_CONTROL",
+      "resource_measurements": {
+        "fit_time_seconds": 0.1643,
+        "peak_rss_mb": 236.17,
+        "training_rows": 3702,
+        "unique_target_rows": 200,
+        "duplicated_target_rows": 50
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "CONFIRMATORY_BENCHMARK"
+    },
+    "EXP_5I_B2_B200_K200": {
+      "experiment_id": "EXP_5I_B2_B200_K200",
+      "arm_id": "B2_B200_K200",
+      "batch_origin": "Batch 5I",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "AUTHENTIC_OVERSAMPLING",
+      "generator_or_control": "AUTHENTIC_ROS",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 0,
+      "weighting_strategy": "(1.0, 1.0, 1.0)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 0 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_b2_b200_k200.joblib",
+      "model_artifact_sha256": "62f5dcd4ce941b05d6258c3d72090e870ef3b22ddd9fa7c1253b556fd1417fbd",
+      "prediction_artifact_path": "component3/results/experimental_models/telco_authentic_controls_predictions_audit.csv",
+      "prediction_artifact_sha256": "6097d6bd43f0e88a133b710867dd95dc1248c4543530c2705e15284f77d0b509",
+      "target_dev_performance": {
+        "positive_f1": 0.4497,
+        "macro_f1": 0.4381,
+        "accuracy": 0.4384,
+        "balanced_accuracy": 0.4839,
+        "precision": 0.6442,
+        "recall": 0.3454,
+        "roc_auc": 0.4762,
+        "average_precision": 0.6681,
+        "confusion_matrix": [
+          [
+            61,
+            37
+          ],
+          [
+            127,
+            67
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.589,
+      "affected_slice_f1": 0.2194,
+      "preserved_slice_f1": 0.6993,
+      "statistical_uncertainty": "HISTORICAL_EXTENDED_CONTROL",
+      "resource_measurements": {
+        "fit_time_seconds": 0.1748,
+        "peak_rss_mb": 241.45,
+        "training_rows": 3852,
+        "unique_target_rows": 200,
+        "duplicated_target_rows": 200
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "CONFIRMATORY_BENCHMARK"
+    },
+    "EXP_5I_B5_B200_w2": {
+      "experiment_id": "EXP_5I_B5_B200_w2",
+      "arm_id": "B5_B200_w2",
+      "batch_origin": "Batch 5I",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+      "generator_or_control": "AUTHENTIC_ONLY",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 0,
+      "weighting_strategy": "(1.0, 2.0, -)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 0 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_b5_b200_w2.joblib",
+      "model_artifact_sha256": "11a13bd512fa0a924e843a23125b18fc1b15b7865c2b0afefd08b800efdf2b96",
+      "prediction_artifact_path": "component3/results/experimental_models/telco_authentic_controls_predictions_audit.csv",
+      "prediction_artifact_sha256": "6097d6bd43f0e88a133b710867dd95dc1248c4543530c2705e15284f77d0b509",
+      "target_dev_performance": {
+        "positive_f1": 0.4203,
+        "macro_f1": 0.4143,
+        "accuracy": 0.4144,
+        "balanced_accuracy": 0.4608,
+        "precision": 0.6139,
+        "recall": 0.3196,
+        "roc_auc": 0.4852,
+        "average_precision": 0.6673,
+        "confusion_matrix": [
+          [
+            59,
+            39
+          ],
+          [
+            132,
+            62
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.5993,
+      "affected_slice_f1": 0.1733,
+      "preserved_slice_f1": 0.6759,
+      "statistical_uncertainty": "AUTHENTIC_WEIGHTED_CONTROL",
+      "resource_measurements": {
+        "fit_time_seconds": 0.1635,
+        "peak_rss_mb": 297.45,
+        "training_rows": 3652,
+        "target_weight": 2.0
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "CONFIRMATORY_BENCHMARK"
+    },
+    "EXP_5I_B5_B200_w5": {
+      "experiment_id": "EXP_5I_B5_B200_w5",
+      "arm_id": "B5_B200_w5",
+      "batch_origin": "Batch 5I",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+      "generator_or_control": "AUTHENTIC_ONLY",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 0,
+      "weighting_strategy": "(1.0, 5.0, -)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 0 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_b5_b200_w5.joblib",
+      "model_artifact_sha256": "f8f67e23b19328d5dcff3144abea0d1ae4f1712441539599111cf4305a7e9cab",
+      "prediction_artifact_path": "component3/results/experimental_models/telco_authentic_controls_predictions_audit.csv",
+      "prediction_artifact_sha256": "6097d6bd43f0e88a133b710867dd95dc1248c4543530c2705e15284f77d0b509",
+      "target_dev_performance": {
+        "positive_f1": 0.4152,
+        "macro_f1": 0.4212,
+        "accuracy": 0.4212,
+        "balanced_accuracy": 0.4761,
+        "precision": 0.6316,
+        "recall": 0.3093,
+        "roc_auc": 0.5165,
+        "average_precision": 0.677,
+        "confusion_matrix": [
+          [
+            63,
+            35
+          ],
+          [
+            134,
+            60
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.5874,
+      "affected_slice_f1": 0.1987,
+      "preserved_slice_f1": 0.6522,
+      "statistical_uncertainty": "AUTHENTIC_WEIGHTED_CONTROL",
+      "resource_measurements": {
+        "fit_time_seconds": 0.1641,
+        "peak_rss_mb": 302.91,
+        "training_rows": 3652,
+        "target_weight": 5.0
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "CONFIRMATORY_BENCHMARK"
+    },
+    "EXP_5K_S1_TVAE_K50": {
+      "experiment_id": "EXP_5K_S1_TVAE_K50",
+      "arm_id": "S1_TVAE_K50",
+      "batch_origin": "Batch 5K",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "SYNTHETIC_UNWEIGHTED",
+      "generator_or_control": "TVAE",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 50,
+      "weighting_strategy": "(1.0, 1.0, 1.0)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 50 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_experimental_s1_tvae_k50.joblib",
+      "model_artifact_sha256": "21afe7afad7a37fc8d664acee39e0e0df3734c94e56dd1d44af88be8dd5fc5fd",
+      "prediction_artifact_path": "component3/results/experimental_models/batch05k_repair_benchmark_predictions_audit.csv",
+      "prediction_artifact_sha256": "483f29ac2d79c6765673b48217c26e6cdefd8768bec11ffc8fc2cc33e5b20659",
+      "target_dev_performance": {
+        "positive_f1": 0.4324,
+        "macro_f1": 0.4245,
+        "accuracy": 0.4247,
+        "balanced_accuracy": 0.4711,
+        "precision": 0.6275,
+        "recall": 0.3299,
+        "roc_auc": 0.4654,
+        "pr_auc": 0.66,
+        "confusion_matrix": [
+          [
+            60,
+            38
+          ],
+          [
+            130,
+            64
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.6113,
+      "affected_slice_f1": "MISSING",
+      "preserved_slice_f1": "MISSING",
+      "statistical_uncertainty": {
+        "B0": {
+          "delta_f1": 0.0269,
+          "bootstrap_ci_95": [
+            0.0012,
+            0.0569
+          ],
+          "bootstrap_mean_diff": 0.027,
+          "permutation_p_value": 0.099,
+          "statistically_significant_nominal": false,
+          "holm_bonferroni_p_value": 0.693,
+          "statistically_significant_adjusted": false
+        },
+        "B1_B200": {
+          "delta_f1": 0.0174,
+          "bootstrap_ci_95": [
+            -0.0054,
+            0.0429
+          ],
+          "bootstrap_mean_diff": 0.0175,
+          "permutation_p_value": 0.2079,
+          "statistically_significant_nominal": false,
+          "holm_bonferroni_p_value": 1.0,
+          "statistically_significant_adjusted": false
+        },
+        "B2_B200_K200": {
+          "delta_f1": -0.0173,
+          "bootstrap_ci_95": [
+            -0.0429,
+            0.0045
+          ],
+          "bootstrap_mean_diff": -0.0174,
+          "permutation_p_value": 0.2309,
+          "statistically_significant_nominal": false,
+          "holm_bonferroni_p_value": 1.0,
+          "statistically_significant_adjusted": false
+        }
+      },
+      "resource_measurements": {
+        "fit_time_seconds": 0.252
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "EXPLORATORY_PILOT"
+    },
+    "EXP_5K_S2_CTGAN_K50": {
+      "experiment_id": "EXP_5K_S2_CTGAN_K50",
+      "arm_id": "S2_CTGAN_K50",
+      "batch_origin": "Batch 5K",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "SYNTHETIC_UNWEIGHTED",
+      "generator_or_control": "CTGAN",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 50,
+      "weighting_strategy": "(1.0, 1.0, 1.0)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 50 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_experimental_s2_ctgan_k50.joblib",
+      "model_artifact_sha256": "d1cf9b62f6a2d86b8abfca498aa10e013117207dc6a4e86690d17fdbec485ba4",
+      "prediction_artifact_path": "component3/results/experimental_models/batch05k_repair_benchmark_predictions_audit.csv",
+      "prediction_artifact_sha256": "483f29ac2d79c6765673b48217c26e6cdefd8768bec11ffc8fc2cc33e5b20659",
+      "target_dev_performance": {
+        "positive_f1": 0.4192,
+        "macro_f1": 0.4212,
+        "accuracy": 0.4212,
+        "balanced_accuracy": 0.4735,
+        "precision": 0.6289,
+        "recall": 0.3144,
+        "roc_auc": 0.4547,
+        "pr_auc": 0.6582,
+        "confusion_matrix": [
+          [
+            62,
+            36
+          ],
+          [
+            133,
+            61
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.6087,
+      "affected_slice_f1": "MISSING",
+      "preserved_slice_f1": "MISSING",
+      "statistical_uncertainty": {
+        "B0": {
+          "delta_f1": 0.0137,
+          "bootstrap_ci_95": [
+            -0.0153,
+            0.0453
+          ],
+          "bootstrap_mean_diff": 0.0138,
+          "permutation_p_value": 0.4198,
+          "statistically_significant_nominal": false,
+          "holm_bonferroni_p_value": 1.0,
+          "statistically_significant_adjusted": false
+        },
+        "B1_B200": {
+          "delta_f1": 0.0042,
+          "bootstrap_ci_95": [
+            -0.0115,
+            0.0204
+          ],
+          "bootstrap_mean_diff": 0.0044,
+          "permutation_p_value": 0.6277,
+          "statistically_significant_nominal": false,
+          "holm_bonferroni_p_value": 1.0,
+          "statistically_significant_adjusted": false
+        },
+        "B2_B200_K200": {
+          "delta_f1": -0.0305,
+          "bootstrap_ci_95": [
+            -0.0627,
+            -0.0039
+          ],
+          "bootstrap_mean_diff": -0.0306,
+          "permutation_p_value": 0.0635,
+          "statistically_significant_nominal": false,
+          "holm_bonferroni_p_value": 0.5715,
+          "statistically_significant_adjusted": false
+        }
+      },
+      "resource_measurements": {
+        "fit_time_seconds": 0.219
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "EXPLORATORY_PILOT"
+    },
+    "EXP_5K_S3_TabDDPM_K50": {
+      "experiment_id": "EXP_5K_S3_TabDDPM_K50",
+      "arm_id": "S3_TabDDPM_K50",
+      "batch_origin": "Batch 5K",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "SYNTHETIC_UNWEIGHTED",
+      "generator_or_control": "TabDDPM",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 50,
+      "weighting_strategy": "(1.0, 1.0, 1.0)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 50 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_experimental_s3_tabddpm_k50.joblib",
+      "model_artifact_sha256": "eec0d5c3c60e986ad1d49d7a5b47d805aa5829878c2f56e5d7c3c50703615134",
+      "prediction_artifact_path": "component3/results/experimental_models/batch05k_repair_benchmark_predictions_audit.csv",
+      "prediction_artifact_sha256": "483f29ac2d79c6765673b48217c26e6cdefd8768bec11ffc8fc2cc33e5b20659",
+      "target_dev_performance": {
+        "positive_f1": 0.4218,
+        "macro_f1": 0.4178,
+        "accuracy": 0.4178,
+        "balanced_accuracy": 0.4659,
+        "precision": 0.62,
+        "recall": 0.3196,
+        "roc_auc": 0.4609,
+        "pr_auc": 0.6594,
+        "confusion_matrix": [
+          [
+            60,
+            38
+          ],
+          [
+            132,
+            62
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.5878,
+      "affected_slice_f1": "MISSING",
+      "preserved_slice_f1": "MISSING",
+      "statistical_uncertainty": {
+        "B0": {
+          "delta_f1": 0.0163,
+          "bootstrap_ci_95": [
+            -0.0181,
+            0.0508
+          ],
+          "bootstrap_mean_diff": 0.0163,
+          "permutation_p_value": 0.4513,
+          "statistically_significant_nominal": false,
+          "holm_bonferroni_p_value": 1.0,
+          "statistically_significant_adjusted": false
+        },
+        "B1_B200": {
+          "delta_f1": 0.0068,
+          "bootstrap_ci_95": [
+            -0.0169,
+            0.0315
+          ],
+          "bootstrap_mean_diff": 0.0069,
+          "permutation_p_value": 0.6802,
+          "statistically_significant_nominal": false,
+          "holm_bonferroni_p_value": 1.0,
+          "statistically_significant_adjusted": false
+        },
+        "B2_B200_K200": {
+          "delta_f1": -0.0279,
+          "bootstrap_ci_95": [
+            -0.0578,
+            -0.0029
+          ],
+          "bootstrap_mean_diff": -0.028,
+          "permutation_p_value": 0.0865,
+          "statistically_significant_nominal": false,
+          "holm_bonferroni_p_value": 0.692,
+          "statistically_significant_adjusted": false
+        }
+      },
+      "resource_measurements": {
+        "fit_time_seconds": 0.213
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "EXPLORATORY_PILOT"
+    },
+    "EXP_5L_B2_B200_K50_w2": {
+      "experiment_id": "EXP_5L_B2_B200_K50_w2",
+      "arm_id": "B2_B200_K50_w2",
+      "batch_origin": "Batch 5L",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+      "generator_or_control": "AUTHENTIC_ROS",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 0,
+      "weighting_strategy": "(1.0, 2.0, 2.0)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 0 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_b2_b200_k50_w2.joblib",
+      "model_artifact_sha256": "d55a1f8e49c3489fdb6c387d36e256e8117002aa0bbdc0b2a7e0509d7e95ce04",
+      "prediction_artifact_path": "component3/results/experimental_models/batch05l_weighted_repair_predictions_audit.csv",
+      "prediction_artifact_sha256": "9b96f10bc6fdcc8ca4d6fe6fb92d8b10843fdb23452b32f0a7e94ce3be629a70",
+      "target_dev_performance": {
+        "positive_f1": 0.4192,
+        "macro_f1": 0.4212,
+        "accuracy": 0.4212,
+        "balanced_accuracy": 0.4735,
+        "precision": 0.6289,
+        "recall": 0.3144,
+        "roc_auc": 0.4902,
+        "pr_auc": 0.6655,
+        "confusion_matrix": [
+          [
+            62,
+            36
+          ],
+          [
+            133,
+            61
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.6174,
+      "affected_slice_f1": 0.1722,
+      "preserved_slice_f1": 0.6857,
+      "statistical_uncertainty": "MATCHED_CONTROL_WEIGHTED",
+      "resource_measurements": {
+        "fit_time_seconds": 0.166
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "EXPLORATORY_PILOT"
+    },
+    "EXP_5L_B2_B200_K50_w5": {
+      "experiment_id": "EXP_5L_B2_B200_K50_w5",
+      "arm_id": "B2_B200_K50_w5",
+      "batch_origin": "Batch 5L",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+      "generator_or_control": "AUTHENTIC_ROS",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 0,
+      "weighting_strategy": "(1.0, 5.0, 5.0)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 0 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_b2_b200_k50_w5.joblib",
+      "model_artifact_sha256": "7778141b3d6cbf92049a478f2380eee72684cb511b9a7db2097d30725e268b00",
+      "prediction_artifact_path": "component3/results/experimental_models/batch05l_weighted_repair_predictions_audit.csv",
+      "prediction_artifact_sha256": "9b96f10bc6fdcc8ca4d6fe6fb92d8b10843fdb23452b32f0a7e94ce3be629a70",
+      "target_dev_performance": {
+        "positive_f1": 0.3887,
+        "macro_f1": 0.407,
+        "accuracy": 0.4075,
+        "balanced_accuracy": 0.4683,
+        "precision": 0.618,
+        "recall": 0.2835,
+        "roc_auc": 0.5254,
+        "pr_auc": 0.678,
+        "confusion_matrix": [
+          [
+            64,
+            34
+          ],
+          [
+            139,
+            55
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.5911,
+      "affected_slice_f1": 0.1622,
+      "preserved_slice_f1": 0.637,
+      "statistical_uncertainty": "MATCHED_CONTROL_WEIGHTED",
+      "resource_measurements": {
+        "fit_time_seconds": 0.155
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "EXPLORATORY_PILOT"
+    },
+    "EXP_5L_H1_TVAE_K50_w2": {
+      "experiment_id": "EXP_5L_H1_TVAE_K50_w2",
+      "arm_id": "H1_TVAE_K50_w2",
+      "batch_origin": "Batch 5L",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+      "generator_or_control": "TVAE",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 50,
+      "weighting_strategy": "(1.0, 2.0, 2.0)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 50 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_h1_tvae_k50_w2.joblib",
+      "model_artifact_sha256": "929eacc2a0d31846401e5f6e19b80b074af711a49fce67fc19466697e23dfa35",
+      "prediction_artifact_path": "component3/results/experimental_models/batch05l_weighted_repair_predictions_audit.csv",
+      "prediction_artifact_sha256": "9b96f10bc6fdcc8ca4d6fe6fb92d8b10843fdb23452b32f0a7e94ce3be629a70",
+      "target_dev_performance": {
+        "positive_f1": 0.4315,
+        "macro_f1": 0.4315,
+        "accuracy": 0.4315,
+        "balanced_accuracy": 0.4838,
+        "precision": 0.6429,
+        "recall": 0.3247,
+        "roc_auc": 0.4858,
+        "pr_auc": 0.6625,
+        "confusion_matrix": [
+          [
+            63,
+            35
+          ],
+          [
+            131,
+            63
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.6102,
+      "affected_slice_f1": 0.1974,
+      "preserved_slice_f1": 0.6857,
+      "statistical_uncertainty": {
+        "reference_arm": "B2_B200_K50",
+        "delta_f1": 0.0287,
+        "bootstrap_ci_95": [
+          0.0014,
+          0.0578
+        ],
+        "bootstrap_mean_diff": 0.0287,
+        "permutation_p_value": 0.0685,
+        "holm_bonferroni_p_value": 0.274,
+        "statistically_significant_adjusted": false
+      },
+      "resource_measurements": {
+        "fit_time_seconds": 0.163
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "EXPLORATORY_PILOT"
+    },
+    "EXP_5L_H1_TVAE_K50_w5": {
+      "experiment_id": "EXP_5L_H1_TVAE_K50_w5",
+      "arm_id": "H1_TVAE_K50_w5",
+      "batch_origin": "Batch 5L",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+      "generator_or_control": "TVAE",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 50,
+      "weighting_strategy": "(1.0, 5.0, 5.0)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 50 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_h1_tvae_k50_w5.joblib",
+      "model_artifact_sha256": "3afeeaf65b26cb2f11edcb262cb1d975c6d80564d62e3c4a39a174810942bade",
+      "prediction_artifact_path": "component3/results/experimental_models/batch05l_weighted_repair_predictions_audit.csv",
+      "prediction_artifact_sha256": "9b96f10bc6fdcc8ca4d6fe6fb92d8b10843fdb23452b32f0a7e94ce3be629a70",
+      "target_dev_performance": {
+        "positive_f1": 0.4221,
+        "macro_f1": 0.428,
+        "accuracy": 0.4281,
+        "balanced_accuracy": 0.4837,
+        "precision": 0.6421,
+        "recall": 0.3144,
+        "roc_auc": 0.5133,
+        "pr_auc": 0.6711,
+        "confusion_matrix": [
+          [
+            64,
+            34
+          ],
+          [
+            133,
+            61
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.5685,
+      "affected_slice_f1": 0.1974,
+      "preserved_slice_f1": 0.6715,
+      "statistical_uncertainty": {
+        "reference_arm": "B2_B200_K50",
+        "delta_f1": 0.0193,
+        "bootstrap_ci_95": [
+          -0.0141,
+          0.0546
+        ],
+        "bootstrap_mean_diff": 0.0192,
+        "permutation_p_value": 0.2839,
+        "holm_bonferroni_p_value": 0.8517,
+        "statistically_significant_adjusted": false
+      },
+      "resource_measurements": {
+        "fit_time_seconds": 0.161
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "EXPLORATORY_PILOT"
+    },
+    "EXP_5L_H2_TVAE_K50_w2_disc": {
+      "experiment_id": "EXP_5L_H2_TVAE_K50_w2_disc",
+      "arm_id": "H2_TVAE_K50_w2_disc",
+      "batch_origin": "Batch 5L",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+      "generator_or_control": "TVAE",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 50,
+      "weighting_strategy": "(1.0, 2.0, 1.0)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 50 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_h2_tvae_k50_w2_disc.joblib",
+      "model_artifact_sha256": "3e86ac8321be217eba6332abf720ef007008279c6c711305f5dbc3e821b79a27",
+      "prediction_artifact_path": "component3/results/experimental_models/batch05l_weighted_repair_predictions_audit.csv",
+      "prediction_artifact_sha256": "9b96f10bc6fdcc8ca4d6fe6fb92d8b10843fdb23452b32f0a7e94ce3be629a70",
+      "target_dev_performance": {
+        "positive_f1": 0.4164,
+        "macro_f1": 0.4144,
+        "accuracy": 0.4144,
+        "balanced_accuracy": 0.4633,
+        "precision": 0.6162,
+        "recall": 0.3144,
+        "roc_auc": 0.4857,
+        "pr_auc": 0.6639,
+        "confusion_matrix": [
+          [
+            60,
+            38
+          ],
+          [
+            133,
+            61
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.6034,
+      "affected_slice_f1": 0.16,
+      "preserved_slice_f1": 0.6853,
+      "statistical_uncertainty": {
+        "reference_arm": "B2_B200_K50",
+        "delta_f1": 0.0136,
+        "bootstrap_ci_95": [
+          -0.0101,
+          0.0404
+        ],
+        "bootstrap_mean_diff": 0.0135,
+        "permutation_p_value": 0.3748,
+        "holm_bonferroni_p_value": 0.8517,
+        "statistically_significant_adjusted": false
+      },
+      "resource_measurements": {
+        "fit_time_seconds": 0.175
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "EXPLORATORY_PILOT"
+    },
+    "EXP_5L_H2_TVAE_K50_w5_disc": {
+      "experiment_id": "EXP_5L_H2_TVAE_K50_w5_disc",
+      "arm_id": "H2_TVAE_K50_w5_disc",
+      "batch_origin": "Batch 5L",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+      "generator_or_control": "TVAE",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 50,
+      "weighting_strategy": "(1.0, 5.0, 2.5)",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 50 synth",
+      "model_artifact_path": "component3/models/experimental/telco_rf_h2_tvae_k50_w5_disc.joblib",
+      "model_artifact_sha256": "fdc780fe71d47090bcb4eb25a31366b9e9367939e4109d81edff6aaf239dab50",
+      "prediction_artifact_path": "component3/results/experimental_models/batch05l_weighted_repair_predictions_audit.csv",
+      "prediction_artifact_sha256": "9b96f10bc6fdcc8ca4d6fe6fb92d8b10843fdb23452b32f0a7e94ce3be629a70",
+      "target_dev_performance": {
+        "positive_f1": 0.4138,
+        "macro_f1": 0.4178,
+        "accuracy": 0.4178,
+        "balanced_accuracy": 0.471,
+        "precision": 0.625,
+        "recall": 0.3093,
+        "roc_auc": 0.5176,
+        "pr_auc": 0.676,
+        "confusion_matrix": [
+          [
+            62,
+            36
+          ],
+          [
+            134,
+            60
+          ]
+        ],
+        "positive_support": 194,
+        "negative_support": 98,
+        "total_support": 292
+      },
+      "source_eval_positive_f1": 0.5944,
+      "affected_slice_f1": 0.2092,
+      "preserved_slice_f1": 0.6423,
+      "statistical_uncertainty": {
+        "reference_arm": "B2_B200_K50",
+        "delta_f1": 0.011,
+        "bootstrap_ci_95": [
+          -0.0252,
+          0.0458
+        ],
+        "bootstrap_mean_diff": 0.0106,
+        "permutation_p_value": 0.6607,
+        "holm_bonferroni_p_value": 0.8517,
+        "statistically_significant_adjusted": false
+      },
+      "resource_measurements": {
+        "fit_time_seconds": 0.155
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "EXPLORATORY_PILOT"
+    },
+    "EXP_5L_TARGETED_REPAIR_STATUS": {
+      "experiment_id": "EXP_5L_TARGETED_REPAIR_STATUS",
+      "arm_id": "TARGETED_TVAE_SLICE",
+      "batch_origin": "Batch 5L",
+      "dataset_id": "telco_churn",
+      "drift_scenario": "TELCO_CONCEPT",
+      "training_partition_fingerprint": "0348ebce7a8c776d",
+      "development_partition_fingerprint": "22acbcf6b38b0add69a2a44d6076d1d46bcdd67757a44f891581ff1a0e8182bb",
+      "label_validity_classification": "SYNTHETIC_CONCEPT_TRUTH",
+      "strategy": "TARGETED_SYNTHETIC_REPAIR",
+      "generator_or_control": "TVAE",
+      "adaptation_budget": 200,
+      "synthetic_quantity": 0,
+      "weighting_strategy": "MISSING",
+      "training_input_provenance": "D_source_train (3452) + B_200 (authentic) + 0 synth",
+      "model_artifact_path": "NONE",
+      "model_artifact_sha256": "MISSING",
+      "prediction_artifact_path": "NONE",
+      "prediction_artifact_sha256": "MISSING",
+      "target_dev_performance": "MISSING",
+      "source_eval_positive_f1": "MISSING",
+      "affected_slice_f1": "MISSING",
+      "preserved_slice_f1": "MISSING",
+      "statistical_uncertainty": "BLOCKED",
+      "resource_measurements": {
+        "blocking_reason": "No legitimate non-oracle diagnostic slice emitted by Components 1 and 2"
+      },
+      "evaluation_contamination_status": "CLEAN (Locked target_eval never accessed)",
+      "evidence_status": "BLOCKED_NON_ORACLE_ABSENT"
+    }
+  }
+}

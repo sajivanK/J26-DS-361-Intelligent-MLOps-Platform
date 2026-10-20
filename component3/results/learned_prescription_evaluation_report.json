@@ -1,0 +1,22 @@
+{
+  "cv_strategy": "LeaveOneGroupOut (group_scenario_id)",
+  "n_groups": 11,
+  "n_samples": 159,
+  "utility_rmse": 0.0546,
+  "acceptance_accuracy": 0.9308,
+  "acceptance_precision": 0.0,
+  "acceptance_recall": 0.0,
+  "mean_strategy_regret_vs_oracle": 0.015,
+  "rule_based_mean_regret": 0.0075,
+  "learned_vs_rule_regret_delta": 0.0075,
+  "feasibility_violation_rate": 0.0,
+  "source_retention_failure_rate": 0.0,
+  "is_scientifically_validated": false,
+  "validation_status": "PILOT_EXPLORATORY_EVIDENCE",
+  "limitations": [
+    "Evidence base contains 11 scenario groups across 3 datasets (pilot scale).",
+    "Supervised regressor achieves lower regret on high-drift scenarios but higher variance on near-zero drift.",
+    "Learned model should operate in shadow or supervisory mode with safe deterministic fallback."
+  ],
+  "created_at_utc": "2026-10-20T11:45:56.000000+00:00"
+}

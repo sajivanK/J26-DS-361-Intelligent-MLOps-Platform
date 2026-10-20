@@ -234,7 +234,7 @@ class DatasetRegistry:
                 version="1.0.0",
                 source="https://www.kaggle.com/datasets/blastchar/telco-customer-churn",
                 license_info="IBM Community Data License Agreement / Public Domain",
-                status=DatasetStatus.PENDING_DOWNLOAD,
+                status=DatasetStatus.VERIFIED if (ROOT / "component3/data/raw/telco_churn.csv").is_file() else DatasetStatus.PENDING_DOWNLOAD,
                 target_column="Churn",
                 target_mapping={"No": 0, "Yes": 1, 0: 0, 1: 1},
                 numerical_features=["tenure", "MonthlyCharges", "TotalCharges"],
@@ -339,7 +339,7 @@ class DatasetRegistry:
                 version="1.0.0",
                 source="https://archive.ics.uci.edu/ml/datasets/bank+marketing",
                 license_info="CC BY 4.0 / Open Access",
-                status=DatasetStatus.PENDING_DOWNLOAD,
+                status=DatasetStatus.VERIFIED if (ROOT / "component3/data/raw/bank_marketing.csv").is_file() else DatasetStatus.PENDING_DOWNLOAD,
                 target_column="y",
                 target_mapping={"no": 0, "yes": 1, 0: 0, 1: 1},
                 numerical_features=[

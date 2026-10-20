@@ -242,12 +242,25 @@ def evaluate_offline_utility(
     reference_train_data = reference_train_data[feature_cols + [target_column]].copy()
     evaluation_test_data = evaluation_test_data[feature_cols + [target_column]].copy()
 
-    # Convert object dtype columns to category for robust XGBoost support
+    # Ensure binary / categorical target labels are integer encoded for XGBoost
+    if not pd.api.types.is_numeric_dtype(reference_train_data[target_column]):
+        unique_targets = sorted(list(reference_train_data[target_column].dropna().unique()))
+        target_map = {val: idx for idx, val in enumerate(unique_targets)}
+        reference_train_data[target_column] = reference_train_data[target_column].map(target_map).fillna(0).astype(int)
+        evaluation_test_data[target_column] = evaluation_test_data[target_column].map(target_map).fillna(0).astype(int)
+        if target_column in synthetic_data.columns:
+            synthetic_data[target_column] = synthetic_data[target_column].map(target_map).fillna(0).astype(int)
+
+    # Convert non-numeric feature columns to unified CategoricalDtype for robust XGBoost support
     for c in feature_cols:
-        if reference_train_data[c].dtype == "object":
-            reference_train_data[c] = reference_train_data[c].astype("category")
-            synthetic_data[c] = synthetic_data[c].astype("category")
-            evaluation_test_data[c] = evaluation_test_data[c].astype("category")
+        if not pd.api.types.is_numeric_dtype(reference_train_data[c]):
+            syn_series = synthetic_data[c].astype(str) if c in synthetic_data.columns else pd.Series(dtype=str)
+            all_cats = sorted(list(set(reference_train_data[c].astype(str)).union(set(syn_series)).union(set(evaluation_test_data[c].astype(str)))))
+            cat_type = pd.CategoricalDtype(categories=all_cats, ordered=False)
+            reference_train_data[c] = reference_train_data[c].astype(str).astype(cat_type)
+            evaluation_test_data[c] = evaluation_test_data[c].astype(str).astype(cat_type)
+            if c in synthetic_data.columns:
+                synthetic_data[c] = synthetic_data[c].astype(str).astype(cat_type)
 
     # Prepare evaluation test splits (Overall, Affected slice, Non-affected slice)
     test_df = evaluation_test_data.copy()
@@ -319,6 +332,9 @@ def evaluate_offline_utility(
 
     # 3. Retrain Augmented model (Reference + Synthetic) with identical architecture
     augmented_train_df = pd.concat([reference_train_data, synthetic_data], ignore_index=True)
+    for c in feature_cols:
+        if not pd.api.types.is_numeric_dtype(augmented_train_df[c]):
+            augmented_train_df[c] = augmented_train_df[c].astype("category")
     X_train_aug = augmented_train_df.drop(columns=[target_column])
     y_train_aug = augmented_train_df[target_column].to_numpy(dtype=int)
 

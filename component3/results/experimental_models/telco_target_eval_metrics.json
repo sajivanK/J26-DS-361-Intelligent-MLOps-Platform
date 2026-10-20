@@ -1,0 +1,29 @@
+{
+  "f1_positive": 0.4139,
+  "macro_f1": 0.4198,
+  "accuracy": 0.4199,
+  "balanced_accuracy": 0.4456,
+  "precision_positive": 0.5459,
+  "recall_positive": 0.3333,
+  "roc_auc": 0.4063,
+  "pr_auc": 0.5976,
+  "confusion_matrix": [
+    [
+      106,
+      84
+    ],
+    [
+      202,
+      101
+    ]
+  ],
+  "support_total": 493,
+  "class_counts": {
+    "No": 190,
+    "Yes": 303
+  },
+  "class_proportions": {
+    "No": 0.3854,
+    "Yes": 0.6146
+  }
+}

@@ -38,13 +38,13 @@ def test_uci_adult_metadata():
 def test_pending_datasets_metadata():
     reg = DatasetRegistry()
     telco = reg.get("telco_churn")
-    assert telco.status == DatasetStatus.PENDING_DOWNLOAD
+    assert telco.status in (DatasetStatus.PENDING_DOWNLOAD, DatasetStatus.VERIFIED)
     assert telco.target_column == "Churn"
     assert "customerID" in telco.id_columns
     assert "customerID" not in telco.feature_columns
 
     bank = reg.get("bank_marketing")
-    assert bank.status == DatasetStatus.PENDING_DOWNLOAD
+    assert bank.status in (DatasetStatus.PENDING_DOWNLOAD, DatasetStatus.VERIFIED)
     assert "duration" in bank.drop_columns
     assert "duration" not in bank.feature_columns
 
