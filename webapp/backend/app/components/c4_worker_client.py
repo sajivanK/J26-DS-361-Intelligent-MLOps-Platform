@@ -70,3 +70,13 @@ def evaluate(case_id, method="lightgbm", family="adaptive"):
 
 def fixtures():
     return _request("/api/c4/acceptance/verify", {})
+
+
+def hybrid_results():
+    return _request("/api/c4/research-results/hybrid")
+
+
+def revised_evaluate(case_id="revised-outer-case", method="hybrid", family="adaptive"):
+    return _request("/api/c4/release/revised/evaluate", {
+        "case_id": case_id, "method": method, "family": family,
+    })

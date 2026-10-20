@@ -38,3 +38,16 @@
 .c4-gate-label {display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--line)}
 .c4-pass {color:var(--ok-fg)}.c4-fail {color:var(--bad-fg)}
 @media(max-width:900px){.c4-page .c4-grid3{grid-template-columns:1fr}.c4-case-meta{grid-template-columns:1fr}}
+
+/* Versioned research comparison; original recorded-case styles stay scoped. */
+.c4-page .c4-research-content {display:grid;gap:16px;margin-top:18px}
+.c4-page .c4-research-content p {margin:0}
+.c4-page .c4-research-stats {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding:16px 0}
+.c4-page .c4-research-stats>div {display:grid;gap:7px}
+.c4-page .c4-research-stats strong {font:600 23px var(--mono)}
+.c4-page .c4-research-controls {max-width:430px}
+.c4-page .c4-primary-label {display:inline-block;margin-left:8px;padding:2px 7px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:11px;color:var(--accent)}
+.c4-page .c4-research-limit {padding:14px 16px;border-left:3px solid var(--warn-line);background:var(--warn-bg);color:var(--warn-fg)}
+.c4-page .c4-research-limit p {margin-top:7px}
+.c4-page .c4-sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:800px){.c4-page .c4-research-stats{grid-template-columns:1fr}}

@@ -127,7 +127,10 @@ def catalog():
     return {
         "scope":"Adult accuracy-margin pilot", "live_upstream_integration":False,
         "production_release_authorized":False,
-        "cases":[{"id":"real-outer-case", "label":"Recorded Adult outer case", "mode":"benchmark_replay"}],
+        "cases":[
+            {"id":"revised-outer-case", "label":"Revised Adult case · hybrid", "mode":"verified_revised_recorded_replay"},
+            {"id":"real-outer-case", "label":"Original PP1 Adult case", "mode":"benchmark_replay"}],
+        "default_case":"revised-outer-case", "revised_methods":["hybrid","lightgbm","linear","constant"],
         "methods":["lightgbm","linear"], "families":["adaptive","global"],
         "controller_freeze_sha256":EXPECTED_CONTROLLER,
         "note":"Pipeline C4 placeholder remains fake until actual upstream integration is implemented."
@@ -164,3 +167,21 @@ def fixtures():
         return {"mode":"synthetic_acceptance", "controller_freeze_sha256":digest,
             "research_observations":False, "empirical_auto_deployment_evidence":False,
             "production_release_authorized":False, "fixtures":results}
+
+
+def hybrid_results():
+    """Read the separate revised research summary; never replace case inference."""
+    from .c4_hybrid_research import read_results, ResearchUnavailable
+    try:
+        return read_results()
+    except ResearchUnavailable as exc:
+        raise C4Unavailable(str(exc)) from exc
+
+
+def revised_evaluate(case_id="revised-outer-case", method="hybrid", family="adaptive"):
+    """Replay matched revised evidence; keep original inference entry point separate."""
+    from .c4_revised_case import replay, RevisedCaseUnavailable
+    try:
+        return replay(case_id, method, family)
+    except RevisedCaseUnavailable as exc:
+        raise C4Unavailable(str(exc)) from exc

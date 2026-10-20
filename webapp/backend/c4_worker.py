@@ -55,3 +55,20 @@ def evaluate(request: CaseRequest):
 @app.post("/api/c4/acceptance/verify")
 def acceptance():
     return invoke(service.fixtures)
+
+
+@app.get("/api/c4/research-results/hybrid")
+def hybrid_research_results():
+    return invoke(service.hybrid_results)
+
+
+class RevisedCaseRequest(BaseModel):
+    case_id: str = "revised-outer-case"
+    method: Literal["hybrid", "lightgbm", "linear", "constant"] = "hybrid"
+    family: Literal["global", "adaptive"] = "adaptive"
+    model_config = ConfigDict(extra="forbid")
+
+
+@app.post("/api/c4/release/revised/evaluate")
+def revised_evaluate(request: RevisedCaseRequest):
+    return invoke(service.revised_evaluate, request.case_id, request.method, request.family)

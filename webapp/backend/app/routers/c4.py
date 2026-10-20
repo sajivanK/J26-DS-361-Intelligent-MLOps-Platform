@@ -43,3 +43,20 @@ def evaluate(request: CaseRequest):
 @router.post("/acceptance/verify")
 def acceptance():
     return call(service.fixtures)
+
+
+@router.get("/research-results/hybrid")
+def hybrid_research_results():
+    return call(service.hybrid_results)
+
+
+class RevisedCaseRequest(BaseModel):
+    case_id: str = "revised-outer-case"
+    method: Literal["hybrid", "lightgbm", "linear", "constant"] = "hybrid"
+    family: Literal["global", "adaptive"] = "adaptive"
+    model_config = ConfigDict(extra="forbid")
+
+
+@router.post("/release/revised/evaluate")
+def revised_evaluate(request: RevisedCaseRequest):
+    return call(service.revised_evaluate, request.case_id, request.method, request.family)
