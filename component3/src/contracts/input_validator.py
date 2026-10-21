@@ -25,7 +25,9 @@ from component3.src.contracts.schema_validator import (
 )
 
 ROOT = Path(__file__).resolve().parents[3]
-C1_CONTRACT_PATH = ROOT / "shared/contracts/c1_output_schema.json"
+# Legacy simulated C1 evidence (data/simulated_c1) follows the frozen v1.0 contract.
+# Shared contract is now v1.1; the live C1 v1.1 path is handled by external_contracts.
+C1_CONTRACT_PATH = ROOT / "component3/configs/c1_output_schema_v1_0.json"
 C2_CONTRACT_PATH = ROOT / "shared/contracts/c2_output_to_c3_schema.json"
 
 

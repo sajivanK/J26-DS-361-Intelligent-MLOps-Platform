@@ -28,7 +28,7 @@
   "integration": {
     "c1_evidence_dir": "component3/data/simulated_c1",
     "c2_diagnosis_dir": "component3/data/simulated_c2",
-    "c1_contract_path": "shared/contracts/c1_output_schema.json",
+    "c1_contract_path": "component3/configs/c1_output_schema_v1_0.json",
     "c2_contract_path": "shared/contracts/c2_output_to_c3_schema.json"
   },
   "readiness": {
