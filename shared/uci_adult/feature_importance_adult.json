@@ -55,6 +55,6 @@
     "capital_gain": "continuous",
     "capital_loss": "continuous",
     "hours_per_week": "continuous",
-    "native_country": "continuous"
+    "native_country": "categorical"
   }
 }

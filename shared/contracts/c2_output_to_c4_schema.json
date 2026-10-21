@@ -13,7 +13,7 @@
       "required": true,
       "example": "marginal",
       "allowed_values": ["marginal", "interaction", "combined", "unknown"],
-      "description": "Type of root cause identified. Used by C4 for risk context assessment.",
+      "description": "Type of root cause identified. Used by C4 for risk context assessment. Since C1 v1.1, derived by C2 from C1 marginal_extent and interaction_suspected plus its own diagnosis.",
       "used_by": ["C4"]
     },
     "root_cause_feature": {

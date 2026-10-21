@@ -1,0 +1,31 @@
+.hero2 { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; align-items: center; }
+.hero2 h1 { font-size: 1.9rem; line-height: 1.15; }
+.cta { display: flex; gap: 10px; flex-wrap: wrap; }
+.stat3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.stat3 div { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; background: var(--surface); }
+.stat3 b { display: block; font-family: var(--mono); font-size: 1.35rem; color: var(--accent); }
+.stat3 span { font-size: .76rem; color: var(--muted); }
+.flow4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.fcard { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 7px; position: relative; text-align: left; }
+.fcard:hover { border-color: var(--accent); }
+.fcard .top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.fcard .step { font-family: var(--mono); font-size: .72rem; color: var(--accent); letter-spacing: .06em; }
+.fcard .badge { align-self: auto; }
+.fcard h3 { font-size: .98rem; }
+.fcard .q { font-size: .82rem; color: var(--muted); }
+.fcard .out { font-family: var(--mono); font-size: .74rem; background: var(--bg); border-radius: 6px; padding: 6px 8px; }
+.fcard .who { font-size: .76rem; color: var(--muted); }
+.fcard:not(:last-child)::after { content: ""; position: absolute; right: -12px; top: 50%; width: 12px; height: 2px; background: var(--line); }
+.lastrun { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+.lastrun > div { padding: 12px 14px; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.lastrun > div:last-child { border-right: 0; }
+.lastrun .k { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.lastrun .v { font-family: var(--mono); font-size: .86rem; overflow-wrap: anywhere; }
+.team { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.team div { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; background: var(--surface); font-size: .82rem; }
+.team b { display: block; }
+@media (max-width: 900px) {
+  .hero2, .flow4, .lastrun, .team, .stat3 { grid-template-columns: minmax(0, 1fr); }
+  .fcard::after { display: none; }
+  .lastrun > div { border-right: 0; border-bottom: 1px solid var(--line); }
+}

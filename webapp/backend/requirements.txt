@@ -1,0 +1,5 @@
+# Platform backend. Install with:  pip install -r webapp\backend\requirements.txt -c c1\requirements.txt
+# (component libraries come from each component's own requirements file, e.g. c1/requirements.txt)
+fastapi==0.143.3
+uvicorn[standard]==0.54.0
+python-multipart==0.0.32

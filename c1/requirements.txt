@@ -1,0 +1,17 @@
+# Pinned to the Colab environment the 1.2.3 engines were built in (Python 3.13).
+# Engine .pkl files are pickles: keep these versions identical everywhere.
+numpy==2.1.3
+pandas==2.2.3
+scikit-learn==1.6.1
+scipy==1.16.3
+joblib==1.6.0
+xgboost==3.4.1
+lightgbm==4.6.0
+torch==2.11.0
+dill==0.4.1
+catalogue==2.0.10
+numba==0.61.2
+pytest
+# alibi-detect is NOT installed from this file (its metadata blocks numpy 2).
+# Install it separately:  pip install alibi-detect==0.13.0 --no-deps
+# plus its light runtime deps:  pip install pydantic toml tqdm requests typing-extensions transformers -c c1\requirements.txt
