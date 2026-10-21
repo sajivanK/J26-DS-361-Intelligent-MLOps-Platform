@@ -21,3 +21,8 @@ results/repair_experiments/
 *.joblib
 *.tmp
 
+
+# Generated run outputs and scratch files
+results/live_runs/
+results/runs/
+scratch/

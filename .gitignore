@@ -21,3 +21,6 @@ htmlcov/
 # OS specific files
 Thumbs.db
 desktop.ini
+
+# Local scratch files
+/scratch/
