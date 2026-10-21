@@ -82,7 +82,7 @@ def run_scenario_1_real_tvae_execution() -> dict[str, Any]:
             "target_column": "Churn",
             "schema_version": "1.0",
             "label_status": "AVAILABLE",
-            "preprocessing_uri": "component3/results/trained_models/telco_preprocessor_experimental_source.joblib",
+            "preprocessing_uri": "component3/models/experimental/telco_preprocessor_experimental_source.joblib",
         },
     }
 
@@ -173,7 +173,7 @@ def run_scenario_2_real_no_drift_abstention() -> dict[str, Any]:
             "target_column": "Churn",
             "schema_version": "1.0",
             "label_status": "AVAILABLE",
-            "preprocessing_uri": "component3/results/trained_models/telco_preprocessor_experimental_source.joblib",
+            "preprocessing_uri": "component3/models/experimental/telco_preprocessor_experimental_source.joblib",
         },
     }
 

@@ -25,8 +25,10 @@ from component3.src.adapters.c4_retraining_adapter import C4RetrainingAdapter
 from component3.src.contracts.external_contracts import (
     ContractValidationError,
     DependencyResolutionError,
+    resolve_data_context_artifacts,
     validate_c4_flat_contract,
     validate_three_section_contract,
+    verify_path_authorization,
 )
 from component3.src.contracts.repair_package import RepairPackage, RepairPackageStatus
 from component3.src.contracts.repair_request import (
@@ -88,25 +90,17 @@ def _parse_request(raw_request: RepairRequest | dict[str, Any] | str | Path) -> 
         dc = container.data_context
         c1 = container.c1_evidence
         c2 = container.c2_diagnosis
-
-        # Dependency resolution - strict non-substitution checks
-        ref_p = Path(dc.reference_dataset_uri)
-        if not ref_p.is_absolute():
-            ref_p = REPO_ROOT / ref_p
-        if not ref_p.is_file():
+        # Dependency resolution - strict non-substitution and path authorization checks
+        ok_res, res_errs, resolved_artifacts = resolve_data_context_artifacts(dc, repo_root=REPO_ROOT)
+        if not ok_res or not resolved_artifacts:
+            err_msg = "; ".join(res_errs)
             raise DependencyResolutionError(
-                f"Reference dataset not found at URI '{dc.reference_dataset_uri}' (resolved: '{ref_p}'). "
-                "Component 3 will not silently substitute another dataset."
+                f"Dependency resolution failure: {err_msg} "
+                "Component 3 will not silently substitute another dataset or artifact."
             )
 
-        cur_p = Path(dc.current_dataset_uri)
-        if not cur_p.is_absolute():
-            cur_p = REPO_ROOT / cur_p
-        if not cur_p.is_file():
-            raise DependencyResolutionError(
-                f"Current drifted dataset not found at URI '{dc.current_dataset_uri}' (resolved: '{cur_p}'). "
-                "Component 3 will not silently substitute another dataset."
-            )
+        ref_p = resolved_artifacts["reference_dataset"]
+        cur_p = resolved_artifacts["current_dataset"]
 
         # Model resolution - check ModelRegistry or physical path
         model_reg = get_model_registry()
@@ -119,7 +113,10 @@ def _parse_request(raw_request: RepairRequest | dict[str, Any] | str | Path) -> 
             if not candidate_p.is_absolute():
                 candidate_p = REPO_ROOT / candidate_p
             if candidate_p.is_file():
-                src_model_p = candidate_p
+                ok_m, err_m, resolved_model = verify_path_authorization(candidate_p, "models")
+                if not ok_m:
+                    raise DependencyResolutionError(f"Model path authorization failure: {err_m}")
+                src_model_p = resolved_model
                 src_prep_p = dc.preprocessing_uri or candidate_p
             else:
                 raise DependencyResolutionError(

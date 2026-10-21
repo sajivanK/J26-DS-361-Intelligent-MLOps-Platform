@@ -75,7 +75,7 @@ def valid_telco_base_payload() -> dict:
             "target_column": "Churn",
             "schema_version": "1.0",
             "label_status": "AVAILABLE",
-            "preprocessing_uri": "component3/results/trained_models/telco_preprocessor_experimental_source.joblib",
+            "preprocessing_uri": "component3/models/experimental/telco_preprocessor_experimental_source.joblib",
         },
     }
 
@@ -87,7 +87,7 @@ def valid_telco_base_payload() -> dict:
 def test_missing_reference_dataset_raises_dependency_error(valid_telco_base_payload: dict, tmp_path: Path):
     payload = dict(valid_telco_base_payload)
     payload["data_context"] = dict(payload["data_context"])
-    payload["data_context"]["reference_dataset_uri"] = "nonexistent/path/to/reference.csv"
+    payload["data_context"]["reference_dataset_uri"] = "component3/data/raw/nonexistent_reference.csv"
 
     with pytest.raises(DependencyResolutionError, match="Reference dataset not found"):
         execute_contract_repair(request=payload, output_directory=tmp_path)
@@ -96,7 +96,7 @@ def test_missing_reference_dataset_raises_dependency_error(valid_telco_base_payl
 def test_missing_current_dataset_raises_dependency_error(valid_telco_base_payload: dict, tmp_path: Path):
     payload = dict(valid_telco_base_payload)
     payload["data_context"] = dict(payload["data_context"])
-    payload["data_context"]["current_dataset_uri"] = "nonexistent/path/to/current.csv"
+    payload["data_context"]["current_dataset_uri"] = "component3/data/raw/nonexistent_current.csv"
 
     with pytest.raises(DependencyResolutionError, match="Current drifted dataset not found"):
         execute_contract_repair(request=payload, output_directory=tmp_path)
@@ -400,3 +400,16 @@ def test_simulated_c4_consumer_pipeline(tmp_path: Path, valid_telco_base_payload
     retraining_df = pd.read_csv(resolved_dataset_path)
     assert len(retraining_df) == consumer_payload["n_synthetic_rows"]
     assert "Churn" in retraining_df.columns
+
+
+def test_output_directory_blocked_raises_os_error(valid_telco_base_payload: dict, tmp_path: Path):
+    """Verify that execution fails cleanly when output directory cannot be created."""
+    blocked_file = tmp_path / "blocked_dir"
+    blocked_file.write_text("existing_file_blocks_directory_creation")
+
+    with pytest.raises((OSError, FileExistsError, NotADirectoryError)):
+        execute_contract_repair(
+            request=valid_telco_base_payload,
+            output_directory=blocked_file / "child_dir",
+        )
+

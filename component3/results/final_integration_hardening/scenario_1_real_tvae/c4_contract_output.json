@@ -1,14 +1,14 @@
 {
-  "repair_dataset_uri": "component3/results/final_integration_hardening/scenario_1_real_tvae/pkg-859b8f17c113_candidates_k100.csv",
-  "repair_package_status": "APPROVED",
+  "repair_dataset_uri": "NONE",
+  "repair_package_status": "REJECTED",
   "generator": "TVAE",
-  "n_synthetic_rows": 100,
-  "augmentation_ratio": 0.0267,
-  "fidelity_score": 0.7236,
-  "utility_score": 0.64,
+  "n_synthetic_rows": 0,
+  "augmentation_ratio": 0.0,
+  "fidelity_score": 0.0,
+  "utility_score": 0.0,
   "privacy_status": "PASS",
-  "target_coverage": 1.0,
+  "target_coverage": 0.0,
   "prescription_confidence": 0.8,
-  "repair_version": "c3-70e7cdd4",
-  "repair_timestamp": "2026-10-21T04:32:10.644749+00:00"
+  "repair_version": "c3-5b511dd5",
+  "repair_timestamp": "2026-10-21T17:44:14.216940+00:00"
 }

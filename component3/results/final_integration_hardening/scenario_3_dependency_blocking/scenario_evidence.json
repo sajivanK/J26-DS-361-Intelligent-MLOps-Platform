@@ -2,6 +2,6 @@
   "scenario": "scenario_3_dependency_blocking",
   "description": "Missing teammate artifacts blocked immediately with DependencyResolutionError",
   "blocked_correctly": true,
-  "exception_message": "Current drifted dataset not found at URI 'shared/uci_adult/data/current.csv' (resolved: 'D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\shared\\uci_adult\\data\\current.csv'). Component 3 will not silently substitute another dataset.",
+  "exception_message": "Dependency resolution failure: Current drifted dataset not found at URI 'shared/uci_adult/data/current.csv' (resolved: D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\shared\\uci_adult\\data\\current.csv). Component 3 will not silently substitute another dataset. Component 3 will not silently substitute another dataset or artifact.",
   "silent_fallback_prevented": true
 }

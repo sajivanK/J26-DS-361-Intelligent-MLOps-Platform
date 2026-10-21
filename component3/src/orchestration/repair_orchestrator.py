@@ -353,7 +353,7 @@ class RepairOrchestrator:
                     exec_log.package_path = str(pkg_path)
                     return pkg, exec_log
 
-                if slice_idx is not None and int(slice_idx.sum()) >= 10:
+                if slice_idx is not None and int(slice_idx.sum()) >= 30:
                     adaptation_gen_df = df_adaptation[slice_idx.values].copy().reset_index(drop=True)
 
 

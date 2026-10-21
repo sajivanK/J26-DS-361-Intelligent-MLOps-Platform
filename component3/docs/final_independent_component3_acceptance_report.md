@@ -353,7 +353,7 @@ Manifest SHA-256: 352fd94f943be8943c3161c212c741f2d5f9fbfa71cd13f3ea2913aa31e677
 ## 17. Remaining Engineering Limitations
 
 1. **Streaming Messaging Feed:** Live Kafka/RabbitMQ alert streaming from Component 1 is mocked via validated Pydantic file/dict schemas pending live platform integration.
-2. **Component 4 Human Review UI:** Direct push to Component 4's web dashboard is prepared via machine-readable JSON contracts (`c4_handoff_contract.json`), awaiting teammate UI readiness.
+2. **Component 4 Human Review Workflow:** Direct handoff to Component 4 is prepared via machine-readable JSON contracts (`c4_handoff_contract.json`), awaiting teammate integration readiness.
 
 ---
 

@@ -6,7 +6,9 @@
 **Branch:** `c3-mathusan`  
 **Date of Audit & Hardening:** 2026-10-21  
 **Readiness Level Achieved:** **Level 2 (Contract-Ready for Integration Testing)**  
-**Regression Test Count:** **758 / 758 Automated Tests Passing (100% Pass Rate)**  
+**Regression Test Count:** **780 / 780 Automated Tests Passing (100% Pass Rate)**  
+
+> **Metric reconciliation notice (2026-10-21):** This historical report is superseded for metric interpretation by `component3_final_metric_reconciliation.md` and `component3_authoritative_metric_dictionary.md`. In particular, rejected/abstained C4 zero values and `privacy_status=PASS` are schema placeholders, not measured scores; the approved package's authoritative source-retention delta is `-0.0137`; and `0.9231 -> 0.9615` belongs to a separate validation context from C4 `utility_score=0.6400`.
 
 ---
 
@@ -21,11 +23,11 @@ An independent audit was conducted across all Component 3 modules, existing test
 2. **Fail-Fast Dependency Resolution:** Explicit resolution of physical dataset and model artifacts. Missing artifacts (such as `champion-v12` or `shared/uci_adult/data/current.csv`) immediately raise `DependencyResolutionError` with zero silent substitution.
 3. **Safe AST Slice Evaluation:** Complete elimination of `eval()`, `exec()`, and `DataFrame.query()`. Slice rules from Component 2 are evaluated exclusively via a restricted Abstract Syntax Tree (AST) evaluator that blocks arbitrary code execution.
 4. **Authentic CPU-Bounded Generation:** Demonstrated live fitting of TVAE and CTGAN on real datasets (Telco Churn) without pre-generated candidate fallback. Generates synthetic records and retrains models within 10–12 seconds on standard CPU.
-5. **Zero Fabrication & Honest Safety Gating:** When quality, utility, or privacy gates fail, Component 3 preserves the rejection. When no drift is detected, Component 3 honestly reports `0.0` for fidelity, utility, and coverage rather than fabricating placeholder numbers.
+5. **Zero Fabrication & Honest Safety Gating:** When quality, utility, or privacy gates fail, Component 3 preserves the rejection. The flat schema still emits required zero/PASS placeholders for rejected or abstained packages; human-facing consumers must render those fields as `NOT_EVALUATED`.
 6. **Authoritative 12-Field C4 Flat Export:** Full compliance with `shared/contracts/c3_output_schema.json`, providing Component 4 with all required gates, portable forward-slash URIs, and cryptographic SHA-256 digests.
 7. **Portable Artifact Storage:** Configurable artifact storage via `C3_ARTIFACT_STORAGE_ROOT`, atomic writes via temporary files, and SHA-256 integrity verification.
-8. **Comprehensive Failure Test Suite:** 19 dedicated failure mode tests covering missing files, malformed syntax, code injection, insufficient sample size, unregistered generators, and simulated Component 4 consumption.
-9. **Automated Regression:** 758 out of 758 automated tests passing cleanly with zero failures or skipped tests.
+8. **Comprehensive Failure Test Suite:** 24 dedicated failure mode tests, 3 simulated Component 4 consumer tests, and system audit suites covering missing files, malformed syntax, code injection, insufficient sample size, unregistered generators, and simulated Component 4 consumption.
+9. **Automated Regression:** 780 out of 780 automated tests passing cleanly with zero failures or skipped tests.
 
 ---
 
@@ -54,7 +56,7 @@ Component 3 executed authentic end-to-end repairs without pre-generated candidat
 - **Search Progression:**
   - $K=25$: Retraining utility gain (-0.0106) below margin (+0.0100) -> Rejected.
   - $K=50$: Fidelity KS statistic (0.409) exceeded threshold (0.350) -> Rejected.
-  - $K=100$: Mean KS statistic 0.2764 ($\le 0.350$), target F1 0.6400 ($\ge 0.6300$), privacy status `PASS`, source retention preserved (delta $-0.008$) -> **ACCEPTED & APPROVED**.
+  - $K=100$: Mean KS statistic 0.2764 ($\le 0.350$), target F1 0.6400 ($\ge 0.6300$), privacy status `PASS`, source retention preserved (delta $-0.0137$) -> **ACCEPTED & APPROVED FOR REVIEW**.
 - **Exported C4 Flat Contract:**
   ```json
   {
@@ -82,22 +84,23 @@ Component 3 executed authentic end-to-end repairs without pre-generated candidat
 ============================== test session starts ==============================
 platform win32 -- Python 3.11.0, pytest-9.1.1, pluggy-1.6.0
 rootdir: D:\SLIIT_Research\J26-DS-361-Intelligent-MLOps-Platform
-collected 758 items
+collected 780 items
 
 component3/tests/test_adapters.py ..................................      [  4%]
 component3/tests/test_anti_patterns.py .........................          [  7%]
 component3/tests/test_api.py ....................                         [ 10%]
 ...
 component3/tests/test_external_contracts.py .......                       [ 45%]
-component3/tests/test_hardening_failures.py ...................           [ 47%]
+component3/tests/test_hardening_failures.py ........................      [ 48%]
+component3/tests/test_c4_consumer_simulation.py ...                       [ 48%]
 ...
 component3/tests/test_utility_evaluator.py ...........                    [100%]
 
-================ 758 passed, 31 warnings in 119.00s (0:01:58) =================
+================ 780 passed, 31 warnings in 1297.79s (0:21:37) =================
 ```
 
-- **Previous Test Count:** 739 passed
-- **New Test Count:** 758 passed (+19 tests)
+- **Previous Baseline Test Count:** 739 passed
+- **Hardened Final Test Count:** 780 passed (+41 new tests)
 - **Failures:** 0
 - **Errors:** 0
 - **Skips:** 0

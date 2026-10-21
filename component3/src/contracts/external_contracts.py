@@ -14,9 +14,13 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 import json
+import math
 from pathlib import Path
 import re
+import tempfile
 from typing import Any
+
+import jsonschema
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -26,7 +30,7 @@ class ContractValidationError(ValueError):
 
 
 class DependencyResolutionError(FileNotFoundError):
-    """Raised when data_context references datasets or model artifacts that do not exist."""
+    """Raised when data_context references datasets or model artifacts that do not exist or are unauthorized."""
 
 
 # -----------------------------------------------------------------------------
@@ -75,6 +79,103 @@ VALID_C4_PRIVACY_STATUSES = {"PASS", "FAIL"}
 
 
 # -----------------------------------------------------------------------------
+# Numeric and Path Security Validators
+# -----------------------------------------------------------------------------
+
+def _check_finite_number(
+    val: Any,
+    field_name: str,
+    min_val: float | None = None,
+    max_val: float | None = None,
+) -> tuple[bool, str | None, float | None]:
+    """Validate that val is a finite number, strictly rejecting booleans, NaN, Inf, and non-numerics."""
+    if isinstance(val, bool):
+        return False, f"'{field_name}' must be a numeric value, but got boolean '{val}'.", None
+    if not isinstance(val, (int, float)):
+        return False, f"'{field_name}' must be a numeric value, got {type(val).__name__}.", None
+    if not math.isfinite(val):
+        return False, f"'{field_name}' must be a finite number, got non-finite value '{val}'.", None
+    f_val = float(val)
+    if min_val is not None and f_val < min_val:
+        return False, f"'{field_name}' must be >= {min_val}, got {f_val}.", None
+    if max_val is not None and f_val > max_val:
+        return False, f"'{field_name}' must be <= {max_val}, got {f_val}.", None
+    return True, None, f_val
+
+
+def _check_finite_int(
+    val: Any,
+    field_name: str,
+    min_val: int | None = None,
+    max_val: int | None = None,
+) -> tuple[bool, str | None, int | None]:
+    """Validate that val is a finite integer, strictly rejecting booleans and floats."""
+    if isinstance(val, bool):
+        return False, f"'{field_name}' must be an integer, but got boolean '{val}'.", None
+    if not isinstance(val, int):
+        return False, f"'{field_name}' must be an integer, got {type(val).__name__}.", None
+    if min_val is not None and val < min_val:
+        return False, f"'{field_name}' must be >= {min_val}, got {val}.", None
+    if max_val is not None and val > max_val:
+        return False, f"'{field_name}' must be <= {max_val}, got {val}.", None
+    return True, None, val
+
+
+def get_authorized_directory_roots() -> dict[str, list[Path]]:
+    """Return canonical paths for authorized dataset, model, and output directories."""
+    return {
+        "datasets": [
+            (REPO_ROOT / "component3" / "data").resolve(),
+            (REPO_ROOT / "shared").resolve(),
+            Path(tempfile.gettempdir()).resolve(),
+        ],
+        "models": [
+            (REPO_ROOT / "component3" / "models").resolve(),
+            (REPO_ROOT / "component3" / "results" / "trained_models").resolve(),
+            (REPO_ROOT / "component3" / "results").resolve(),
+            (REPO_ROOT / "shared").resolve(),
+            Path(tempfile.gettempdir()).resolve(),
+        ],
+        "outputs": [
+            (REPO_ROOT / "component3" / "results").resolve(),
+            (REPO_ROOT / "shared").resolve(),
+            Path(tempfile.gettempdir()).resolve(),
+        ],
+    }
+
+
+def verify_path_authorization(path: Path | str, allowed_category: str = "datasets") -> tuple[bool, str | None, Path | None]:
+    """Check that the resolved canonical path is strictly inside an authorized platform root.
+    
+    Guards against directory traversal ('..'), unauthorized absolute paths, and symlink escapes.
+    """
+    raw_p = Path(path)
+    if ".." in raw_p.parts:
+        return False, f"Path traversal ('..') is prohibited in path '{path}'.", None
+
+    if not raw_p.is_absolute():
+        resolved_p = (REPO_ROOT / raw_p).resolve()
+    else:
+        resolved_p = raw_p.resolve()
+
+    allowed_roots = get_authorized_directory_roots().get(allowed_category, [])
+    authorized = False
+    for root in allowed_roots:
+        try:
+            resolved_p.relative_to(root)
+            authorized = True
+            break
+        except ValueError:
+            continue
+
+    if not authorized:
+        allowed_str = ", ".join(str(r) for r in allowed_roots)
+        return False, f"Path '{path}' resolves to '{resolved_p}', which is outside authorized {allowed_category} directories: [{allowed_str}].", None
+
+    return True, None, resolved_p
+
+
+# -----------------------------------------------------------------------------
 # Dataclasses for Structured Representation
 # -----------------------------------------------------------------------------
 
@@ -90,7 +191,12 @@ class C1EvidenceContract:
 
     @property
     def predicted_harm_proportion(self) -> float:
-        """Return drop as a proportion [0.0, 1.0]."""
+        """Return drop as a proportion [0.0, 1.0].
+        
+        Measurement Unit Convention:
+        - Values in [0.0, 1.0] are interpreted as proportions (e.g., 0.18 = 18% accuracy drop).
+        - Values in (1.0, 100.0] are interpreted as percentages and converted to proportions.
+        """
         if self.predicted_accuracy_drop > 1.0:
             return round(self.predicted_accuracy_drop / 100.0, 4)
         return round(self.predicted_accuracy_drop, 4)
@@ -176,26 +282,38 @@ def validate_c1_evidence(data: dict[str, Any]) -> tuple[bool, list[str], C1Evide
     if not isinstance(data, dict):
         return False, ["c1_evidence must be a dictionary."], None
 
-    # Required fields
-    # Accept predicted_accuracy_drop OR predicted_harm
+    # Required fields: predicted_accuracy_drop OR predicted_harm
     raw_drop = data.get("predicted_accuracy_drop", data.get("predicted_harm"))
+    drop_val: float | None = None
     if raw_drop is None:
         errors.append("c1_evidence missing required field: 'predicted_accuracy_drop' (or 'predicted_harm').")
-    elif not isinstance(raw_drop, (int, float)) or raw_drop < 0:
-        errors.append(f"predicted_accuracy_drop must be a non-negative number, got {raw_drop}.")
+    else:
+        ok_drop, err_drop, drop_val = _check_finite_number(
+            raw_drop, "predicted_accuracy_drop", min_val=0.0, max_val=100.0
+        )
+        if not ok_drop and err_drop:
+            errors.append(err_drop)
 
     # Confidence interval (accept confidence_interval or harm_interval)
     raw_ci = data.get("confidence_interval", data.get("harm_interval"))
+    ci_tuple: tuple[float, float] | None = None
     if raw_ci is None:
         errors.append("c1_evidence missing required field: 'confidence_interval'.")
     elif not isinstance(raw_ci, (list, tuple)) or len(raw_ci) != 2:
-        errors.append("confidence_interval must be a list/tuple of two floats [lower, upper].")
+        errors.append("confidence_interval must be a list or tuple of exactly two numbers [lower, upper].")
     else:
         low, high = raw_ci
-        if not isinstance(low, (int, float)) or not isinstance(high, (int, float)):
-            errors.append(f"confidence_interval bounds must be numbers, got {raw_ci}.")
-        elif low > high:
-            errors.append(f"confidence_interval lower bound ({low}) exceeds upper bound ({high}).")
+        ok_low, err_low, low_val = _check_finite_number(low, "confidence_interval[0]", min_val=0.0, max_val=100.0)
+        ok_high, err_high, high_val = _check_finite_number(high, "confidence_interval[1]", min_val=0.0, max_val=100.0)
+        if not ok_low and err_low:
+            errors.append(err_low)
+        if not ok_high and err_high:
+            errors.append(err_high)
+        if ok_low and ok_high and low_val is not None and high_val is not None:
+            if low_val > high_val:
+                errors.append(f"confidence_interval lower bound ({low_val}) exceeds upper bound ({high_val}).")
+            else:
+                ci_tuple = (low_val, high_val)
 
     # Drift type
     raw_type = data.get("drift_type")
@@ -213,22 +331,27 @@ def validate_c1_evidence(data: dict[str, Any]) -> tuple[bool, list[str], C1Evide
 
     # Affected features
     raw_features = data.get("affected_features", data.get("features_drifted"))
+    cleaned_features: list[str] = []
     if raw_features is None:
         errors.append("c1_evidence missing required field: 'affected_features'.")
     elif not isinstance(raw_features, (list, tuple)):
         errors.append("affected_features must be a list of feature name strings.")
     elif not all(isinstance(f, str) and f.strip() for f in raw_features):
         errors.append("All items in affected_features must be non-empty strings.")
+    else:
+        cleaned_features = [str(f).strip() for f in raw_features]
+        if len(cleaned_features) != len(set(cleaned_features)):
+            errors.append("affected_features cannot contain duplicate feature names.")
 
     if errors:
         return False, errors, None
 
     contract = C1EvidenceContract(
-        predicted_accuracy_drop=float(raw_drop),
-        confidence_interval=(float(raw_ci[0]), float(raw_ci[1])),
+        predicted_accuracy_drop=float(drop_val),  # type: ignore[arg-type]
+        confidence_interval=ci_tuple,  # type: ignore[arg-type]
         drift_type=str(raw_type),
         drift_severity=str(raw_sev),
-        affected_features=tuple(str(f).strip() for f in raw_features),
+        affected_features=tuple(cleaned_features),
         raw_metadata={k: v for k, v in data.items() if k not in {
             "predicted_accuracy_drop", "predicted_harm", "confidence_interval",
             "harm_interval", "drift_type", "drift_severity", "affected_features", "features_drifted"
@@ -243,10 +366,10 @@ def validate_c2_diagnosis(data: dict[str, Any]) -> tuple[bool, list[str], C2Diag
     if not isinstance(data, dict):
         return False, ["c2_diagnosis must be a dictionary."], None
 
-    # Required fields
+    # Required string fields
     rc_feature = data.get("root_cause_feature")
-    if not rc_feature or not isinstance(rc_feature, str):
-        errors.append("c2_diagnosis missing required string field: 'root_cause_feature'.")
+    if not rc_feature or not isinstance(rc_feature, str) or not rc_feature.strip():
+        errors.append("c2_diagnosis missing required non-empty string field: 'root_cause_feature'.")
 
     rc_cat = data.get("root_cause_category")
     if not rc_cat or not isinstance(rc_cat, str):
@@ -259,26 +382,39 @@ def validate_c2_diagnosis(data: dict[str, Any]) -> tuple[bool, list[str], C2Diag
         errors.append("c2_diagnosis missing required non-empty string field: 'affected_slice_rule'.")
 
     ranked_feats = data.get("affected_features_ranked", data.get("affected_features"))
+    cleaned_ranked: list[str] = []
     if ranked_feats is None:
         errors.append("c2_diagnosis missing required field: 'affected_features_ranked'.")
     elif not isinstance(ranked_feats, (list, tuple)):
         errors.append("affected_features_ranked must be a list of strings.")
+    elif not all(isinstance(f, str) and f.strip() for f in ranked_feats):
+        errors.append("All items in affected_features_ranked must be non-empty strings.")
+    else:
+        cleaned_ranked = [str(f).strip() for f in ranked_feats]
+        if len(cleaned_ranked) != len(set(cleaned_ranked)):
+            errors.append("affected_features_ranked cannot contain duplicate feature names.")
 
     val_ranges = data.get("affected_value_ranges")
     if val_ranges is not None and not isinstance(val_ranges, dict):
         errors.append("affected_value_ranges must be a dictionary.")
 
-    # Numeric score ranges [0.0, 1.0]
-    for field_name in ("slice_support", "diagnosis_stability", "drift_impact_score"):
-        val = data.get(field_name)
-        if val is None:
-            errors.append(f"c2_diagnosis missing required float field: '{field_name}'.")
-        elif not isinstance(val, (int, float)) or not (0.0 <= float(val) <= 1.0):
-            errors.append(f"{field_name} must be a float between 0.0 and 1.0, got {val}.")
+    # Strict numeric range validation [0.0, 1.0]
+    ok_supp, err_supp, val_supp = _check_finite_number(data.get("slice_support"), "slice_support", min_val=0.0, max_val=1.0)
+    if not ok_supp and err_supp:
+        errors.append(err_supp)
 
-    temp_win = data.get("temporal_window", 1)
-    if not isinstance(temp_win, int) or temp_win < 1:
-        errors.append(f"temporal_window must be an integer >= 1, got {temp_win}.")
+    ok_stab, err_stab, val_stab = _check_finite_number(data.get("diagnosis_stability"), "diagnosis_stability", min_val=0.0, max_val=1.0)
+    if not ok_stab and err_stab:
+        errors.append(err_stab)
+
+    ok_imp, err_imp, val_imp = _check_finite_number(data.get("drift_impact_score"), "drift_impact_score", min_val=0.0, max_val=1.0)
+    if not ok_imp and err_imp:
+        errors.append(err_imp)
+
+    raw_temp = data.get("temporal_window", 1)
+    ok_temp, err_temp, val_temp = _check_finite_int(raw_temp, "temporal_window", min_val=1, max_val=1000)
+    if not ok_temp and err_temp:
+        errors.append(err_temp)
 
     if errors:
         return False, errors, None
@@ -287,12 +423,12 @@ def validate_c2_diagnosis(data: dict[str, Any]) -> tuple[bool, list[str], C2Diag
         root_cause_feature=str(rc_feature).strip(),
         root_cause_category=str(rc_cat).strip(),
         affected_slice_rule=str(slice_rule).strip(),
-        affected_features_ranked=tuple(str(f).strip() for f in ranked_feats),
+        affected_features_ranked=tuple(cleaned_ranked),
         affected_value_ranges=dict(val_ranges or {}),
-        slice_support=float(data["slice_support"]),
-        diagnosis_stability=float(data["diagnosis_stability"]),
-        drift_impact_score=float(data["drift_impact_score"]),
-        temporal_window=int(temp_win),
+        slice_support=float(val_supp),  # type: ignore[arg-type]
+        diagnosis_stability=float(val_stab),  # type: ignore[arg-type]
+        drift_impact_score=float(val_imp),  # type: ignore[arg-type]
+        temporal_window=int(val_temp),  # type: ignore[arg-type]
         raw_metadata={k: v for k, v in data.items() if k not in {
             "root_cause_feature", "root_cause_category", "affected_slice_rule",
             "slice_predicate", "diagnosed_problematic_slice", "affected_features_ranked",
@@ -318,18 +454,31 @@ def validate_data_context(data: dict[str, Any]) -> tuple[bool, list[str], DataCo
     if not isinstance(lbl_status, str) or lbl_status.upper() not in VALID_LABEL_STATUSES:
         errors.append(f"label_status must be one of {sorted(VALID_LABEL_STATUSES)}, got '{lbl_status}'.")
 
-    # Traversal safety checks on URIs
-    for uri_field in ("reference_dataset_uri", "current_dataset_uri", "preprocessing_uri"):
+    # Path traversal and authorization checks on URIs
+    for uri_field, cat in (
+        ("reference_dataset_uri", "datasets"),
+        ("current_dataset_uri", "datasets"),
+        ("preprocessing_uri", "models"),
+    ):
         val = data.get(uri_field)
-        if val is not None and isinstance(val, str):
-            if ".." in Path(val).parts:
-                errors.append(f"Path traversal ('..') is prohibited in {uri_field}: '{val}'.")
+        if val is not None and isinstance(val, str) and val.strip():
+            ok_auth, err_auth, _ = verify_path_authorization(val, cat)
+            if not ok_auth and err_auth:
+                errors.append(f"{uri_field}: {err_auth}")
+
+    # Numeric budget and tolerance validation
+    raw_budget = data.get("adaptation_budget_size", 200)
+    ok_b, err_b, val_budget = _check_finite_int(raw_budget, "adaptation_budget_size", min_val=1, max_val=50000)
+    if not ok_b and err_b:
+        errors.append(err_b)
+
+    raw_tol = data.get("source_retention_tolerance", 0.05)
+    ok_t, err_t, val_tol = _check_finite_number(raw_tol, "source_retention_tolerance", min_val=0.0, max_val=0.50)
+    if not ok_t and err_t:
+        errors.append(err_t)
 
     if errors:
         return False, errors, None
-
-    budget = int(data.get("adaptation_budget_size", 200))
-    tolerance = float(data.get("source_retention_tolerance", 0.05))
 
     contract = DataContextContract(
         model_id=str(data["model_id"]).strip(),
@@ -340,8 +489,8 @@ def validate_data_context(data: dict[str, Any]) -> tuple[bool, list[str], DataCo
         schema_version=str(data.get("schema_version", "1.0.0")).strip(),
         label_status=str(lbl_status).upper().strip(),
         preprocessing_uri=str(data.get("preprocessing_uri", "")).strip() or None,
-        adaptation_budget_size=budget,
-        source_retention_tolerance=tolerance,
+        adaptation_budget_size=int(val_budget),  # type: ignore[arg-type]
+        source_retention_tolerance=float(val_tol),  # type: ignore[arg-type]
         raw_metadata={k: v for k, v in data.items() if k not in {
             "model_id", "dataset_id", "reference_dataset_uri", "current_dataset_uri",
             "target_column", "schema_version", "label_status", "preprocessing_uri",
@@ -371,23 +520,48 @@ def validate_three_section_contract(
 
     all_errors: list[str] = []
 
-    # Check top-level sections
-    for sec in ("c1_evidence", "c2_diagnosis", "data_context"):
-        if sec not in data:
-            all_errors.append(f"Missing required top-level section: '{sec}'.")
+    # Support upstream orchestration wrapper and section alias names
+    norm_data = dict(data)
+    if "upstream" in norm_data and isinstance(norm_data["upstream"], dict):
+        for k, v in norm_data["upstream"].items():
+            if k not in norm_data:
+                norm_data[k] = v
+
+    c1_raw = norm_data.get("c1_evidence") or norm_data.get("c1")
+    c2_raw = norm_data.get("c2_diagnosis") or norm_data.get("c2_to_c3") or norm_data.get("c2")
+    dc_raw = norm_data.get("data_context") or norm_data.get("context")
+
+    c1_contract = None
+    c2_contract = None
+    dc_contract = None
+
+    if c1_raw is None:
+        all_errors.append("Missing required top-level section: 'c1_evidence' (or 'c1').")
+    else:
+        _, c1_errs, c1_contract = validate_c1_evidence(c1_raw)
+        all_errors.extend(c1_errs)
+
+    if c2_raw is None:
+        all_errors.append("Missing required top-level section: 'c2_diagnosis' (or 'c2_to_c3').")
+    else:
+        _, c2_errs, c2_contract = validate_c2_diagnosis(c2_raw)
+        all_errors.extend(c2_errs)
+
+    if dc_raw is None:
+        all_errors.append("Missing required top-level section: 'data_context' (or 'context').")
+    else:
+        # Allow data_context to inherit pass-through fields from c1 if omitted in context
+        if isinstance(dc_raw, dict) and isinstance(c1_raw, dict):
+            dc_copy = dict(dc_raw)
+            for passthrough_key in ("model_id", "dataset_id", "reference_dataset_uri", "current_dataset_uri"):
+                if passthrough_key not in dc_copy and passthrough_key in c1_raw:
+                    dc_copy[passthrough_key] = c1_raw[passthrough_key]
+            dc_raw = dc_copy
+
+        _, dc_errs, dc_contract = validate_data_context(dc_raw)
+        all_errors.extend(dc_errs)
 
     if all_errors:
-        return False, all_errors, None
-
-    c1_ok, c1_errs, c1_contract = validate_c1_evidence(data["c1_evidence"])
-    c2_ok, c2_errs, c2_contract = validate_c2_diagnosis(data["c2_diagnosis"])
-    dc_ok, dc_errs, dc_contract = validate_data_context(data["data_context"])
-
-    all_errors.extend(c1_errs)
-    all_errors.extend(c2_errs)
-    all_errors.extend(dc_errs)
-
-    if not (c1_ok and c2_ok and dc_ok):
         return False, all_errors, None
 
     container = ThreeSectionRepairInput(
@@ -409,47 +583,53 @@ def resolve_data_context_artifacts(
 ) -> tuple[bool, list[str], dict[str, Path]]:
     """Verify physical presence of referenced dataset and preprocessor paths on disk.
     
+    Guarantees that paths are strictly located in authorized platform directories
+    and cannot escape via symlinks or directory traversal.
+    
     Returns (success, missing_errors, resolved_paths_dict).
     """
     errors: list[str] = []
     resolved: dict[str, Path] = {}
 
     # 1. Reference dataset
-    ref_p = Path(data_context.reference_dataset_uri)
-    if not ref_p.is_absolute():
-        ref_p = repo_root / ref_p
-    if not ref_p.is_file():
-        errors.append(
-            f"Reference dataset not found at URI '{data_context.reference_dataset_uri}' "
-            f"(resolved: {ref_p})."
-        )
-    else:
-        resolved["reference_dataset"] = ref_p
-
-    # 2. Current dataset
-    cur_p = Path(data_context.current_dataset_uri)
-    if not cur_p.is_absolute():
-        cur_p = repo_root / cur_p
-    if not cur_p.is_file():
-        errors.append(
-            f"Current drifted dataset not found at URI '{data_context.current_dataset_uri}' "
-            f"(resolved: {cur_p})."
-        )
-    else:
-        resolved["current_dataset"] = cur_p
-
-    # 3. Preprocessor / script (optional but if provided, must exist)
-    if data_context.preprocessing_uri:
-        prep_p = Path(data_context.preprocessing_uri)
-        if not prep_p.is_absolute():
-            prep_p = repo_root / prep_p
-        if not prep_p.is_file():
+    ok_ref, err_ref, ref_p = verify_path_authorization(data_context.reference_dataset_uri, "datasets")
+    if not ok_ref and err_ref:
+        errors.append(err_ref)
+    elif ref_p is not None:
+        if not ref_p.is_file():
             errors.append(
-                f"Preprocessing artifact not found at URI '{data_context.preprocessing_uri}' "
-                f"(resolved: {prep_p})."
+                f"Reference dataset not found at URI '{data_context.reference_dataset_uri}' "
+                f"(resolved: {ref_p}). Component 3 will not silently substitute another dataset."
             )
         else:
-            resolved["preprocessing"] = prep_p
+            resolved["reference_dataset"] = ref_p
+
+    # 2. Current dataset
+    ok_cur, err_cur, cur_p = verify_path_authorization(data_context.current_dataset_uri, "datasets")
+    if not ok_cur and err_cur:
+        errors.append(err_cur)
+    elif cur_p is not None:
+        if not cur_p.is_file():
+            errors.append(
+                f"Current drifted dataset not found at URI '{data_context.current_dataset_uri}' "
+                f"(resolved: {cur_p}). Component 3 will not silently substitute another dataset."
+            )
+        else:
+            resolved["current_dataset"] = cur_p
+
+    # 3. Preprocessor / script (optional but if provided, must exist and be authorized)
+    if data_context.preprocessing_uri:
+        ok_prep, err_prep, prep_p = verify_path_authorization(data_context.preprocessing_uri, "models")
+        if not ok_prep and err_prep:
+            errors.append(err_prep)
+        elif prep_p is not None:
+            if not prep_p.is_file():
+                errors.append(
+                    f"Preprocessing artifact not found at URI '{data_context.preprocessing_uri}' "
+                    f"(resolved: {prep_p})."
+                )
+            else:
+                resolved["preprocessing"] = prep_p
 
     return (len(errors) == 0), errors, resolved
 
@@ -479,7 +659,7 @@ C4_FLAT_CONTRACT_JSON_SCHEMA = {
     "properties": {
         "repair_dataset_uri": {"type": "string"},
         "repair_package_status": {"type": "string", "enum": ["APPROVED", "REJECTED"]},
-        "generator": {"type": "string", "enum": ["CTGAN", "TVAE", "TabDDPM", "NONE"]},
+        "generator": {"type": "string", "enum": ["CTGAN", "TVAE", "TabDDPM"]},
         "n_synthetic_rows": {"type": "integer", "minimum": 0},
         "augmentation_ratio": {"type": "number", "minimum": 0.0, "maximum": 1.0},
         "fidelity_score": {"type": "number", "minimum": 0.0, "maximum": 1.0},
@@ -495,40 +675,25 @@ C4_FLAT_CONTRACT_JSON_SCHEMA = {
 
 
 def validate_c4_flat_contract(payload: dict[str, Any]) -> tuple[bool, list[str]]:
-    """Validate flat 12-field dictionary against C4 schema requirements."""
+    """Validate flat 12-field dictionary against C4 schema requirements.
+    
+    Performs full Draft-7 JSON Schema validation against shared/contracts/c3_output_schema.json specification.
+    """
     errors: list[str] = []
-    required_keys = C4_FLAT_CONTRACT_JSON_SCHEMA["required"]
+    
+    # 1. Official JSON Schema validation
+    try:
+        jsonschema.validate(instance=payload, schema=C4_FLAT_CONTRACT_JSON_SCHEMA)
+    except jsonschema.ValidationError as ve:
+        prop = list(ve.path)[0] if ve.path else "payload"
+        errors.append(f"JSONSchema validation error for '{prop}': {ve.message}")
+    except Exception as e:
+        errors.append(f"JSONSchema validator failure: {e}")
 
+    # 2. Strict field existence check
+    required_keys = C4_FLAT_CONTRACT_JSON_SCHEMA["required"]
     missing = [k for k in required_keys if k not in payload]
     if missing:
         errors.append(f"Missing required fields: {missing}")
-        return False, errors
-
-    # Check field types and value constraints
-    status = payload.get("repair_package_status")
-    if status not in ("APPROVED", "REJECTED"):
-        errors.append(f"repair_package_status must be 'APPROVED' or 'REJECTED', got '{status}'.")
-
-    gen = payload.get("generator")
-    if gen not in ("CTGAN", "TVAE", "TabDDPM", "NONE"):
-        errors.append(f"generator must be CTGAN, TVAE, TabDDPM, or NONE, got '{gen}'.")
-
-    n_rows = payload.get("n_synthetic_rows")
-    if not isinstance(n_rows, int) or n_rows < 0:
-        errors.append(f"n_synthetic_rows must be integer >= 0, got {n_rows}.")
-
-    for flt_field in ("augmentation_ratio", "fidelity_score", "utility_score", "target_coverage", "prescription_confidence"):
-        val = payload.get(flt_field)
-        if not isinstance(val, (int, float)) or not (0.0 <= float(val) <= 1.0):
-            errors.append(f"{flt_field} must be float between 0.0 and 1.0, got {val}.")
-
-    priv = payload.get("privacy_status")
-    if priv not in ("PASS", "FAIL"):
-        errors.append(f"privacy_status must be 'PASS' or 'FAIL', got '{priv}'.")
-
-    for str_field in ("repair_dataset_uri", "repair_version", "repair_timestamp"):
-        s_val = payload.get(str_field)
-        if not isinstance(s_val, str) or not s_val.strip():
-            errors.append(f"{str_field} must be a non-empty string.")
 
     return (len(errors) == 0), errors
