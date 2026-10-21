@@ -104,13 +104,20 @@ class RepairOrchestrator:
         out_dir = Path(output_directory)
         resolved_out = out_dir.resolve()
         comp3_root = (REPO_ROOT / "component3").resolve()
-        try:
-            resolved_out.relative_to(comp3_root)
-        except ValueError:
-            import tempfile
-            temp_dir = Path(tempfile.gettempdir()).resolve()
-            if not resolved_out.is_relative_to(temp_dir):
-                raise InvalidRepairRequestError(f"Output directory '{resolved_out}' is outside component3 root.")
+        shared_root = (REPO_ROOT / "shared").resolve()
+        from component3.src.utils.artifact_storage import get_configured_storage_root
+        configured_root = get_configured_storage_root()
+        import tempfile
+        temp_dir = Path(tempfile.gettempdir()).resolve()
+
+        is_allowed = (
+            resolved_out.is_relative_to(comp3_root)
+            or resolved_out.is_relative_to(shared_root)
+            or resolved_out.is_relative_to(configured_root)
+            or resolved_out.is_relative_to(temp_dir)
+        )
+        if not is_allowed:
+            raise InvalidRepairRequestError(f"Output directory '{resolved_out}' is outside allowed storage roots.")
         out_dir.mkdir(parents=True, exist_ok=True)
 
         exec_log = OrchestratorExecutionLog(
@@ -536,6 +543,7 @@ class RepairOrchestrator:
                 "search_history": quantity_plan_res.search_history if quantity_plan_res else [],
                 "decision_mode": prescription.decision_mode.value,
                 "predicted_delta_f1": prescription.predicted_delta_f1,
+                "evidence_strength": prescription.evidence_strength.value,
             },
         )
 

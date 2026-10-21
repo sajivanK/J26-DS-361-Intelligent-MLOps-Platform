@@ -1,0 +1,38 @@
+{
+  "validation_passed": true,
+  "validation_errors": [],
+  "c1_interpreted": {
+    "predicted_accuracy_drop": 14.2,
+    "predicted_harm_proportion": 0.142,
+    "confidence_interval": [
+      10.9,
+      17.5
+    ],
+    "drift_type": "interaction",
+    "drift_severity": "high",
+    "is_drift_detected": true,
+    "affected_features": [
+      "education_num",
+      "occupation"
+    ]
+  },
+  "c2_interpreted": {
+    "root_cause_feature": "education_num",
+    "normalized_slice_rule": "education_num > 12 and occupation == 'Tech-support'",
+    "ranked_features": [
+      "education_num",
+      "occupation",
+      "age"
+    ],
+    "slice_support": 0.18,
+    "diagnosis_stability": 0.85,
+    "drift_impact_score": 0.72
+  },
+  "data_context_preserved": {
+    "model_id": "champion-v12",
+    "dataset_id": "adult-v1",
+    "reference_dataset_uri": "shared/uci_adult/data/reference.csv",
+    "current_dataset_uri": "shared/uci_adult/data/current.csv",
+    "target_column": "income"
+  }
+}

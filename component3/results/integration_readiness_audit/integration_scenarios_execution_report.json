@@ -1,0 +1,98 @@
+{
+  "timestamp_utc": "2026-10-20T20:07:51Z",
+  "scenarios": {
+    "scenario_1_valid_repair": {
+      "status": "APPROVED_FOR_REVIEW",
+      "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+      "quantity": 25,
+      "target_delta_f1": 0.0123,
+      "source_delta_f1": 0.0074,
+      "privacy_status": "PASS",
+      "candidate_model_exists": true,
+      "candidate_data_exists": true,
+      "manifest_saved": true
+    },
+    "scenario_2_no_drift": {
+      "status": "ABSTAINED_NO_REPAIR",
+      "strategy": "NO_REPAIR",
+      "quantity": 0,
+      "is_safe_abstention": true
+    },
+    "scenario_3_invalid_request": {
+      "validation_error_caught": true,
+      "error_message": "request_id must be a non-empty string."
+    },
+    "scenario_4_invalid_diagnosis": {
+      "status": "APPROVED_FOR_REVIEW",
+      "strategy_chosen": "SYNTHETIC_WEIGHTED_HYBRID",
+      "rejection_reasons": [],
+      "safe_handling": true
+    },
+    "scenario_5_poor_quality": {
+      "status": "REJECTED",
+      "is_rejected": true,
+      "rejection_reasons": [
+        "Candidate validation rejected at K=25: [\"Fidelity validation failed: ['Mean KS statistic (0.805) exceeds threshold (0.350)']\"]",
+        "Candidate validation rejected at K=50: [\"Fidelity validation failed: ['Mean KS statistic (0.772) exceeds threshold (0.350)']\"]",
+        "Candidate validation rejected at K=100: [\"Fidelity validation failed: ['Mean KS statistic (0.445) exceeds threshold (0.350)']\"]",
+        "Candidate validation rejected at K=200: [\"Fidelity validation failed: ['Mean KS statistic (0.475) exceeds threshold (0.350)']\"]"
+      ]
+    },
+    "scenario_6_insufficient_utility": {
+      "status": "REJECTED",
+      "is_rejected": true,
+      "rejection_reasons": [
+        "Retraining evaluation rejected at K=25: ['Target adaptation performance gain (+0.0055) is below minimum practical utility margin (+0.0100) vs baseline.']",
+        "Retraining evaluation rejected at K=50: ['Target adaptation performance gain (+0.0000) is below minimum practical utility margin (+0.0100) vs baseline.']",
+        "Candidate validation rejected at K=100: [\"Fidelity validation failed: ['Mean KS statistic (0.468) exceeds threshold (0.350)']\"]",
+        "Candidate validation rejected at K=200: [\"Fidelity validation failed: ['Mean KS statistic (0.383) exceeds threshold (0.350)']\"]"
+      ]
+    },
+    "scenario_7_source_retention": {
+      "status": "REJECTED",
+      "is_rejected": true,
+      "source_retention_preserved": false,
+      "source_delta": null,
+      "rejection_reasons": [
+        "Candidate validation rejected at K=25: ['Synthetic columns do not match expected columns']",
+        "Candidate validation rejected at K=50: ['Synthetic columns do not match expected columns']",
+        "Candidate validation rejected at K=100: ['Continuous feature is not numeric: TotalCharges']",
+        "Candidate validation rejected at K=200: ['Continuous feature is not numeric: TotalCharges']"
+      ]
+    },
+    "scenario_8_missing_model": {
+      "status": "FAILED",
+      "execution_status": "FAILED",
+      "controlled_error": true
+    },
+    "scenario_9_learned_model": {
+      "model_loaded": true,
+      "in_dist_ood_flag": false,
+      "ood_dist_ood_flag": true,
+      "ood_reasons_count": 5,
+      "in_dist_recommended_strategy": "NO_REPAIR",
+      "in_dist_predicted_utility": 0.0,
+      "fallback_triggered_on_ood": true
+    },
+    "scenario_10_c4_export": {
+      "package_id": "PKG-668EA690F090",
+      "status": "APPROVED_FOR_REVIEW",
+      "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+      "candidate_model_sha256": "838aac29d7fa30763fe3ead022458893137775ec03401c3248a118a988e2c0f8",
+      "candidate_data_sha256": "d21750695619feab99c031e2ee0b5fabc9bb76a651985a21501b62d47ab38f1c",
+      "frozen_c3_schema_required_fields": 12,
+      "fields_present_in_c4_review_payload": 0,
+      "requires_adapter_alignment": true
+    }
+  },
+  "sensitivity_tests": {
+    "drift_type_sensitive": true,
+    "drift_action": "SYNTHETIC_WEIGHTED_HYBRID",
+    "no_drift_action": "NO_REPAIR",
+    "budget_sensitive": true,
+    "qty_b50": 0,
+    "qty_b200": 50,
+    "slice_strategy_recommended": "TARGETED_SYNTHETIC_REPAIR",
+    "has_diagnostic_slice": true
+  }
+}

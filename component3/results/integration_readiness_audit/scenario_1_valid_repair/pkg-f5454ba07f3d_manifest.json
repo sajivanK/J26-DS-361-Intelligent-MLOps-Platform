@@ -1,0 +1,129 @@
+{
+  "package_id": "PKG-F5454BA07F3D",
+  "schema_version": "1.0.0",
+  "request_id": "REQ-SCENARIO-01-VALID",
+  "run_id": "RUN-A1C090BC75",
+  "created_at_utc": "2026-10-20T19:56:54.376502+00:00",
+  "dataset_id": "telco_churn",
+  "model_id": "telco_rf_experimental_source",
+  "drift_summary": {
+    "drift_detected": true,
+    "drift_type": "CONCEPT_DRIFT",
+    "drift_severity": "HIGH",
+    "severity_score": 0.75
+  },
+  "diagnostic_summary": {
+    "slice_id": "SLICE-VALID-001",
+    "slice_predicate": "tenure < 12",
+    "affected_features": [
+      "tenure",
+      "MonthlyCharges"
+    ],
+    "reported_slice_support": 0.25,
+    "diagnostic_confidence": 0.85,
+    "provenance": "COMPONENT_2_DIAGNOSIS",
+    "is_non_oracle": true
+  },
+  "chosen_strategy": "TARGETED_SYNTHETIC_REPAIR",
+  "generator_info": {
+    "generator": "tvae",
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 2.0
+    }
+  },
+  "quantity_selected": 0,
+  "candidate_dataset_path": null,
+  "candidate_dataset_sha256": null,
+  "candidate_model_path": null,
+  "candidate_model_sha256": null,
+  "validation_report": {},
+  "fidelity_indicators": {},
+  "privacy_risk_indicators": {},
+  "utility_metrics": {},
+  "source_retention_metrics": {
+    "source_f1": null,
+    "source_delta": null,
+    "source_retention_delta": null,
+    "source_retention_preserved": false,
+    "evidence_status": "MISSING_EVIDENCE"
+  },
+  "execution_status": "COMPLETED",
+  "package_status": "REJECTED",
+  "rejection_reasons": [
+    "Candidate validation rejected at K=25: [\"Fidelity validation failed: ['Mean KS statistic (0.559) exceeds threshold (0.350)']\"]",
+    "Candidate validation rejected at K=50: [\"Fidelity validation failed: ['Mean KS statistic (0.572) exceeds threshold (0.350)']\"]",
+    "Candidate validation rejected at K=100: [\"Utility evaluation failed (negative transfer or degradation): ['Affected slice F1 delta (-0.0232) is below minimum threshold (-0.0200)']\"]",
+    "Candidate validation rejected at K=200: [\"Fidelity validation failed: ['Mean KS statistic (0.446) exceeds threshold (0.350)']\"]"
+  ],
+  "evidence_limitations": [
+    "Exploratory pilot evidence only; does not claim verified real-world drift recovery.",
+    "Candidate labels reflect generative distribution modeling, not observational ground truth.",
+    "Candidate model requires explicit human sign-off prior to production deployment."
+  ],
+  "requires_human_approval": true,
+  "downstream_handoff_metadata": {
+    "pre_decision_features": {
+      "dataset_id": "telco_churn",
+      "total_features_count": 19,
+      "numerical_features_count": 3,
+      "categorical_features_count": 16,
+      "drift_detected": true,
+      "drift_type": "CONCEPT_DRIFT",
+      "drift_severity": "HIGH",
+      "drift_severity_score": 0.75,
+      "affected_features_count": 2,
+      "diagnostic_slice_identified": true,
+      "diagnostic_slice_support": 0.25,
+      "has_authentic_adaptation_labels": true,
+      "adaptation_budget_size": 200,
+      "source_retention_tolerance": 0.05,
+      "repair_objective": "BALANCED_RETENTION",
+      "max_cpu_cores": 2,
+      "max_memory_mb": 4096.0,
+      "max_runtime_seconds": 300.0
+    },
+    "governance_checks_passed": [
+      "GATE_1_REQUEST_VALIDATION",
+      "GATE_2_DRIFT_SEVERITY_VERIFIED",
+      "GATE_3_AUTHENTIC_LABELS_AVAILABLE",
+      "GATE_4_SOURCE_MODEL_COMPATIBILITY",
+      "GATE_5_RESOURCE_LIMITS_CHECKED",
+      "GATE_6_BUDGET_SUFFICIENCY_CHECKED",
+      "GATE_7_TARGETED_SLICE_ELIGIBLE"
+    ],
+    "search_history": [
+      {
+        "quantity": 25,
+        "status": "VALIDATION_REJECTED",
+        "reasons": [
+          "Fidelity validation failed: ['Mean KS statistic (0.559) exceeds threshold (0.350)']"
+        ]
+      },
+      {
+        "quantity": 50,
+        "status": "VALIDATION_REJECTED",
+        "reasons": [
+          "Fidelity validation failed: ['Mean KS statistic (0.572) exceeds threshold (0.350)']"
+        ]
+      },
+      {
+        "quantity": 100,
+        "status": "VALIDATION_REJECTED",
+        "reasons": [
+          "Utility evaluation failed (negative transfer or degradation): ['Affected slice F1 delta (-0.0232) is below minimum threshold (-0.0200)']"
+        ]
+      },
+      {
+        "quantity": 200,
+        "status": "VALIDATION_REJECTED",
+        "reasons": [
+          "Fidelity validation failed: ['Mean KS statistic (0.446) exceeds threshold (0.350)']"
+        ]
+      }
+    ],
+    "decision_mode": "RULE_BASED",
+    "predicted_delta_f1": null
+  }
+}

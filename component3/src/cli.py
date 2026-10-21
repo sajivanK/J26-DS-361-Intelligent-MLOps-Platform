@@ -29,10 +29,13 @@ COMPONENT3_ROOT = REPO_ROOT / "component3"
 
 from component3.src.api import (
     check_system_readiness,
+    execute_contract_repair,
     execute_repair,
+    export_c4_flat_contract,
     inspect_package,
     inspect_repair_status,
     inspect_validation_results,
+    validate_external_contract,
     validate_repair_request,
     view_prescription_reasoning,
 )
@@ -68,13 +71,14 @@ def main(argv: list[str] | None = None) -> int:
     subparsers = parser.add_subparsers(dest="command", help="Available subcommands")
 
     # 1. validate-request
-    p_val = subparsers.add_parser("validate-request", help="Validate a RepairRequest JSON")
-    p_val.add_argument("--request-json", required=True, help="Path to RepairRequest JSON")
+    p_val = subparsers.add_parser("validate-request", help="Validate a RepairRequest or multi-component JSON")
+    p_val.add_argument("--request-json", "--input", dest="request_json", required=True, help="Path to input JSON")
 
     # 2. run-repair
     p_run = subparsers.add_parser("run-repair", help="Execute an end-to-end model repair")
-    p_run.add_argument("--request-json", required=True, help="Path to RepairRequest JSON")
+    p_run.add_argument("--request-json", "--input", dest="request_json", required=True, help="Path to input JSON")
     p_run.add_argument("--output-dir", default=None, help="Output directory restricted to component3/")
+    p_run.add_argument("--output-c4", default=None, help="Path to export flat 12-field C4 contract JSON")
     p_run.add_argument(
         "--decision-mode",
         choices=["rule_based", "learned"],
@@ -82,13 +86,20 @@ def main(argv: list[str] | None = None) -> int:
         help="Prescription decision engine mode (rule_based or learned)",
     )
 
+    # 2B. contract-repair (Dedicated multi-component C1->C2->C3->C4 command)
+    p_crep = subparsers.add_parser("contract-repair", help="Execute contract repair with flat C4 export")
+    p_crep.add_argument("--input", "--request-json", dest="request_json", required=True, help="Path to 3-section input JSON")
+    p_crep.add_argument("--output", "--output-c4", dest="output_c4", default=None, help="Path to export flat C4 JSON")
+    p_crep.add_argument("--output-dir", default=None, help="Output directory for artifacts")
+    p_crep.add_argument("--decision-mode", choices=["rule_based", "learned"], default="rule_based")
+
     # 3. inspect-status
     p_stat = subparsers.add_parser("inspect-status", help="Inspect status of a saved repair package")
     p_stat.add_argument("--package-path", required=True, help="Path to RepairPackage manifest JSON")
 
     # 4. view-prescription
     p_pres = subparsers.add_parser("view-prescription", help="Evaluate prescription rules for a request")
-    p_pres.add_argument("--request-json", required=True, help="Path to RepairRequest JSON")
+    p_pres.add_argument("--request-json", "--input", dest="request_json", required=True, help="Path to RepairRequest JSON")
     p_pres.add_argument(
         "--decision-mode",
         choices=["rule_based", "learned"],
@@ -124,30 +135,41 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(res, indent=2))
             return 0 if res.get("valid") else 1
 
-        elif args.command == "run-repair":
+        elif args.command in ("run-repair", "contract-repair"):
             out_dir = _validate_output_directory(args.output_dir)
-            pkg, log = execute_repair(
-                args.request_json,
-                output_directory=out_dir,
-                decision_mode=args.decision_mode,
-            )
-            summary = {
-                "package_id": pkg.package_id,
-                "request_id": pkg.request_id,
-                "run_id": pkg.run_id,
-                "chosen_strategy": pkg.chosen_strategy,
-                "quantity_selected": pkg.quantity_selected,
-                "package_status": pkg.package_status.value,
-                "execution_status": pkg.execution_status,
-                "rejection_reasons": list(pkg.rejection_reasons),
-                "output_directory": str(out_dir),
-                "manifest_path": log.package_path,
-            }
-            print(json.dumps(summary, indent=2))
-            return 0 if pkg.package_status in (
-                RepairPackageStatus.APPROVED_FOR_REVIEW,
-                RepairPackageStatus.ABSTAINED_NO_REPAIR,
-            ) else 1
+            out_c4 = getattr(args, "output_c4", None)
+            if args.command == "contract-repair" or out_c4:
+                c4_dict, pkg, log = execute_contract_repair(
+                    args.request_json,
+                    output_c4_path=out_c4,
+                    output_directory=out_dir,
+                    decision_mode=args.decision_mode,
+                )
+                print(json.dumps(c4_dict, indent=2))
+                return 0 if c4_dict.get("repair_package_status") == "APPROVED" else 1
+            else:
+                pkg, log = execute_repair(
+                    args.request_json,
+                    output_directory=out_dir,
+                    decision_mode=args.decision_mode,
+                )
+                summary = {
+                    "package_id": pkg.package_id,
+                    "request_id": pkg.request_id,
+                    "run_id": pkg.run_id,
+                    "chosen_strategy": pkg.chosen_strategy,
+                    "quantity_selected": pkg.quantity_selected,
+                    "package_status": pkg.package_status.value,
+                    "execution_status": pkg.execution_status,
+                    "rejection_reasons": list(pkg.rejection_reasons),
+                    "output_directory": str(out_dir),
+                    "manifest_path": log.package_path,
+                }
+                print(json.dumps(summary, indent=2))
+                return 0 if pkg.package_status in (
+                    RepairPackageStatus.APPROVED_FOR_REVIEW,
+                    RepairPackageStatus.ABSTAINED_NO_REPAIR,
+                ) else 1
 
         elif args.command == "inspect-status":
             res = inspect_repair_status(args.package_path)

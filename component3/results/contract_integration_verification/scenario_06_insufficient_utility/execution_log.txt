@@ -1,0 +1,8 @@
+Scenario 6: Insufficient Utility Improvement Verification
+Timestamp: 2026-10-20T21:01:01.649809+00:00
+Package Status: REJECTED
+C4 Status: REJECTED
+Rejection Reasons: ('Target utility degraded (-0.12 F1 delta) compared to unadapted model.',)
+Correctly Marked REJECTED: True
+C4 Schema Valid: True
+Verdict: PASS (Negative/insufficient utility candidates are never approved)

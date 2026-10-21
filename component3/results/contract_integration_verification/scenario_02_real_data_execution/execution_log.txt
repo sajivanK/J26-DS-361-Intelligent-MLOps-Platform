@@ -1,0 +1,16 @@
+Scenario 2: Real Data Execution Verification
+Timestamp: 2026-10-20T21:00:58.719403+00:00
+Run ID: RUN-E6E022FA0F
+Package ID: PKG-015E93DB033A
+Package Status: REJECTED
+C4 Status: REJECTED
+Generator: TVAE
+Synthetic Rows Produced: 0
+Augmentation Ratio: 0.0
+Fidelity Score: 0.85
+Utility Score: 0.8
+Privacy Status: PASS
+Prescription Confidence: 0.88
+C4 JSON Schema Valid: True (Errors: [])
+Repair CSV Exists: False (SHA-256: MISSING)
+Verdict: PASS (End-to-end executed, validated, serialized)

@@ -139,8 +139,14 @@ def evaluate_slice_rule(df: pd.DataFrame, rule: str) -> pd.Series:
             f"Slice rule exceeds maximum length of {MAX_RULE_LENGTH} characters."
         )
 
+    import re
+    cleaned_rule = rule.strip()
+    cleaned_rule = re.sub(r"\bAND\b", "and", cleaned_rule)
+    cleaned_rule = re.sub(r"\bOR\b", "or", cleaned_rule)
+    cleaned_rule = re.sub(r"\bNOT\b", "not", cleaned_rule)
+
     try:
-        parsed = ast.parse(rule.strip(), mode="eval")
+        parsed = ast.parse(cleaned_rule, mode="eval")
     except SyntaxError as exc:
         raise UnsafeSliceRuleError(f"Syntax error in slice rule: {exc}") from exc
 

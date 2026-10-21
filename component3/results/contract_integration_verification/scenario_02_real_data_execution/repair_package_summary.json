@@ -1,0 +1,19 @@
+{
+  "package_id": "PKG-015E93DB033A",
+  "run_id": "RUN-E6E022FA0F",
+  "package_status": "REJECTED",
+  "chosen_strategy": "TARGETED_SYNTHETIC_REPAIR",
+  "quantity_selected": 0,
+  "validation_passed": false,
+  "repair_dataset_path": null,
+  "fidelity_indicators": {},
+  "privacy_risk_indicators": {},
+  "utility_metrics": {},
+  "retention_metrics": {
+    "source_f1": null,
+    "source_delta": null,
+    "source_retention_delta": null,
+    "source_retention_preserved": false,
+    "evidence_status": "MISSING_EVIDENCE"
+  }
+}

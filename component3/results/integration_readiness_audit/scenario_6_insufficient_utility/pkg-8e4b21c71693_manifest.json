@@ -1,0 +1,125 @@
+{
+  "package_id": "PKG-8E4B21C71693",
+  "schema_version": "1.0.0",
+  "request_id": "REQ-SCENARIO-06-LOW-UTIL",
+  "run_id": "RUN-53C85366D9",
+  "created_at_utc": "2026-10-20T20:01:24.449120+00:00",
+  "dataset_id": "telco_churn",
+  "model_id": "telco_rf_experimental_source",
+  "drift_summary": {
+    "drift_detected": true,
+    "drift_type": "CONCEPT_DRIFT",
+    "drift_severity": "HIGH",
+    "severity_score": 0.65
+  },
+  "diagnostic_summary": {},
+  "chosen_strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+  "generator_info": {
+    "generator": "tvae",
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 2.0
+    }
+  },
+  "quantity_selected": 0,
+  "candidate_dataset_path": null,
+  "candidate_dataset_sha256": null,
+  "candidate_model_path": null,
+  "candidate_model_sha256": null,
+  "validation_report": {},
+  "fidelity_indicators": {},
+  "privacy_risk_indicators": {},
+  "utility_metrics": {},
+  "source_retention_metrics": {
+    "source_f1": null,
+    "source_delta": null,
+    "source_retention_delta": null,
+    "source_retention_preserved": false,
+    "evidence_status": "MISSING_EVIDENCE"
+  },
+  "execution_status": "COMPLETED",
+  "package_status": "REJECTED",
+  "rejection_reasons": [
+    "Retraining evaluation rejected at K=25: ['Target adaptation performance gain (+0.0055) is below minimum practical utility margin (+0.0100) vs baseline.']",
+    "Retraining evaluation rejected at K=50: ['Target adaptation performance gain (+0.0000) is below minimum practical utility margin (+0.0100) vs baseline.']",
+    "Candidate validation rejected at K=100: [\"Fidelity validation failed: ['Mean KS statistic (0.490) exceeds threshold (0.350)']\"]",
+    "Candidate validation rejected at K=200: [\"Fidelity validation failed: ['Mean KS statistic (0.482) exceeds threshold (0.350)']\"]"
+  ],
+  "evidence_limitations": [
+    "Exploratory pilot evidence only; does not claim verified real-world drift recovery.",
+    "Candidate labels reflect generative distribution modeling, not observational ground truth.",
+    "Candidate model requires explicit human sign-off prior to production deployment."
+  ],
+  "requires_human_approval": true,
+  "downstream_handoff_metadata": {
+    "pre_decision_features": {
+      "dataset_id": "telco_churn",
+      "total_features_count": 19,
+      "numerical_features_count": 3,
+      "categorical_features_count": 16,
+      "drift_detected": true,
+      "drift_type": "CONCEPT_DRIFT",
+      "drift_severity": "HIGH",
+      "drift_severity_score": 0.65,
+      "affected_features_count": 1,
+      "diagnostic_slice_identified": false,
+      "diagnostic_slice_support": null,
+      "has_authentic_adaptation_labels": true,
+      "adaptation_budget_size": 200,
+      "source_retention_tolerance": 0.05,
+      "repair_objective": "BALANCED_RETENTION",
+      "max_cpu_cores": 2,
+      "max_memory_mb": 4096.0,
+      "max_runtime_seconds": 300.0
+    },
+    "governance_checks_passed": [
+      "GATE_1_REQUEST_VALIDATION",
+      "GATE_2_DRIFT_SEVERITY_VERIFIED",
+      "GATE_3_AUTHENTIC_LABELS_AVAILABLE",
+      "GATE_4_SOURCE_MODEL_COMPATIBILITY",
+      "GATE_5_RESOURCE_LIMITS_CHECKED",
+      "GATE_6_BUDGET_SUFFICIENCY_CHECKED",
+      "GATE_7_TARGETED_REPAIR_EVALUATED",
+      "GATE_8_GENERATOR_FEASIBILITY_VERIFIED",
+      "GATE_9_SOURCE_RETENTION_CONSTRAINED",
+      "GATE_10_STRATEGY_DECIDED"
+    ],
+    "search_history": [
+      {
+        "quantity": 25,
+        "status": "RETRAINING_REJECTED",
+        "reasons": [
+          "Target adaptation performance gain (+0.0055) is below minimum practical utility margin (+0.0100) vs baseline."
+        ],
+        "delta_target_f1": 0.0055,
+        "source_delta": -0.0041
+      },
+      {
+        "quantity": 50,
+        "status": "RETRAINING_REJECTED",
+        "reasons": [
+          "Target adaptation performance gain (+0.0000) is below minimum practical utility margin (+0.0100) vs baseline."
+        ],
+        "delta_target_f1": 0.0,
+        "source_delta": -0.0144
+      },
+      {
+        "quantity": 100,
+        "status": "VALIDATION_REJECTED",
+        "reasons": [
+          "Fidelity validation failed: ['Mean KS statistic (0.490) exceeds threshold (0.350)']"
+        ]
+      },
+      {
+        "quantity": 200,
+        "status": "VALIDATION_REJECTED",
+        "reasons": [
+          "Fidelity validation failed: ['Mean KS statistic (0.482) exceeds threshold (0.350)']"
+        ]
+      }
+    ],
+    "decision_mode": "RULE_BASED",
+    "predicted_delta_f1": null
+  }
+}

@@ -19,6 +19,15 @@ if str(REPO_ROOT) not in sys.path:
 
 COMPONENT3_ROOT = REPO_ROOT / "component3"
 
+from component3.src.adapters.c1_drift_adapter import C1DriftAdapter
+from component3.src.adapters.c2_diagnosis_adapter import C2DiagnosisAdapter
+from component3.src.adapters.c4_retraining_adapter import C4RetrainingAdapter
+from component3.src.contracts.external_contracts import (
+    ContractValidationError,
+    DependencyResolutionError,
+    validate_c4_flat_contract,
+    validate_three_section_contract,
+)
 from component3.src.contracts.repair_package import RepairPackage, RepairPackageStatus
 from component3.src.contracts.repair_request import (
     DriftSeverity,
@@ -47,9 +56,13 @@ from component3.src.prescription.prescription_models import (
 logger = logging.getLogger(__name__)
 
 
-
 def _parse_request(raw_request: RepairRequest | dict[str, Any] | str | Path) -> RepairRequest:
-    """Helper to deserialize various inputs into a validated RepairRequest."""
+    """Helper to deserialize various inputs into a validated RepairRequest.
+    
+    Supports both:
+    1. Modern 3-section contract: {c1_evidence, c2_diagnosis, data_context}
+    2. Legacy flat RepairRequest dictionary / instance
+    """
     if isinstance(raw_request, RepairRequest):
         return raw_request
 
@@ -64,7 +77,100 @@ def _parse_request(raw_request: RepairRequest | dict[str, Any] | str | Path) -> 
     else:
         raise TypeError(f"Unsupported request type: {type(raw_request)}")
 
-    # Parse diagnostic slice if present
+    # -------------------------------------------------------------------------
+    # Branch A: Agreed Three-Section Multi-Component Contract
+    # -------------------------------------------------------------------------
+    if "c1_evidence" in data or "c2_diagnosis" in data or "data_context" in data:
+        ok, errs, container = validate_three_section_contract(data)
+        if not ok or container is None:
+            raise ContractValidationError(f"Invalid external contract payload: {errs}")
+
+        dc = container.data_context
+        c1 = container.c1_evidence
+        c2 = container.c2_diagnosis
+
+        # Dependency resolution - strict non-substitution checks
+        ref_p = Path(dc.reference_dataset_uri)
+        if not ref_p.is_absolute():
+            ref_p = REPO_ROOT / ref_p
+        if not ref_p.is_file():
+            raise DependencyResolutionError(
+                f"Reference dataset not found at URI '{dc.reference_dataset_uri}' (resolved: '{ref_p}'). "
+                "Component 3 will not silently substitute another dataset."
+            )
+
+        cur_p = Path(dc.current_dataset_uri)
+        if not cur_p.is_absolute():
+            cur_p = REPO_ROOT / cur_p
+        if not cur_p.is_file():
+            raise DependencyResolutionError(
+                f"Current drifted dataset not found at URI '{dc.current_dataset_uri}' (resolved: '{cur_p}'). "
+                "Component 3 will not silently substitute another dataset."
+            )
+
+        # Model resolution - check ModelRegistry or physical path
+        model_reg = get_model_registry()
+        if model_reg.has(dc.model_id):
+            model_entry = model_reg.get(dc.model_id)
+            src_model_p = model_entry.model_path
+            src_prep_p = model_entry.preprocessor_path
+        else:
+            candidate_p = Path(dc.model_id)
+            if not candidate_p.is_absolute():
+                candidate_p = REPO_ROOT / candidate_p
+            if candidate_p.is_file():
+                src_model_p = candidate_p
+                src_prep_p = dc.preprocessing_uri or candidate_p
+            else:
+                raise DependencyResolutionError(
+                    f"Model '{dc.model_id}' is neither registered in ModelRegistry nor found on disk. "
+                    "Component 3 will not silently substitute another model."
+                )
+
+        # Adapt C2 diagnosis
+        c2_adapter = C2DiagnosisAdapter()
+        diag_slice = c2_adapter.adapt({
+            "affected_slice_rule": c2.affected_slice_rule,
+            "root_cause_feature": c2.root_cause_feature,
+            "root_cause_category": c2.root_cause_category,
+            "affected_features_ranked": c2.affected_features_ranked,
+            "affected_value_ranges": c2.affected_value_ranges,
+            "slice_support": c2.slice_support,
+            "diagnosis_stability": c2.diagnosis_stability,
+            "drift_impact_score": c2.drift_impact_score,
+            "temporal_window": c2.temporal_window,
+        })
+
+        # Adapt C1 drift
+        c1_adapter = C1DriftAdapter(default_dataset_id=dc.dataset_id)
+        req = c1_adapter.adapt(
+            payload={
+                "predicted_accuracy_drop": c1.predicted_accuracy_drop,
+                "confidence_interval": c1.confidence_interval,
+                "drift_type": c1.drift_type,
+                "drift_severity": c1.drift_severity,
+                "affected_features": c1.affected_features,
+            },
+            dataset_id=dc.dataset_id,
+            adaptation_budget_size=dc.adaptation_budget_size,
+            has_authentic_adaptation_labels=dc.has_authentic_labels,
+            source_model_path=src_model_p,
+            source_preprocessor_path=src_prep_p,
+        )
+
+        import dataclasses
+        req = dataclasses.replace(
+            req,
+            model_id=dc.model_id,
+            diagnostic_slice=diag_slice,
+            adaptation_data_path=str(cur_p),
+            source_retention_tolerance=dc.source_retention_tolerance,
+        )
+        return req
+
+    # -------------------------------------------------------------------------
+    # Branch B: Legacy Flat RepairRequest Dictionary
+    # -------------------------------------------------------------------------
     diag_slice = None
     if "diagnostic_slice" in data and isinstance(data["diagnostic_slice"], dict):
         d_slice = data["diagnostic_slice"]
@@ -252,3 +358,66 @@ def check_system_readiness() -> dict[str, Any]:
         "source_eval_count": kb.get_source_eval_count(),
         "dev_val_count": kb.get_dev_val_count(),
     }
+
+
+def validate_external_contract(raw_payload: dict[str, Any] | str | Path) -> dict[str, Any]:
+    """Validate incoming three-section contract schema without executing repair."""
+    ok, errs, container = validate_three_section_contract(raw_payload)
+    if not ok or container is None:
+        return {
+            "valid": False,
+            "errors": errs,
+            "contract_type": "three_section_repair_input",
+        }
+    return {
+        "valid": True,
+        "errors": [],
+        "contract_type": "three_section_repair_input",
+        "model_id": container.data_context.model_id,
+        "dataset_id": container.data_context.dataset_id,
+        "drift_detected": container.c1_evidence.is_drift_detected,
+        "drift_type": container.c1_evidence.drift_type,
+        "predicted_harm": container.c1_evidence.predicted_harm_proportion,
+        "slice_rule": container.c2_diagnosis.affected_slice_rule,
+    }
+
+
+def export_c4_flat_contract(
+    package: RepairPackage,
+    output_path: str | Path | None = None,
+    repair_version: str | None = None,
+) -> dict[str, Any]:
+    """Export finalized RepairPackage as flat 12-field contract for Component 4."""
+    adapter = C4RetrainingAdapter()
+    return adapter.export_flat_contract(
+        package=package,
+        output_path=output_path,
+        repair_version=repair_version,
+    )
+
+
+def execute_contract_repair(
+    request: dict[str, Any] | str | Path,
+    output_c4_path: str | Path | None = None,
+    output_directory: str | Path | None = None,
+    pre_generated_candidates_df: pd.DataFrame | None = None,
+    decision_mode: str | DecisionMode = "RULE_BASED",
+) -> tuple[dict[str, Any], RepairPackage, OrchestratorExecutionLog]:
+    """Canonical integration entry point for multi-component pipeline.
+    
+    Receives 3-section payload (c1_evidence + c2_diagnosis + data_context),
+    validates contracts, resolves dependencies, executes repair, and exports flat C4 package.
+    """
+    pkg, log = execute_repair(
+        request=request,
+        output_directory=output_directory,
+        pre_generated_candidates_df=pre_generated_candidates_df,
+        decision_mode=decision_mode,
+    )
+    c4_contract = export_c4_flat_contract(
+        package=pkg,
+        output_path=output_c4_path,
+        repair_version=f"c3-{pkg.request_id[-8:].lower() if pkg.request_id else '001'}",
+    )
+    return c4_contract, pkg, log
+
