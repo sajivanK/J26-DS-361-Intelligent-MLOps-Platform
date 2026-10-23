@@ -53,8 +53,8 @@ class C2Run(BaseModel):
 
 
 def _c2():
-    if not C2.loaded:
-        raise HTTPException(503, f"C2 is not loaded: {C2.error}")
+    if not C2.loaded or C2.engine is None:
+        raise HTTPException(503, f"C2 engine is not loaded on this machine: {C2.error or C2.engine_error}")
     return C2
 
 

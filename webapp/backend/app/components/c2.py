@@ -12,6 +12,10 @@ run()   one pipeline cycle. C2 needs the batch's labels (the accuracy impact, th
         counts it. The C2 page (routers/c2.py) builds its own labelled Drift Lab batches and runs
         the real diagnosis.
 
+Fails safe: if the C2 engine cannot load (a missing library or data file on this machine), the
+component still loads in fallback mode, says why in /api/health, shows as "fake", and answers the
+pipeline with the contract example, so the team pipeline never stops because of C2.
+
 C2 is stateful: each diagnosis is compared with the runs before it (temporal SHAP), so one engine
 serves the pipeline and the C2 page, one request at a time (lock). Every diagnosis is stored in the
 C2 run history (settings.C2_RUNS_FILE) with its full temporal SHAP analysis.
@@ -21,6 +25,7 @@ IEEE-CIS is not supported by C2 yet: for that dataset the contract-example fake 
 import sys
 import threading
 import time
+import traceback
 
 from ..settings import C2_AUDIT_LOG, C2_RUNS_FILE, REPO_ROOT, TARGET_COL
 from . import fakes
@@ -46,15 +51,27 @@ class C2Component(Component):
         self.warmup_sec = None
         self.fake_runs = 0
         self.unlabelled_runs = 0
+        self.engine_error = None
 
     def load(self):
-        from c2.src.history import RunHistory
-        from c2.src.outputs import C2DiagnosisEngine
-        from c2.src.plain import PlainLanguage
-        self.engine = C2DiagnosisEngine(log_path=C2_AUDIT_LOG)
-        self.history = RunHistory(C2_RUNS_FILE)
-        self.plain = PlainLanguage()
-        self.warmup()
+        try:
+            from c2.src.history import RunHistory
+            from c2.src.outputs import C2DiagnosisEngine
+            from c2.src.plain import PlainLanguage
+            self.engine = C2DiagnosisEngine(log_path=C2_AUDIT_LOG)
+            self.history = RunHistory(C2_RUNS_FILE)
+            self.plain = PlainLanguage()
+            self.warmup()
+            self.source, self.engine_error = "real", None
+        except Exception as e:  # noqa: BLE001  fall back, never stop the team pipeline
+            traceback.print_exc()
+            self.engine = None
+            self.source = "fake"
+            self.engine_error = (f"{type(e).__name__}: {e}. Install C2's libraries with "
+                                 "pip install -r c2/requirements.txt -c c1/requirements.txt and check "
+                                 "the data files in shared/uci_adult (or C2_REFERENCE_CSV, C2_TEST_CSV, "
+                                 "C2_MODEL_PKL)")
+            print(f"[c2] engine not loaded, using the contract example: {self.engine_error}", flush=True)
 
     def warmup(self):
         """Clean labelled batches from test.csv: temporal SHAP history + performance noise band."""
@@ -73,7 +90,8 @@ class C2Component(Component):
 
     def details(self):
         if self.engine is None:
-            return {}
+            return {"engine_error": self.engine_error, "fallback": "contract example",
+                    "fake_runs": self.fake_runs}
         return {"datasets": list(SUPPORTED_DATASETS), "warmup_sec": self.warmup_sec,
                 "runs_stored": len(self.history.runs), "z_thresh": round(self.engine.monitor.z_thresh, 3),
                 "plain_language_decoded": self.plain.decoded,
@@ -103,7 +121,7 @@ class C2Component(Component):
 
     def run(self, batch, upstream):
         ctx = upstream["context"]
-        if ctx.get("dataset") not in SUPPORTED_DATASETS:
+        if self.engine is None or ctx.get("dataset") not in SUPPORTED_DATASETS:
             self.fake_runs += 1
             return fakes.fake_c2(upstream)
         labels = upstream.get("labels")
