@@ -39,8 +39,15 @@ TARGET_COL = "target"
 # Latest pipeline run, kept so the Overview page can show it after a restart (outside the repo).
 RUNS_DIR = Path(os.environ.get("J26_RUNS_DIR", str(DATA_DIR / "platform_runs")))
 
-# C2 / C3 / C4: add your own paths here when your real code is plugged in, e.g.
-# C2_MODEL_DIR = os.environ.get("C2_MODEL_DIR", str(DATA_DIR / "c2"))
+# C2 (Tharmika): the engine's data and model files default to shared/uci_adult in the repo (from the
+# team Drive, git-ignored); another place can be set with C2_REFERENCE_CSV, C2_TEST_CSV, C2_MODEL_PKL
+# and C2_PREPROCESSOR_PKL (read by c2/src/config.py). The C2 run history and audit log stay outside
+# the repo, in the data folder.
+C2_RUNS_FILE = Path(os.environ.get("C2_RUNS_FILE", str(DATA_DIR / "c2" / "runs.jsonl")))
+C2_AUDIT_LOG = Path(os.environ.get("C2_AUDIT_LOG", str(DATA_DIR / "c2" / "diagnosis_log.jsonl")))
+
+# C3 / C4: add your own paths here when your real code is plugged in, e.g.
+# C3_MODEL_DIR = os.environ.get("C3_MODEL_DIR", str(DATA_DIR / "c3"))
 
 LABEL_COLUMNS = ("target",)        # labels never reach the monitoring components
 MAX_UPLOAD_MB = 50

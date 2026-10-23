@@ -49,5 +49,13 @@ export const api = {
   // C1
   c1EngineInfo: (dataset) => get(`/api/c1/engine-info?dataset=${encodeURIComponent(dataset)}`),
   c1Detect: (dataset, file) => postForm("/api/c1/detect", { dataset, file }),
-  // C2, C3, C4: add your own calls here, e.g.  c2Diagnose: (...) => postForm("/api/c2/diagnose", {...}),
+  // C2 (Tharmika): diagnosis runs, run history with temporal SHAP, business report
+  c2Info: () => get("/api/c2/info"),
+  c2RunNew: (params) => postJson("/api/c2/run", params),
+  c2Runs: () => get("/api/c2/runs"),
+  c2Run: (n) => get(`/api/c2/runs/${encodeURIComponent(n)}`),
+  c2Report: (n, refresh = false) => get(`/api/c2/runs/${encodeURIComponent(n)}/report${refresh ? "?refresh=true" : ""}`),
+  c2ReportMdUrl: (n) => `/api/c2/runs/${encodeURIComponent(n)}/report.md`,
+  c2Reset: () => postJson("/api/c2/reset", {}),
+  // C3, C4: add your own calls here
 };
