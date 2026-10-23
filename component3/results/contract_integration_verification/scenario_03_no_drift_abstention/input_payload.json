@@ -1,0 +1,32 @@
+{
+  "c1_evidence": {
+    "predicted_accuracy_drop": 0.0,
+    "confidence_interval": [
+      0.0,
+      0.5
+    ],
+    "drift_type": "none",
+    "drift_severity": "none",
+    "affected_features": []
+  },
+  "c2_diagnosis": {
+    "root_cause_feature": "none",
+    "root_cause_category": "unknown",
+    "affected_slice_rule": "tenure >= 0",
+    "affected_features_ranked": [],
+    "affected_value_ranges": {},
+    "slice_support": 1.0,
+    "diagnosis_stability": 1.0,
+    "drift_impact_score": 0.0,
+    "temporal_window": 1
+  },
+  "data_context": {
+    "model_id": "telco_rf_experimental_source",
+    "dataset_id": "telco_churn",
+    "reference_dataset_uri": "component3/data/raw/telco_churn.csv",
+    "current_dataset_uri": "component3/data/raw/telco_churn.csv",
+    "target_column": "Churn",
+    "schema_version": "1.0.0",
+    "label_status": "AVAILABLE"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "experiment_id": "uci_adult_full_xgboost_seed42",
+  "dataset_id": "uci_adult_full",
+  "model_family": "xgboost",
+  "model_config": {
+    "n_estimators": 100,
+    "max_depth": 5,
+    "learning_rate": 0.1,
+    "n_jobs": 2,
+    "random_state": 42,
+    "eval_metric": "logloss"
+  },
+  "training_seed": 42,
+  "train_metrics": {
+    "accuracy": 0.8403,
+    "precision": 0.6159,
+    "recall": 0.884,
+    "f1": 0.726,
+    "roc_auc": 0.9378,
+    "confusion_matrix": [
+      [
+        21498,
+        4510
+      ],
+      [
+        949,
+        7232
+      ]
+    ],
+    "support": 34189
+  },
+  "val_metrics": {
+    "accuracy": 0.8245,
+    "precision": 0.5918,
+    "recall": 0.8585,
+    "f1": 0.7007,
+    "roc_auc": 0.9231,
+    "confusion_matrix": [
+      [
+        4535,
+        1038
+      ],
+      [
+        248,
+        1505
+      ]
+    ],
+    "support": 7326
+  },
+  "test_metrics": {
+    "accuracy": 0.8295,
+    "precision": 0.6006,
+    "recall": 0.858,
+    "f1": 0.7066,
+    "roc_auc": 0.9242,
+    "confusion_matrix": [
+      [
+        4574,
+        1000
+      ],
+      [
+        249,
+        1504
+      ]
+    ],
+    "support": 7327
+  },
+  "dependency_versions": {
+    "sklearn": "1.9.1",
+    "xgboost": "3.2.0",
+    "lightgbm": "4.7.0"
+  },
+  "model_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\models\\baselines\\uci_adult_full_xgboost.joblib",
+  "train_samples": 34189,
+  "val_samples": 7326,
+  "test_samples": 7327,
+  "training_duration_seconds": 0.1114,
+  "peak_memory_mb": 452.49,
+  "dataset_fingerprint": "0a6a19f69b87404c",
+  "created_at_utc": "2026-10-19T14:03:40.011960+00:00"
+}

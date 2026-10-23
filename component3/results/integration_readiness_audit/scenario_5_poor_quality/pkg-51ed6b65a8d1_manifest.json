@@ -1,0 +1,554 @@
+{
+  "package_id": "PKG-51ED6B65A8D1",
+  "schema_version": "1.0.0",
+  "request_id": "REQ-SCENARIO-05-CORRUPTED",
+  "run_id": "RUN-ECF02B1B8E",
+  "created_at_utc": "2026-10-20T20:00:47.128596+00:00",
+  "dataset_id": "telco_churn",
+  "model_id": "telco_rf_experimental_source",
+  "drift_summary": {
+    "drift_detected": true,
+    "drift_type": "CONCEPT_DRIFT",
+    "drift_severity": "HIGH",
+    "severity_score": 0.75
+  },
+  "diagnostic_summary": {},
+  "chosen_strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+  "generator_info": {
+    "generator": "tvae",
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 2.0
+    }
+  },
+  "quantity_selected": 100,
+  "candidate_dataset_path": "component3\\results\\integration_readiness_audit\\scenario_5_poor_quality\\pkg-51ed6b65a8d1_candidates_k100.csv",
+  "candidate_dataset_sha256": "cb846d3b6dd4f1d856948a2830fcfa3d416bd03b80b51c866cadef33c4ae3eff",
+  "candidate_model_path": "component3\\results\\integration_readiness_audit\\scenario_5_poor_quality\\pkg-51ed6b65a8d1_candidate_model.joblib",
+  "candidate_model_sha256": "5e3d0f2dfeb908a407ecfe1e993d24459b16b6536509f87c575f3d28bd3bb458",
+  "validation_report": {
+    "overall_decision": "ACCEPT",
+    "package_status": "APPROVED",
+    "supervised_retraining_approved": true,
+    "rejection_reasons": [],
+    "hard_validity_report": {
+      "status": "PASS",
+      "total_rows": 100,
+      "total_columns": 20,
+      "missing_values": 0,
+      "reasons": []
+    },
+    "empirical_plausibility_report": {
+      "status": "PASS",
+      "fidelity_passed": true,
+      "domain_bounds_respected": true,
+      "synthetic_label_nature_note": "Synthetic candidate labels reflect joint distribution P(X, Y) modeling from training data. They are synthetic observational assertions, not external ground truth."
+    },
+    "fidelity_report": {
+      "status": "PASS",
+      "overall_fidelity_score": 0.731,
+      "mean_ks_statistic": 0.3433333333333333,
+      "mean_total_variation_distance": 0.32205882352941173,
+      "correlation_frobenius_norm": 1.6560649015131441,
+      "reasons": []
+    },
+    "utility_report": {
+      "status": "PASS",
+      "utility_score": 0.971,
+      "delta_overall_f1": -0.0079,
+      "delta_affected_slice_f1": -0.0079,
+      "reasons": []
+    },
+    "privacy_risk_report": {
+      "status": "PASS",
+      "exact_match_count": 0,
+      "exact_match_ratio": 0.0,
+      "dcr_p05": 0.2264,
+      "dcr_mean": 0.314,
+      "near_duplicate_count": 0,
+      "privacy_metric_note": "Empirical Distance to Closest Record (DCR) is a nearest-neighbor distance indicator. It does NOT establish formal mathematical differential privacy (epsilon, delta).",
+      "reasons": []
+    },
+    "stage_results": {
+      "structural": {
+        "stage": "structural",
+        "status": "PASS",
+        "metrics": {
+          "total_rows": 100,
+          "total_columns": 20,
+          "missing_values": 0,
+          "numerical_range_violations": {
+            "tenure": {
+              "ref_min": 0.0,
+              "ref_max": 72.0,
+              "syn_min": -4.0,
+              "syn_max": 62.0,
+              "out_of_range_count": 1
+            },
+            "MonthlyCharges": {
+              "ref_min": 18.85,
+              "ref_max": 116.6,
+              "syn_min": 21.67399216774464,
+              "syn_max": 91.45306042280411,
+              "out_of_range_count": 0
+            },
+            "TotalCharges": {
+              "ref_min": 0.0,
+              "ref_max": 8337.45,
+              "syn_min": -153.3365053215831,
+              "syn_max": 7835.23721621801,
+              "out_of_range_count": 1
+            }
+          },
+          "unseen_categories": {}
+        },
+        "reasons": []
+      },
+      "privacy": {
+        "stage": "privacy",
+        "status": "PASS",
+        "metrics": {
+          "synthetic_rows": 100,
+          "reference_rows": 200,
+          "exact_matches": {
+            "exact_match_count": 0,
+            "exact_match_ratio": 0.0,
+            "max_allowable_ratio": 0.0
+          },
+          "dcr_metrics": {
+            "dcr_min": 0.0553,
+            "dcr_p05": 0.2264,
+            "dcr_p50": 0.3209,
+            "dcr_mean": 0.314,
+            "near_duplicate_count": 0,
+            "near_duplicate_ratio": 0.0,
+            "min_dcr_p05_threshold": 0.01,
+            "max_near_duplicate_ratio": 0.0
+          },
+          "holdout_comparison": null
+        },
+        "reasons": []
+      },
+      "fidelity": {
+        "stage": "fidelity",
+        "status": "PASS",
+        "metrics": {
+          "synthetic_rows": 100,
+          "reference_rows": 200,
+          "continuous_metrics": {
+            "tenure": {
+              "ref_mean": 32.2,
+              "syn_mean": 13.35,
+              "mean_abs_diff": 18.85,
+              "ref_std": 24.7534577047674,
+              "syn_std": 6.922916125215418,
+              "std_abs_diff": 17.83054157955198,
+              "ks_statistic": 0.535,
+              "ks_pvalue": 6.4299637355449205e-18,
+              "wasserstein_distance": 20.5,
+              "normalized_wasserstein_distance": 0.8281671289927224,
+              "quantile_diffs": {
+                "q25_diff": 1.75,
+                "q50_diff": 14.5,
+                "q75_diff": 36.25
+              },
+              "boundary_concentration": 0.01
+            },
+            "MonthlyCharges": {
+              "ref_mean": 62.86225,
+              "syn_mean": 72.98643443083172,
+              "mean_abs_diff": 10.124184430831718,
+              "ref_std": 30.331447724147846,
+              "syn_std": 16.109415443735617,
+              "std_abs_diff": 14.222032280412229,
+              "ks_statistic": 0.345,
+              "ks_pvalue": 1.7887966227336034e-07,
+              "wasserstein_distance": 17.167426516431,
+              "normalized_wasserstein_distance": 0.5659942997960976,
+              "quantile_diffs": {
+                "q25_diff": 39.845330543618786,
+                "q50_diff": 7.923181726079221,
+                "q75_diff": 4.150400206768822
+              },
+              "boundary_concentration": 0.0
+            },
+            "TotalCharges": {
+              "ref_mean": 2254.98175,
+              "syn_mean": 1983.570279546667,
+              "mean_abs_diff": 271.41147045333287,
+              "ref_std": 2299.945719723142,
+              "syn_std": 2012.1399295187346,
+              "std_abs_diff": 287.80579020440723,
+              "ks_statistic": 0.15,
+              "ks_pvalue": 0.09623799195179213,
+              "wasserstein_distance": 425.24693488520563,
+              "normalized_wasserstein_distance": 0.18489433521778728,
+              "quantile_diffs": {
+                "q25_diff": 181.60271930498664,
+                "q50_diff": 356.61089016812866,
+                "q75_diff": 753.3108202213339
+              },
+              "boundary_concentration": 0.01
+            }
+          },
+          "categorical_metrics": {
+            "gender": {
+              "total_variation_distance": 0.31499999999999995,
+              "js_divergence": 0.08382398367246509,
+              "category_coverage": 1.0,
+              "unseen_categories": []
+            },
+            "SeniorCitizen": {
+              "total_variation_distance": 0.135,
+              "js_divergence": 0.07102763095223652,
+              "category_coverage": 0.5,
+              "unseen_categories": []
+            },
+            "Partner": {
+              "total_variation_distance": 0.355,
+              "js_divergence": 0.12044959872074269,
+              "category_coverage": 1.0,
+              "unseen_categories": []
+            },
+            "Dependents": {
+              "total_variation_distance": 0.21999999999999997,
+              "js_divergence": 0.11983220668354522,
+              "category_coverage": 0.5,
+              "unseen_categories": []
+            },
+            "PhoneService": {
+              "total_variation_distance": 0.125,
+              "js_divergence": 0.06550784501721567,
+              "category_coverage": 0.5,
+              "unseen_categories": []
+            },
+            "MultipleLines": {
+              "total_variation_distance": 0.35,
+              "js_divergence": 0.12921431752545898,
+              "category_coverage": 0.6666666666666666,
+              "unseen_categories": []
+            },
+            "InternetService": {
+              "total_variation_distance": 0.20500000000000002,
+              "js_divergence": 0.0847228789005089,
+              "category_coverage": 1.0,
+              "unseen_categories": []
+            },
+            "OnlineSecurity": {
+              "total_variation_distance": 0.365,
+              "js_divergence": 0.17165070078518713,
+              "category_coverage": 0.6666666666666666,
+              "unseen_categories": []
+            },
+            "OnlineBackup": {
+              "total_variation_distance": 0.51,
+              "js_divergence": 0.2668540572046604,
+              "category_coverage": 0.6666666666666666,
+              "unseen_categories": []
+            },
+            "DeviceProtection": {
+              "total_variation_distance": 0.465,
+              "js_divergence": 0.22204970095073026,
+              "category_coverage": 0.6666666666666666,
+              "unseen_categories": []
+            },
+            "TechSupport": {
+              "total_variation_distance": 0.49,
+              "js_divergence": 0.3034009788996592,
+              "category_coverage": 0.3333333333333333,
+              "unseen_categories": []
+            },
+            "StreamingTV": {
+              "total_variation_distance": 0.22499999999999998,
+              "js_divergence": 0.12948031826242856,
+              "category_coverage": 0.6666666666666666,
+              "unseen_categories": []
+            },
+            "StreamingMovies": {
+              "total_variation_distance": 0.22499999999999998,
+              "js_divergence": 0.12976149371898263,
+              "category_coverage": 0.6666666666666666,
+              "unseen_categories": []
+            },
+            "Contract": {
+              "total_variation_distance": 0.45499999999999996,
+              "js_divergence": 0.2765531343329454,
+              "category_coverage": 0.3333333333333333,
+              "unseen_categories": []
+            },
+            "PaperlessBilling": {
+              "total_variation_distance": 0.40499999999999997,
+              "js_divergence": 0.17494347461838838,
+              "category_coverage": 1.0,
+              "unseen_categories": []
+            },
+            "PaymentMethod": {
+              "total_variation_distance": 0.25,
+              "js_divergence": 0.10757087802329386,
+              "category_coverage": 1.0,
+              "unseen_categories": []
+            },
+            "Churn": {
+              "total_variation_distance": 0.38,
+              "js_divergence": 0.22245044877074757,
+              "category_coverage": 0.5,
+              "unseen_categories": []
+            }
+          },
+          "correlation_difference": {
+            "mean_absolute_difference": 0.6121450804354355,
+            "max_absolute_difference": 0.9163218860132456,
+            "frobenius_norm": 1.6560649015131441
+          },
+          "diversity_metrics": {
+            "duplicate_count": 0,
+            "duplicate_ratio": 0.0,
+            "unique_record_ratio": 1.0
+          },
+          "continuous_metrics_summary": {
+            "mean_ks_statistic": 0.3433333333333333,
+            "mean_normalized_wasserstein": 0.5263519213355358
+          },
+          "categorical_metrics_summary": {
+            "mean_js_divergence": 0.15760550864936448,
+            "mean_total_variation_distance": 0.32205882352941173
+          },
+          "fidelity_score": 0.731
+        },
+        "reasons": []
+      },
+      "utility": {
+        "stage": "utility",
+        "status": "PASS",
+        "metrics": {
+          "label_authorized": true,
+          "target_column": "Churn",
+          "evaluation_rows": 200,
+          "baseline_metrics": null,
+          "real_only_retrained_metrics": {
+            "overall": {
+              "accuracy": 0.975,
+              "precision": 0.9917,
+              "recall": 0.9677,
+              "f1": 0.9796,
+              "roc_auc": 0.9987,
+              "support": 200,
+              "confusion_matrix": [
+                [
+                  75,
+                  1
+                ],
+                [
+                  4,
+                  120
+                ]
+              ]
+            },
+            "affected_slice": {
+              "accuracy": 0.975,
+              "precision": 0.9917,
+              "recall": 0.9677,
+              "f1": 0.9796,
+              "roc_auc": 0.9987,
+              "support": 200,
+              "confusion_matrix": [
+                [
+                  75,
+                  1
+                ],
+                [
+                  4,
+                  120
+                ]
+              ]
+            },
+            "non_affected": {
+              "accuracy": null,
+              "precision": null,
+              "recall": null,
+              "f1": null,
+              "roc_auc": null,
+              "support": 0,
+              "confusion_matrix": null
+            }
+          },
+          "augmented_retrained_metrics": {
+            "overall": {
+              "accuracy": 0.965,
+              "precision": 0.9756,
+              "recall": 0.9677,
+              "f1": 0.9717,
+              "roc_auc": 0.9973,
+              "support": 200,
+              "confusion_matrix": [
+                [
+                  73,
+                  3
+                ],
+                [
+                  4,
+                  120
+                ]
+              ]
+            },
+            "affected_slice": {
+              "accuracy": 0.965,
+              "precision": 0.9756,
+              "recall": 0.9677,
+              "f1": 0.9717,
+              "roc_auc": 0.9973,
+              "support": 200,
+              "confusion_matrix": [
+                [
+                  73,
+                  3
+                ],
+                [
+                  4,
+                  120
+                ]
+              ]
+            },
+            "non_affected": {
+              "accuracy": null,
+              "precision": null,
+              "recall": null,
+              "f1": null,
+              "roc_auc": null,
+              "support": 0,
+              "confusion_matrix": null
+            }
+          },
+          "deltas": {
+            "delta_overall_f1": -0.0079,
+            "delta_overall_accuracy": -0.01,
+            "delta_affected_slice_f1": -0.0079,
+            "delta_non_affected_f1": 0.0
+          },
+          "utility_score": 0.971
+        },
+        "reasons": []
+      }
+    }
+  },
+  "fidelity_indicators": {
+    "status": "PASS",
+    "overall_fidelity_score": 0.731,
+    "mean_ks_statistic": 0.3433333333333333,
+    "mean_total_variation_distance": 0.32205882352941173,
+    "correlation_frobenius_norm": 1.6560649015131441,
+    "reasons": []
+  },
+  "privacy_risk_indicators": {
+    "status": "PASS",
+    "exact_match_count": 0,
+    "exact_match_ratio": 0.0,
+    "dcr_p05": 0.2264,
+    "dcr_mean": 0.314,
+    "near_duplicate_count": 0,
+    "privacy_metric_note": "Empirical Distance to Closest Record (DCR) is a nearest-neighbor distance indicator. It does NOT establish formal mathematical differential privacy (epsilon, delta).",
+    "reasons": []
+  },
+  "utility_metrics": {
+    "status": "EVALUATED",
+    "is_acceptable": true,
+    "rejection_reasons": [],
+    "target_positive_f1": 0.4232,
+    "target_macro_f1": 0.4212,
+    "target_balanced_accuracy": 0.471,
+    "target_accuracy": 0.4212,
+    "target_precision": 0.6263,
+    "target_recall": 0.3196,
+    "source_positive_f1": 0.6138,
+    "source_retention_delta": 0.0063,
+    "source_retention_preserved": true,
+    "delta_target_f1_vs_baseline": 0.0177,
+    "bootstrap_ci_95": [
+      -0.012,
+      0.0509
+    ],
+    "uncertainty_ci_width": 0.0629,
+    "uncertainty_flag": false,
+    "delta_vs_authentic_control": 0.0232,
+    "min_practical_utility_margin": 0.01,
+    "training_rows": 3752,
+    "training_duration_seconds": 0.614
+  },
+  "source_retention_metrics": {
+    "source_f1": 0.6138,
+    "source_delta": 0.0063,
+    "source_retention_delta": 0.0063,
+    "source_retention_preserved": true,
+    "evidence_status": "EVALUATED"
+  },
+  "execution_status": "COMPLETED",
+  "package_status": "APPROVED_FOR_REVIEW",
+  "rejection_reasons": [],
+  "evidence_limitations": [
+    "Exploratory pilot evidence only; does not claim verified real-world drift recovery.",
+    "Candidate labels reflect generative distribution modeling, not observational ground truth.",
+    "Candidate model requires explicit human sign-off prior to production deployment."
+  ],
+  "requires_human_approval": true,
+  "downstream_handoff_metadata": {
+    "pre_decision_features": {
+      "dataset_id": "telco_churn",
+      "total_features_count": 19,
+      "numerical_features_count": 3,
+      "categorical_features_count": 16,
+      "drift_detected": true,
+      "drift_type": "CONCEPT_DRIFT",
+      "drift_severity": "HIGH",
+      "drift_severity_score": 0.75,
+      "affected_features_count": 1,
+      "diagnostic_slice_identified": false,
+      "diagnostic_slice_support": null,
+      "has_authentic_adaptation_labels": true,
+      "adaptation_budget_size": 200,
+      "source_retention_tolerance": 0.05,
+      "repair_objective": "BALANCED_RETENTION",
+      "max_cpu_cores": 2,
+      "max_memory_mb": 4096.0,
+      "max_runtime_seconds": 300.0
+    },
+    "governance_checks_passed": [
+      "GATE_1_REQUEST_VALIDATION",
+      "GATE_2_DRIFT_SEVERITY_VERIFIED",
+      "GATE_3_AUTHENTIC_LABELS_AVAILABLE",
+      "GATE_4_SOURCE_MODEL_COMPATIBILITY",
+      "GATE_5_RESOURCE_LIMITS_CHECKED",
+      "GATE_6_BUDGET_SUFFICIENCY_CHECKED",
+      "GATE_7_TARGETED_REPAIR_EVALUATED",
+      "GATE_8_GENERATOR_FEASIBILITY_VERIFIED",
+      "GATE_9_SOURCE_RETENTION_CONSTRAINED",
+      "GATE_10_STRATEGY_DECIDED"
+    ],
+    "search_history": [
+      {
+        "quantity": 25,
+        "status": "VALIDATION_REJECTED",
+        "reasons": [
+          "Fidelity validation failed: ['Mean KS statistic (0.805) exceeds threshold (0.350)']"
+        ]
+      },
+      {
+        "quantity": 50,
+        "status": "VALIDATION_REJECTED",
+        "reasons": [
+          "Fidelity validation failed: ['Mean KS statistic (0.772) exceeds threshold (0.350)']"
+        ]
+      },
+      {
+        "quantity": 100,
+        "status": "ACCEPTED",
+        "delta_target_f1": 0.0177,
+        "target_f1": 0.4232,
+        "source_f1": 0.6138,
+        "source_delta": 0.0063
+      }
+    ],
+    "decision_mode": "RULE_BASED",
+    "predicted_delta_f1": null
+  }
+}

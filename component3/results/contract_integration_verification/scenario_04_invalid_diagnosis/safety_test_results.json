@@ -1,0 +1,32 @@
+[
+  {
+    "rule": "__import__('os').system('echo pwned')",
+    "description": "arbitrary code execution",
+    "safely_rejected": true,
+    "rejection_message": "Disallowed expression construct: Call"
+  },
+  {
+    "rule": "tenure.__class__.__bases__",
+    "description": "attribute traversal",
+    "safely_rejected": true,
+    "rejection_message": "Disallowed expression construct: Attribute"
+  },
+  {
+    "rule": "open('/etc/passwd').read()",
+    "description": "file system access",
+    "safely_rejected": true,
+    "rejection_message": "Disallowed expression construct: Call"
+  },
+  {
+    "rule": "tenure > 10 AND MonthlyCharges >>",
+    "description": "syntax error",
+    "safely_rejected": true,
+    "rejection_message": "Syntax error in slice rule: invalid syntax (<unknown>, line 1)"
+  },
+  {
+    "rule": "nonexistent_feature > 50",
+    "description": "unknown feature name",
+    "safely_rejected": true,
+    "rejection_message": "Unknown column referenced in rule: 'nonexistent_feature'"
+  }
+]

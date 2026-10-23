@@ -1,0 +1,17 @@
+{
+  "notebook": "07_strategy_prediction_training.ipynb",
+  "executed_at_utc": "2026-10-20T12:57:39.782992+00:00",
+  "num_scenarios": 10,
+  "winning_strategy_distribution": {
+    "NO_REPAIR": 6,
+    "SYNTHETIC_UNWEIGHTED": 2,
+    "AUTHENTIC_OVERSAMPLING": 1,
+    "AUTHENTIC_ONLY_ADAPTATION": 1
+  },
+  "mean_regret_majority": 0.0077,
+  "mean_regret_rule_based": 0.0077,
+  "mean_regret_random_forest": 0.0068,
+  "mean_regret_candidate_utility": 0.0077,
+  "is_separate_strategy_predictor_justified": false,
+  "verdict": "UNIFIED_CANDIDATE_UTILITY_SUPERIOR"
+}

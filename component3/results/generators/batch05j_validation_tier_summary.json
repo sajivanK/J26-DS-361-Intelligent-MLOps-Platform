@@ -1,0 +1,452 @@
+{
+  "TVAE": {
+    "n_requested": 200,
+    "n_returned": 200,
+    "independent_pass_counts": {
+      "tier1_structural_valid": 200,
+      "tier1_structural_valid_pct": 100.0,
+      "tier2_physical_valid": 167,
+      "tier2_physical_valid_pct": 83.5,
+      "tier2_within_sample_unique": 200,
+      "tier2_within_sample_unique_pct": 100.0,
+      "tier2_training_non_match": 200,
+      "tier2_training_non_match_pct": 100.0,
+      "tier2_leakage_free": 200,
+      "tier2_leakage_free_pct": 100.0,
+      "tier3_billing_ratio_valid": 70,
+      "tier3_billing_ratio_valid_pct": 35.0
+    },
+    "sequential_funnel_counts": {
+      "stage0_requested": 200,
+      "stage1_tier1_structural_pass": 200,
+      "stage2_tier2_hard_physical_pass": 167,
+      "stage3_tier2_unique_hard_valid": 167,
+      "stage4_tier3_plausible_unique": 65,
+      "final_plausible_unique_yield_pct": 32.5
+    },
+    "tier1_structural": {
+      "col_order_match": true,
+      "missing_cols": [],
+      "unexpected_cols": [],
+      "total_nans": 0,
+      "total_infs": 0,
+      "total_invalid_categories": 0,
+      "target_valid": true,
+      "structural_valid_count": 200,
+      "structural_valid_pct": 100.0
+    },
+    "tier2_hard_constraints": {
+      "negative_tenure": 9,
+      "tenure_gt_72": 6,
+      "negative_monthly_charges": 0,
+      "negative_total_charges": 21,
+      "hard_valid_count": 167,
+      "hard_valid_pct": 83.5,
+      "within_sample_duplicates": 0,
+      "exact_b200_matches": 0,
+      "forbidden_signature_matches": {
+        "D_source_train": 0,
+        "D_source_eval": 0,
+        "D_dev_val": 0,
+        "D_target_eval": 0
+      },
+      "unique_hard_valid_count": 167,
+      "unique_hard_valid_pct": 83.5
+    },
+    "tier3_empirical_plausibility": {
+      "billing_ratio_independent_valid_count": 70,
+      "billing_ratio_independent_valid_pct": 35.0,
+      "plausible_unique_count": 65,
+      "plausible_unique_pct": 32.5,
+      "ks_continuous": {
+        "tenure": {
+          "ks_statistic": 0.31,
+          "p_value": 0.0
+        },
+        "MonthlyCharges": {
+          "ks_statistic": 0.12,
+          "p_value": 0.1123
+        },
+        "TotalCharges": {
+          "ks_statistic": 0.37,
+          "p_value": 0.0
+        }
+      },
+      "mean_ks_statistic": 0.2667,
+      "tvd_discrete": {
+        "gender": 0.195,
+        "SeniorCitizen": 0.135,
+        "Partner": 0.22,
+        "Dependents": 0.22,
+        "PhoneService": 0.125,
+        "MultipleLines": 0.205,
+        "InternetService": 0.225,
+        "OnlineSecurity": 0.39,
+        "OnlineBackup": 0.35,
+        "DeviceProtection": 0.38,
+        "TechSupport": 0.38,
+        "StreamingTV": 0.325,
+        "StreamingMovies": 0.325,
+        "Contract": 0.415,
+        "PaperlessBilling": 0.235,
+        "PaymentMethod": 0.315,
+        "Churn": 0.145
+      },
+      "mean_tvd": 0.2697,
+      "dcr_p05": 0.0246,
+      "dcr_median": 0.0736,
+      "near_duplicates_under_0_01": 0
+    },
+    "descriptive_feature_label_relationships": {
+      "class_distribution": {
+        "Yes": 153,
+        "No": 47
+      },
+      "minority_class_pct": 23.5,
+      "class_balance_ratio": 0.3072,
+      "affected_slice_tenure_gt_29": {
+        "count": 44,
+        "churn_yes": 44,
+        "churn_no": 0,
+        "churn_rate_pct": 100.0
+      },
+      "preserved_slice_tenure_le_29": {
+        "count": 156,
+        "churn_yes": 109,
+        "churn_no": 47,
+        "churn_rate_pct": 69.87
+      },
+      "conditional_difference_delta_pct": 30.13,
+      "training_reference_b200": {
+        "overall_churn_rate_pct": 62.0,
+        "churn_rate_gt_29_pct": 86.6,
+        "churn_rate_le_29_pct": 38.83,
+        "conditional_difference_delta_pct": 47.76
+      },
+      "independent_dev_reference_dev_val": {
+        "overall_churn_rate_pct": 66.44,
+        "churn_rate_gt_29_pct": 89.19,
+        "churn_rate_le_29_pct": 43.06,
+        "conditional_difference_delta_pct": 46.13
+      },
+      "scientific_interpretation": "Descriptive conditional rates measure macroscopic feature-label alignment. Matching these rates does not prove individual synthetic labels are counterfactually valid."
+    },
+    "rejection_reasons": {
+      "tier1_nan_inf_count": 0,
+      "tier1_invalid_categories_count": 0,
+      "tier2_negative_tenure_count": 9,
+      "tier2_excessive_tenure_gt72_count": 6,
+      "tier2_negative_monthly_charges_count": 0,
+      "tier2_negative_total_charges_count": 21,
+      "tier2_within_sample_duplicates_count": 0,
+      "tier2_exact_training_b200_matches": 0,
+      "tier2_forbidden_signature_matches": {
+        "D_source_train": 0,
+        "D_source_eval": 0,
+        "D_dev_val": 0,
+        "D_target_eval": 0
+      },
+      "tier3_billing_ratio_violations_count": 130
+    }
+  },
+  "CTGAN": {
+    "n_requested": 200,
+    "n_returned": 200,
+    "independent_pass_counts": {
+      "tier1_structural_valid": 200,
+      "tier1_structural_valid_pct": 100.0,
+      "tier2_physical_valid": 115,
+      "tier2_physical_valid_pct": 57.5,
+      "tier2_within_sample_unique": 200,
+      "tier2_within_sample_unique_pct": 100.0,
+      "tier2_training_non_match": 200,
+      "tier2_training_non_match_pct": 100.0,
+      "tier2_leakage_free": 200,
+      "tier2_leakage_free_pct": 100.0,
+      "tier3_billing_ratio_valid": 32,
+      "tier3_billing_ratio_valid_pct": 16.0
+    },
+    "sequential_funnel_counts": {
+      "stage0_requested": 200,
+      "stage1_tier1_structural_pass": 200,
+      "stage2_tier2_hard_physical_pass": 115,
+      "stage3_tier2_unique_hard_valid": 115,
+      "stage4_tier3_plausible_unique": 30,
+      "final_plausible_unique_yield_pct": 15.0
+    },
+    "tier1_structural": {
+      "col_order_match": true,
+      "missing_cols": [],
+      "unexpected_cols": [],
+      "total_nans": 0,
+      "total_infs": 0,
+      "total_invalid_categories": 0,
+      "target_valid": true,
+      "structural_valid_count": 200,
+      "structural_valid_pct": 100.0
+    },
+    "tier2_hard_constraints": {
+      "negative_tenure": 73,
+      "tenure_gt_72": 3,
+      "negative_monthly_charges": 0,
+      "negative_total_charges": 15,
+      "hard_valid_count": 115,
+      "hard_valid_pct": 57.5,
+      "within_sample_duplicates": 0,
+      "exact_b200_matches": 0,
+      "forbidden_signature_matches": {
+        "D_source_train": 0,
+        "D_source_eval": 0,
+        "D_dev_val": 0,
+        "D_target_eval": 0
+      },
+      "unique_hard_valid_count": 115,
+      "unique_hard_valid_pct": 57.5
+    },
+    "tier3_empirical_plausibility": {
+      "billing_ratio_independent_valid_count": 32,
+      "billing_ratio_independent_valid_pct": 16.0,
+      "plausible_unique_count": 30,
+      "plausible_unique_pct": 15.0,
+      "ks_continuous": {
+        "tenure": {
+          "ks_statistic": 0.375,
+          "p_value": 0.0
+        },
+        "MonthlyCharges": {
+          "ks_statistic": 0.13,
+          "p_value": 0.068
+        },
+        "TotalCharges": {
+          "ks_statistic": 0.235,
+          "p_value": 0.0
+        }
+      },
+      "mean_ks_statistic": 0.2467,
+      "tvd_discrete": {
+        "gender": 0.095,
+        "SeniorCitizen": 0.075,
+        "Partner": 0.05,
+        "Dependents": 0.0,
+        "PhoneService": 0.015,
+        "MultipleLines": 0.065,
+        "InternetService": 0.115,
+        "OnlineSecurity": 0.03,
+        "OnlineBackup": 0.055,
+        "DeviceProtection": 0.14,
+        "TechSupport": 0.095,
+        "StreamingTV": 0.03,
+        "StreamingMovies": 0.01,
+        "Contract": 0.08,
+        "PaperlessBilling": 0.055,
+        "PaymentMethod": 0.035,
+        "Churn": 0.015
+      },
+      "mean_tvd": 0.0565,
+      "dcr_p05": 0.0551,
+      "dcr_median": 0.2624,
+      "near_duplicates_under_0_01": 0
+    },
+    "descriptive_feature_label_relationships": {
+      "class_distribution": {
+        "Yes": 121,
+        "No": 79
+      },
+      "minority_class_pct": 39.5,
+      "class_balance_ratio": 0.6529,
+      "affected_slice_tenure_gt_29": {
+        "count": 48,
+        "churn_yes": 30,
+        "churn_no": 18,
+        "churn_rate_pct": 62.5
+      },
+      "preserved_slice_tenure_le_29": {
+        "count": 152,
+        "churn_yes": 91,
+        "churn_no": 61,
+        "churn_rate_pct": 59.87
+      },
+      "conditional_difference_delta_pct": 2.63,
+      "training_reference_b200": {
+        "overall_churn_rate_pct": 62.0,
+        "churn_rate_gt_29_pct": 86.6,
+        "churn_rate_le_29_pct": 38.83,
+        "conditional_difference_delta_pct": 47.76
+      },
+      "independent_dev_reference_dev_val": {
+        "overall_churn_rate_pct": 66.44,
+        "churn_rate_gt_29_pct": 89.19,
+        "churn_rate_le_29_pct": 43.06,
+        "conditional_difference_delta_pct": 46.13
+      },
+      "scientific_interpretation": "Descriptive conditional rates measure macroscopic feature-label alignment. Matching these rates does not prove individual synthetic labels are counterfactually valid."
+    },
+    "rejection_reasons": {
+      "tier1_nan_inf_count": 0,
+      "tier1_invalid_categories_count": 0,
+      "tier2_negative_tenure_count": 73,
+      "tier2_excessive_tenure_gt72_count": 3,
+      "tier2_negative_monthly_charges_count": 0,
+      "tier2_negative_total_charges_count": 15,
+      "tier2_within_sample_duplicates_count": 0,
+      "tier2_exact_training_b200_matches": 0,
+      "tier2_forbidden_signature_matches": {
+        "D_source_train": 0,
+        "D_source_eval": 0,
+        "D_dev_val": 0,
+        "D_target_eval": 0
+      },
+      "tier3_billing_ratio_violations_count": 168
+    }
+  },
+  "TabDDPM": {
+    "n_requested": 200,
+    "n_returned": 200,
+    "independent_pass_counts": {
+      "tier1_structural_valid": 200,
+      "tier1_structural_valid_pct": 100.0,
+      "tier2_physical_valid": 200,
+      "tier2_physical_valid_pct": 100.0,
+      "tier2_within_sample_unique": 169,
+      "tier2_within_sample_unique_pct": 84.5,
+      "tier2_training_non_match": 200,
+      "tier2_training_non_match_pct": 100.0,
+      "tier2_leakage_free": 200,
+      "tier2_leakage_free_pct": 100.0,
+      "tier3_billing_ratio_valid": 49,
+      "tier3_billing_ratio_valid_pct": 24.5
+    },
+    "sequential_funnel_counts": {
+      "stage0_requested": 200,
+      "stage1_tier1_structural_pass": 200,
+      "stage2_tier2_hard_physical_pass": 200,
+      "stage3_tier2_unique_hard_valid": 169,
+      "stage4_tier3_plausible_unique": 42,
+      "final_plausible_unique_yield_pct": 21.0
+    },
+    "tier1_structural": {
+      "col_order_match": true,
+      "missing_cols": [],
+      "unexpected_cols": [],
+      "total_nans": 0,
+      "total_infs": 0,
+      "total_invalid_categories": 0,
+      "target_valid": true,
+      "structural_valid_count": 200,
+      "structural_valid_pct": 100.0
+    },
+    "tier2_hard_constraints": {
+      "negative_tenure": 0,
+      "tenure_gt_72": 0,
+      "negative_monthly_charges": 0,
+      "negative_total_charges": 0,
+      "hard_valid_count": 200,
+      "hard_valid_pct": 100.0,
+      "within_sample_duplicates": 31,
+      "exact_b200_matches": 0,
+      "forbidden_signature_matches": {
+        "D_source_train": 0,
+        "D_source_eval": 0,
+        "D_dev_val": 0,
+        "D_target_eval": 0
+      },
+      "unique_hard_valid_count": 169,
+      "unique_hard_valid_pct": 84.5
+    },
+    "tier3_empirical_plausibility": {
+      "billing_ratio_independent_valid_count": 49,
+      "billing_ratio_independent_valid_pct": 24.5,
+      "plausible_unique_count": 42,
+      "plausible_unique_pct": 21.0,
+      "ks_continuous": {
+        "tenure": {
+          "ks_statistic": 0.515,
+          "p_value": 0.0
+        },
+        "MonthlyCharges": {
+          "ks_statistic": 0.555,
+          "p_value": 0.0
+        },
+        "TotalCharges": {
+          "ks_statistic": 0.575,
+          "p_value": 0.0
+        }
+      },
+      "mean_ks_statistic": 0.5483,
+      "tvd_discrete": {
+        "gender": 0.225,
+        "SeniorCitizen": 0.135,
+        "Partner": 0.22,
+        "Dependents": 0.215,
+        "PhoneService": 0.125,
+        "MultipleLines": 0.11,
+        "InternetService": 0.35,
+        "OnlineSecurity": 0.255,
+        "OnlineBackup": 0.29,
+        "DeviceProtection": 0.195,
+        "TechSupport": 0.22,
+        "StreamingTV": 0.455,
+        "StreamingMovies": 0.25,
+        "Contract": 0.435,
+        "PaperlessBilling": 0.045,
+        "PaymentMethod": 0.235,
+        "Churn": 0.01
+      },
+      "mean_tvd": 0.2218,
+      "dcr_p05": 0.0,
+      "dcr_median": 0.1706,
+      "near_duplicates_under_0_01": 15
+    },
+    "descriptive_feature_label_relationships": {
+      "class_distribution": {
+        "Yes": 126,
+        "No": 74
+      },
+      "minority_class_pct": 37.0,
+      "class_balance_ratio": 0.5873,
+      "affected_slice_tenure_gt_29": {
+        "count": 96,
+        "churn_yes": 83,
+        "churn_no": 13,
+        "churn_rate_pct": 86.46
+      },
+      "preserved_slice_tenure_le_29": {
+        "count": 104,
+        "churn_yes": 43,
+        "churn_no": 61,
+        "churn_rate_pct": 41.35
+      },
+      "conditional_difference_delta_pct": 45.11,
+      "training_reference_b200": {
+        "overall_churn_rate_pct": 62.0,
+        "churn_rate_gt_29_pct": 86.6,
+        "churn_rate_le_29_pct": 38.83,
+        "conditional_difference_delta_pct": 47.76
+      },
+      "independent_dev_reference_dev_val": {
+        "overall_churn_rate_pct": 66.44,
+        "churn_rate_gt_29_pct": 89.19,
+        "churn_rate_le_29_pct": 43.06,
+        "conditional_difference_delta_pct": 46.13
+      },
+      "scientific_interpretation": "Descriptive conditional rates measure macroscopic feature-label alignment. Matching these rates does not prove individual synthetic labels are counterfactually valid."
+    },
+    "rejection_reasons": {
+      "tier1_nan_inf_count": 0,
+      "tier1_invalid_categories_count": 0,
+      "tier2_negative_tenure_count": 0,
+      "tier2_excessive_tenure_gt72_count": 0,
+      "tier2_negative_monthly_charges_count": 0,
+      "tier2_negative_total_charges_count": 0,
+      "tier2_within_sample_duplicates_count": 31,
+      "tier2_exact_training_b200_matches": 0,
+      "tier2_forbidden_signature_matches": {
+        "D_source_train": 0,
+        "D_source_eval": 0,
+        "D_dev_val": 0,
+        "D_target_eval": 0
+      },
+      "tier3_billing_ratio_violations_count": 151
+    }
+  }
+}

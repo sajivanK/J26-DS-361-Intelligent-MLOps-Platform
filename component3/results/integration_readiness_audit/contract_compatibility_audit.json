@@ -1,0 +1,56 @@
+{
+  "boundary_c1_to_c3": {
+    "execution_status": "EXECUTED_WITHOUT_CRASH",
+    "parsed_drift_detected": false,
+    "parsed_drift_type": "UNKNOWN",
+    "parsed_drift_severity": "NONE",
+    "parsed_severity_score": 0.0,
+    "parsed_affected_features": [
+      "hours_per_week",
+      "age"
+    ],
+    "field_analysis": {
+      "drift_detected": "MISMATCH: c1_example has high drift, but req_from_c1.drift_detected is False because c1 has no 'drift_detected' boolean key",
+      "drift_type": "MISMATCH: c1 drift_type 'marginal' mapped to 'UNKNOWN' instead of marginal/covariate",
+      "predicted_harm": "MISMATCH: c1 predicted_harm=0.11, but req_from_c1.drift_severity_score=0.0 because key is severity_score",
+      "reference_dataset_uri": "MISSING_IN_REQUEST: c1 has 'shared/uci_adult/data/reference.csv', but RepairRequest has no field for it",
+      "model_id": "MISSING_IN_REQUEST: c1 has 'adult-xgb-v1', but adapter uses default"
+    }
+  },
+  "boundary_c2_to_c3": {
+    "execution_status": "CRASHED",
+    "error": "Diagnostic slice_predicate must be a non-empty string."
+  },
+  "boundary_c3_to_c4": {
+    "required_fields_in_frozen_contract": [
+      "repair_dataset_uri",
+      "repair_package_status",
+      "generator",
+      "n_synthetic_rows",
+      "augmentation_ratio",
+      "fidelity_score",
+      "utility_score",
+      "privacy_status",
+      "target_coverage",
+      "prescription_confidence",
+      "repair_version",
+      "repair_timestamp"
+    ],
+    "missing_fields_in_c4_adapter_payload": [
+      "repair_dataset_uri",
+      "repair_package_status",
+      "generator",
+      "n_synthetic_rows",
+      "augmentation_ratio",
+      "fidelity_score",
+      "utility_score",
+      "privacy_status",
+      "target_coverage",
+      "prescription_confidence",
+      "repair_version",
+      "repair_timestamp"
+    ],
+    "c4_adapter_produces_nested_review_payload": true,
+    "contract_match_verdict": "STRUCTURAL_MISMATCH: C4 adapter produces nested C4ReviewPayload, not flat c3_output_schema dict"
+  }
+}

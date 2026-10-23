@@ -1,0 +1,46 @@
+{
+  "component": "C3",
+  "component_name": "Adaptive Intelligent Synthetic Data Repair Engine",
+  "dataset": {
+    "name": "uci_adult",
+    "reference_path": "shared/uci_adult/data/reference.csv",
+    "current_data_dir": "component3/data/drifted",
+    "target_column": "target",
+    "feature_types": {
+      "age": "continuous",
+      "education_num": "continuous",
+      "capital_gain": "continuous",
+      "capital_loss": "continuous",
+      "hours_per_week": "continuous",
+      "workclass": "categorical",
+      "marital_status": "categorical",
+      "occupation": "categorical",
+      "relationship": "categorical",
+      "race": "categorical",
+      "sex": "categorical",
+      "native_country": "categorical"
+    }
+  },
+  "model": {
+    "model_path": "shared/uci_adult/models/base_model_adult.pkl",
+    "preprocessor_path": "shared/uci_adult/models/preprocessor.pkl"
+  },
+  "integration": {
+    "c1_evidence_dir": "component3/data/simulated_c1",
+    "c2_diagnosis_dir": "component3/data/simulated_c2",
+    "c1_contract_path": "component3/configs/c1_output_schema_v1_0.json",
+    "c2_contract_path": "shared/contracts/c2_output_to_c3_schema.json"
+  },
+  "readiness": {
+    "min_reference_rows": 500,
+    "min_current_rows": 200,
+    "min_affected_slice_rows": 50,
+    "min_diagnosis_stability": 0.6,
+    "require_trusted_labels": true,
+    "allow_unlabeled_current_data": true
+  },
+  "logging": {
+    "level": "INFO"
+  },
+  "random_seed": 42
+}

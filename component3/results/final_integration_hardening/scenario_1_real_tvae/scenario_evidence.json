@@ -1,0 +1,42 @@
+{
+  "scenario": "scenario_1_real_tvae",
+  "description": "Authentic TVAE generator fitting and evaluation without candidate fallback",
+  "duration_seconds": 137.162,
+  "run_id": "RUN-3B84CF604F",
+  "package_id": "PKG-CB327D1B668C",
+  "package_status": "REJECTED",
+  "chosen_strategy": "TARGETED_SYNTHETIC_REPAIR",
+  "generator_executed": "TVAE",
+  "quantity_selected": 0,
+  "c4_flat_valid": true,
+  "c4_errors": [],
+  "c4_contract": {
+    "repair_dataset_uri": "NONE",
+    "repair_package_status": "REJECTED",
+    "generator": "TVAE",
+    "n_synthetic_rows": 0,
+    "augmentation_ratio": 0.0,
+    "fidelity_score": 0.0,
+    "utility_score": 0.0,
+    "privacy_status": "PASS",
+    "target_coverage": 0.0,
+    "prescription_confidence": 0.8,
+    "repair_version": "c3-5b511dd5",
+    "repair_timestamp": "2026-10-21T17:44:14.216940+00:00"
+  },
+  "dataset_verified": false,
+  "dataset_shape": null,
+  "model_verified": false,
+  "rejection_reasons": [
+    "Retraining evaluation rejected at K=25: ['Target adaptation performance gain (-0.0149) is below minimum practical utility margin (+0.0100) vs baseline.']",
+    "Candidate validation rejected at K=50: [\"Fidelity validation failed: ['Mean KS statistic (0.409) exceeds threshold (0.350)']\"]",
+    "Candidate validation rejected at K=100: [\"Fidelity validation failed: ['Mean KS statistic (0.401) exceeds threshold (0.350)']\"]",
+    "Retraining evaluation rejected at K=200: ['Target adaptation performance gain (+0.0024) is below minimum practical utility margin (+0.0100) vs baseline.']"
+  ],
+  "stage_durations": {
+    "validation_seconds": 12.495,
+    "prescription_seconds": 0.004,
+    "generation_planning_seconds": 123.716,
+    "total_pipeline_seconds": 136.229
+  }
+}

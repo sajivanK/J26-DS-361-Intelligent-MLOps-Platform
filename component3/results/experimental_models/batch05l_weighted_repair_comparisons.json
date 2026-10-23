@@ -1,0 +1,108 @@
+{
+  "primary_comparisons_vs_matched_b2_k50": {
+    "H1_TVAE_K50_w2": {
+      "reference_arm": "B2_B200_K50",
+      "delta_f1": 0.0287,
+      "bootstrap_ci_95": [
+        0.0014,
+        0.0578
+      ],
+      "bootstrap_mean_diff": 0.0287,
+      "permutation_p_value": 0.0685,
+      "holm_bonferroni_p_value": 0.274,
+      "statistically_significant_adjusted": false
+    },
+    "H1_TVAE_K50_w5": {
+      "reference_arm": "B2_B200_K50",
+      "delta_f1": 0.0193,
+      "bootstrap_ci_95": [
+        -0.0141,
+        0.0546
+      ],
+      "bootstrap_mean_diff": 0.0192,
+      "permutation_p_value": 0.2839,
+      "holm_bonferroni_p_value": 0.8517,
+      "statistically_significant_adjusted": false
+    },
+    "H2_TVAE_K50_w2_disc": {
+      "reference_arm": "B2_B200_K50",
+      "delta_f1": 0.0136,
+      "bootstrap_ci_95": [
+        -0.0101,
+        0.0404
+      ],
+      "bootstrap_mean_diff": 0.0135,
+      "permutation_p_value": 0.3748,
+      "holm_bonferroni_p_value": 0.8517,
+      "statistically_significant_adjusted": false
+    },
+    "H2_TVAE_K50_w5_disc": {
+      "reference_arm": "B2_B200_K50",
+      "delta_f1": 0.011,
+      "bootstrap_ci_95": [
+        -0.0252,
+        0.0458
+      ],
+      "bootstrap_mean_diff": 0.0106,
+      "permutation_p_value": 0.6607,
+      "holm_bonferroni_p_value": 0.8517,
+      "statistically_significant_adjusted": false
+    },
+    "S1_TVAE_K50": {
+      "reference_arm": "B2_B200_K50",
+      "delta_f1": 0.0296,
+      "bootstrap_ci_95": [
+        0.0058,
+        0.0582
+      ],
+      "bootstrap_mean_diff": 0.0297,
+      "permutation_p_value": 0.032,
+      "holm_bonferroni_p_value": 0.16,
+      "statistically_significant_adjusted": false
+    }
+  },
+  "secondary_comparisons_vs_authentic_weighted": {
+    "H1_vs_B2_w2": {
+      "candidate": "H1_TVAE_K50_w2",
+      "reference": "B2_B200_K50_w2",
+      "delta_f1": 0.0123,
+      "bootstrap_ci_95": {
+        "lower_ci": -0.0133,
+        "upper_ci": 0.039,
+        "mean_diff": 0.012
+      },
+      "permutation_test": {
+        "observed_diff": 0.0123,
+        "p_value": 0.4428
+      }
+    },
+    "H1_vs_B5_w2": {
+      "candidate": "H1_TVAE_K50_w2",
+      "reference": "B5_B200_w2",
+      "delta_f1": 0.0112,
+      "bootstrap_ci_95": {
+        "lower_ci": -0.0175,
+        "upper_ci": 0.0395,
+        "mean_diff": 0.0113
+      },
+      "permutation_test": {
+        "observed_diff": 0.0112,
+        "p_value": 0.4628
+      }
+    },
+    "H1_vs_B2_w5": {
+      "candidate": "H1_TVAE_K50_w5",
+      "reference": "B2_B200_K50_w5",
+      "delta_f1": 0.0334,
+      "bootstrap_ci_95": {
+        "lower_ci": 0.0042,
+        "upper_ci": 0.0647,
+        "mean_diff": 0.033
+      },
+      "permutation_test": {
+        "observed_diff": 0.0335,
+        "p_value": 0.047
+      }
+    }
+  }
+}

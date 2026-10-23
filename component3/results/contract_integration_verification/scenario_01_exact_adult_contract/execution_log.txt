@@ -1,0 +1,9 @@
+Scenario 1: Exact Adult Input Verification
+Timestamp: 2026-10-20T21:00:37.031042+00:00
+Input Hash: 427234cd1d9b02fb1e6b9bdda97ef8d48a3de4e92273c3783e53cb4e48ec0cb2
+Schema Validation Passed: True
+C1 Predicted Harm Proportion: 0.142
+C2 Normalized Slice: education_num > 12 and occupation == 'Tech-support'
+Dependency Resolution Exception: Current drifted dataset not found at URI 'shared/uci_adult/data/current.csv' (resolved: 'D:\SLIIT_Research\J26-DS-361-Intelligent-MLOps-Platform\shared\uci_adult\data\current.csv'). Component 3 will not silently substitute another dataset.
+Telco Fallback Occurred: False
+Verdict: PASS (Strict validation and controlled dependency reporting)

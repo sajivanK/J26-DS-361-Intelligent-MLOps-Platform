@@ -1,0 +1,12 @@
+{
+  "validator": "StructuralValidator",
+  "passed": false,
+  "status": "FAIL",
+  "reasons": [
+    "Synthetic columns do not match expected columns"
+  ],
+  "metrics": {
+    "total_rows": 3,
+    "total_columns": 2
+  }
+}

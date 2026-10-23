@@ -1,0 +1,18 @@
+{
+  "root_cause_feature": "capital_loss",
+  "root_cause_category": "marginal",
+  "affected_slice_rule": "capital_loss > -0.20",
+  "affected_features_ranked": [
+    "capital_loss"
+  ],
+  "affected_value_ranges": {
+    "capital_loss": [
+      0.3085955515773433,
+      10.53883561754241
+    ]
+  },
+  "slice_support": 1.0,
+  "diagnosis_stability": 0.75,
+  "drift_impact_score": 0.65,
+  "temporal_window": 3
+}

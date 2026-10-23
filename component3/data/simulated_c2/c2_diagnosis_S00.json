@@ -1,0 +1,11 @@
+{
+  "root_cause_feature": "age",
+  "root_cause_category": "unknown",
+  "affected_slice_rule": "age > 100",
+  "affected_features_ranked": [],
+  "affected_value_ranges": {},
+  "slice_support": 0.0,
+  "diagnosis_stability": 0.3,
+  "drift_impact_score": 0.0,
+  "temporal_window": 1
+}

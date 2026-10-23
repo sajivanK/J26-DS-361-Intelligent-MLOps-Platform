@@ -1,0 +1,74 @@
+{
+  "source_eval_metrics": {
+    "f1_positive": 0.6075,
+    "macro_f1": 0.7208,
+    "accuracy": 0.7667,
+    "balanced_accuracy": 0.7389,
+    "precision_positive": 0.5494,
+    "recall_positive": 0.6794,
+    "roc_auc": 0.8255,
+    "pr_auc": 0.6225,
+    "confusion_matrix": [
+      [
+        289,
+        73
+      ],
+      [
+        42,
+        89
+      ]
+    ],
+    "support_total": 493,
+    "class_counts": {
+      "No": 362,
+      "Yes": 131
+    },
+    "class_proportions": {
+      "No": 0.7343,
+      "Yes": 0.2657
+    }
+  },
+  "target_eval_frozen_metrics": {
+    "f1_positive": 0.4139,
+    "macro_f1": 0.4198,
+    "accuracy": 0.4199,
+    "balanced_accuracy": 0.4456,
+    "precision_positive": 0.5459,
+    "recall_positive": 0.3333,
+    "roc_auc": 0.4063,
+    "pr_auc": 0.5976,
+    "confusion_matrix": [
+      [
+        106,
+        84
+      ],
+      [
+        202,
+        101
+      ]
+    ],
+    "support_total": 493,
+    "class_counts": {
+      "No": 190,
+      "Yes": 303
+    },
+    "class_proportions": {
+      "No": 0.3854,
+      "Yes": 0.6146
+    }
+  },
+  "degradation_deltas": {
+    "delta_f1_positive": -0.1936,
+    "delta_macro_f1": -0.301,
+    "delta_accuracy": -0.3468,
+    "delta_balanced_accuracy": -0.2933,
+    "delta_roc_auc": -0.4192,
+    "delta_pr_auc": -0.0249
+  },
+  "target_labels_inverted": 220,
+  "target_eval_total_rows": 493,
+  "inversion_rule": "tenure > 29.0",
+  "simulated_drift_scenario": "TELCO_CONCEPT",
+  "label_provenance": "SYNTHETIC_CONCEPT_TRUTH",
+  "scientific_note": "Source and target evaluations use different row instances and differing label generating rules. Performance differences reflect both sample variance and synthetic concept drift; no adaptation model has been trained and no recovery percentage can be claimed."
+}

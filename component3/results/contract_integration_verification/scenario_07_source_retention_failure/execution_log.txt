@@ -1,0 +1,11 @@
+Scenario 7: Source Retention Gate Verification
+Timestamp: 2026-10-20T21:01:01.657546+00:00
+Source Baseline F1: 0.85
+Source Adapted F1: 0.65
+Drop: 0.20 (Tolerance: 0.05)
+Retention Gate Passed: False
+Package Status: REJECTED
+C4 Status: REJECTED
+Rejection Reasons: ('Source retention violation: degradation of 0.20 exceeds tolerance 0.05.',)
+Correctly Marked REJECTED: True
+Verdict: PASS (Source retention gate enforces zero catastrophic forgetting)

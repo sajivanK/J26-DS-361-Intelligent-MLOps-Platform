@@ -1,0 +1,161 @@
+{
+  "protocol_name": "Sprint06_Batch05H_Fair_Repair_Benchmark_Protocol",
+  "version": "1.0.0",
+  "dataset_id": "telco_churn",
+  "drift_scenario": "TELCO_CONCEPT",
+  "concept_transformation_rule": "tenure > 29.0 -> invert Churn (No <-> Yes); else preserve Churn",
+  "label_provenance": "SYNTHETIC_CONCEPT_TRUTH",
+  "created_at_utc": "2026-10-20T06:35:00.000000+00:00",
+  "classifier_baseline": {
+    "model_family": "RandomForestClassifier",
+    "hyperparameters": {
+      "n_estimators": 100,
+      "max_depth": 10,
+      "class_weight": "balanced",
+      "random_state": 42,
+      "n_jobs": 2,
+      "bootstrap": true,
+      "criterion": "gini"
+    }
+  },
+  "adaptation_budgets": [50, 100, 200],
+  "synthetic_quantities_K": [0, 50, 100, 200, 500],
+  "development_evaluation_policy": {
+    "dev_train_pool": "nested_adapt_budgets B50 (N=50), B100 (N=100), B200 (N=200) carved from D_target_adapt_pool",
+    "dev_validation_partition": "clean residual adaptation pool records (N=292, derived by filtering out customer '2676-ISHSF' which duplicates '9122-UMROB' in B200), verified exactly 0 duplicate-group overlap with B200",
+    "locked_target_evaluation_partition": "D_target_eval (N=493), held strictly isolated during development, evaluated once as locked comparative benchmark",
+    "source_retention_partition": "D_source_eval (N=493), clean pre-drift observational truth",
+    "strictly_forbidden_partitions": [
+      "canonical_validation_1056_rows",
+      "canonical_test_1056_rows"
+    ],
+    "strictly_forbidden_practices": [
+      "Tuning synthetic quantity K on D_target_eval",
+      "Selecting authentic weights or oversampling ratios on D_target_eval",
+      "Filtering or selecting generator checkpoints using D_target_eval",
+      "Iterative retraining based on D_target_eval feedback"
+    ]
+  },
+  "authentic_control_arms": {
+    "B0_frozen_source": {
+      "description": "Frozen unadapted source model trained exclusively on D_source_train",
+      "source_train_rows": 3452,
+      "target_adapt_rows": 0,
+      "synthetic_rows": 0,
+      "sample_weighting": "uniform (w=1.0)",
+      "target_eval_f1_reference": 0.4139
+    },
+    "B1_naive_pooling": {
+      "description": "Standard unweighted pooling of source training data and labeled adaptation budget",
+      "source_train_rows": 3452,
+      "target_adapt_rows": [50, 100, 200],
+      "synthetic_rows": 0,
+      "sample_weighting": "uniform (w=1.0)",
+      "historical_batch05g_target_f1": {
+        "B50": 0.4033,
+        "B100": 0.4090,
+        "B200": 0.4141
+      }
+    },
+    "B2_target_ros": {
+      "description": "Random OverSampling (ROS) of authentic target adaptation records to add K duplicate records",
+      "source_train_rows": 3452,
+      "target_adapt_rows": [50, 100, 200],
+      "duplicated_target_rows_K": [50, 100, 200, 500],
+      "synthetic_rows": 0,
+      "sample_weighting": "uniform (frequency duplication)",
+      "research_role": "Isolate row volume and duplication effects from true synthetic generative diversity"
+    },
+    "B3_balanced_domain_weighting": {
+      "description": "Sample-weighted adaptation assigning target records a weight inversely proportional to partition representation",
+      "source_train_rows": 3452,
+      "target_adapt_rows": [50, 100, 200],
+      "synthetic_rows": 0,
+      "target_weight_formula": "w_target = N_source / B_k (e.g. 69.04 for B50, 34.52 for B100, 17.26 for B200); w_source = 1.0",
+      "research_role": "Test whether cost-sensitive weighting counters historical pre-drift dominance without data generation"
+    },
+    "B4_target_only": {
+      "description": "Train classifier strictly on the labeled adaptation records B_k, discarding all pre-drift source data",
+      "source_train_rows": 0,
+      "target_adapt_rows": [50, 100, 200],
+      "synthetic_rows": 0,
+      "sample_weighting": "balanced class weights",
+      "research_role": "Benchmark performance when conflicting historical source data is completely eliminated"
+    },
+    "B5_prespecified_weighting": {
+      "description": "Source + target training with a fixed grid of prespecified target weights",
+      "source_train_rows": 3452,
+      "target_adapt_rows": [50, 100, 200],
+      "synthetic_rows": 0,
+      "prespecified_weights": [2.0, 5.0, 10.0, 20.0],
+      "research_role": "Evaluate fixed heuristic sample weighting without empirical tuning leakage"
+    }
+  },
+  "synthetic_repair_arms": {
+    "S1_raw_synthetic": {
+      "description": "Source train + authentic target (B_k) + raw synthetic records (K)",
+      "validation_filtering": "Tier 1 structural schema validation only",
+      "generator_architectures": ["TVAE", "CTGAN", "TabDDPM"]
+    },
+    "S2_screened_synthetic": {
+      "description": "Source train + authentic target (B_k) + quality-screened synthetic records (K)",
+      "validation_filtering": "Tier 1 structural + Tier 2 hard bounds + Tier 3 empirical billing plausibility",
+      "generator_architectures": ["TVAE", "CTGAN", "TabDDPM"]
+    },
+    "S3_slice_targeted": {
+      "description": "Source train + authentic target (B_k) + screened synthetic records conditioned on diagnosed drift slice",
+      "drift_slice_condition": "tenure > 29.0",
+      "validation_filtering": "Tier 1-3 validation + slice coverage filter"
+    },
+    "S4_target_only_synthetic": {
+      "description": "Authentic target (B_k) + screened synthetic records (K), discarding pre-drift source records",
+      "validation_filtering": "Tier 1-3 validation",
+      "research_role": "Evaluate synthetic data expansion when historical source records are abandoned"
+    }
+  },
+  "generator_specifications": {
+    "TVAE": {
+      "status": "PRIMARY_RECOMMENDED",
+      "implementation": "component3.src.generators.tvae_generator.TVAEGenerator",
+      "post_drift_fitting_records": "Authentic adaptation budget B_k",
+      "distribution_mode": "Joint P(X, Y) with discrete columns specified",
+      "batch_size_adaptation_bound": 32,
+      "epochs": 300,
+      "cpu_feasibility": "HIGH (< 15 seconds fit on N=200)"
+    },
+    "CTGAN": {
+      "status": "SECONDARY_BENCHMARK",
+      "implementation": "component3.src.generators.ctgan_generator.CTGANGenerator",
+      "post_drift_fitting_records": "Authentic adaptation budget B_k",
+      "distribution_mode": "Joint P(X, Y)",
+      "batch_size_adaptation_bound": 30,
+      "epochs": 300,
+      "cpu_feasibility": "MODERATE (< 60 seconds fit on N=200)"
+    },
+    "TabDDPM": {
+      "status": "EXPLORATORY_PILOT_ONLY",
+      "implementation": "component3.src.generators.tabddpm_generator.TabDDPMGenerator",
+      "post_drift_fitting_records": "Authentic adaptation budget B_k",
+      "distribution_mode": "Joint P(X, Y) via MLPDiffusion",
+      "timesteps": 100,
+      "epochs": 10,
+      "batch_size_adaptation_bound": 32,
+      "cpu_feasibility": "COMPUTATIONALLY_HEAVY (Must be restricted to K=50 pilot on B200)"
+    }
+  },
+  "minimum_effective_repair_criteria": {
+    "delta_f1_target_dev_val": "> 0.0 over strongest authentic control (max(B1, B2, B3, B4, B5))",
+    "paired_bootstrap_95_ci": "Excludes zero (lower bound > 0)",
+    "source_retention_tolerance": "delta_f1_source >= -0.05 vs A0 on D_source_eval",
+    "validation_yield_rate": ">= 50% valid candidates without quota duplication",
+    "maximum_cpu_runtime_seconds": 900
+  },
+  "stopping_conditions": {
+    "max_rss_memory_mb": 4096.0,
+    "generator_loss_divergence": "NaN or infinite loss",
+    "generator_mode_collapse": "Duplicate row rate in synthetic samples > 90%",
+    "insufficient_valid_yield": "Valid candidate yield < 10% after 5,000 draws",
+    "partition_leakage": "Any cross-partition index or duplicate-group overlap detected",
+    "invalid_label_provenance": "Any unverified feature mutation labeled as ground truth"
+  }
+}

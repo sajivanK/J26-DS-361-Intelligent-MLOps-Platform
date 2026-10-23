@@ -1,0 +1,43 @@
+{
+  "package_id": "PKG-49DE7B715580",
+  "request_id": "PHASE4-DEMO-SUCCESS-02",
+  "package_status": "APPROVED_FOR_REVIEW",
+  "is_approved_for_human_review": true,
+  "chosen_strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+  "quantity_selected": 25,
+  "utility_metrics": {
+    "status": "EVALUATED",
+    "is_acceptable": true,
+    "rejection_reasons": [],
+    "target_positive_f1": 0.4178,
+    "target_macro_f1": 0.4178,
+    "target_balanced_accuracy": 0.4684,
+    "target_accuracy": 0.4178,
+    "target_precision": 0.6224,
+    "target_recall": 0.3144,
+    "source_positive_f1": 0.6149,
+    "source_retention_delta": 0.0074,
+    "source_retention_preserved": true,
+    "delta_target_f1_vs_baseline": 0.0123,
+    "bootstrap_ci_95": [
+      -0.0153,
+      0.0442
+    ],
+    "uncertainty_ci_width": 0.0595,
+    "uncertainty_flag": false,
+    "delta_vs_authentic_control": 0.0178,
+    "min_practical_utility_margin": 0.01,
+    "training_rows": 3677,
+    "training_duration_seconds": 0.177
+  },
+  "source_retention_metrics": {
+    "source_f1": 0.6149,
+    "source_delta": 0.0074,
+    "source_retention_delta": 0.0074,
+    "source_retention_preserved": true,
+    "evidence_status": "EVALUATED"
+  },
+  "candidate_model_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\phase4_demonstration\\wf2_approved_repair\\pkg-49de7b715580_candidate_model.joblib",
+  "candidate_model_sha256": "838aac29d7fa30763fe3ead022458893137775ec03401c3248a118a988e2c0f8",
+  "handoff_timestamp_utc": "2026-10-20T17:37:41.040229+00:00"
+}

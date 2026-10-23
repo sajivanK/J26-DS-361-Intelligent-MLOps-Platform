@@ -1,0 +1,45 @@
+{
+  "scenario_a": {
+    "status": "ABSTAINED_NO_REPAIR",
+    "strategy": "NO_REPAIR",
+    "passed": true
+  },
+  "scenario_b": {
+    "status": "APPROVED_FOR_REVIEW",
+    "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+    "passed": true
+  },
+  "scenario_c": {
+    "status": "APPROVED_FOR_REVIEW",
+    "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+    "quantity_selected": 25,
+    "passed": true
+  },
+  "scenario_d": {
+    "status": "ABSTAINED_NO_REPAIR",
+    "strategy": "NO_REPAIR",
+    "passed": true
+  },
+  "scenario_e": {
+    "status": "APPROVED_FOR_REVIEW",
+    "fallback_strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+    "passed": true
+  },
+  "scenario_f": {
+    "overall_decision": "REJECT",
+    "package_status": "REJECTED",
+    "passed": true
+  },
+  "scenario_g": {
+    "status": "APPROVED_FOR_REVIEW",
+    "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+    "passed": true
+  },
+  "scenario_h": {
+    "package_id": "PKG-D9537DD717FC",
+    "manifest_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\demonstrations\\scenario_h\\pkg-d9537dd717fc_manifest.json",
+    "status": "APPROVED_FOR_REVIEW",
+    "requires_human_approval": true,
+    "passed": true
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "experiment_id": "bank_marketing_random_forest_seed42",
+  "dataset_id": "bank_marketing",
+  "model_family": "random_forest",
+  "model_config": {
+    "n_estimators": 100,
+    "max_depth": 10,
+    "n_jobs": 2,
+    "random_state": 42
+  },
+  "training_seed": 42,
+  "train_metrics": {
+    "accuracy": 0.8611,
+    "precision": 0.4256,
+    "recall": 0.6666,
+    "f1": 0.5195,
+    "roc_auc": 0.8802,
+    "confusion_matrix": [
+      [
+        22662,
+        2922
+      ],
+      [
+        1083,
+        2165
+      ]
+    ],
+    "support": 28832
+  },
+  "val_metrics": {
+    "accuracy": 0.8385,
+    "precision": 0.3678,
+    "recall": 0.6034,
+    "f1": 0.457,
+    "roc_auc": 0.7925,
+    "confusion_matrix": [
+      [
+        4760,
+        722
+      ],
+      [
+        276,
+        420
+      ]
+    ],
+    "support": 6178
+  },
+  "test_metrics": {
+    "accuracy": 0.8551,
+    "precision": 0.406,
+    "recall": 0.6178,
+    "f1": 0.49,
+    "roc_auc": 0.8023,
+    "confusion_matrix": [
+      [
+        4853,
+        629
+      ],
+      [
+        266,
+        430
+      ]
+    ],
+    "support": 6178
+  },
+  "dependency_versions": {
+    "sklearn": "1.9.1",
+    "xgboost": "3.2.0",
+    "lightgbm": "4.7.0"
+  },
+  "model_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\models\\baselines\\bank_marketing_random_forest.joblib",
+  "train_samples": 28832,
+  "val_samples": 6178,
+  "test_samples": 6178,
+  "training_duration_seconds": 0.5949,
+  "peak_memory_mb": 476.05,
+  "dataset_fingerprint": "01f5f70efcea2b2f",
+  "created_at_utc": "2026-10-19T14:03:43.559700+00:00"
+}

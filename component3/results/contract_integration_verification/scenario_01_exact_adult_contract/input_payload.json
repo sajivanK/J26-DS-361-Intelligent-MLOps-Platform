@@ -1,0 +1,49 @@
+{
+  "c1_evidence": {
+    "predicted_accuracy_drop": 14.2,
+    "confidence_interval": [
+      10.9,
+      17.5
+    ],
+    "drift_type": "interaction",
+    "drift_severity": "high",
+    "affected_features": [
+      "education_num",
+      "occupation"
+    ]
+  },
+  "c2_diagnosis": {
+    "root_cause_feature": "education_num",
+    "root_cause_category": "interaction",
+    "affected_slice_rule": "education_num > 12 AND occupation == 'Tech-support'",
+    "affected_features_ranked": [
+      "education_num",
+      "occupation",
+      "age"
+    ],
+    "affected_value_ranges": {
+      "education_num": [
+        12,
+        16
+      ],
+      "occupation": [
+        "Tech-support",
+        "Prof-specialty"
+      ]
+    },
+    "slice_support": 0.18,
+    "diagnosis_stability": 0.85,
+    "drift_impact_score": 0.72,
+    "temporal_window": 3
+  },
+  "data_context": {
+    "model_id": "champion-v12",
+    "dataset_id": "adult-v1",
+    "reference_dataset_uri": "shared/uci_adult/data/reference.csv",
+    "current_dataset_uri": "shared/uci_adult/data/current.csv",
+    "target_column": "income",
+    "schema_version": "adult-schema-v1",
+    "label_status": "AVAILABLE",
+    "preprocessing_uri": "shared/uci_adult/preprocessing.py"
+  }
+}

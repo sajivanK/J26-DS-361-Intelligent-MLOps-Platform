@@ -1,0 +1,14 @@
+{
+  "repair_dataset_uri": "component3/results/final_integration_hardening/scenario_4_c4_simulated_consumer/c3_repaired_candidates_k100.csv",
+  "repair_package_status": "APPROVED",
+  "generator": "TVAE",
+  "n_synthetic_rows": 100,
+  "augmentation_ratio": 0.026,
+  "fidelity_score": 0.885,
+  "utility_score": 0.812,
+  "privacy_status": "PASS",
+  "target_coverage": 0.95,
+  "prescription_confidence": 0.88,
+  "repair_version": "c3-final-001",
+  "repair_timestamp": "2026-10-21T10:00:00Z"
+}

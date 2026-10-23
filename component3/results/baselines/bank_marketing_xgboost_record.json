@@ -1,0 +1,81 @@
+{
+  "experiment_id": "bank_marketing_xgboost_seed42",
+  "dataset_id": "bank_marketing",
+  "model_family": "xgboost",
+  "model_config": {
+    "n_estimators": 100,
+    "max_depth": 5,
+    "learning_rate": 0.1,
+    "n_jobs": 2,
+    "random_state": 42,
+    "eval_metric": "logloss"
+  },
+  "training_seed": 42,
+  "train_metrics": {
+    "accuracy": 0.8454,
+    "precision": 0.3924,
+    "recall": 0.6786,
+    "f1": 0.4972,
+    "roc_auc": 0.8619,
+    "confusion_matrix": [
+      [
+        22171,
+        3413
+      ],
+      [
+        1044,
+        2204
+      ]
+    ],
+    "support": 28832
+  },
+  "val_metrics": {
+    "accuracy": 0.8253,
+    "precision": 0.3449,
+    "recall": 0.6121,
+    "f1": 0.4412,
+    "roc_auc": 0.7887,
+    "confusion_matrix": [
+      [
+        4673,
+        809
+      ],
+      [
+        270,
+        426
+      ]
+    ],
+    "support": 6178
+  },
+  "test_metrics": {
+    "accuracy": 0.8419,
+    "precision": 0.3798,
+    "recall": 0.6379,
+    "f1": 0.4761,
+    "roc_auc": 0.8003,
+    "confusion_matrix": [
+      [
+        4757,
+        725
+      ],
+      [
+        252,
+        444
+      ]
+    ],
+    "support": 6178
+  },
+  "dependency_versions": {
+    "sklearn": "1.9.1",
+    "xgboost": "3.2.0",
+    "lightgbm": "4.7.0"
+  },
+  "model_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\models\\baselines\\bank_marketing_xgboost.joblib",
+  "train_samples": 28832,
+  "val_samples": 6178,
+  "test_samples": 6178,
+  "training_duration_seconds": 0.1063,
+  "peak_memory_mb": 471.39,
+  "dataset_fingerprint": "01f5f70efcea2b2f",
+  "created_at_utc": "2026-10-19T14:03:42.538420+00:00"
+}

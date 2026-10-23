@@ -1,0 +1,5384 @@
+[
+  {
+    "experiment_id": "EXP_0001",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "NO_REPAIR",
+    "generator": null,
+    "adaptation_budget": 0,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.7142857142857143,
+    "delta_f1_vs_baseline": 0.0,
+    "matched_control_f1": 0.7142857142857143,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.7605042016806722,
+    "source_retention_delta": 0.0,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      0.0,
+      0.0
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.0,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Baseline control: no repair applied."
+    ],
+    "created_at_utc": "2026-10-20T11:14:36.494497+00:00"
+  },
+  {
+    "experiment_id": "EXP_0002",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.6109324758842444,
+    "delta_f1_vs_baseline": -0.1034,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6238938053097345,
+    "source_retention_delta": -0.1366,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1454,
+      -0.0633
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.379,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:14:38.940897+00:00"
+  },
+  {
+    "experiment_id": "EXP_0003",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 100,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.6305732484076433,
+    "delta_f1_vs_baseline": -0.0837,
+    "matched_control_f1": 0.6305732484076433,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6357615894039735,
+    "source_retention_delta": -0.1247,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1207,
+      -0.0453
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.433,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:14:41.480404+00:00"
+  },
+  {
+    "experiment_id": "EXP_0004",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 200,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.6274509803921569,
+    "delta_f1_vs_baseline": -0.0868,
+    "matched_control_f1": 0.6274509803921569,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6230936819172114,
+    "source_retention_delta": -0.1374,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1322,
+      -0.0428
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.373,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:14:43.197182+00:00"
+  },
+  {
+    "experiment_id": "EXP_0005",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_OVERSAMPLING",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.6204620462046204,
+    "delta_f1_vs_baseline": -0.0938,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": 0.0095,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6269315673289183,
+    "source_retention_delta": -0.1336,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1391,
+      -0.0526
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.311,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:14:45.026686+00:00"
+  },
+  {
+    "experiment_id": "EXP_0006",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.584717607973422,
+    "delta_f1_vs_baseline": -0.1296,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": -0.0262,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6313465783664459,
+    "source_retention_delta": -0.1292,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1801,
+      -0.0826
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.331,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:14:47.416674+00:00"
+  },
+  {
+    "experiment_id": "EXP_0007",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.62,
+    "delta_f1_vs_baseline": -0.0943,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": 0.0091,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6327433628318584,
+    "source_retention_delta": -0.1278,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1459,
+      -0.0505
+    ],
+    "dcr_privacy_5th_pct": 1.8293,
+    "training_duration_seconds": 2.585,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:14:51.347767+00:00"
+  },
+  {
+    "experiment_id": "EXP_0008",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.6133333333333333,
+    "delta_f1_vs_baseline": -0.101,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": 0.0024,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6341463414634146,
+    "source_retention_delta": -0.1264,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.148,
+      -0.0579
+    ],
+    "dcr_privacy_5th_pct": 1.9815,
+    "training_duration_seconds": 2.56,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:14:53.115754+00:00"
+  },
+  {
+    "experiment_id": "EXP_0009",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.6095890410958904,
+    "delta_f1_vs_baseline": -0.1047,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": -0.0013,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6241758241758242,
+    "source_retention_delta": -0.1363,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1566,
+      -0.0547
+    ],
+    "dcr_privacy_5th_pct": 1.6205,
+    "training_duration_seconds": 2.529,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:14:55.190552+00:00"
+  },
+  {
+    "experiment_id": "EXP_0010",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.6153846153846154,
+    "delta_f1_vs_baseline": -0.0989,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": 0.0045,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6269315673289183,
+    "source_retention_delta": -0.1336,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1458,
+      -0.0534
+    ],
+    "dcr_privacy_5th_pct": 1.9166,
+    "training_duration_seconds": 2.584,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:14:57.034233+00:00"
+  },
+  {
+    "experiment_id": "EXP_0011",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.6153846153846154,
+    "delta_f1_vs_baseline": -0.0989,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": 0.0045,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6150442477876106,
+    "source_retention_delta": -0.1455,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1475,
+      -0.0547
+    ],
+    "dcr_privacy_5th_pct": 2.2023,
+    "training_duration_seconds": 2.149,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:00.669793+00:00"
+  },
+  {
+    "experiment_id": "EXP_0012",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.6258064516129033,
+    "delta_f1_vs_baseline": -0.0885,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": 0.0149,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6252771618625277,
+    "source_retention_delta": -0.1352,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1337,
+      -0.0515
+    ],
+    "dcr_privacy_5th_pct": 2.4222,
+    "training_duration_seconds": 2.134,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:02.932871+00:00"
+  },
+  {
+    "experiment_id": "EXP_0013",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.6291390728476821,
+    "delta_f1_vs_baseline": -0.0851,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": 0.0182,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6266666666666667,
+    "source_retention_delta": -0.1338,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1296,
+      -0.0424
+    ],
+    "dcr_privacy_5th_pct": 2.298,
+    "training_duration_seconds": 2.152,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:05.421536+00:00"
+  },
+  {
+    "experiment_id": "EXP_0014",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.610738255033557,
+    "delta_f1_vs_baseline": -0.1035,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": -0.0002,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6211453744493393,
+    "source_retention_delta": -0.1394,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1501,
+      -0.0557
+    ],
+    "dcr_privacy_5th_pct": 2.3075,
+    "training_duration_seconds": 2.122,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:07.885287+00:00"
+  },
+  {
+    "experiment_id": "EXP_0015",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tabddpm",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.6037735849056604,
+    "delta_f1_vs_baseline": -0.1105,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": -0.0072,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6258205689277899,
+    "source_retention_delta": -0.1347,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1564,
+      -0.0689
+    ],
+    "dcr_privacy_5th_pct": 3.0972,
+    "training_duration_seconds": 0.677,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:10.755050+00:00"
+  },
+  {
+    "experiment_id": "EXP_0016",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 0.75
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.615916955017301,
+    "delta_f1_vs_baseline": -0.0984,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": 0.005,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6325167037861915,
+    "source_retention_delta": -0.128,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.149,
+      -0.0499
+    ],
+    "dcr_privacy_5th_pct": 2.0128,
+    "training_duration_seconds": 0.824,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:13.635796+00:00"
+  },
+  {
+    "experiment_id": "EXP_0017",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "TARGETED_SYNTHETIC_REPAIR",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7142857142857143,
+    "candidate_target_f1": 0.6333333333333333,
+    "delta_f1_vs_baseline": -0.081,
+    "matched_control_f1": 0.6109324758842444,
+    "delta_f1_vs_control": 0.0224,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6260869565217392,
+    "source_retention_delta": -0.1344,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1226,
+      -0.0383
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.829,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:16.534523+00:00"
+  },
+  {
+    "experiment_id": "EXP_0018",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "NO_REPAIR",
+    "generator": null,
+    "adaptation_budget": 0,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.7428571428571429,
+    "delta_f1_vs_baseline": 0.0,
+    "matched_control_f1": 0.7428571428571429,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.7605042016806722,
+    "source_retention_delta": 0.0,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      0.0,
+      0.0
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.0,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Baseline control: no repair applied."
+    ],
+    "created_at_utc": "2026-10-20T11:15:16.615361+00:00"
+  },
+  {
+    "experiment_id": "EXP_0019",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.6242038216560509,
+    "delta_f1_vs_baseline": -0.1187,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6325167037861915,
+    "source_retention_delta": -0.128,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1602,
+      -0.0779
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.454,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:18.527321+00:00"
+  },
+  {
+    "experiment_id": "EXP_0020",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 100,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.632258064516129,
+    "delta_f1_vs_baseline": -0.1106,
+    "matched_control_f1": 0.632258064516129,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.631578947368421,
+    "source_retention_delta": -0.1289,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1533,
+      -0.0719
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.366,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:20.243448+00:00"
+  },
+  {
+    "experiment_id": "EXP_0021",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 200,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.6237942122186495,
+    "delta_f1_vs_baseline": -0.1191,
+    "matched_control_f1": 0.6237942122186495,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.623608017817372,
+    "source_retention_delta": -0.1369,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1605,
+      -0.0761
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.361,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:21.957582+00:00"
+  },
+  {
+    "experiment_id": "EXP_0022",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "AUTHENTIC_OVERSAMPLING",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.6084142394822006,
+    "delta_f1_vs_baseline": -0.1344,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": -0.0158,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6387665198237885,
+    "source_retention_delta": -0.1217,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1812,
+      -0.091
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.286,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:23.600607+00:00"
+  },
+  {
+    "experiment_id": "EXP_0023",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.6217948717948718,
+    "delta_f1_vs_baseline": -0.1211,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": -0.0024,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6258205689277899,
+    "source_retention_delta": -0.1347,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1644,
+      -0.0803
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.276,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:25.255309+00:00"
+  },
+  {
+    "experiment_id": "EXP_0024",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.627831715210356,
+    "delta_f1_vs_baseline": -0.115,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": 0.0036,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6252771618625277,
+    "source_retention_delta": -0.1352,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1573,
+      -0.0771
+    ],
+    "dcr_privacy_5th_pct": 1.9517,
+    "training_duration_seconds": 0.784,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:27.435691+00:00"
+  },
+  {
+    "experiment_id": "EXP_0025",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.618421052631579,
+    "delta_f1_vs_baseline": -0.1244,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": -0.0058,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6283185840707964,
+    "source_retention_delta": -0.1322,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1706,
+      -0.0827
+    ],
+    "dcr_privacy_5th_pct": 2.0285,
+    "training_duration_seconds": 0.718,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:29.114710+00:00"
+  },
+  {
+    "experiment_id": "EXP_0026",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.6168831168831169,
+    "delta_f1_vs_baseline": -0.126,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": -0.0073,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6361655773420479,
+    "source_retention_delta": -0.1243,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1695,
+      -0.0847
+    ],
+    "dcr_privacy_5th_pct": 1.9082,
+    "training_duration_seconds": 0.725,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:30.831322+00:00"
+  },
+  {
+    "experiment_id": "EXP_0027",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.6188925081433225,
+    "delta_f1_vs_baseline": -0.124,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": -0.0053,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6255506607929515,
+    "source_retention_delta": -0.135,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1674,
+      -0.082
+    ],
+    "dcr_privacy_5th_pct": 2.0556,
+    "training_duration_seconds": 0.778,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:32.625806+00:00"
+  },
+  {
+    "experiment_id": "EXP_0028",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.6295081967213115,
+    "delta_f1_vs_baseline": -0.1133,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": 0.0053,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.618510158013544,
+    "source_retention_delta": -0.142,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1573,
+      -0.0726
+    ],
+    "dcr_privacy_5th_pct": 2.1971,
+    "training_duration_seconds": 2.032,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:36.234333+00:00"
+  },
+  {
+    "experiment_id": "EXP_0029",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.6198083067092651,
+    "delta_f1_vs_baseline": -0.123,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": -0.0044,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6153846153846154,
+    "source_retention_delta": -0.1451,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1669,
+      -0.0827
+    ],
+    "dcr_privacy_5th_pct": 2.3057,
+    "training_duration_seconds": 2.029,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:38.232711+00:00"
+  },
+  {
+    "experiment_id": "EXP_0030",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.6213592233009708,
+    "delta_f1_vs_baseline": -0.1215,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": -0.0028,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6353467561521253,
+    "source_retention_delta": -0.1252,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1655,
+      -0.0772
+    ],
+    "dcr_privacy_5th_pct": 2.1398,
+    "training_duration_seconds": 2.016,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:40.234514+00:00"
+  },
+  {
+    "experiment_id": "EXP_0031",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.6339869281045751,
+    "delta_f1_vs_baseline": -0.1089,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": 0.0098,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6419213973799127,
+    "source_retention_delta": -0.1186,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1497,
+      -0.0668
+    ],
+    "dcr_privacy_5th_pct": 2.2283,
+    "training_duration_seconds": 2.037,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:42.215662+00:00"
+  },
+  {
+    "experiment_id": "EXP_0032",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tabddpm",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.6237942122186495,
+    "delta_f1_vs_baseline": -0.1191,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": -0.0004,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6283185840707964,
+    "source_retention_delta": -0.1322,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.165,
+      -0.0772
+    ],
+    "dcr_privacy_5th_pct": 2.8252,
+    "training_duration_seconds": 0.546,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:44.363686+00:00"
+  },
+  {
+    "experiment_id": "EXP_0033",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 0.75
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.6298701298701299,
+    "delta_f1_vs_baseline": -0.113,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": 0.0057,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.623608017817372,
+    "source_retention_delta": -0.1369,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1559,
+      -0.0729
+    ],
+    "dcr_privacy_5th_pct": 2.1313,
+    "training_duration_seconds": 0.706,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:46.548765+00:00"
+  },
+  {
+    "experiment_id": "EXP_0034",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "TARGETED_SYNTHETIC_REPAIR",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.7428571428571429,
+    "candidate_target_f1": 0.6229508196721312,
+    "delta_f1_vs_baseline": -0.1199,
+    "matched_control_f1": 0.6242038216560509,
+    "delta_f1_vs_control": -0.0013,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6417582417582418,
+    "source_retention_delta": -0.1187,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.1675,
+      -0.0763
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.686,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:15:48.835439+00:00"
+  },
+  {
+    "experiment_id": "EXP_0035",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "NO_REPAIR",
+    "generator": null,
+    "adaptation_budget": 0,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.39918533604887985,
+    "delta_f1_vs_baseline": 0.0,
+    "matched_control_f1": 0.39918533604887985,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.7605042016806722,
+    "source_retention_delta": 0.0,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      0.0,
+      0.0
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.0,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Baseline control: no repair applied."
+    ],
+    "created_at_utc": "2026-10-20T11:15:48.920038+00:00"
+  },
+  {
+    "experiment_id": "EXP_0036",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.40501043841336115,
+    "delta_f1_vs_baseline": 0.0058,
+    "matched_control_f1": 0.40501043841336115,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6271929824561403,
+    "source_retention_delta": -0.1333,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0313,
+      0.0382
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.399,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:15:50.819184+00:00"
+  },
+  {
+    "experiment_id": "EXP_0037",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 100,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.4066390041493776,
+    "delta_f1_vs_baseline": 0.0075,
+    "matched_control_f1": 0.4066390041493776,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.623608017817372,
+    "source_retention_delta": -0.1369,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0267,
+      0.0378
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.398,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:15:52.692329+00:00"
+  },
+  {
+    "experiment_id": "EXP_0038",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 200,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.39330543933054396,
+    "delta_f1_vs_baseline": -0.0059,
+    "matched_control_f1": 0.39330543933054396,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6258205689277899,
+    "source_retention_delta": -0.1347,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0342,
+      0.0203
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.407,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:15:54.581240+00:00"
+  },
+  {
+    "experiment_id": "EXP_0039",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_OVERSAMPLING",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.38923395445134573,
+    "delta_f1_vs_baseline": -0.01,
+    "matched_control_f1": 0.40501043841336115,
+    "delta_f1_vs_control": -0.0158,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6355555555555555,
+    "source_retention_delta": -0.1249,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0437,
+      0.0236
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.296,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:15:56.418941+00:00"
+  },
+  {
+    "experiment_id": "EXP_0040",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.401673640167364,
+    "delta_f1_vs_baseline": 0.0025,
+    "matched_control_f1": 0.40501043841336115,
+    "delta_f1_vs_control": -0.0033,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6311111111111111,
+    "source_retention_delta": -0.1294,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0316,
+      0.0349
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.323,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:15:58.308334+00:00"
+  },
+  {
+    "experiment_id": "EXP_0041",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.4024896265560166,
+    "delta_f1_vs_baseline": 0.0033,
+    "matched_control_f1": 0.40501043841336115,
+    "delta_f1_vs_control": -0.0025,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6190476190476191,
+    "source_retention_delta": -0.1415,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0294,
+      0.0332
+    ],
+    "dcr_privacy_5th_pct": 2.1238,
+    "training_duration_seconds": 0.857,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:16:00.808079+00:00"
+  },
+  {
+    "experiment_id": "EXP_0042",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.3831578947368421,
+    "delta_f1_vs_baseline": -0.016,
+    "matched_control_f1": 0.40501043841336115,
+    "delta_f1_vs_control": -0.0219,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6371681415929203,
+    "source_retention_delta": -0.1233,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0493,
+      0.0144
+    ],
+    "dcr_privacy_5th_pct": 2.1198,
+    "training_duration_seconds": 0.781,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:16:02.705870+00:00"
+  },
+  {
+    "experiment_id": "EXP_0043",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.3941299790356394,
+    "delta_f1_vs_baseline": -0.0051,
+    "matched_control_f1": 0.40501043841336115,
+    "delta_f1_vs_control": -0.0109,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6228070175438597,
+    "source_retention_delta": -0.1377,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0412,
+      0.0276
+    ],
+    "dcr_privacy_5th_pct": 1.9201,
+    "training_duration_seconds": 0.871,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:16:04.778168+00:00"
+  },
+  {
+    "experiment_id": "EXP_0044",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.39662447257383965,
+    "delta_f1_vs_baseline": -0.0026,
+    "matched_control_f1": 0.40501043841336115,
+    "delta_f1_vs_control": -0.0084,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6210045662100456,
+    "source_retention_delta": -0.1395,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0398,
+      0.0289
+    ],
+    "dcr_privacy_5th_pct": 1.9957,
+    "training_duration_seconds": 0.788,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:16:06.768424+00:00"
+  },
+  {
+    "experiment_id": "EXP_0045",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.3950617283950617,
+    "delta_f1_vs_baseline": -0.0041,
+    "matched_control_f1": 0.40501043841336115,
+    "delta_f1_vs_control": -0.0099,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6297117516629712,
+    "source_retention_delta": -0.1308,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0394,
+      0.0281
+    ],
+    "dcr_privacy_5th_pct": 2.3121,
+    "training_duration_seconds": 2.349,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:16:10.619632+00:00"
+  },
+  {
+    "experiment_id": "EXP_0046",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.40165631469979296,
+    "delta_f1_vs_baseline": 0.0025,
+    "matched_control_f1": 0.40501043841336115,
+    "delta_f1_vs_control": -0.0034,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.62882096069869,
+    "source_retention_delta": -0.1317,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0353,
+      0.0359
+    ],
+    "dcr_privacy_5th_pct": 2.3722,
+    "training_duration_seconds": 2.296,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:16:12.551246+00:00"
+  },
+  {
+    "experiment_id": "EXP_0047",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.39337474120082816,
+    "delta_f1_vs_baseline": -0.0058,
+    "matched_control_f1": 0.40501043841336115,
+    "delta_f1_vs_control": -0.0116,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6331877729257642,
+    "source_retention_delta": -0.1273,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.041,
+      0.0251
+    ],
+    "dcr_privacy_5th_pct": 2.3313,
+    "training_duration_seconds": 2.264,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:16:14.475655+00:00"
+  },
+  {
+    "experiment_id": "EXP_0048",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.3983402489626556,
+    "delta_f1_vs_baseline": -0.0008,
+    "matched_control_f1": 0.40501043841336115,
+    "delta_f1_vs_control": -0.0067,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6255506607929515,
+    "source_retention_delta": -0.135,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0351,
+      0.0314
+    ],
+    "dcr_privacy_5th_pct": 2.2717,
+    "training_duration_seconds": 2.236,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:16:16.390293+00:00"
+  },
+  {
+    "experiment_id": "EXP_0049",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tabddpm",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.3807531380753138,
+    "delta_f1_vs_baseline": -0.0184,
+    "matched_control_f1": 0.40501043841336115,
+    "delta_f1_vs_control": -0.0243,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.625,
+    "source_retention_delta": -0.1355,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0485,
+      0.0128
+    ],
+    "dcr_privacy_5th_pct": 2.9576,
+    "training_duration_seconds": 0.644,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:16:18.479331+00:00"
+  },
+  {
+    "experiment_id": "EXP_0050",
+    "dataset_id": "telco_churn",
+    "scenario_id": "TELCO_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 0.75
+    },
+    "baseline_target_f1": 0.39918533604887985,
+    "candidate_target_f1": 0.4,
+    "delta_f1_vs_baseline": 0.0008,
+    "matched_control_f1": 0.40501043841336115,
+    "delta_f1_vs_control": -0.005,
+    "baseline_source_f1": 0.7605042016806722,
+    "candidate_source_f1": 0.6430155210643016,
+    "source_retention_delta": -0.1175,
+    "source_retention_preserved": false,
+    "bootstrap_ci_95": [
+      -0.0375,
+      0.0343
+    ],
+    "dcr_privacy_5th_pct": 1.9767,
+    "training_duration_seconds": 1.001,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Source retention degraded.",
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:16:20.879511+00:00"
+  },
+  {
+    "experiment_id": "EXP_0051",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "NO_REPAIR",
+    "generator": null,
+    "adaptation_budget": 0,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6778684589534325,
+    "delta_f1_vs_baseline": 0.0,
+    "matched_control_f1": 0.6778684589534325,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.7153846153846154,
+    "source_retention_delta": 0.0,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      0.0,
+      0.0
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.0,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Baseline control: no repair applied."
+    ],
+    "created_at_utc": "2026-10-20T11:16:21.133547+00:00"
+  },
+  {
+    "experiment_id": "EXP_0052",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6600378787878788,
+    "delta_f1_vs_baseline": -0.0178,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6855769230769231,
+    "source_retention_delta": -0.0298,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0252,
+      -0.0112
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 1.077,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:16:23.958102+00:00"
+  },
+  {
+    "experiment_id": "EXP_0053",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 100,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6657046657046657,
+    "delta_f1_vs_baseline": -0.0122,
+    "matched_control_f1": 0.6657046657046657,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6889211417513305,
+    "source_retention_delta": -0.0265,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0196,
+      -0.0049
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.981,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:16:26.989098+00:00"
+  },
+  {
+    "experiment_id": "EXP_0054",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 200,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6599520383693046,
+    "delta_f1_vs_baseline": -0.0179,
+    "matched_control_f1": 0.6599520383693046,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6926782273603083,
+    "source_retention_delta": -0.0227,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.026,
+      -0.0107
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 1.098,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:16:30.497287+00:00"
+  },
+  {
+    "experiment_id": "EXP_0055",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_OVERSAMPLING",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.66251795117281,
+    "delta_f1_vs_baseline": -0.0154,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": 0.0025,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6900191938579654,
+    "source_retention_delta": -0.0254,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0232,
+      -0.0077
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.716,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:16:33.475253+00:00"
+  },
+  {
+    "experiment_id": "EXP_0056",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6593511450381679,
+    "delta_f1_vs_baseline": -0.0185,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": -0.0007,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6935638808837656,
+    "source_retention_delta": -0.0218,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.027,
+      -0.0103
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.806,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:16:36.152629+00:00"
+  },
+  {
+    "experiment_id": "EXP_0057",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6634799235181644,
+    "delta_f1_vs_baseline": -0.0144,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": 0.0034,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6921217979700338,
+    "source_retention_delta": -0.0233,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0218,
+      -0.0075
+    ],
+    "dcr_privacy_5th_pct": 0.9934,
+    "training_duration_seconds": 1.796,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:16:40.144455+00:00"
+  },
+  {
+    "experiment_id": "EXP_0058",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6625060009601537,
+    "delta_f1_vs_baseline": -0.0154,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": 0.0025,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.686985970004838,
+    "source_retention_delta": -0.0284,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.023,
+      -0.0082
+    ],
+    "dcr_privacy_5th_pct": 0.7672,
+    "training_duration_seconds": 1.578,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:16:42.750346+00:00"
+  },
+  {
+    "experiment_id": "EXP_0059",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6650671785028791,
+    "delta_f1_vs_baseline": -0.0128,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": 0.005,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6927158707187651,
+    "source_retention_delta": -0.0227,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0205,
+      -0.0055
+    ],
+    "dcr_privacy_5th_pct": 0.8423,
+    "training_duration_seconds": 1.624,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:16:45.568104+00:00"
+  },
+  {
+    "experiment_id": "EXP_0060",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6578324656885944,
+    "delta_f1_vs_baseline": -0.02,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": -0.0022,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6845637583892618,
+    "source_retention_delta": -0.0308,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0276,
+      -0.0133
+    ],
+    "dcr_privacy_5th_pct": 0.8035,
+    "training_duration_seconds": 1.561,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:16:48.180926+00:00"
+  },
+  {
+    "experiment_id": "EXP_0061",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6644327429392054,
+    "delta_f1_vs_baseline": -0.0134,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": 0.0044,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6892545982575025,
+    "source_retention_delta": -0.0261,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.021,
+      -0.0061
+    ],
+    "dcr_privacy_5th_pct": 3.3782,
+    "training_duration_seconds": 2.567,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:16:52.452759+00:00"
+  },
+  {
+    "experiment_id": "EXP_0062",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6641148325358852,
+    "delta_f1_vs_baseline": -0.0138,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": 0.0041,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.687199230028874,
+    "source_retention_delta": -0.0282,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.021,
+      -0.0064
+    ],
+    "dcr_privacy_5th_pct": 2.8097,
+    "training_duration_seconds": 2.507,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:16:54.911715+00:00"
+  },
+  {
+    "experiment_id": "EXP_0063",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6644327429392054,
+    "delta_f1_vs_baseline": -0.0134,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": 0.0044,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6824096385542169,
+    "source_retention_delta": -0.033,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0205,
+      -0.0068
+    ],
+    "dcr_privacy_5th_pct": 3.1639,
+    "training_duration_seconds": 2.54,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:16:57.459824+00:00"
+  },
+  {
+    "experiment_id": "EXP_0064",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6619115549215406,
+    "delta_f1_vs_baseline": -0.016,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": 0.0019,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6914534041525833,
+    "source_retention_delta": -0.0239,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0234,
+      -0.0093
+    ],
+    "dcr_privacy_5th_pct": 2.9914,
+    "training_duration_seconds": 2.528,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:00.009920+00:00"
+  },
+  {
+    "experiment_id": "EXP_0065",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tabddpm",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6673095467695275,
+    "delta_f1_vs_baseline": -0.0106,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": 0.0073,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6870451237263464,
+    "source_retention_delta": -0.0283,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0183,
+      -0.0031
+    ],
+    "dcr_privacy_5th_pct": 4.2975,
+    "training_duration_seconds": 0.926,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:02.626433+00:00"
+  },
+  {
+    "experiment_id": "EXP_0066",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 0.75
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6606031594064146,
+    "delta_f1_vs_baseline": -0.0173,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": 0.0006,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6888246628131022,
+    "source_retention_delta": -0.0266,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0255,
+      -0.0102
+    ],
+    "dcr_privacy_5th_pct": 1.1573,
+    "training_duration_seconds": 1.651,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:06.670041+00:00"
+  },
+  {
+    "experiment_id": "EXP_0067",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "TARGETED_SYNTHETIC_REPAIR",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.6778684589534325,
+    "candidate_target_f1": 0.6657032755298651,
+    "delta_f1_vs_baseline": -0.0122,
+    "matched_control_f1": 0.6600378787878788,
+    "delta_f1_vs_control": 0.0057,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6882239382239382,
+    "source_retention_delta": -0.0272,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0195,
+      -0.0048
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 1.518,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:10.340391+00:00"
+  },
+  {
+    "experiment_id": "EXP_0068",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "NO_REPAIR",
+    "generator": null,
+    "adaptation_budget": 0,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8873932177064457,
+    "delta_f1_vs_baseline": 0.0,
+    "matched_control_f1": 0.8873932177064457,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.7153846153846154,
+    "source_retention_delta": 0.0,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      0.0,
+      0.0
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.0,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Baseline control: no repair applied."
+    ],
+    "created_at_utc": "2026-10-20T11:17:10.421119+00:00"
+  },
+  {
+    "experiment_id": "EXP_0069",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8633851013424585,
+    "delta_f1_vs_baseline": -0.024,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6890184645286687,
+    "source_retention_delta": -0.0264,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0293,
+      -0.0189
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.889,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:13.043647+00:00"
+  },
+  {
+    "experiment_id": "EXP_0070",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 100,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8599365750528541,
+    "delta_f1_vs_baseline": -0.0275,
+    "matched_control_f1": 0.8599365750528541,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.692195831313621,
+    "source_retention_delta": -0.0232,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0333,
+      -0.0225
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.958,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:15.875663+00:00"
+  },
+  {
+    "experiment_id": "EXP_0071",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 200,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8587987355110642,
+    "delta_f1_vs_baseline": -0.0286,
+    "matched_control_f1": 0.8587987355110642,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6878612716763006,
+    "source_retention_delta": -0.0275,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0346,
+      -0.0231
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.96,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:18.623538+00:00"
+  },
+  {
+    "experiment_id": "EXP_0072",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "AUTHENTIC_OVERSAMPLING",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8627038400841662,
+    "delta_f1_vs_baseline": -0.0247,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": -0.0007,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6895219700627716,
+    "source_retention_delta": -0.0259,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0302,
+      -0.0198
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.709,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:21.072595+00:00"
+  },
+  {
+    "experiment_id": "EXP_0073",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8628168278024563,
+    "delta_f1_vs_baseline": -0.0246,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": -0.0006,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6869565217391305,
+    "source_retention_delta": -0.0284,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0305,
+      -0.0192
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.703,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:23.508903+00:00"
+  },
+  {
+    "experiment_id": "EXP_0074",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8636005256241787,
+    "delta_f1_vs_baseline": -0.0238,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": 0.0002,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6875905359729599,
+    "source_retention_delta": -0.0278,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0292,
+      -0.0191
+    ],
+    "dcr_privacy_5th_pct": 0.7935,
+    "training_duration_seconds": 1.339,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:26.547912+00:00"
+  },
+  {
+    "experiment_id": "EXP_0075",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8650210084033614,
+    "delta_f1_vs_baseline": -0.0224,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": 0.0016,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6872586872586872,
+    "source_retention_delta": -0.0281,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0274,
+      -0.0178
+    ],
+    "dcr_privacy_5th_pct": 0.644,
+    "training_duration_seconds": 1.438,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:29.901795+00:00"
+  },
+  {
+    "experiment_id": "EXP_0076",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8620326487625066,
+    "delta_f1_vs_baseline": -0.0254,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": -0.0014,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.69167072576717,
+    "source_retention_delta": -0.0237,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0308,
+      -0.02
+    ],
+    "dcr_privacy_5th_pct": 0.5652,
+    "training_duration_seconds": 1.306,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:32.764299+00:00"
+  },
+  {
+    "experiment_id": "EXP_0077",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8642688369650827,
+    "delta_f1_vs_baseline": -0.0231,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": 0.0009,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6844143272023233,
+    "source_retention_delta": -0.031,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0288,
+      -0.018
+    ],
+    "dcr_privacy_5th_pct": 0.7566,
+    "training_duration_seconds": 1.287,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:35.233578+00:00"
+  },
+  {
+    "experiment_id": "EXP_0078",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8629414865577227,
+    "delta_f1_vs_baseline": -0.0245,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": -0.0004,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.694134755210858,
+    "source_retention_delta": -0.0212,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0303,
+      -0.019
+    ],
+    "dcr_privacy_5th_pct": 1.5599,
+    "training_duration_seconds": 2.54,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:39.520845+00:00"
+  },
+  {
+    "experiment_id": "EXP_0079",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8617971623751971,
+    "delta_f1_vs_baseline": -0.0256,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": -0.0016,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6868686868686869,
+    "source_retention_delta": -0.0285,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0312,
+      -0.0208
+    ],
+    "dcr_privacy_5th_pct": 2.2751,
+    "training_duration_seconds": 2.364,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:42.080949+00:00"
+  },
+  {
+    "experiment_id": "EXP_0080",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8576709796672828,
+    "delta_f1_vs_baseline": -0.0297,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": -0.0057,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6872586872586872,
+    "source_retention_delta": -0.0281,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0358,
+      -0.0247
+    ],
+    "dcr_privacy_5th_pct": 2.3651,
+    "training_duration_seconds": 2.356,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:44.607729+00:00"
+  },
+  {
+    "experiment_id": "EXP_0081",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.8620416776576101,
+    "delta_f1_vs_baseline": -0.0254,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": -0.0013,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6907317073170731,
+    "source_retention_delta": -0.0247,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0312,
+      -0.0201
+    ],
+    "dcr_privacy_5th_pct": 2.1416,
+    "training_duration_seconds": 2.42,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:47.189611+00:00"
+  },
+  {
+    "experiment_id": "EXP_0082",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tabddpm",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.857519094021596,
+    "delta_f1_vs_baseline": -0.0299,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": -0.0059,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6851674641148325,
+    "source_retention_delta": -0.0302,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0357,
+      -0.0246
+    ],
+    "dcr_privacy_5th_pct": 4.7704,
+    "training_duration_seconds": 1.002,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:49.907366+00:00"
+  },
+  {
+    "experiment_id": "EXP_0083",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 0.75
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.859395532194481,
+    "delta_f1_vs_baseline": -0.028,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": -0.004,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6883179835191469,
+    "source_retention_delta": -0.0271,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0341,
+      -0.0229
+    ],
+    "dcr_privacy_5th_pct": 0.6476,
+    "training_duration_seconds": 1.473,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:53.057233+00:00"
+  },
+  {
+    "experiment_id": "EXP_0084",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_PRIOR",
+    "drift_category": "class_prior_shift",
+    "strategy": "TARGETED_SYNTHETIC_REPAIR",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.8873932177064457,
+    "candidate_target_f1": 0.863672182821119,
+    "delta_f1_vs_baseline": -0.0237,
+    "matched_control_f1": 0.8633851013424585,
+    "delta_f1_vs_control": 0.0003,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6897880539499036,
+    "source_retention_delta": -0.0256,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0288,
+      -0.019
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 1.217,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:17:55.946338+00:00"
+  },
+  {
+    "experiment_id": "EXP_0085",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "NO_REPAIR",
+    "generator": null,
+    "adaptation_budget": 0,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5251964863615349,
+    "delta_f1_vs_baseline": 0.0,
+    "matched_control_f1": 0.5251964863615349,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.7153846153846154,
+    "source_retention_delta": 0.0,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      0.0,
+      0.0
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.0,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Baseline control: no repair applied."
+    ],
+    "created_at_utc": "2026-10-20T11:17:56.021698+00:00"
+  },
+  {
+    "experiment_id": "EXP_0086",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5226641998149861,
+    "delta_f1_vs_baseline": -0.0025,
+    "matched_control_f1": 0.5226641998149861,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6857142857142857,
+    "source_retention_delta": -0.0297,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0126,
+      0.0085
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.96,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:17:58.883610+00:00"
+  },
+  {
+    "experiment_id": "EXP_0087",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 100,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5169373549883991,
+    "delta_f1_vs_baseline": -0.0083,
+    "matched_control_f1": 0.5169373549883991,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6856866537717602,
+    "source_retention_delta": -0.0297,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0188,
+      0.0019
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.961,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:01.592162+00:00"
+  },
+  {
+    "experiment_id": "EXP_0088",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 200,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5248618784530387,
+    "delta_f1_vs_baseline": -0.0003,
+    "matched_control_f1": 0.5248618784530387,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6872885451909135,
+    "source_retention_delta": -0.0281,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0098,
+      0.0089
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 1.125,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:05.102150+00:00"
+  },
+  {
+    "experiment_id": "EXP_0089",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_OVERSAMPLING",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5217391304347826,
+    "delta_f1_vs_baseline": -0.0035,
+    "matched_control_f1": 0.5226641998149861,
+    "delta_f1_vs_control": -0.0009,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6894889103182257,
+    "source_retention_delta": -0.0259,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0143,
+      0.0078
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.747,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:07.530484+00:00"
+  },
+  {
+    "experiment_id": "EXP_0090",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5217794253938832,
+    "delta_f1_vs_baseline": -0.0034,
+    "matched_control_f1": 0.5226641998149861,
+    "delta_f1_vs_control": -0.0009,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6907166907166907,
+    "source_retention_delta": -0.0247,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0123,
+      0.0068
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.713,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:10.591456+00:00"
+  },
+  {
+    "experiment_id": "EXP_0091",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5216589861751152,
+    "delta_f1_vs_baseline": -0.0035,
+    "matched_control_f1": 0.5226641998149861,
+    "delta_f1_vs_control": -0.001,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6875602700096431,
+    "source_retention_delta": -0.0278,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.012,
+      0.0066
+    ],
+    "dcr_privacy_5th_pct": 1.1751,
+    "training_duration_seconds": 3.334,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:15.858592+00:00"
+  },
+  {
+    "experiment_id": "EXP_0092",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5187935034802784,
+    "delta_f1_vs_baseline": -0.0064,
+    "matched_control_f1": 0.5226641998149861,
+    "delta_f1_vs_control": -0.0039,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.689156626506024,
+    "source_retention_delta": -0.0262,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0162,
+      0.0034
+    ],
+    "dcr_privacy_5th_pct": 0.9049,
+    "training_duration_seconds": 3.307,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:19.436705+00:00"
+  },
+  {
+    "experiment_id": "EXP_0093",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5227062094531975,
+    "delta_f1_vs_baseline": -0.0025,
+    "matched_control_f1": 0.5226641998149861,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6893534273213417,
+    "source_retention_delta": -0.026,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0133,
+      0.0079
+    ],
+    "dcr_privacy_5th_pct": 0.9857,
+    "training_duration_seconds": 3.656,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:23.213429+00:00"
+  },
+  {
+    "experiment_id": "EXP_0094",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.525830258302583,
+    "delta_f1_vs_baseline": 0.0006,
+    "matched_control_f1": 0.5226641998149861,
+    "delta_f1_vs_control": 0.0032,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.689156626506024,
+    "source_retention_delta": -0.0262,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0089,
+      0.0105
+    ],
+    "dcr_privacy_5th_pct": 1.0535,
+    "training_duration_seconds": 3.213,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:25.819956+00:00"
+  },
+  {
+    "experiment_id": "EXP_0095",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5269958467928011,
+    "delta_f1_vs_baseline": 0.0018,
+    "matched_control_f1": 0.5226641998149861,
+    "delta_f1_vs_control": 0.0043,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6917510853835022,
+    "source_retention_delta": -0.0236,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0071,
+      0.0109
+    ],
+    "dcr_privacy_5th_pct": 2.9899,
+    "training_duration_seconds": 2.732,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:30.250547+00:00"
+  },
+  {
+    "experiment_id": "EXP_0096",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5133640552995392,
+    "delta_f1_vs_baseline": -0.0118,
+    "matched_control_f1": 0.5226641998149861,
+    "delta_f1_vs_control": -0.0093,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6874699951992319,
+    "source_retention_delta": -0.0279,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0201,
+      -0.0009
+    ],
+    "dcr_privacy_5th_pct": 3.3266,
+    "training_duration_seconds": 2.629,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:18:32.800783+00:00"
+  },
+  {
+    "experiment_id": "EXP_0097",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5224225612575127,
+    "delta_f1_vs_baseline": -0.0028,
+    "matched_control_f1": 0.5226641998149861,
+    "delta_f1_vs_control": -0.0002,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6868395773294909,
+    "source_retention_delta": -0.0285,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0118,
+      0.006
+    ],
+    "dcr_privacy_5th_pct": 3.6717,
+    "training_duration_seconds": 2.645,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:35.447553+00:00"
+  },
+  {
+    "experiment_id": "EXP_0098",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.522181146025878,
+    "delta_f1_vs_baseline": -0.003,
+    "matched_control_f1": 0.5226641998149861,
+    "delta_f1_vs_control": -0.0005,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6838271005342399,
+    "source_retention_delta": -0.0316,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0121,
+      0.0075
+    ],
+    "dcr_privacy_5th_pct": 3.1706,
+    "training_duration_seconds": 2.565,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:38.280813+00:00"
+  },
+  {
+    "experiment_id": "EXP_0099",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tabddpm",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5222222222222223,
+    "delta_f1_vs_baseline": -0.003,
+    "matched_control_f1": 0.5226641998149861,
+    "delta_f1_vs_control": -0.0004,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6885245901639344,
+    "source_retention_delta": -0.0269,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0114,
+      0.0064
+    ],
+    "dcr_privacy_5th_pct": 6.3912,
+    "training_duration_seconds": 0.941,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:40.994419+00:00"
+  },
+  {
+    "experiment_id": "EXP_0100",
+    "dataset_id": "uci_adult_full",
+    "scenario_id": "ADULT_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 0.75
+    },
+    "baseline_target_f1": 0.5251964863615349,
+    "candidate_target_f1": 0.5215777262180974,
+    "delta_f1_vs_baseline": -0.0036,
+    "matched_control_f1": 0.5226641998149861,
+    "delta_f1_vs_control": -0.0011,
+    "baseline_source_f1": 0.7153846153846154,
+    "candidate_source_f1": 0.6846933848382424,
+    "source_retention_delta": -0.0307,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0127,
+      0.0076
+    ],
+    "dcr_privacy_5th_pct": 0.5114,
+    "training_duration_seconds": 1.564,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:44.955669+00:00"
+  },
+  {
+    "experiment_id": "EXP_0101",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "NO_REPAIR",
+    "generator": null,
+    "adaptation_budget": 0,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.40764331210191085,
+    "delta_f1_vs_baseline": 0.0,
+    "matched_control_f1": 0.40764331210191085,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.49821215733015495,
+    "source_retention_delta": 0.0,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      0.0,
+      0.0
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.0,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Baseline control: no repair applied."
+    ],
+    "created_at_utc": "2026-10-20T11:18:45.273758+00:00"
+  },
+  {
+    "experiment_id": "EXP_0102",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.41457286432160806,
+    "delta_f1_vs_baseline": 0.0069,
+    "matched_control_f1": 0.41457286432160806,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46766169154228854,
+    "source_retention_delta": -0.0306,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0175,
+      0.0319
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 1.033,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:48.172670+00:00"
+  },
+  {
+    "experiment_id": "EXP_0103",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 100,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.42032967032967034,
+    "delta_f1_vs_baseline": 0.0127,
+    "matched_control_f1": 0.42032967032967034,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4626865671641791,
+    "source_retention_delta": -0.0355,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.017,
+      0.036
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.945,
+    "is_acceptable": true,
+    "package_status": "ACCEPTED",
+    "rejection_reasons": [],
+    "created_at_utc": "2026-10-20T11:18:50.883105+00:00"
+  },
+  {
+    "experiment_id": "EXP_0104",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 200,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.41690962099125367,
+    "delta_f1_vs_baseline": 0.0093,
+    "matched_control_f1": 0.41690962099125367,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4577114427860697,
+    "source_retention_delta": -0.0405,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0227,
+      0.0379
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.901,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:53.494952+00:00"
+  },
+  {
+    "experiment_id": "EXP_0105",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_OVERSAMPLING",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.38908659549228947,
+    "delta_f1_vs_baseline": -0.0186,
+    "matched_control_f1": 0.41457286432160806,
+    "delta_f1_vs_control": -0.0255,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4640605296343001,
+    "source_retention_delta": -0.0342,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0461,
+      0.0093
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.706,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:55.981169+00:00"
+  },
+  {
+    "experiment_id": "EXP_0106",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.417462482946794,
+    "delta_f1_vs_baseline": 0.0098,
+    "matched_control_f1": 0.41457286432160806,
+    "delta_f1_vs_control": 0.0029,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4626865671641791,
+    "source_retention_delta": -0.0355,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0212,
+      0.0397
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.768,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:18:58.592237+00:00"
+  },
+  {
+    "experiment_id": "EXP_0107",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.4312169312169312,
+    "delta_f1_vs_baseline": 0.0236,
+    "matched_control_f1": 0.41457286432160806,
+    "delta_f1_vs_control": 0.0166,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46153846153846156,
+    "source_retention_delta": -0.0367,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.001,
+      0.0478
+    ],
+    "dcr_privacy_5th_pct": 2.0204,
+    "training_duration_seconds": 1.547,
+    "is_acceptable": true,
+    "package_status": "ACCEPTED",
+    "rejection_reasons": [],
+    "created_at_utc": "2026-10-20T11:19:01.781866+00:00"
+  },
+  {
+    "experiment_id": "EXP_0108",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.4046692607003891,
+    "delta_f1_vs_baseline": -0.003,
+    "matched_control_f1": 0.41457286432160806,
+    "delta_f1_vs_control": -0.0099,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4603960396039604,
+    "source_retention_delta": -0.0378,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0278,
+      0.0215
+    ],
+    "dcr_privacy_5th_pct": 2.1067,
+    "training_duration_seconds": 1.536,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:19:04.250997+00:00"
+  },
+  {
+    "experiment_id": "EXP_0109",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.40620957309184996,
+    "delta_f1_vs_baseline": -0.0014,
+    "matched_control_f1": 0.41457286432160806,
+    "delta_f1_vs_control": -0.0084,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.45848822800495664,
+    "source_retention_delta": -0.0397,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0264,
+      0.0244
+    ],
+    "dcr_privacy_5th_pct": 1.8621,
+    "training_duration_seconds": 1.537,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:19:06.758290+00:00"
+  },
+  {
+    "experiment_id": "EXP_0110",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.4193103448275862,
+    "delta_f1_vs_baseline": 0.0117,
+    "matched_control_f1": 0.41457286432160806,
+    "delta_f1_vs_control": 0.0047,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4603960396039604,
+    "source_retention_delta": -0.0378,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0176,
+      0.039
+    ],
+    "dcr_privacy_5th_pct": 1.7961,
+    "training_duration_seconds": 1.502,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:19:09.167094+00:00"
+  },
+  {
+    "experiment_id": "EXP_0111",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.40764331210191085,
+    "delta_f1_vs_baseline": 0.0,
+    "matched_control_f1": 0.41457286432160806,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.49821215733015495,
+    "source_retention_delta": 0.0,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      0.0,
+      0.0
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.0,
+    "is_acceptable": false,
+    "package_status": "FAILED",
+    "rejection_reasons": [
+      "Generator execution error: Input y contains NaN."
+    ],
+    "created_at_utc": "2026-10-20T11:19:11.366771+00:00"
+  },
+  {
+    "experiment_id": "EXP_0112",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tabddpm",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.40970350404312667,
+    "delta_f1_vs_baseline": 0.0021,
+    "matched_control_f1": 0.41457286432160806,
+    "delta_f1_vs_control": -0.0049,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46384039900249374,
+    "source_retention_delta": -0.0344,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.025,
+      0.0353
+    ],
+    "dcr_privacy_5th_pct": 5.0371,
+    "training_duration_seconds": 1.084,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin)."
+    ],
+    "created_at_utc": "2026-10-20T11:19:14.276033+00:00"
+  },
+  {
+    "experiment_id": "EXP_0113",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 0.75
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.4034334763948498,
+    "delta_f1_vs_baseline": -0.0042,
+    "matched_control_f1": 0.41457286432160806,
+    "delta_f1_vs_control": -0.0111,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.45792079207920794,
+    "source_retention_delta": -0.0403,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0365,
+      0.0303
+    ],
+    "dcr_privacy_5th_pct": 1.8283,
+    "training_duration_seconds": 1.785,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:19:17.860268+00:00"
+  },
+  {
+    "experiment_id": "EXP_0114",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_NUM",
+    "drift_category": "numerical_distribution_shift",
+    "strategy": "TARGETED_SYNTHETIC_REPAIR",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.40764331210191085,
+    "candidate_target_f1": 0.4126984126984127,
+    "delta_f1_vs_baseline": 0.0051,
+    "matched_control_f1": 0.41457286432160806,
+    "delta_f1_vs_control": -0.0019,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46153846153846156,
+    "source_retention_delta": -0.0367,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0221,
+      0.0308
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 1.516,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01)."
+    ],
+    "created_at_utc": "2026-10-20T11:19:21.204485+00:00"
+  },
+  {
+    "experiment_id": "EXP_0115",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "NO_REPAIR",
+    "generator": null,
+    "adaptation_budget": 0,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.4744429882044561,
+    "delta_f1_vs_baseline": 0.0,
+    "matched_control_f1": 0.4744429882044561,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.49821215733015495,
+    "source_retention_delta": 0.0,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      0.0,
+      0.0
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.0,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Baseline control: no repair applied."
+    ],
+    "created_at_utc": "2026-10-20T11:19:21.282193+00:00"
+  },
+  {
+    "experiment_id": "EXP_0116",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.43524699599465955,
+    "delta_f1_vs_baseline": -0.0392,
+    "matched_control_f1": 0.43524699599465955,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46326276463262767,
+    "source_retention_delta": -0.0349,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0592,
+      -0.0209
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 1.028,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:19:24.812029+00:00"
+  },
+  {
+    "experiment_id": "EXP_0117",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 100,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.4343163538873995,
+    "delta_f1_vs_baseline": -0.0401,
+    "matched_control_f1": 0.4343163538873995,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46192259675405745,
+    "source_retention_delta": -0.0363,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0621,
+      -0.0229
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 1.043,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:19:27.705671+00:00"
+  },
+  {
+    "experiment_id": "EXP_0118",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 200,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.44054054054054054,
+    "delta_f1_vs_baseline": -0.0339,
+    "matched_control_f1": 0.44054054054054054,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46077210460772106,
+    "source_retention_delta": -0.0374,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0543,
+      -0.0165
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.871,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:19:31.010965+00:00"
+  },
+  {
+    "experiment_id": "EXP_0119",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "AUTHENTIC_OVERSAMPLING",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.4343163538873995,
+    "delta_f1_vs_baseline": -0.0401,
+    "matched_control_f1": 0.43524699599465955,
+    "delta_f1_vs_control": -0.0009,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4601990049751244,
+    "source_retention_delta": -0.038,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0626,
+      -0.0226
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.727,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:19:33.589138+00:00"
+  },
+  {
+    "experiment_id": "EXP_0120",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.4343163538873995,
+    "delta_f1_vs_baseline": -0.0401,
+    "matched_control_f1": 0.43524699599465955,
+    "delta_f1_vs_control": -0.0009,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4636251541307028,
+    "source_retention_delta": -0.0346,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0637,
+      -0.0221
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.831,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:19:36.319386+00:00"
+  },
+  {
+    "experiment_id": "EXP_0121",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.43783783783783786,
+    "delta_f1_vs_baseline": -0.0366,
+    "matched_control_f1": 0.43524699599465955,
+    "delta_f1_vs_control": 0.0026,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.45962732919254656,
+    "source_retention_delta": -0.0386,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0587,
+      -0.0208
+    ],
+    "dcr_privacy_5th_pct": 1.4681,
+    "training_duration_seconds": 1.681,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:19:40.380372+00:00"
+  },
+  {
+    "experiment_id": "EXP_0122",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.432,
+    "delta_f1_vs_baseline": -0.0424,
+    "matched_control_f1": 0.43524699599465955,
+    "delta_f1_vs_control": -0.0032,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46096654275092935,
+    "source_retention_delta": -0.0372,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0644,
+      -0.0244
+    ],
+    "dcr_privacy_5th_pct": 1.8273,
+    "training_duration_seconds": 1.653,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:19:43.544865+00:00"
+  },
+  {
+    "experiment_id": "EXP_0123",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.43373493975903615,
+    "delta_f1_vs_baseline": -0.0407,
+    "matched_control_f1": 0.43524699599465955,
+    "delta_f1_vs_control": -0.0015,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46592317224287483,
+    "source_retention_delta": -0.0323,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0633,
+      -0.0228
+    ],
+    "dcr_privacy_5th_pct": 1.8538,
+    "training_duration_seconds": 1.649,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:19:46.470772+00:00"
+  },
+  {
+    "experiment_id": "EXP_0124",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.4420485175202156,
+    "delta_f1_vs_baseline": -0.0324,
+    "matched_control_f1": 0.43524699599465955,
+    "delta_f1_vs_control": 0.0068,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4575,
+    "source_retention_delta": -0.0407,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.053,
+      -0.016
+    ],
+    "dcr_privacy_5th_pct": 1.9568,
+    "training_duration_seconds": 1.632,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:19:48.919198+00:00"
+  },
+  {
+    "experiment_id": "EXP_0125",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.4744429882044561,
+    "delta_f1_vs_baseline": 0.0,
+    "matched_control_f1": 0.43524699599465955,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.49821215733015495,
+    "source_retention_delta": 0.0,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      0.0,
+      0.0
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.0,
+    "is_acceptable": false,
+    "package_status": "FAILED",
+    "rejection_reasons": [
+      "Generator execution error: Input y contains NaN."
+    ],
+    "created_at_utc": "2026-10-20T11:19:51.069199+00:00"
+  },
+  {
+    "experiment_id": "EXP_0126",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tabddpm",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.4366576819407008,
+    "delta_f1_vs_baseline": -0.0378,
+    "matched_control_f1": 0.43524699599465955,
+    "delta_f1_vs_control": 0.0014,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46326276463262767,
+    "source_retention_delta": -0.0349,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0593,
+      -0.0204
+    ],
+    "dcr_privacy_5th_pct": 6.0539,
+    "training_duration_seconds": 1.026,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:19:53.991062+00:00"
+  },
+  {
+    "experiment_id": "EXP_0127",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 0.75
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.4358288770053476,
+    "delta_f1_vs_baseline": -0.0386,
+    "matched_control_f1": 0.43524699599465955,
+    "delta_f1_vs_control": 0.0006,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.45714285714285713,
+    "source_retention_delta": -0.0411,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0598,
+      -0.0205
+    ],
+    "dcr_privacy_5th_pct": 2.1418,
+    "training_duration_seconds": 1.753,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:19:57.457474+00:00"
+  },
+  {
+    "experiment_id": "EXP_0128",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CAT",
+    "drift_category": "categorical_distribution_shift",
+    "strategy": "TARGETED_SYNTHETIC_REPAIR",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.4744429882044561,
+    "candidate_target_f1": 0.43142476697736354,
+    "delta_f1_vs_baseline": -0.043,
+    "matched_control_f1": 0.43524699599465955,
+    "delta_f1_vs_control": -0.0038,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4617283950617284,
+    "source_retention_delta": -0.0365,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0651,
+      -0.0246
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 1.683,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:01.119350+00:00"
+  },
+  {
+    "experiment_id": "EXP_0129",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "NO_REPAIR",
+    "generator": null,
+    "adaptation_budget": 0,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.19274499187872227,
+    "delta_f1_vs_baseline": 0.0,
+    "matched_control_f1": 0.19274499187872227,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.49821215733015495,
+    "source_retention_delta": 0.0,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      0.0,
+      0.0
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.0,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Baseline control: no repair applied."
+    ],
+    "created_at_utc": "2026-10-20T11:20:01.236943+00:00"
+  },
+  {
+    "experiment_id": "EXP_0130",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.17576419213973798,
+    "delta_f1_vs_baseline": -0.017,
+    "matched_control_f1": 0.17576419213973798,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4657534246575342,
+    "source_retention_delta": -0.0325,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0273,
+      -0.0093
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 1.032,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:03.907458+00:00"
+  },
+  {
+    "experiment_id": "EXP_0131",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 100,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.17653508771929824,
+    "delta_f1_vs_baseline": -0.0162,
+    "matched_control_f1": 0.17653508771929824,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46464646464646464,
+    "source_retention_delta": -0.0336,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0261,
+      -0.0089
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.986,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:07.061256+00:00"
+  },
+  {
+    "experiment_id": "EXP_0132",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_ONLY_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 200,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.1774370208105148,
+    "delta_f1_vs_baseline": -0.0153,
+    "matched_control_f1": 0.1774370208105148,
+    "delta_f1_vs_control": 0.0,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46835443037974683,
+    "source_retention_delta": -0.0299,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0252,
+      -0.0078
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.886,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:09.869757+00:00"
+  },
+  {
+    "experiment_id": "EXP_0133",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_OVERSAMPLING",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.18022938285090115,
+    "delta_f1_vs_baseline": -0.0125,
+    "matched_control_f1": 0.17576419213973798,
+    "delta_f1_vs_control": 0.0045,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4601990049751244,
+    "source_retention_delta": -0.038,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0208,
+      -0.0054
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.77,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:12.541516+00:00"
+  },
+  {
+    "experiment_id": "EXP_0134",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "AUTHENTIC_WEIGHTED_ADAPTATION",
+    "generator": null,
+    "adaptation_budget": 50,
+    "synthetic_quantity": 0,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.17853231106243153,
+    "delta_f1_vs_baseline": -0.0142,
+    "matched_control_f1": 0.17576419213973798,
+    "delta_f1_vs_control": 0.0028,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46464646464646464,
+    "source_retention_delta": -0.0336,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0248,
+      -0.007
+    ],
+    "dcr_privacy_5th_pct": null,
+    "training_duration_seconds": 0.779,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:15.707762+00:00"
+  },
+  {
+    "experiment_id": "EXP_0135",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.17811984606926884,
+    "delta_f1_vs_baseline": -0.0146,
+    "matched_control_f1": 0.17576419213973798,
+    "delta_f1_vs_control": 0.0024,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46851385390428213,
+    "source_retention_delta": -0.0297,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0244,
+      -0.0071
+    ],
+    "dcr_privacy_5th_pct": 2.2361,
+    "training_duration_seconds": 1.718,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:19.256726+00:00"
+  },
+  {
+    "experiment_id": "EXP_0136",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.17763157894736842,
+    "delta_f1_vs_baseline": -0.0151,
+    "matched_control_f1": 0.17576419213973798,
+    "delta_f1_vs_control": 0.0019,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4648241206030151,
+    "source_retention_delta": -0.0334,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0249,
+      -0.0076
+    ],
+    "dcr_privacy_5th_pct": 2.2674,
+    "training_duration_seconds": 1.686,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:21.925726+00:00"
+  },
+  {
+    "experiment_id": "EXP_0137",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.17672886937431395,
+    "delta_f1_vs_baseline": -0.016,
+    "matched_control_f1": 0.17576419213973798,
+    "delta_f1_vs_control": 0.001,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46387832699619774,
+    "source_retention_delta": -0.0343,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0263,
+      -0.0085
+    ],
+    "dcr_privacy_5th_pct": 2.2307,
+    "training_duration_seconds": 1.689,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:25.138496+00:00"
+  },
+  {
+    "experiment_id": "EXP_0138",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.17763157894736842,
+    "delta_f1_vs_baseline": -0.0151,
+    "matched_control_f1": 0.17576419213973798,
+    "delta_f1_vs_control": 0.0019,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46017699115044247,
+    "source_retention_delta": -0.038,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0245,
+      -0.0083
+    ],
+    "dcr_privacy_5th_pct": 2.1039,
+    "training_duration_seconds": 1.684,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:28.147699+00:00"
+  },
+  {
+    "experiment_id": "EXP_0139",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 25,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.1766630316248637,
+    "delta_f1_vs_baseline": -0.0161,
+    "matched_control_f1": 0.17576419213973798,
+    "delta_f1_vs_control": 0.0009,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.45925925925925926,
+    "source_retention_delta": -0.039,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0256,
+      -0.0087
+    ],
+    "dcr_privacy_5th_pct": 3.186,
+    "training_duration_seconds": 2.771,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:32.700643+00:00"
+  },
+  {
+    "experiment_id": "EXP_0140",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.17863013698630137,
+    "delta_f1_vs_baseline": -0.0141,
+    "matched_control_f1": 0.17576419213973798,
+    "delta_f1_vs_control": 0.0029,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.46307884856070086,
+    "source_retention_delta": -0.0351,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0236,
+      -0.0067
+    ],
+    "dcr_privacy_5th_pct": 3.2945,
+    "training_duration_seconds": 2.707,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:35.341551+00:00"
+  },
+  {
+    "experiment_id": "EXP_0141",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 100,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.17543859649122806,
+    "delta_f1_vs_baseline": -0.0173,
+    "matched_control_f1": 0.17576419213973798,
+    "delta_f1_vs_control": -0.0003,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4655819774718398,
+    "source_retention_delta": -0.0326,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0268,
+      -0.01
+    ],
+    "dcr_privacy_5th_pct": 2.8589,
+    "training_duration_seconds": 2.648,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:38.337855+00:00"
+  },
+  {
+    "experiment_id": "EXP_0142",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "ctgan",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 200,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.1752857920522591,
+    "delta_f1_vs_baseline": -0.0175,
+    "matched_control_f1": 0.17576419213973798,
+    "delta_f1_vs_control": -0.0005,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4648241206030151,
+    "source_retention_delta": -0.0334,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0278,
+      -0.0099
+    ],
+    "dcr_privacy_5th_pct": 3.3401,
+    "training_duration_seconds": 2.573,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:40.906827+00:00"
+  },
+  {
+    "experiment_id": "EXP_0143",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_UNWEIGHTED",
+    "generator": "tabddpm",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 1.0,
+      "synth": 1.0
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.17736670293797607,
+    "delta_f1_vs_baseline": -0.0154,
+    "matched_control_f1": 0.17576419213973798,
+    "delta_f1_vs_control": 0.0016,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.45828144458281445,
+    "source_retention_delta": -0.0399,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.0252,
+      -0.0081
+    ],
+    "dcr_privacy_5th_pct": 5.2985,
+    "training_duration_seconds": 0.86,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Synthetic utility does not exceed matched authentic control (+0.005 margin).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:43.682489+00:00"
+  },
+  {
+    "experiment_id": "EXP_0144",
+    "dataset_id": "bank_marketing",
+    "scenario_id": "BANK_CONCEPT",
+    "drift_category": "genuine_concept_drift",
+    "strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+    "generator": "tvae",
+    "adaptation_budget": 50,
+    "synthetic_quantity": 50,
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 0.75
+    },
+    "baseline_target_f1": 0.19274499187872227,
+    "candidate_target_f1": 0.175054704595186,
+    "delta_f1_vs_baseline": -0.0177,
+    "matched_control_f1": 0.17576419213973798,
+    "delta_f1_vs_control": -0.0007,
+    "baseline_source_f1": 0.49821215733015495,
+    "candidate_source_f1": 0.4648241206030151,
+    "source_retention_delta": -0.0334,
+    "source_retention_preserved": true,
+    "bootstrap_ci_95": [
+      -0.028,
+      -0.0102
+    ],
+    "dcr_privacy_5th_pct": 1.3189,
+    "training_duration_seconds": 1.663,
+    "is_acceptable": false,
+    "package_status": "REJECTED",
+    "rejection_reasons": [
+      "Utility gain below practical margin (+0.01).",
+      "Bootstrap 95% CI upper bound <= 0."
+    ],
+    "created_at_utc": "2026-10-20T11:20:47.739846+00:00"
+  }
+]
