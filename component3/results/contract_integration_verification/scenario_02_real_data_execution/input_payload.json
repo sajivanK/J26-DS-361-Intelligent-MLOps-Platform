@@ -1,0 +1,50 @@
+{
+  "c1_evidence": {
+    "predicted_accuracy_drop": 14.2,
+    "confidence_interval": [
+      10.9,
+      17.5
+    ],
+    "drift_type": "interaction",
+    "drift_severity": "high",
+    "affected_features": [
+      "tenure",
+      "MonthlyCharges"
+    ]
+  },
+  "c2_diagnosis": {
+    "root_cause_feature": "tenure",
+    "root_cause_category": "interaction",
+    "affected_slice_rule": "tenure < 30 AND MonthlyCharges > 50.0",
+    "affected_features_ranked": [
+      "tenure",
+      "MonthlyCharges",
+      "Contract"
+    ],
+    "affected_value_ranges": {
+      "tenure": [
+        0,
+        30
+      ],
+      "MonthlyCharges": [
+        50.0,
+        120.0
+      ]
+    },
+    "slice_support": 0.25,
+    "diagnosis_stability": 0.9,
+    "drift_impact_score": 0.75,
+    "temporal_window": 2
+  },
+  "data_context": {
+    "model_id": "telco_rf_experimental_source",
+    "dataset_id": "telco_churn",
+    "reference_dataset_uri": "component3/data/raw/telco_churn.csv",
+    "current_dataset_uri": "component3/data/raw/telco_churn.csv",
+    "target_column": "Churn",
+    "schema_version": "1.0.0",
+    "label_status": "AVAILABLE",
+    "adaptation_budget_size": 200,
+    "source_retention_tolerance": 0.05
+  }
+}

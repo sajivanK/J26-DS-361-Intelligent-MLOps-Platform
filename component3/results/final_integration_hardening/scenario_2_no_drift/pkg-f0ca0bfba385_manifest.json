@@ -1,0 +1,58 @@
+{
+  "package_id": "PKG-F0CA0BFBA385",
+  "schema_version": "1.0.0",
+  "request_id": "REQ-FROM-C1-EV-FB74E927",
+  "run_id": "RUN-496D2C91FE",
+  "created_at_utc": "2026-10-21T04:32:11.228575+00:00",
+  "dataset_id": "telco_churn",
+  "model_id": "telco_rf_experimental_source",
+  "drift_summary": {
+    "drift_detected": true,
+    "drift_type": "COVARIATE_SHIFT",
+    "drift_severity": "LOW",
+    "severity_score": 0.04
+  },
+  "diagnostic_summary": {
+    "slice_id": "SLICE-FROM-C2-DIAG-04DE0761",
+    "slice_predicate": "MonthlyCharges > 100",
+    "affected_features": [
+      "MonthlyCharges"
+    ],
+    "reported_slice_support": 0.12,
+    "diagnostic_confidence": 0.9,
+    "provenance": "COMPONENT_2_DIAGNOSIS",
+    "is_non_oracle": true
+  },
+  "chosen_strategy": "NO_REPAIR",
+  "generator_info": {
+    "generator": "NONE"
+  },
+  "quantity_selected": 0,
+  "candidate_dataset_path": null,
+  "candidate_dataset_sha256": null,
+  "candidate_model_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\models\\experimental\\telco_rf_experimental_source.joblib",
+  "candidate_model_sha256": "256a692be95a0ea840d9afe03891131bc15c93090d72e3c62f815ac337b75bd0",
+  "validation_report": {},
+  "fidelity_indicators": {},
+  "privacy_risk_indicators": {},
+  "utility_metrics": {},
+  "source_retention_metrics": {},
+  "execution_status": "COMPLETED",
+  "package_status": "ABSTAINED_NO_REPAIR",
+  "rejection_reasons": [
+    "No significant drift detected (severity score < 0.10). Model repair is unnecessary."
+  ],
+  "evidence_limitations": [
+    "Exploratory pilot evidence only; does not claim verified real-world drift recovery.",
+    "Candidate labels reflect generative distribution modeling, not observational ground truth.",
+    "Candidate model requires explicit human sign-off prior to production deployment."
+  ],
+  "requires_human_approval": false,
+  "downstream_handoff_metadata": {
+    "prescription_reasons": [
+      "No significant drift detected (severity score < 0.10). Model repair is unnecessary."
+    ],
+    "decision_mode": "RULE_BASED",
+    "predicted_delta_f1": null
+  }
+}

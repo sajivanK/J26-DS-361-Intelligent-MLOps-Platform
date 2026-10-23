@@ -1,0 +1,67 @@
+{
+  "title": "Component 3 Contract Integration Verification Suite",
+  "timestamp": "2026-10-20T21:00:37.023057+00:00",
+  "scenarios": [
+    {
+      "scenario": "Scenario 1: Exact Adult Contract Input",
+      "status": "PASS",
+      "schema_validation": "PASS",
+      "dependency_resolution": "BLOCKED_CONTROLLED",
+      "telco_fallback": "NONE",
+      "directory": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\contract_integration_verification\\scenario_01_exact_adult_contract"
+    },
+    {
+      "scenario": "Scenario 2: Real Data Execution",
+      "status": "PASS",
+      "package_status": "REJECTED",
+      "generator": "TVAE",
+      "n_synthetic_rows": 0,
+      "schema_validation": "PASS",
+      "repair_csv_exists": false,
+      "directory": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\contract_integration_verification\\scenario_02_real_data_execution"
+    },
+    {
+      "scenario": "Scenario 3: No-Drift Safe Abstention",
+      "status": "PASS",
+      "package_status": "REJECTED",
+      "synthetic_rows": 0,
+      "abstained": true,
+      "directory": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\contract_integration_verification\\scenario_03_no_drift_abstention"
+    },
+    {
+      "scenario": "Scenario 4: Invalid / Malicious Diagnosis",
+      "status": "PASS",
+      "all_rejected": true,
+      "rules_tested": 5,
+      "directory": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\contract_integration_verification\\scenario_04_invalid_diagnosis"
+    },
+    {
+      "scenario": "Scenario 5: Bad Synthetic Data",
+      "status": "PASS",
+      "gate_passed": false,
+      "correctly_rejected": true,
+      "directory": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\contract_integration_verification\\scenario_05_bad_synthetic_data"
+    },
+    {
+      "scenario": "Scenario 6: Insufficient Utility Improvement",
+      "status": "PASS",
+      "package_status": "REJECTED",
+      "correctly_rejected": true,
+      "directory": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\contract_integration_verification\\scenario_06_insufficient_utility"
+    },
+    {
+      "scenario": "Scenario 7: Source Retention Failure",
+      "status": "PASS",
+      "retention_passed": false,
+      "correctly_rejected": true,
+      "directory": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\contract_integration_verification\\scenario_07_source_retention_failure"
+    },
+    {
+      "scenario": "Scenario 8: C4 Consumption Audit",
+      "status": "PASS",
+      "schema_validation": "PASS",
+      "c4_actual_consumption": "UNVERIFIED",
+      "directory": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\contract_integration_verification\\scenario_08_c4_consumption"
+    }
+  ]
+}

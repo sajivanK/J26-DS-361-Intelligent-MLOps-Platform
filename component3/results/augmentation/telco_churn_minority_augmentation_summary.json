@@ -1,0 +1,421 @@
+{
+  "experiment": "Sprint 06 - Batch 5B Track A Minority-Class Augmentation",
+  "dataset": "telco_churn",
+  "budget_K": 200,
+  "model_family": "RandomForestClassifier",
+  "baseline_hyperparameters": {
+    "bootstrap": true,
+    "ccp_alpha": 0.0,
+    "class_weight": "balanced",
+    "criterion": "gini",
+    "max_depth": 10,
+    "max_features": "sqrt",
+    "max_leaf_nodes": null,
+    "max_samples": null,
+    "min_impurity_decrease": 0.0,
+    "min_samples_leaf": 1,
+    "min_samples_split": 2,
+    "min_weight_fraction_leaf": 0.0,
+    "monotonic_cst": null,
+    "n_estimators": 100,
+    "n_jobs": 2,
+    "oob_score": false,
+    "random_state": 42,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "timestamp_utc": "2026-10-19T19:44:41Z",
+  "generator_checkpoint_provenance": {
+    "TVAE": {
+      "path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\generators\\telco_churn_tvae_model.joblib",
+      "generator_type": "TVAE (Variational Autoencoder)",
+      "training_slice": "telco_churn (Churn == Yes)",
+      "training_record_count": 1309,
+      "epoch_count": 10,
+      "random_seed": 42,
+      "preprocessing": "SDV Tabular Metadata (Gaussian copula / mode-specific normalization)",
+      "origin": "Notebook 04 Experiment A (10-Epoch Baseline Pilot)",
+      "overlaps_262_holdout": true,
+      "val_leakage": false
+    },
+    "CTGAN": {
+      "path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\generators\\telco_churn_ctgan_model.joblib",
+      "generator_type": "CTGAN (Conditional WGAN-GP)",
+      "training_slice": "telco_churn (Churn == Yes)",
+      "training_record_count": 1309,
+      "epoch_count": 10,
+      "random_seed": 42,
+      "preprocessing": "SDV Tabular Metadata (Mode-specific normalization + One-hot)",
+      "origin": "Notebook 04 Experiment A (10-Epoch Baseline Pilot)",
+      "overlaps_262_holdout": true,
+      "val_leakage": false
+    },
+    "TabDDPM": {
+      "path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\generators\\telco_churn_tabddpm_model.joblib",
+      "generator_type": "TabDDPM (Denoising Diffusion Probabilistic Model)",
+      "training_slice": "telco_churn (Churn == Yes)",
+      "training_record_count": 1309,
+      "epoch_count": 10,
+      "random_seed": 42,
+      "preprocessing": "Standard scaling on continuous, one-hot on categorical",
+      "origin": "Notebook 04 Experiment A (10-Epoch Baseline Pilot)",
+      "overlaps_262_holdout": true,
+      "val_leakage": false
+    }
+  },
+  "seven_arm_results": [
+    {
+      "arm_id": "Arm A1",
+      "arm_name": "Unaugmented Baseline",
+      "generator_family": "None",
+      "filtering_strategy": "None",
+      "added_samples": 0,
+      "total_train_samples": 4931,
+      "positive_f1": 0.6209,
+      "macro_f1": 0.7224,
+      "precision": 0.5333,
+      "recall": 0.7429,
+      "roc_auc": 0.8466,
+      "pr_auc": 0.6901,
+      "accuracy": 0.7595,
+      "confusion_matrix": [
+        [
+          594,
+          182
+        ],
+        [
+          72,
+          208
+        ]
+      ],
+      "retrain_time_sec": 0.0,
+      "status": "COMPLETED",
+      "positive_f1_ci95": [
+        0.575,
+        0.6629
+      ],
+      "delta_f1_vs_baseline": 0.0,
+      "delta_f1_ci95": [
+        0.0,
+        0.0
+      ],
+      "perm_p_one_sided": 1.0,
+      "perm_p_two_sided": 1.0
+    },
+    {
+      "arm_id": "Arm A2",
+      "arm_name": "Authentic OverSampling (ROS)",
+      "generator_family": "Authentic",
+      "filtering_strategy": "Random OverSampling",
+      "added_samples": 200,
+      "total_train_samples": 5131,
+      "positive_f1": 0.625,
+      "macro_f1": 0.725,
+      "precision": 0.5357,
+      "recall": 0.75,
+      "roc_auc": 0.8481,
+      "pr_auc": 0.6948,
+      "accuracy": 0.7614,
+      "confusion_matrix": [
+        [
+          594,
+          182
+        ],
+        [
+          70,
+          210
+        ]
+      ],
+      "retrain_time_sec": 0.249,
+      "status": "COMPLETED",
+      "positive_f1_ci95": [
+        0.5802,
+        0.6658
+      ],
+      "delta_f1_vs_baseline": 0.0041,
+      "delta_f1_ci95": [
+        -0.0085,
+        0.0185
+      ],
+      "perm_p_one_sided": 0.2845,
+      "perm_p_two_sided": 0.5634
+    },
+    {
+      "arm_id": "Arm A3",
+      "arm_name": "TVAE Random",
+      "generator_family": "TVAE",
+      "filtering_strategy": "Tier 2 Hard Safety",
+      "added_samples": 200,
+      "total_train_samples": 5131,
+      "positive_f1": 0.6175,
+      "macro_f1": 0.7235,
+      "precision": 0.5418,
+      "recall": 0.7179,
+      "roc_auc": 0.8447,
+      "pr_auc": 0.6929,
+      "accuracy": 0.7642,
+      "confusion_matrix": [
+        [
+          606,
+          170
+        ],
+        [
+          79,
+          201
+        ]
+      ],
+      "retrain_time_sec": 0.186,
+      "status": "COMPLETED",
+      "positive_f1_ci95": [
+        0.5719,
+        0.6619
+      ],
+      "delta_f1_vs_baseline": -0.0034,
+      "delta_f1_ci95": [
+        -0.0211,
+        0.012
+      ],
+      "perm_p_one_sided": 0.6434,
+      "perm_p_two_sided": 0.7038
+    },
+    {
+      "arm_id": "Arm A4",
+      "arm_name": "TVAE Quality-Screened",
+      "generator_family": "TVAE",
+      "filtering_strategy": "Tier 2 Hard + Tier 3 Plausibility",
+      "added_samples": 200,
+      "total_train_samples": 5131,
+      "positive_f1": 0.6211,
+      "macro_f1": 0.7275,
+      "precision": 0.5495,
+      "recall": 0.7143,
+      "roc_auc": 0.8472,
+      "pr_auc": 0.6929,
+      "accuracy": 0.7689,
+      "confusion_matrix": [
+        [
+          612,
+          164
+        ],
+        [
+          80,
+          200
+        ]
+      ],
+      "retrain_time_sec": 0.17,
+      "status": "COMPLETED",
+      "positive_f1_ci95": [
+        0.5757,
+        0.6637
+      ],
+      "delta_f1_vs_baseline": 0.0002,
+      "delta_f1_ci95": [
+        -0.0171,
+        0.0172
+      ],
+      "perm_p_one_sided": 0.4748,
+      "perm_p_two_sided": 0.9688
+    },
+    {
+      "arm_id": "Arm A5",
+      "arm_name": "CTGAN Random",
+      "generator_family": "CTGAN",
+      "filtering_strategy": "Tier 2 Hard Safety",
+      "added_samples": 200,
+      "total_train_samples": 5131,
+      "positive_f1": 0.6183,
+      "macro_f1": 0.7193,
+      "precision": 0.5278,
+      "recall": 0.7464,
+      "roc_auc": 0.8441,
+      "pr_auc": 0.6922,
+      "accuracy": 0.7557,
+      "confusion_matrix": [
+        [
+          589,
+          187
+        ],
+        [
+          71,
+          209
+        ]
+      ],
+      "retrain_time_sec": 0.187,
+      "status": "COMPLETED",
+      "positive_f1_ci95": [
+        0.5736,
+        0.6598
+      ],
+      "delta_f1_vs_baseline": -0.0026,
+      "delta_f1_ci95": [
+        -0.0188,
+        0.0148
+      ],
+      "perm_p_one_sided": 0.6209,
+      "perm_p_two_sided": 0.7944
+    },
+    {
+      "arm_id": "Arm A6",
+      "arm_name": "CTGAN Quality-Screened",
+      "generator_family": "CTGAN",
+      "filtering_strategy": "Tier 2 Hard + Tier 3 Plausibility",
+      "added_samples": 200,
+      "total_train_samples": 5131,
+      "positive_f1": 0.6179,
+      "macro_f1": 0.7176,
+      "precision": 0.5236,
+      "recall": 0.7536,
+      "roc_auc": 0.8464,
+      "pr_auc": 0.6941,
+      "accuracy": 0.7528,
+      "confusion_matrix": [
+        [
+          584,
+          192
+        ],
+        [
+          69,
+          211
+        ]
+      ],
+      "retrain_time_sec": 0.183,
+      "status": "COMPLETED",
+      "positive_f1_ci95": [
+        0.5723,
+        0.6589
+      ],
+      "delta_f1_vs_baseline": -0.003,
+      "delta_f1_ci95": [
+        -0.0211,
+        0.0141
+      ],
+      "perm_p_one_sided": 0.6336,
+      "perm_p_two_sided": 0.7334
+    },
+    {
+      "arm_id": "Arm A7",
+      "arm_name": "TabDDPM Deduplicated",
+      "generator_family": "TabDDPM",
+      "filtering_strategy": "Tier 2 Hard + Deduplication",
+      "added_samples": 200,
+      "total_train_samples": 5131,
+      "positive_f1": 0.6184,
+      "macro_f1": 0.7219,
+      "precision": 0.5352,
+      "recall": 0.7321,
+      "roc_auc": 0.8486,
+      "pr_auc": 0.695,
+      "accuracy": 0.7604,
+      "confusion_matrix": [
+        [
+          598,
+          178
+        ],
+        [
+          75,
+          205
+        ]
+      ],
+      "retrain_time_sec": 0.186,
+      "status": "COMPLETED",
+      "positive_f1_ci95": [
+        0.5723,
+        0.6609
+      ],
+      "delta_f1_vs_baseline": -0.0025,
+      "delta_f1_ci95": [
+        -0.0189,
+        0.013
+      ],
+      "perm_p_one_sided": 0.641,
+      "perm_p_two_sided": 0.7611
+    }
+  ],
+  "within_generator_comparisons": [
+    {
+      "generator": "TVAE",
+      "random_arm": "Arm A3 (TVAE Random)",
+      "targeted_arm": "Arm A4 (TVAE Quality-Screened)",
+      "random_f1": 0.6175,
+      "targeted_f1": 0.6211,
+      "filtering_delta": 0.0036,
+      "filtering_delta_ci95": [
+        -0.0116,
+        0.0184
+      ],
+      "perm_p_one_sided_targeted_gt_random": 0.3411,
+      "perm_p_two_sided": 0.6803
+    },
+    {
+      "generator": "CTGAN",
+      "random_arm": "Arm A5 (CTGAN Random)",
+      "targeted_arm": "Arm A6 (CTGAN Quality-Screened)",
+      "random_f1": 0.6183,
+      "targeted_f1": 0.6179,
+      "filtering_delta": -0.0005,
+      "filtering_delta_ci95": [
+        -0.0169,
+        0.0161
+      ],
+      "perm_p_one_sided_targeted_gt_random": 0.5266,
+      "perm_p_two_sided": 0.9914
+    }
+  ],
+  "multiple_comparison_framework": {
+    "primary_family_six_arms_vs_baseline": {
+      "hypotheses_count": 6,
+      "bonferroni_threshold_alpha": 0.00833,
+      "conclusion": "No synthetic arm achieves statistical significance under alpha=0.05 or alpha_bonf=0.00833"
+    },
+    "secondary_subfamily_within_generator": {
+      "hypotheses_count": 2,
+      "bonferroni_threshold_alpha": 0.025,
+      "conclusion": "Neither TVAE nor CTGAN quality screening achieves statistical significance over random selection"
+    },
+    "global_experiment_family": {
+      "hypotheses_count": 8,
+      "bonferroni_threshold_alpha": 0.00625,
+      "conclusion": "Zero synthetic hypotheses achieve significance under global family correction"
+    }
+  },
+  "synthetic_validity_and_diversity_audit": {
+    "tvae": {
+      "total_generated": 800,
+      "hard_valid_count": 752,
+      "hard_valid_unique": 752,
+      "plausible_count": 318,
+      "plausible_unique": 318,
+      "ratio_under_05": 322,
+      "ratio_over_15": 160,
+      "tenure_over_72": 0,
+      "monthly_over_120": 0,
+      "total_over_9000": 0
+    },
+    "ctgan": {
+      "total_generated": 2000,
+      "hard_valid_count": 1279,
+      "hard_valid_unique": 1279,
+      "plausible_count": 250,
+      "plausible_unique": 250,
+      "ratio_under_05": 1010,
+      "ratio_over_15": 720,
+      "tenure_over_72": 1,
+      "monthly_over_120": 4,
+      "total_over_9000": 16
+    },
+    "tabddpm": {
+      "total_generated": 600,
+      "hard_valid_count": 600,
+      "hard_valid_unique": 298,
+      "plausible_count": 163,
+      "plausible_unique": 89,
+      "ratio_under_05": 184,
+      "ratio_over_15": 253,
+      "tenure_over_72": 0,
+      "monthly_over_120": 0,
+      "total_over_9000": 0
+    },
+    "exact_matches_with_authentic_train": 0,
+    "billing_ratio_rule": "Empirically checked physical plausibility constraint [0.5, 1.5], not proof of full real-world validity"
+  }
+}

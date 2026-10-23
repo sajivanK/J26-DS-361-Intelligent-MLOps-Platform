@@ -1,0 +1,14 @@
+{
+  "repair_dataset_uri": "NONE",
+  "repair_package_status": "REJECTED",
+  "generator": "TVAE",
+  "n_synthetic_rows": 0,
+  "augmentation_ratio": 0.0,
+  "fidelity_score": 0.85,
+  "utility_score": 0.8,
+  "privacy_status": "PASS",
+  "target_coverage": 0.93,
+  "prescription_confidence": 0.88,
+  "repair_version": "c3-2a387eb5",
+  "repair_timestamp": "2026-10-20T21:00:58.697568+00:00"
+}

@@ -1,0 +1,134 @@
+{
+  "model_name": "telco_rf_experimental_source",
+  "dataset_id": "telco_churn",
+  "model_family": "random_forest",
+  "hyperparameters": {
+    "n_estimators": 100,
+    "max_depth": 10,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "n_jobs": 2,
+    "bootstrap": true,
+    "criterion": "gini"
+  },
+  "training_seed": 42,
+  "source_train_rows": 3452,
+  "training_label_distribution": {
+    "No": 2536,
+    "Yes": 916
+  },
+  "training_label_proportions": {
+    "No": 0.7346,
+    "Yes": 0.2654
+  },
+  "feature_names": [
+    "tenure",
+    "MonthlyCharges",
+    "TotalCharges",
+    "gender",
+    "SeniorCitizen",
+    "Partner",
+    "Dependents",
+    "PhoneService",
+    "MultipleLines",
+    "InternetService",
+    "OnlineSecurity",
+    "OnlineBackup",
+    "DeviceProtection",
+    "TechSupport",
+    "StreamingTV",
+    "StreamingMovies",
+    "Contract",
+    "PaperlessBilling",
+    "PaymentMethod"
+  ],
+  "num_features": 19,
+  "dataset_fingerprint": "0348ebce7a8c776d",
+  "split_manifest_sha256": "34fa2bb2bcfad28961287343368ceeb87803f3f04542a57595fa89bc444d9c59",
+  "canonical_split_manifest_sha256": "e80e253f91e8712143e15e05dbb4d5c8d2039a69beb23423eec5a87ca217de68",
+  "preprocessor_fitted_population": 3452,
+  "training_duration_seconds": 0.3595,
+  "peak_memory_mb": 160.66,
+  "dependency_versions": {
+    "sklearn": "1.9.1",
+    "numpy": "2.4.6",
+    "pandas": "2.2.3",
+    "joblib": "1.6.0"
+  },
+  "model_artifact_path": "component3\\models\\experimental\\telco_rf_experimental_source.joblib",
+  "preprocessor_artifact_path": "component3\\models\\experimental\\telco_preprocessor_experimental_source.joblib",
+  "model_artifact_sha256": "256a692be95a0ea840d9afe03891131bc15c93090d72e3c62f815ac337b75bd0",
+  "preprocessor_artifact_sha256": "a188f0285e6cf07741bbb69be8b3df44eece492e69166c78d92353f1f4d41224",
+  "reload_prediction_parity": true,
+  "reload_probability_parity": true,
+  "historical_baseline_integrity_verified": true,
+  "source_eval_metrics": {
+    "f1_positive": 0.6075,
+    "macro_f1": 0.7208,
+    "accuracy": 0.7667,
+    "balanced_accuracy": 0.7389,
+    "precision_positive": 0.5494,
+    "recall_positive": 0.6794,
+    "roc_auc": 0.8255,
+    "pr_auc": 0.6225,
+    "confusion_matrix": [
+      [
+        289,
+        73
+      ],
+      [
+        42,
+        89
+      ]
+    ],
+    "support_total": 493,
+    "class_counts": {
+      "No": 362,
+      "Yes": 131
+    },
+    "class_proportions": {
+      "No": 0.7343,
+      "Yes": 0.2657
+    }
+  },
+  "target_eval_frozen_metrics": {
+    "f1_positive": 0.4139,
+    "macro_f1": 0.4198,
+    "accuracy": 0.4199,
+    "balanced_accuracy": 0.4456,
+    "precision_positive": 0.5459,
+    "recall_positive": 0.3333,
+    "roc_auc": 0.4063,
+    "pr_auc": 0.5976,
+    "confusion_matrix": [
+      [
+        106,
+        84
+      ],
+      [
+        202,
+        101
+      ]
+    ],
+    "support_total": 493,
+    "class_counts": {
+      "No": 190,
+      "Yes": 303
+    },
+    "class_proportions": {
+      "No": 0.3854,
+      "Yes": 0.6146
+    }
+  },
+  "degradation_delta": {
+    "delta_f1_positive": -0.1936,
+    "delta_macro_f1": -0.301,
+    "delta_accuracy": -0.3468,
+    "delta_balanced_accuracy": -0.2933,
+    "delta_roc_auc": -0.4192,
+    "delta_pr_auc": -0.0249
+  },
+  "target_labels_inverted": 220,
+  "target_eval_total_rows": 493,
+  "created_at_utc": "2026-10-20T06:00:47.320443+00:00"
+}

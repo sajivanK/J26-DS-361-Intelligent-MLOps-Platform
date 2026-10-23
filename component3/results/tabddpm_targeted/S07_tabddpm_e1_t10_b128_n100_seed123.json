@@ -1,0 +1,75 @@
+{
+  "scenario": "S07",
+  "slice_rule": "age > 0.69 and marital_status == 2",
+  "seed": 123,
+  "epochs": 1,
+  "num_timesteps": 10,
+  "batch_size": 128,
+  "training_rows": 1550,
+  "generation_mode": "unsupervised_exploratory",
+  "n_generated": 100,
+  "training_seconds": 1.2958,
+  "sampling_seconds": 0.0498,
+  "target_coverage": {
+    "total_rows": 100,
+    "matching_rows": 100,
+    "non_matching_rows": 0,
+    "coverage": 1.0,
+    "slice_rule": "age > 0.69 and marital_status == 2"
+  },
+  "numerical_range_diagnostics": {
+    "total_rows": 100,
+    "columns": {
+      "age": {
+        "min": 0.6901907999837542,
+        "max": 4.390317749380032,
+        "invalid_count": 0,
+        "invalid_percentage": 0.0
+      },
+      "education_num": {
+        "min": -3.514975450355983,
+        "max": 2.2919190938354776,
+        "invalid_count": 0,
+        "invalid_percentage": 0.0
+      },
+      "capital_gain": {
+        "min": -0.1453187195974083,
+        "max": 13.555033043532402,
+        "invalid_count": 0,
+        "invalid_percentage": 0.0
+      },
+      "capital_loss": {
+        "min": -0.2173617581138369,
+        "max": 6.210182265952558,
+        "invalid_count": 0,
+        "invalid_percentage": 0.0
+      },
+      "hours_per_week": {
+        "min": -3.179474597939648,
+        "max": 4.712692727092325,
+        "invalid_count": 0,
+        "invalid_percentage": 0.0
+      }
+    },
+    "total_invalid_values": 0,
+    "passed": true
+  },
+  "generated_columns": [
+    "age",
+    "education_num",
+    "capital_gain",
+    "capital_loss",
+    "hours_per_week",
+    "workclass",
+    "marital_status",
+    "occupation",
+    "relationship",
+    "race",
+    "sex",
+    "native_country"
+  ],
+  "missing_values": 0,
+  "created_at_utc": "2026-10-17T14:23:01.511898+00:00",
+  "readiness_source": "synthetic_experiment_decision",
+  "validation_status": "diagnostic_only"
+}

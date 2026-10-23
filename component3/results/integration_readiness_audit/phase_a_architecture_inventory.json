@@ -1,0 +1,272 @@
+[
+  {
+    "title": "RepairRequest input schema",
+    "module": "component3.src.contracts.repair_request",
+    "object_name": "RepairRequest",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\contracts\\repair_request.py",
+    "type": "class",
+    "signature": "(request_id: 'str' = <factory>, schema_version: 'str' = '1.0.0', timestamp_utc: 'str' = <factory>, dataset_id: 'str' = 'telco_churn', model_id: 'str' = 'telco_rf_experimental_source', source_model_path: 'str | Path' = 'component3/models/experimental/telco_rf_experimental_source.joblib', source_preprocessor_path: 'str | Path' = 'component3/models/experimental/telco_preprocessor_experimental_source.joblib', drift_detected: 'bool' = True, drift_type: 'DriftType' = <DriftType.CONCEPT_DRIFT: 'CONCEPT_DRIFT'>, drift_severity: 'DriftSeverity' = <DriftSeverity.HIGH: 'HIGH'>, drift_severity_score: 'float' = 0.5, affected_features: 'tuple[str, ...]' = ('tenure',), diagnostic_slice: 'DiagnosticSliceDefinition | None' = None, has_authentic_adaptation_labels: 'bool' = True, adaptation_data_path: 'str | Path | None' = None, adaptation_budget_size: 'int' = 200, repair_objective: 'RepairObjective' = <RepairObjective.BALANCED_RETENTION: 'BALANCED_RETENTION'>, source_retention_tolerance: 'float' = 0.05, target_f1_improvement_threshold: 'float' = 0.02, max_candidate_search_budget: 'int' = 200, max_cpu_cores: 'int' = 2, max_memory_mb: 'float' = 4096.0, max_runtime_seconds: 'float' = 300.0, min_dcr_p05: 'float' = 0.01, min_structural_validity_rate: 'float' = 0.95, max_exact_duplicate_ratio: 'float' = 0.0, execution_mode: 'ExecutionMode' = <ExecutionMode.EXECUTE: 'EXECUTE'>) -> None",
+    "summary": "Versioned, validated repair request contract.",
+    "key_methods": [
+      "__delattr__",
+      "__eq__",
+      "__hash__",
+      "__init__",
+      "__post_init__",
+      "__repr__",
+      "__setattr__",
+      "to_dict"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "C1 drift adapter",
+    "module": "component3.src.adapters.c1_drift_adapter",
+    "object_name": "C1DriftAdapter",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\adapters\\c1_drift_adapter.py",
+    "type": "class",
+    "signature": "(default_dataset_id: 'str' = 'telco_churn') -> 'None'",
+    "summary": "Adapter transforming C1 drift payloads into validated Component 3 RepairRequests.",
+    "key_methods": [
+      "__init__",
+      "adapt"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "C2 diagnosis adapter",
+    "module": "component3.src.adapters.c2_diagnosis_adapter",
+    "object_name": "C2DiagnosisAdapter",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\adapters\\c2_diagnosis_adapter.py",
+    "type": "class",
+    "signature": "()",
+    "summary": "Adapter transforming C2 diagnosis payloads into validated DiagnosticSliceDefinitions.",
+    "key_methods": [
+      "adapt"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "Prescription engine",
+    "module": "component3.src.prescription.prescription_engine",
+    "object_name": "RepairPrescriptionEngine",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\prescription\\prescription_engine.py",
+    "type": "class",
+    "signature": "(evidence_registry_path: 'Path | str | None' = None) -> 'None'",
+    "summary": "Deterministic strategy selector based on Batch 5M taxonomy and pre-decision context.",
+    "key_methods": [
+      "__init__",
+      "_load_historical_evidence",
+      "extract_pre_decision_features",
+      "prescribe"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "Learned prescription model",
+    "module": "component3.src.prescription.learned_model",
+    "object_name": "LearnedPrescriptionModel",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\prescription\\learned_model.py",
+    "type": "class",
+    "signature": "(seed: 'int' = 42, use_ensemble: 'bool' = True) -> 'None'",
+    "summary": "Supervised ML model predicting strategy acceptance and expected utility.",
+    "key_methods": [
+      "__init__",
+      "evaluate_group_aware_cv",
+      "fit",
+      "is_out_of_distribution",
+      "predict_strategy",
+      "save"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "Candidate Ranker",
+    "module": "component3.src.prescription.candidate_ranker",
+    "object_name": "IntelligentCandidateRanker",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\prescription\\candidate_ranker.py",
+    "type": "class",
+    "signature": "(seed: 'int' = 42, min_utility_threshold: 'float' = 0.005, min_prob_threshold: 'float' = 0.25) -> 'None'",
+    "summary": "Supervised candidate ranker and utility predictor for intelligent prescription.",
+    "key_methods": [
+      "__init__",
+      "check_ood",
+      "enumerate_feasible_candidates",
+      "fit",
+      "rank_candidates",
+      "save"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "Generator selector",
+    "module": "component3.src.generators.generator_selector",
+    "object_name": "GeneratorSelector",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\generators\\generator_selector.py",
+    "type": "class",
+    "signature": "(plugin_manager: 'GeneratorPluginManager | None' = None) -> 'None'",
+    "summary": "Selects, configures, and executes tabular data generators with fallback.",
+    "key_methods": [
+      "__init__",
+      "check_compatibility",
+      "fit_and_sample",
+      "select_fallback_generator"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "Quantity planner",
+    "module": "component3.src.planning.quantity_planner",
+    "object_name": "RepairQuantityPlanner",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\planning\\quantity_planner.py",
+    "type": "class",
+    "signature": "(candidate_quantities: 'tuple[int, ...]' = (25, 50, 100, 200), max_search_budget: 'int' = 500) -> 'None'",
+    "summary": "Searches a bounded candidate grid to find the minimum effective augmentation quantity.",
+    "key_methods": [
+      "__init__",
+      "plan_quantity"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "CTGAN generator",
+    "module": "component3.src.generators.ctgan_generator",
+    "object_name": "CTGANGenerator",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\generators\\ctgan_generator.py",
+    "type": "class",
+    "signature": "(epochs: 'int' = 300, discrete_columns: 'list[str] | tuple[str, ...] | None' = None)",
+    "summary": "CTGAN generator with optional categorical feature metadata.",
+    "key_methods": [
+      "__init__",
+      "fit",
+      "sample"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "TVAE generator",
+    "module": "component3.src.generators.tvae_generator",
+    "object_name": "TVAEGenerator",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\generators\\tvae_generator.py",
+    "type": "class",
+    "signature": "(epochs: 'int' = 300, discrete_columns: 'list[str] | tuple[str, ...] | None' = None)",
+    "summary": "TVAE synthetic tabular data generator with optional categorical metadata.",
+    "key_methods": [
+      "__init__",
+      "fit",
+      "sample"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "TabDDPM generator",
+    "module": "component3.src.generators.tabddpm_generator",
+    "object_name": "TabDDPMGenerator",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\generators\\tabddpm_generator.py",
+    "type": "class",
+    "signature": "(epochs: 'int' = 10, batch_size: 'int' = 256, num_timesteps: 'int' = 100, learning_rate: 'float' = 0.001, discrete_columns: 'list[str] | tuple[str, ...] | None' = None)",
+    "summary": "TabDDPM-based synthetic tabular data generator.",
+    "key_methods": [
+      "__init__",
+      "fit",
+      "sample",
+      "validate_numerical_ranges"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "Validation pipeline",
+    "module": "component3.src.validation.validation_pipeline",
+    "object_name": "UnifiedValidationPipeline",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\validation\\validation_pipeline.py",
+    "type": "class",
+    "signature": "(mode: 'str' = 'production', strict_privacy: 'bool' = True, strict_fidelity: 'bool' = True) -> 'None'",
+    "summary": "Orchestrates comprehensive multi-stage validation for synthetic candidates.",
+    "key_methods": [
+      "__init__",
+      "validate"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "Utility evaluator",
+    "module": "component3.src.validation.utility_evaluator",
+    "object_name": "UtilityEvaluator",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\validation\\utility_evaluator.py",
+    "type": "other",
+    "signature": "N/A",
+    "summary": "No docstring",
+    "key_methods": [],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "Repair orchestrator",
+    "module": "component3.src.orchestration.repair_orchestrator",
+    "object_name": "RepairOrchestrator",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\orchestration\\repair_orchestrator.py",
+    "type": "class",
+    "signature": "(prescription_engine: 'RepairPrescriptionEngine | None' = None, generator_selector: 'GeneratorSelector | None' = None, validation_pipeline: 'UnifiedValidationPipeline | None' = None, retraining_evaluator: 'RetrainingEvaluator | None' = None, quantity_planner: 'RepairQuantityPlanner | None' = None) -> 'None'",
+    "summary": "Production orchestrator driving the entire Component 3 repair workflow.",
+    "key_methods": [
+      "__init__",
+      "execute_repair"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "RepairPackage output schema",
+    "module": "component3.src.contracts.repair_package",
+    "object_name": "RepairPackage",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\contracts\\repair_package.py",
+    "type": "class",
+    "signature": "(package_id: 'str' = <factory>, schema_version: 'str' = '1.0.0', request_id: 'str' = '', run_id: 'str' = '', created_at_utc: 'str' = <factory>, dataset_id: 'str' = 'telco_churn', model_id: 'str' = 'telco_rf_experimental_source', drift_summary: 'dict[str, Any]' = <factory>, diagnostic_summary: 'dict[str, Any]' = <factory>, chosen_strategy: 'str' = 'NO_REPAIR', generator_info: 'dict[str, Any]' = <factory>, quantity_selected: 'int' = 0, candidate_dataset_path: 'str | None' = None, candidate_dataset_sha256: 'str | None' = None, candidate_model_path: 'str | None' = None, candidate_model_sha256: 'str | None' = None, validation_report: 'dict[str, Any]' = <factory>, fidelity_indicators: 'dict[str, Any]' = <factory>, privacy_risk_indicators: 'dict[str, Any]' = <factory>, utility_metrics: 'dict[str, Any]' = <factory>, source_retention_metrics: 'dict[str, Any]' = <factory>, execution_status: 'str' = 'COMPLETED', package_status: 'RepairPackageStatus' = <RepairPackageStatus.ABSTAINED_NO_REPAIR: 'ABSTAINED_NO_REPAIR'>, rejection_reasons: 'tuple[str, ...]' = (), evidence_limitations: 'tuple[str, ...]' = ('Exploratory pilot evidence only; does not claim verified real-world drift recovery.', 'Candidate labels reflect generative distribution modeling, not observational ground truth.', 'Candidate model requires explicit human sign-off prior to production deployment.'), requires_human_approval: 'bool' = True, downstream_handoff_metadata: 'dict[str, Any]' = <factory>) -> None",
+    "summary": "Versioned, auditable repair package contract.",
+    "key_methods": [
+      "__delattr__",
+      "__eq__",
+      "__hash__",
+      "__init__",
+      "__repr__",
+      "__setattr__",
+      "compute_package_hmac",
+      "save_package"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "C4 retraining adapter",
+    "module": "component3.src.adapters.c4_retraining_adapter",
+    "object_name": "C4RetrainingAdapter",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\adapters\\c4_retraining_adapter.py",
+    "type": "class",
+    "signature": "(schema_version: 'str' = '1.0.0') -> 'None'",
+    "summary": "Adapter transforming Component 3 RepairPackage into Component 4 review payload.",
+    "key_methods": [
+      "__init__",
+      "export"
+    ],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "API module",
+    "module": "component3.src.api",
+    "object_name": "execute_repair",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\api.py",
+    "type": "function",
+    "signature": "(request: 'RepairRequest | dict[str, Any] | str | Path', output_directory: 'str | Path | None' = None, df_source_train: 'pd.DataFrame | None' = None, df_adaptation: 'pd.DataFrame | None' = None, df_dev_val: 'pd.DataFrame | None' = None, df_source_eval: 'pd.DataFrame | None' = None, pre_generated_candidates_df: 'pd.DataFrame | None' = None, decision_mode: 'str | DecisionMode' = 'RULE_BASED') -> 'tuple[RepairPackage, OrchestratorExecutionLog]'",
+    "summary": "Execute end-to-end repair pipeline for a given RepairRequest.",
+    "key_methods": [],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "title": "CLI module",
+    "module": "component3.src.cli",
+    "object_name": "main",
+    "file_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\src\\cli.py",
+    "type": "function",
+    "signature": "(argv: 'list[str] | None' = None) -> 'int'",
+    "summary": "No docstring",
+    "key_methods": [],
+    "status": "IMPLEMENTED"
+  }
+]

@@ -1,0 +1,58 @@
+{
+  "validation_status": "PASS",
+  "created_at_utc": "2026-10-17T16:11:40.963519+00:00",
+  "total_experiments": 63,
+  "expected_experiments": 63,
+  "generators": [
+    "ctgan",
+    "tabddpm",
+    "tvae"
+  ],
+  "scenarios": [
+    "S01",
+    "S02",
+    "S03",
+    "S04",
+    "S05",
+    "S06",
+    "S07"
+  ],
+  "seeds": [
+    42,
+    123,
+    456
+  ],
+  "total_generated_rows": 6300,
+  "total_matching_rows": 6265,
+  "total_missing_values": 0,
+  "generator_summaries": {
+    "ctgan": {
+      "experiments": 21,
+      "generated_rows": 2100,
+      "matching_rows": 2066,
+      "aggregate_coverage_percent": 98.381,
+      "mean_training_seconds": 12.1822,
+      "mean_sampling_seconds": null,
+      "observed_range_violations": null
+    },
+    "tabddpm": {
+      "experiments": 21,
+      "generated_rows": 2100,
+      "matching_rows": 2100,
+      "aggregate_coverage_percent": 100.0,
+      "mean_training_seconds": 4.0694,
+      "mean_sampling_seconds": 0.0852,
+      "observed_range_violations": 0
+    },
+    "tvae": {
+      "experiments": 21,
+      "generated_rows": 2100,
+      "matching_rows": 2099,
+      "aggregate_coverage_percent": 99.9524,
+      "mean_training_seconds": 10.562,
+      "mean_sampling_seconds": null,
+      "observed_range_violations": null
+    }
+  },
+  "errors": []
+}

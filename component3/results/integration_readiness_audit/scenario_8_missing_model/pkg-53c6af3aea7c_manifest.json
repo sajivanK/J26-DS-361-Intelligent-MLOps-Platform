@@ -1,0 +1,35 @@
+{
+  "package_id": "PKG-53C6AF3AEA7C",
+  "schema_version": "1.0.0",
+  "request_id": "REQ-SCENARIO-08-MISSING-MODEL",
+  "run_id": "RUN-B6F0888384",
+  "created_at_utc": "2026-10-20T20:04:58.419608+00:00",
+  "dataset_id": "telco_churn",
+  "model_id": "nonexistent_phantom_model",
+  "drift_summary": {},
+  "diagnostic_summary": {},
+  "chosen_strategy": "NO_REPAIR",
+  "generator_info": {},
+  "quantity_selected": 0,
+  "candidate_dataset_path": null,
+  "candidate_dataset_sha256": null,
+  "candidate_model_path": null,
+  "candidate_model_sha256": null,
+  "validation_report": {},
+  "fidelity_indicators": {},
+  "privacy_risk_indicators": {},
+  "utility_metrics": {},
+  "source_retention_metrics": {},
+  "execution_status": "FAILED",
+  "package_status": "FAILED",
+  "rejection_reasons": [
+    "Source model or preprocessor file missing: D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\models\\phantom\\does_not_exist.joblib, D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\models\\phantom\\preprocessor_missing.joblib"
+  ],
+  "evidence_limitations": [
+    "Exploratory pilot evidence only; does not claim verified real-world drift recovery.",
+    "Candidate labels reflect generative distribution modeling, not observational ground truth.",
+    "Candidate model requires explicit human sign-off prior to production deployment."
+  ],
+  "requires_human_approval": true,
+  "downstream_handoff_metadata": {}
+}

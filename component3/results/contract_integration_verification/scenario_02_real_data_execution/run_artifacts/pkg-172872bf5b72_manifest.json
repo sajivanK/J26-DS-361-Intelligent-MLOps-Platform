@@ -1,0 +1,122 @@
+{
+  "package_id": "PKG-172872BF5B72",
+  "schema_version": "1.0.0",
+  "request_id": "REQ-FROM-C1-EV-451CCBA4",
+  "run_id": "RUN-25F841450B",
+  "created_at_utc": "2026-10-20T20:53:55.190690+00:00",
+  "dataset_id": "telco_churn",
+  "model_id": "telco_rf_experimental_source",
+  "drift_summary": {
+    "drift_detected": true,
+    "drift_type": "INTERACTION",
+    "drift_severity": "HIGH",
+    "severity_score": 0.142
+  },
+  "diagnostic_summary": {
+    "slice_id": "SLICE-FROM-C2-DIAG-802CB052",
+    "slice_predicate": "tenure < 12 and MonthlyCharges > 70.0",
+    "affected_features": [
+      "tenure",
+      "MonthlyCharges",
+      "Contract"
+    ],
+    "reported_slice_support": 0.2,
+    "diagnostic_confidence": 0.9,
+    "provenance": "COMPONENT_2_DIAGNOSIS",
+    "is_non_oracle": true
+  },
+  "chosen_strategy": "TARGETED_SYNTHETIC_REPAIR",
+  "generator_info": {
+    "generator": "tvae",
+    "sample_weight_policy": {
+      "source": 1.0,
+      "target": 2.0,
+      "synth": 2.0
+    }
+  },
+  "quantity_selected": 0,
+  "candidate_dataset_path": null,
+  "candidate_dataset_sha256": null,
+  "candidate_model_path": null,
+  "candidate_model_sha256": null,
+  "validation_report": {},
+  "fidelity_indicators": {},
+  "privacy_risk_indicators": {},
+  "utility_metrics": {},
+  "source_retention_metrics": {
+    "source_f1": null,
+    "source_delta": null,
+    "source_retention_delta": null,
+    "source_retention_preserved": false,
+    "evidence_status": "MISSING_EVIDENCE"
+  },
+  "execution_status": "COMPLETED",
+  "package_status": "REJECTED",
+  "rejection_reasons": [
+    "Candidate generation failed at K=25: No compatible generator found. Primary 'tvae' failed: Dataset has 24 rows; generators require at least 30 rows.",
+    "Candidate generation failed at K=50: No compatible generator found. Primary 'tvae' failed: Dataset has 24 rows; generators require at least 30 rows.",
+    "Candidate generation failed at K=100: No compatible generator found. Primary 'tvae' failed: Dataset has 24 rows; generators require at least 30 rows.",
+    "Candidate generation failed at K=200: No compatible generator found. Primary 'tvae' failed: Dataset has 24 rows; generators require at least 30 rows."
+  ],
+  "evidence_limitations": [
+    "Exploratory pilot evidence only; does not claim verified real-world drift recovery.",
+    "Candidate labels reflect generative distribution modeling, not observational ground truth.",
+    "Candidate model requires explicit human sign-off prior to production deployment."
+  ],
+  "requires_human_approval": true,
+  "downstream_handoff_metadata": {
+    "pre_decision_features": {
+      "dataset_id": "telco_churn",
+      "total_features_count": 19,
+      "numerical_features_count": 3,
+      "categorical_features_count": 16,
+      "drift_detected": true,
+      "drift_type": "INTERACTION",
+      "drift_severity": "HIGH",
+      "drift_severity_score": 0.142,
+      "affected_features_count": 2,
+      "diagnostic_slice_identified": true,
+      "diagnostic_slice_support": 0.2,
+      "has_authentic_adaptation_labels": true,
+      "adaptation_budget_size": 200,
+      "source_retention_tolerance": 0.05,
+      "repair_objective": "BALANCED_RETENTION",
+      "max_cpu_cores": 2,
+      "max_memory_mb": 4096.0,
+      "max_runtime_seconds": 300.0
+    },
+    "governance_checks_passed": [
+      "GATE_1_REQUEST_VALIDATION",
+      "GATE_2_DRIFT_SEVERITY_VERIFIED",
+      "GATE_3_AUTHENTIC_LABELS_AVAILABLE",
+      "GATE_4_SOURCE_MODEL_COMPATIBILITY",
+      "GATE_5_RESOURCE_LIMITS_CHECKED",
+      "GATE_6_BUDGET_SUFFICIENCY_CHECKED",
+      "GATE_7_TARGETED_SLICE_ELIGIBLE"
+    ],
+    "search_history": [
+      {
+        "quantity": 25,
+        "status": "GENERATION_FAILED",
+        "error": "No compatible generator found. Primary 'tvae' failed: Dataset has 24 rows; generators require at least 30 rows."
+      },
+      {
+        "quantity": 50,
+        "status": "GENERATION_FAILED",
+        "error": "No compatible generator found. Primary 'tvae' failed: Dataset has 24 rows; generators require at least 30 rows."
+      },
+      {
+        "quantity": 100,
+        "status": "GENERATION_FAILED",
+        "error": "No compatible generator found. Primary 'tvae' failed: Dataset has 24 rows; generators require at least 30 rows."
+      },
+      {
+        "quantity": 200,
+        "status": "GENERATION_FAILED",
+        "error": "No compatible generator found. Primary 'tvae' failed: Dataset has 24 rows; generators require at least 30 rows."
+      }
+    ],
+    "decision_mode": "RULE_BASED",
+    "predicted_delta_f1": null
+  }
+}

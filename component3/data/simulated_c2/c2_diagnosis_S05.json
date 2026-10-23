@@ -1,0 +1,23 @@
+{
+  "root_cause_feature": "age",
+  "root_cause_category": "marginal",
+  "affected_slice_rule": "age > 0.69 and education_num < -0.03",
+  "affected_features_ranked": [
+    "age",
+    "education_num"
+  ],
+  "affected_value_ranges": {
+    "age": [
+      0.7632002135197443,
+      3.768899116196436
+    ],
+    "education_num": [
+      -3.514975450355983,
+      -0.0308387238411065
+    ]
+  },
+  "slice_support": 0.057,
+  "diagnosis_stability": 0.88,
+  "drift_impact_score": 0.72,
+  "temporal_window": 4
+}

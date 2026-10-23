@@ -1,0 +1,30 @@
+{
+  "dataset_id": "telco_churn",
+  "source_dataset_fingerprint": "0348ebce7a8c776d",
+  "canonical_train_size": 4931,
+  "total_unique_feature_groups": 4903,
+  "duplicate_feature_groups": 23,
+  "rows_in_duplicate_groups": 51,
+  "pairwise_cross_partition_index_overlaps": {
+    "source_train_vs_source_eval": 0,
+    "source_train_vs_target_adapt_pool": 0,
+    "source_train_vs_target_eval": 0,
+    "source_eval_vs_target_adapt_pool": 0,
+    "source_eval_vs_target_eval": 0,
+    "target_adapt_pool_vs_target_eval": 0
+  },
+  "pairwise_cross_partition_group_overlaps": {
+    "source_train_vs_source_eval": 0,
+    "source_train_vs_target_adapt_pool": 0,
+    "source_train_vs_target_eval": 0,
+    "source_eval_vs_target_adapt_pool": 0,
+    "source_eval_vs_target_eval": 0,
+    "target_adapt_pool_vs_target_eval": 0
+  },
+  "total_cross_partition_index_overlaps": 0,
+  "total_cross_partition_group_overlaps": 0,
+  "row_conservation_verified": true,
+  "fingerprint_verified": true,
+  "leakage_audit_status": "PASS",
+  "verified_at_utc": "2026-10-20T05:35:24.706055+00:00"
+}

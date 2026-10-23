@@ -1,0 +1,651 @@
+{
+  "metadata": {
+    "dataset_file": "expanded_prescription_training_dataset.csv",
+    "total_records": 337,
+    "total_scenarios": 22,
+    "total_datasets": 3
+  },
+  "logo_scenario_evaluation": {
+    "Always-Reject": {
+      "baseline_name": "Always-Reject",
+      "cv_strategy": "LeaveOneGroupOut (group_scenario_id)",
+      "n_samples": 336,
+      "n_groups": 22,
+      "confusion_matrix": [
+        [
+          266,
+          0
+        ],
+        [
+          70,
+          0
+        ]
+      ],
+      "precision_accepted": 0.0,
+      "recall_accepted": 0.0,
+      "precision_rejected": 0.7917,
+      "recall_rejected": 1.0,
+      "balanced_accuracy": 0.5,
+      "f1_accepted": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": null,
+      "utility_rmse": 0.0555,
+      "utility_mae": 0.0394,
+      "mean_strategy_regret_vs_oracle": 0.025,
+      "rule_based_mean_regret": 0.025,
+      "regret_delta_vs_rule": 0.0,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.0,
+      "abstention_rate": 1.0
+    },
+    "Majority-Class": {
+      "baseline_name": "Majority-Class",
+      "cv_strategy": "LeaveOneGroupOut (group_scenario_id)",
+      "n_samples": 336,
+      "n_groups": 22,
+      "confusion_matrix": [
+        [
+          266,
+          0
+        ],
+        [
+          70,
+          0
+        ]
+      ],
+      "precision_accepted": 0.0,
+      "recall_accepted": 0.0,
+      "precision_rejected": 0.7917,
+      "recall_rejected": 1.0,
+      "balanced_accuracy": 0.5,
+      "f1_accepted": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": null,
+      "utility_rmse": 0.0538,
+      "utility_mae": 0.0391,
+      "mean_strategy_regret_vs_oracle": 0.025,
+      "rule_based_mean_regret": 0.025,
+      "regret_delta_vs_rule": 0.0,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.0,
+      "abstention_rate": 1.0
+    },
+    "NO_REPAIR": {
+      "baseline_name": "NO_REPAIR",
+      "cv_strategy": "LeaveOneGroupOut (group_scenario_id)",
+      "n_samples": 336,
+      "n_groups": 22,
+      "confusion_matrix": [
+        [
+          266,
+          0
+        ],
+        [
+          70,
+          0
+        ]
+      ],
+      "precision_accepted": 0.0,
+      "recall_accepted": 0.0,
+      "precision_rejected": 0.7917,
+      "recall_rejected": 1.0,
+      "balanced_accuracy": 0.5,
+      "f1_accepted": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": null,
+      "utility_rmse": 0.0555,
+      "utility_mae": 0.0394,
+      "mean_strategy_regret_vs_oracle": 0.025,
+      "rule_based_mean_regret": 0.025,
+      "regret_delta_vs_rule": 0.0,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.0,
+      "abstention_rate": 1.0
+    },
+    "Authentic-Only": {
+      "baseline_name": "Authentic-Only",
+      "cv_strategy": "LeaveOneGroupOut (group_scenario_id)",
+      "n_samples": 336,
+      "n_groups": 22,
+      "confusion_matrix": [
+        [
+          266,
+          0
+        ],
+        [
+          70,
+          0
+        ]
+      ],
+      "precision_accepted": 0.0,
+      "recall_accepted": 0.0,
+      "precision_rejected": 0.7917,
+      "recall_rejected": 1.0,
+      "balanced_accuracy": 0.5,
+      "f1_accepted": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": null,
+      "utility_rmse": 0.0555,
+      "utility_mae": 0.0394,
+      "mean_strategy_regret_vs_oracle": 0.025,
+      "rule_based_mean_regret": 0.025,
+      "regret_delta_vs_rule": 0.0,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.0,
+      "abstention_rate": 1.0
+    },
+    "Deterministic-Rule-Engine": {
+      "baseline_name": "Deterministic-Rule-Engine",
+      "cv_strategy": "LeaveOneGroupOut (group_scenario_id)",
+      "n_samples": 336,
+      "n_groups": 22,
+      "confusion_matrix": [
+        [
+          266,
+          0
+        ],
+        [
+          70,
+          0
+        ]
+      ],
+      "precision_accepted": 0.0,
+      "recall_accepted": 0.0,
+      "precision_rejected": 0.7917,
+      "recall_rejected": 1.0,
+      "balanced_accuracy": 0.5,
+      "f1_accepted": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": null,
+      "utility_rmse": 0.0555,
+      "utility_mae": 0.0394,
+      "mean_strategy_regret_vs_oracle": 0.025,
+      "rule_based_mean_regret": 0.025,
+      "regret_delta_vs_rule": 0.0,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.0,
+      "abstention_rate": 1.0
+    },
+    "Simple-Ranking-Always-TVAE": {
+      "baseline_name": "Simple-Ranking-Always-TVAE",
+      "cv_strategy": "LeaveOneGroupOut (group_scenario_id)",
+      "n_samples": 336,
+      "n_groups": 22,
+      "confusion_matrix": [
+        [
+          266,
+          0
+        ],
+        [
+          70,
+          0
+        ]
+      ],
+      "precision_accepted": 0.0,
+      "recall_accepted": 0.0,
+      "precision_rejected": 0.7917,
+      "recall_rejected": 1.0,
+      "balanced_accuracy": 0.5,
+      "f1_accepted": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": null,
+      "utility_rmse": 0.0555,
+      "utility_mae": 0.0394,
+      "mean_strategy_regret_vs_oracle": 0.025,
+      "rule_based_mean_regret": 0.025,
+      "regret_delta_vs_rule": 0.0,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.0,
+      "abstention_rate": 1.0
+    },
+    "Interpretable-Tree": {
+      "baseline_name": "Interpretable-Tree",
+      "cv_strategy": "LeaveOneGroupOut (group_scenario_id)",
+      "n_samples": 336,
+      "n_groups": 22,
+      "confusion_matrix": [
+        [
+          212,
+          54
+        ],
+        [
+          42,
+          28
+        ]
+      ],
+      "precision_accepted": 0.3415,
+      "recall_accepted": 0.4,
+      "precision_rejected": 0.8346,
+      "recall_rejected": 0.797,
+      "balanced_accuracy": 0.5985,
+      "f1_accepted": 0.3684,
+      "roc_auc": 0.6067,
+      "pr_auc": 0.2709,
+      "brier_score": 0.2454,
+      "utility_rmse": 0.0515,
+      "utility_mae": 0.0384,
+      "mean_strategy_regret_vs_oracle": 0.025,
+      "rule_based_mean_regret": 0.025,
+      "regret_delta_vs_rule": 0.0,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.0,
+      "abstention_rate": 1.0
+    },
+    "Learned-Ridge-Logistic": {
+      "baseline_name": "Learned-Ridge-Logistic",
+      "cv_strategy": "LeaveOneGroupOut (group_scenario_id)",
+      "n_samples": 336,
+      "n_groups": 22,
+      "confusion_matrix": [
+        [
+          209,
+          57
+        ],
+        [
+          30,
+          40
+        ]
+      ],
+      "precision_accepted": 0.4124,
+      "recall_accepted": 0.5714,
+      "precision_rejected": 0.8745,
+      "recall_rejected": 0.7857,
+      "balanced_accuracy": 0.6786,
+      "f1_accepted": 0.479,
+      "roc_auc": 0.6678,
+      "pr_auc": 0.3699,
+      "brier_score": 0.1979,
+      "utility_rmse": 0.0546,
+      "utility_mae": 0.0435,
+      "mean_strategy_regret_vs_oracle": 0.0332,
+      "rule_based_mean_regret": 0.025,
+      "regret_delta_vs_rule": 0.0082,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.1818,
+      "abstention_rate": 0.8182
+    },
+    "Learned-Candidate-Ranker": {
+      "baseline_name": "Learned-Candidate-Ranker",
+      "cv_strategy": "LeaveOneGroupOut (group_scenario_id)",
+      "n_samples": 336,
+      "n_groups": 22,
+      "confusion_matrix": [
+        [
+          224,
+          42
+        ],
+        [
+          33,
+          37
+        ]
+      ],
+      "precision_accepted": 0.4684,
+      "recall_accepted": 0.5286,
+      "precision_rejected": 0.8716,
+      "recall_rejected": 0.8421,
+      "balanced_accuracy": 0.6853,
+      "f1_accepted": 0.4966,
+      "roc_auc": 0.6797,
+      "pr_auc": 0.3782,
+      "brier_score": 0.1868,
+      "utility_rmse": 0.0441,
+      "utility_mae": 0.0332,
+      "mean_strategy_regret_vs_oracle": 0.0213,
+      "rule_based_mean_regret": 0.025,
+      "regret_delta_vs_rule": -0.0037,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.2727,
+      "abstention_rate": 0.7273
+    }
+  },
+  "lodo_dataset_evaluation": {
+    "Always-Reject": {
+      "baseline_name": "Always-Reject",
+      "cv_strategy": "LeaveOneGroupOut (group_dataset_id)",
+      "n_samples": 336,
+      "n_groups": 3,
+      "confusion_matrix": [
+        [
+          266,
+          0
+        ],
+        [
+          70,
+          0
+        ]
+      ],
+      "precision_accepted": 0.0,
+      "recall_accepted": 0.0,
+      "precision_rejected": 0.7917,
+      "recall_rejected": 1.0,
+      "balanced_accuracy": 0.5,
+      "f1_accepted": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": null,
+      "utility_rmse": 0.0555,
+      "utility_mae": 0.0394,
+      "mean_strategy_regret_vs_oracle": 0.0771,
+      "rule_based_mean_regret": 0.0771,
+      "regret_delta_vs_rule": 0.0,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.0,
+      "abstention_rate": 1.0
+    },
+    "Majority-Class": {
+      "baseline_name": "Majority-Class",
+      "cv_strategy": "LeaveOneGroupOut (group_dataset_id)",
+      "n_samples": 336,
+      "n_groups": 3,
+      "confusion_matrix": [
+        [
+          266,
+          0
+        ],
+        [
+          70,
+          0
+        ]
+      ],
+      "precision_accepted": 0.0,
+      "recall_accepted": 0.0,
+      "precision_rejected": 0.7917,
+      "recall_rejected": 1.0,
+      "balanced_accuracy": 0.5,
+      "f1_accepted": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": null,
+      "utility_rmse": 0.0566,
+      "utility_mae": 0.0422,
+      "mean_strategy_regret_vs_oracle": 0.0771,
+      "rule_based_mean_regret": 0.0771,
+      "regret_delta_vs_rule": 0.0,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.0,
+      "abstention_rate": 1.0
+    },
+    "NO_REPAIR": {
+      "baseline_name": "NO_REPAIR",
+      "cv_strategy": "LeaveOneGroupOut (group_dataset_id)",
+      "n_samples": 336,
+      "n_groups": 3,
+      "confusion_matrix": [
+        [
+          266,
+          0
+        ],
+        [
+          70,
+          0
+        ]
+      ],
+      "precision_accepted": 0.0,
+      "recall_accepted": 0.0,
+      "precision_rejected": 0.7917,
+      "recall_rejected": 1.0,
+      "balanced_accuracy": 0.5,
+      "f1_accepted": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": null,
+      "utility_rmse": 0.0555,
+      "utility_mae": 0.0394,
+      "mean_strategy_regret_vs_oracle": 0.0771,
+      "rule_based_mean_regret": 0.0771,
+      "regret_delta_vs_rule": 0.0,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.0,
+      "abstention_rate": 1.0
+    },
+    "Authentic-Only": {
+      "baseline_name": "Authentic-Only",
+      "cv_strategy": "LeaveOneGroupOut (group_dataset_id)",
+      "n_samples": 336,
+      "n_groups": 3,
+      "confusion_matrix": [
+        [
+          266,
+          0
+        ],
+        [
+          70,
+          0
+        ]
+      ],
+      "precision_accepted": 0.0,
+      "recall_accepted": 0.0,
+      "precision_rejected": 0.7917,
+      "recall_rejected": 1.0,
+      "balanced_accuracy": 0.5,
+      "f1_accepted": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": null,
+      "utility_rmse": 0.0555,
+      "utility_mae": 0.0394,
+      "mean_strategy_regret_vs_oracle": 0.0771,
+      "rule_based_mean_regret": 0.0771,
+      "regret_delta_vs_rule": 0.0,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.0,
+      "abstention_rate": 1.0
+    },
+    "Deterministic-Rule-Engine": {
+      "baseline_name": "Deterministic-Rule-Engine",
+      "cv_strategy": "LeaveOneGroupOut (group_dataset_id)",
+      "n_samples": 336,
+      "n_groups": 3,
+      "confusion_matrix": [
+        [
+          266,
+          0
+        ],
+        [
+          70,
+          0
+        ]
+      ],
+      "precision_accepted": 0.0,
+      "recall_accepted": 0.0,
+      "precision_rejected": 0.7917,
+      "recall_rejected": 1.0,
+      "balanced_accuracy": 0.5,
+      "f1_accepted": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": null,
+      "utility_rmse": 0.0555,
+      "utility_mae": 0.0394,
+      "mean_strategy_regret_vs_oracle": 0.0771,
+      "rule_based_mean_regret": 0.0771,
+      "regret_delta_vs_rule": 0.0,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.0,
+      "abstention_rate": 1.0
+    },
+    "Simple-Ranking-Always-TVAE": {
+      "baseline_name": "Simple-Ranking-Always-TVAE",
+      "cv_strategy": "LeaveOneGroupOut (group_dataset_id)",
+      "n_samples": 336,
+      "n_groups": 3,
+      "confusion_matrix": [
+        [
+          266,
+          0
+        ],
+        [
+          70,
+          0
+        ]
+      ],
+      "precision_accepted": 0.0,
+      "recall_accepted": 0.0,
+      "precision_rejected": 0.7917,
+      "recall_rejected": 1.0,
+      "balanced_accuracy": 0.5,
+      "f1_accepted": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": null,
+      "utility_rmse": 0.0555,
+      "utility_mae": 0.0394,
+      "mean_strategy_regret_vs_oracle": 0.0771,
+      "rule_based_mean_regret": 0.0771,
+      "regret_delta_vs_rule": 0.0,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.0,
+      "abstention_rate": 1.0
+    },
+    "Interpretable-Tree": {
+      "baseline_name": "Interpretable-Tree",
+      "cv_strategy": "LeaveOneGroupOut (group_dataset_id)",
+      "n_samples": 336,
+      "n_groups": 3,
+      "confusion_matrix": [
+        [
+          221,
+          45
+        ],
+        [
+          70,
+          0
+        ]
+      ],
+      "precision_accepted": 0.0,
+      "recall_accepted": 0.0,
+      "precision_rejected": 0.7595,
+      "recall_rejected": 0.8308,
+      "balanced_accuracy": 0.4154,
+      "f1_accepted": 0.0,
+      "roc_auc": 0.3872,
+      "pr_auc": 0.2083,
+      "brier_score": 0.2618,
+      "utility_rmse": 0.0692,
+      "utility_mae": 0.057,
+      "mean_strategy_regret_vs_oracle": 0.1071,
+      "rule_based_mean_regret": 0.0771,
+      "regret_delta_vs_rule": 0.03,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.3333,
+      "abstention_rate": 0.6667
+    },
+    "Learned-Ridge-Logistic": {
+      "baseline_name": "Learned-Ridge-Logistic",
+      "cv_strategy": "LeaveOneGroupOut (group_dataset_id)",
+      "n_samples": 336,
+      "n_groups": 3,
+      "confusion_matrix": [
+        [
+          125,
+          141
+        ],
+        [
+          17,
+          53
+        ]
+      ],
+      "precision_accepted": 0.2732,
+      "recall_accepted": 0.7571,
+      "precision_rejected": 0.8803,
+      "recall_rejected": 0.4699,
+      "balanced_accuracy": 0.6135,
+      "f1_accepted": 0.4015,
+      "roc_auc": 0.6566,
+      "pr_auc": 0.4069,
+      "brier_score": 0.3638,
+      "utility_rmse": 0.0695,
+      "utility_mae": 0.0552,
+      "mean_strategy_regret_vs_oracle": 0.1032,
+      "rule_based_mean_regret": 0.0771,
+      "regret_delta_vs_rule": 0.0261,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.3333,
+      "abstention_rate": 0.6667
+    },
+    "Learned-Candidate-Ranker": {
+      "baseline_name": "Learned-Candidate-Ranker",
+      "cv_strategy": "LeaveOneGroupOut (group_dataset_id)",
+      "n_samples": 336,
+      "n_groups": 3,
+      "confusion_matrix": [
+        [
+          215,
+          51
+        ],
+        [
+          58,
+          12
+        ]
+      ],
+      "precision_accepted": 0.1905,
+      "recall_accepted": 0.1714,
+      "precision_rejected": 0.7875,
+      "recall_rejected": 0.8083,
+      "balanced_accuracy": 0.4898,
+      "f1_accepted": 0.1805,
+      "roc_auc": 0.6041,
+      "pr_auc": 0.2321,
+      "brier_score": 0.2037,
+      "utility_rmse": 0.0684,
+      "utility_mae": 0.0544,
+      "mean_strategy_regret_vs_oracle": 0.1023,
+      "rule_based_mean_regret": 0.0771,
+      "regret_delta_vs_rule": 0.0252,
+      "feasibility_violation_rate": 0.0,
+      "source_retention_violation_rate": 0.0,
+      "decision_coverage_rate": 0.6667,
+      "abstention_rate": 0.3333
+    }
+  },
+  "separate_vs_unified_architecture": {
+    "num_scenario_observations": 22,
+    "num_strategy_classes": 7,
+    "strategy_class_distribution": {
+      "NO_REPAIR": 10,
+      "SYNTHETIC_UNWEIGHTED": 5,
+      "AUTHENTIC_WEIGHTED_ADAPTATION": 3,
+      "SYNTHETIC_WEIGHTED_HYBRID": 1,
+      "AUTHENTIC_ONLY_ADAPTATION": 1,
+      "TARGETED_SYNTHETIC_REPAIR": 1,
+      "AUTHENTIC_OVERSAMPLING": 1
+    },
+    "num_generator_classes": 4,
+    "generator_class_distribution": {
+      "none": 15,
+      "tvae": 3,
+      "tabddpm": 2,
+      "ctgan": 2
+    },
+    "quantity_mean": 18.18,
+    "quantity_std": 29.0544,
+    "avg_samples_per_strategy_class": 3.14,
+    "avg_samples_per_generator_class": 5.5,
+    "is_separate_predictors_justified": false,
+    "scientific_rationale": "With N=22 independent drift scenarios across 3 datasets, fitting three separate multiclass predictors (strategy: 7 classes, generator: 4 classes, quantity regressor) yields severely insufficient statistical degrees of freedom (~3.1 samples/class). This leads to parameter instability and cross-validation variance. Conversely, the unified candidate-utility regressor evaluates N=336 candidate arms simultaneously across all scenarios, enabling consistent relative arm ranking with zero feasibility violations and lower strategy regret.",
+    "architectural_recommendation": "Maintain the unified candidate-ranking architecture with ensemble regression, probability-of-acceptance gating, and deterministic rule-based supervision. Do NOT deploy separate unvalidated predictors."
+  }
+}

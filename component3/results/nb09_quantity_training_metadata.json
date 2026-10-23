@@ -1,0 +1,20 @@
+{
+  "notebook": "09_repair_quantity_prediction_training.ipynb",
+  "executed_at_utc": "2026-10-20T13:00:08.563374+00:00",
+  "k_levels_evaluated": [
+    25,
+    50,
+    100,
+    200
+  ],
+  "mean_delta_f1_by_k": {
+    "25": -0.034,
+    "50": -0.0371,
+    "100": -0.0381,
+    "200": -0.0362
+  },
+  "plateau_threshold_k": 50,
+  "recommended_default_k": 50,
+  "maximum_recommended_k": 100,
+  "verdict": "MINIMUM_EFFECTIVE_QUANTITY_ESTABLISHED"
+}

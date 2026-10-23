@@ -1,0 +1,53 @@
+{
+  "protocol_name": "Batch_5G_Authentic_Adaptation_Control",
+  "dataset_id": "telco_churn",
+  "drift_scenario": "TELCO_CONCEPT",
+  "reference_control_arm": "A0 (Frozen Experimental Source RF, Batch 5F)",
+  "adaptation_arms": {
+    "A1-B50": {
+      "source_train_rows": 3452,
+      "adaptation_budget": 50,
+      "synthetic_rows": 0,
+      "total_training_rows": 3502
+    },
+    "A1-B100": {
+      "source_train_rows": 3452,
+      "adaptation_budget": 100,
+      "synthetic_rows": 0,
+      "total_training_rows": 3552
+    },
+    "A1-B200": {
+      "source_train_rows": 3452,
+      "adaptation_budget": 200,
+      "synthetic_rows": 0,
+      "total_training_rows": 3652
+    }
+  },
+  "preprocessing_policy": "Fit a separate TabularDataPreprocessor on each arm's permitted training composition (D_source_train + B_k). Guarantees that each model is self-contained with its own preprocessor, with zero evaluation snooping.",
+  "classifier_hyperparameters": {
+    "n_estimators": 100,
+    "max_depth": 10,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "n_jobs": 2,
+    "bootstrap": true,
+    "criterion": "gini"
+  },
+  "target_evaluation_protocol": "Confirmatory, single-pass evaluation on D_target_eval (N=493) under the frozen TELCO_CONCEPT rule. No hyperparameter tuning, budget selection, seed searching, or iterative retry using target evaluation.",
+  "source_evaluation_protocol": "Assess source-domain retention on D_source_eval (N=493) under original observational truth.",
+  "statistical_comparison_plan": {
+    "paired_bootstrap_iterations": 2000,
+    "paired_permutation_iterations": 2000,
+    "multiplicity_adjustments": [
+      "bonferroni",
+      "benjamini_hochberg_fdr"
+    ],
+    "number_of_comparisons": 3,
+    "significance_alpha": 0.05
+  },
+  "abstention_conditions": [
+    "If adaptation budget is 0 or labels unverified -> ABSTAIN",
+    "If degradation delta on A0 is < 0.05 -> recovery fraction undefined"
+  ],
+  "created_at_utc": "2026-10-20T06:14:22.711875+00:00"
+}

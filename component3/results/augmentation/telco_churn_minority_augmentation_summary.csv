@@ -1,0 +1,8 @@
+arm_id,arm_name,generator_family,filtering_strategy,added_samples,total_train_samples,positive_f1,macro_f1,precision,recall,roc_auc,pr_auc,accuracy,confusion_matrix,retrain_time_sec,status,positive_f1_ci95,delta_f1_vs_baseline,delta_f1_ci95,perm_p_one_sided,perm_p_two_sided
+Arm A1,Unaugmented Baseline,None,None,0,4931,0.6209,0.7224,0.5333,0.7429,0.8466,0.6901,0.7595,"[[594, 182], [72, 208]]",0.0,COMPLETED,"[0.575, 0.6629]",0.0,"[0.0, 0.0]",1.0,1.0
+Arm A2,Authentic OverSampling (ROS),Authentic,Random OverSampling,200,5131,0.625,0.725,0.5357,0.75,0.8481,0.6948,0.7614,"[[594, 182], [70, 210]]",0.249,COMPLETED,"[0.5802, 0.6658]",0.0041,"[-0.0085, 0.0185]",0.2845,0.5634
+Arm A3,TVAE Random,TVAE,Tier 2 Hard Safety,200,5131,0.6175,0.7235,0.5418,0.7179,0.8447,0.6929,0.7642,"[[606, 170], [79, 201]]",0.186,COMPLETED,"[0.5719, 0.6619]",-0.0034,"[-0.0211, 0.012]",0.6434,0.7038
+Arm A4,TVAE Quality-Screened,TVAE,Tier 2 Hard + Tier 3 Plausibility,200,5131,0.6211,0.7275,0.5495,0.7143,0.8472,0.6929,0.7689,"[[612, 164], [80, 200]]",0.17,COMPLETED,"[0.5757, 0.6637]",0.0002,"[-0.0171, 0.0172]",0.4748,0.9688
+Arm A5,CTGAN Random,CTGAN,Tier 2 Hard Safety,200,5131,0.6183,0.7193,0.5278,0.7464,0.8441,0.6922,0.7557,"[[589, 187], [71, 209]]",0.187,COMPLETED,"[0.5736, 0.6598]",-0.0026,"[-0.0188, 0.0148]",0.6209,0.7944
+Arm A6,CTGAN Quality-Screened,CTGAN,Tier 2 Hard + Tier 3 Plausibility,200,5131,0.6179,0.7176,0.5236,0.7536,0.8464,0.6941,0.7528,"[[584, 192], [69, 211]]",0.183,COMPLETED,"[0.5723, 0.6589]",-0.003,"[-0.0211, 0.0141]",0.6336,0.7334
+Arm A7,TabDDPM Deduplicated,TabDDPM,Tier 2 Hard + Deduplication,200,5131,0.6184,0.7219,0.5352,0.7321,0.8486,0.695,0.7604,"[[598, 178], [75, 205]]",0.186,COMPLETED,"[0.5723, 0.6609]",-0.0025,"[-0.0189, 0.013]",0.641,0.7611

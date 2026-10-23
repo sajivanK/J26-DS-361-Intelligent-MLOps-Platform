@@ -1,0 +1,22 @@
+{
+  "raw_record_count": 15,
+  "excluded_records": [],
+  "duplicate_experiment_ids": 0,
+  "validation_passed": true,
+  "clean_record_count": 15,
+  "viability_distribution": {
+    "1": 11,
+    "0": 4
+  },
+  "generator_distribution": {
+    "CTGAN": 7,
+    "TVAE": 6,
+    "TABDDPM": 2
+  },
+  "scenario_distribution": {
+    "S04": 11,
+    "S01": 2,
+    "S03": 2
+  },
+  "timestamp_utc": "2026-10-18T10:03:18.870334+00:00"
+}

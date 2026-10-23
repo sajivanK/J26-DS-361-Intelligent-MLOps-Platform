@@ -1,0 +1,6 @@
+{
+  "dependency_resolution_status": "BLOCKED_CONTROLLED",
+  "missing_artifact_error": "Current drifted dataset not found at URI 'shared/uci_adult/data/current.csv' (resolved: 'D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\shared\\uci_adult\\data\\current.csv'). Component 3 will not silently substitute another dataset.",
+  "telco_fallback_prevented": true,
+  "timestamp": "2026-10-20T21:00:37.027459+00:00"
+}

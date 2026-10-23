@@ -1,0 +1,35 @@
+{
+  "scenario": "S05",
+  "slice_rule": "age > 0.69 and education_num < -0.03",
+  "seed": 42,
+  "epochs": 1,
+  "training_rows": 342,
+  "generation_mode": "unsupervised_exploratory",
+  "n_generated": 100,
+  "training_seconds": 4.3994,
+  "target_coverage": {
+    "total_rows": 100,
+    "matching_rows": 93,
+    "non_matching_rows": 7,
+    "coverage": 0.93,
+    "slice_rule": "age > 0.69 and education_num < -0.03"
+  },
+  "generated_columns": [
+    "age",
+    "education_num",
+    "capital_gain",
+    "capital_loss",
+    "hours_per_week",
+    "workclass",
+    "marital_status",
+    "occupation",
+    "relationship",
+    "race",
+    "sex",
+    "native_country"
+  ],
+  "missing_values": 0,
+  "created_at_utc": "2026-10-13T14:07:02.573806+00:00",
+  "readiness_source": "synthetic_experiment_decision",
+  "validation_status": "diagnostic_only"
+}

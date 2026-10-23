@@ -1,0 +1,56 @@
+{
+  "package_id": "PKG-200FA3AB435F",
+  "schema_version": "1.0.0",
+  "request_id": "REQ-CLI-DRY-RUN",
+  "run_id": "RUN-12C8768843",
+  "created_at_utc": "2026-10-20T10:19:01.990251+00:00",
+  "dataset_id": "telco_churn",
+  "model_id": "telco_rf_experimental_source",
+  "drift_summary": {},
+  "diagnostic_summary": {},
+  "chosen_strategy": "SYNTHETIC_WEIGHTED_HYBRID",
+  "generator_info": {
+    "generator": "tvae"
+  },
+  "quantity_selected": 0,
+  "candidate_dataset_path": null,
+  "candidate_dataset_sha256": null,
+  "candidate_model_path": null,
+  "candidate_model_sha256": null,
+  "validation_report": {},
+  "fidelity_indicators": {},
+  "privacy_risk_indicators": {},
+  "utility_metrics": {},
+  "source_retention_metrics": {},
+  "execution_status": "DRY_RUN_COMPLETED",
+  "package_status": "APPROVED_FOR_REVIEW",
+  "rejection_reasons": [],
+  "evidence_limitations": [
+    "Exploratory pilot evidence only; does not claim verified real-world drift recovery.",
+    "Candidate labels reflect generative distribution modeling, not observational ground truth.",
+    "Candidate model requires explicit human sign-off prior to production deployment."
+  ],
+  "requires_human_approval": true,
+  "downstream_handoff_metadata": {
+    "pre_decision_features": {
+      "dataset_id": "telco_churn",
+      "total_features_count": 19,
+      "numerical_features_count": 3,
+      "categorical_features_count": 16,
+      "drift_detected": true,
+      "drift_type": "CONCEPT_DRIFT",
+      "drift_severity": "HIGH",
+      "drift_severity_score": 0.7,
+      "affected_features_count": 0,
+      "diagnostic_slice_identified": false,
+      "diagnostic_slice_support": null,
+      "has_authentic_adaptation_labels": true,
+      "adaptation_budget_size": 200,
+      "source_retention_tolerance": 0.05,
+      "repair_objective": "BALANCED_RETENTION",
+      "max_cpu_cores": 4,
+      "max_memory_mb": 4096.0,
+      "max_runtime_seconds": 300.0
+    }
+  }
+}
