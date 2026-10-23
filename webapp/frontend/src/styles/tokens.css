@@ -23,6 +23,12 @@
   --bad-bg: #FDECEC;  --bad-fg: #9B1C1C;                          /* errors, missed */
   --truth: #E69F00;       /* the true harm marker (diamond) and the 1 pp line */
 
+  /* charts (proposed by Tharmika, C2 page; PENDING team approval). Categorical: colour-blind-checked,
+     used in this fixed order, always with direct labels or a legend. Sequential: one blue hue,
+     light to dark, for heatmaps. Status colours above are never reused as series colours. */
+  --chart-1: #2A78D6; --chart-2: #EB6834; --chart-3: #1BAF7A; --chart-4: #EDA100; --chart-5: #E87BA4;
+  --seq-0: #F3F7FD; --seq-1: #D6E6FA; --seq-2: #A9C9F2; --seq-3: #6FA3E6; --seq-4: #3B78D0; --seq-5: #1E4F9A;
+
   /* real / fake component badges */
   --real-fg: #0F766E; --real-bg: #E6F6F4; --real-line: #0F766E;
   --fake-fg: #4B3F9E; --fake-bg: #F1F0FB; --fake-line: #C9C3F0;

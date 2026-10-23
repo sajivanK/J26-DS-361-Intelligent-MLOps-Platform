@@ -69,5 +69,13 @@ export const api = {
     return postJson("/api/c3/demo/repair", body);
   },
   c3DownloadUrl: (runId) => `/api/c3/packages/${encodeURIComponent(runId)}/dataset`,
-  // C2, C4: add your own calls here
+  // C2 (Tharmika): diagnosis runs, run history with temporal SHAP, business report
+  c2Info: () => get("/api/c2/info"),
+  c2RunNew: (params) => postJson("/api/c2/run", params),
+  c2Runs: () => get("/api/c2/runs"),
+  c2Run: (n) => get(`/api/c2/runs/${encodeURIComponent(n)}`),
+  c2Report: (n, refresh = false) => get(`/api/c2/runs/${encodeURIComponent(n)}/report${refresh ? "?refresh=true" : ""}`),
+  c2ReportMdUrl: (n) => `/api/c2/runs/${encodeURIComponent(n)}/report.md`,
+  c2Reset: () => postJson("/api/c2/reset", {}),
+  // C4: add your own calls here
 };
