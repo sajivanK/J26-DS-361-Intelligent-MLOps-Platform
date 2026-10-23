@@ -2,7 +2,7 @@
 C2 endpoints (owner: Tharmika N): the C2 Root Cause Diagnosis page.
 
     GET  /api/c2/info               engine status, run options, recorded research results
-    POST /api/c2/run                build a batch with a known drift, run C1 (if loaded) and C2 on it
+    POST /api/c2/run                build a batch with a known drift, get C1's output for it, run C2
     GET  /api/c2/runs               run history (newest first) + temporal SHAP z across all runs
     GET  /api/c2/runs/latest        full record of the latest run
     GET  /api/c2/runs/{n}           full record of run n (temporal SHAP, evidence, group, outputs)
@@ -14,6 +14,11 @@ C2 endpoints (owner: Tharmika N): the C2 Root Cause Diagnosis page.
 The page builds its batches with C2's own scenario builder (the shared injector on test.csv rows),
 so it works even when the C1 engine files are not on this machine. The batch keeps its labels for
 C2 (C1 never sees them): C2 measures the accuracy lost and the harmed group with them.
+
+C1 output: C2 always receives a C1 JSON (contract v1.1). It comes from the real C1 engine when that
+is loaded; otherwise from the team's fake C1 builder (shared/contracts/c1_fake_output.py), which
+builds a contract-valid C1 output from the injection answer key, as the research guide prescribes
+until integration. Each run stores the exact C1 JSON and where it came from.
 """
 from typing import List, Literal, Optional
 
@@ -99,16 +104,21 @@ def run(req: C2Run):
     labelled, gt = s["drifted_df"], s["ground_truth"]
     batch = labelled.drop(columns=[TARGET_COL])
 
-    c1, c1_note = None, None
+    c1, c1_note, c1_source = None, None, None
+    uri = f"c2_page://run/{len(c2.history.runs) + 1}"
     if C1.loaded:
         try:
-            ctx = {"dataset": "uci", "model_id": DATASETS["uci"]["model_id"],
-                   "current_dataset_uri": f"c2_page://run/{len(c2.history.runs) + 1}"}
-            c1 = C1.run(batch, {"context": ctx})["c1"]
-        except Exception as e:  # noqa: BLE001  C2 still diagnoses without C1 (NFR7)
-            c1_note = f"C1 failed: {type(e).__name__}: {e}"
+            ctx = {"dataset": "uci", "model_id": DATASETS["uci"]["model_id"], "current_dataset_uri": uri}
+            c1, c1_source = C1.run(batch, {"context": ctx})["c1"], "real"
+        except Exception as e:  # noqa: BLE001  fall back to the fake C1 below (NFR7)
+            c1_note = f"C1 failed ({type(e).__name__}: {e}), so the team's fake C1 output was used"
     else:
-        c1_note = "C1 engine not loaded on this machine: C2 diagnosed without C1 hints"
+        c1_note = "C1 engine not on this machine: C2 received the team's fake C1 output (built from the answer key)"
+    if c1 is None:                            # the team's contract-valid stand-in for C1
+        from contracts.c1_fake_output import build_fake_c1_output
+        c1 = build_fake_c1_output(gt, seed=seed, model_id=DATASETS["uci"]["model_id"],
+                                  current_dataset_uri=uri)
+        c1_source = "fake"
 
     names = " + ".join(req.features) or "clean"
     kind = req.drift_type.replace("marginal_", "")
@@ -118,10 +128,10 @@ def run(req: C2Run):
              "note": "same rows before vs after injection; the answer key never reaches C2"}
     injection = {"drift_type": req.drift_type, "features": req.features, "magnitude": req.magnitude,
                  "batch_size": len(batch), "seed": seed}
-    result, rec = c2.diagnose(batch, c1, labelled[TARGET_COL],
-                              source=source, truth=truth, injection=injection)
+    result, rec = c2.diagnose(batch, c1, labelled[TARGET_COL], source=source, truth=truth,
+                              injection=injection, c1_source=c1_source)
     errors = {k: contracts.validate(k, result[f"to_{k[-2:]}"]) for k in ("c2_to_c3", "c2_to_c4")}
-    return {"run": rec, "contract_errors": errors, "c1_used": c1 is not None, "c1_note": c1_note}
+    return {"run": rec, "contract_errors": errors, "c1_source": c1_source, "c1_note": c1_note}
 
 
 @router.get("/runs")

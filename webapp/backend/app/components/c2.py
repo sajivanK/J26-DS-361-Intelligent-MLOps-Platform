@@ -80,7 +80,7 @@ class C2Component(Component):
                 "fake_runs_unsupported_dataset": self.fake_runs,
                 "pipeline_runs_without_labels": self.unlabelled_runs}
 
-    def diagnose(self, batch, c1=None, labels=None, source="", truth=None, injection=None):
+    def diagnose(self, batch, c1=None, labels=None, source="", truth=None, injection=None, c1_source=None):
         """One diagnosis, stored in the run history. Returns (engine result, history record)."""
         from c2.src.history import build_run_record
         df = batch.copy()
@@ -92,6 +92,8 @@ class C2Component(Component):
             rec = build_run_record(self.engine, result, source=source, latency_s=time.time() - t0,
                                    c1_output=c1, n_rows=len(df))
             rec["truth"], rec["injection"] = truth, injection
+            rec["c1_source"] = c1_source if c1 else None      # "real", "fake" or None
+            rec["c1_output"] = c1 or None                     # the exact C1 JSON C2 received
             c3 = result["to_c3"]
             rec["plain"] = {"root_cause": self.plain.feature(c3["root_cause_feature"]),
                             "group": self.plain.rule(c3["affected_slice_rule"]),
@@ -109,5 +111,6 @@ class C2Component(Component):
             self.unlabelled_runs += 1
             return fakes.fake_c2(upstream)
         origin = ctx.get("current_dataset_uri") or "pipeline run"
-        result, _ = self.diagnose(batch, upstream.get("c1"), labels, source=f"Pipeline · {origin}")
+        result, _ = self.diagnose(batch, upstream.get("c1"), labels, source=f"Pipeline · {origin}",
+                                  c1_source="real" if upstream.get("c1") else None)
         return {"c2_to_c3": result["to_c3"], "c2_to_c4": result["to_c4"]}

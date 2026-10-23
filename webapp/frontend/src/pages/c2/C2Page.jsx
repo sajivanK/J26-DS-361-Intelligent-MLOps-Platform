@@ -91,6 +91,10 @@ export default function C2Page() {
 
       {runs.length > 0 && <History runs={runs} current={n} latest={latest} onSelect={pick} />}
       {info.data?.recorded && <Proof rec={info.data.recorded} />}
+      {rec.data?.c1_output && <JsonBox title={`C1 output C2 received (${rec.data.c1_source === "fake" ? "fake C1" : "real C1"}, contract v1.1)`} data={rec.data.c1_output}
+        note={rec.data.c1_source === "fake"
+          ? "Built by the team's fake C1 (shared/contracts/c1_fake_output.py) from the answer key, because the C1 engine is not on this machine. Same fields and types as the real C1, so this tests the C1 → C2 handoff. C2 uses marginal_extent and interaction_suspected as hints for the drift category. predicted_harm here is copied from the true drop, so the page does not show it as a C1 prediction."
+          : "Produced by the real C1 engine on this same batch. C2 uses marginal_extent and interaction_suspected as hints for the drift category and shows predicted_harm next to its own measurement."} />}
       <JsonBox title="Raw output to C3 and C4 (JSON, contract v1.1)" data={rec.data ? { to_c3: rec.data.to_c3, to_c4: rec.data.to_c4 } : null}
         note="The exact messages C2 sends for the run on screen." />
     </>
@@ -183,7 +187,8 @@ function Answer({ rec, latest }) {
         </div>)}
       <div className="row" style={{ justifyContent: "space-between" }}>
         <div className="row">
-          <span className={`badge ${rec.c1?.status === "ok" ? "ok" : ""}`}>C1 input: {rec.c1?.status || "missing"}{rec.c1?.harm_severity ? ` · ${rec.c1.harm_severity}` : ""}</span>
+          <span className={`badge ${rec.c1?.status === "ok" ? "ok" : ""}`} title="C1's JSON is checked against the C1 contract before C2 uses it">
+            C1 input: {rec.c1?.status || "missing"}{rec.c1?.harm_severity ? ` · ${rec.c1.harm_severity}` : ""}{rec.c1_source === "fake" ? " · fake C1" : rec.c1_source === "real" ? " · real C1" : ""}</span>
           <span className="badge">stability {stab.toFixed(2)}{stab < 0.5 ? " · C4 escalates" : ""}</span>
           {st !== "clean" && <span className="badge c2-wrap" title={c3.affected_slice_rule}>group: {group}</span>}
         </div>

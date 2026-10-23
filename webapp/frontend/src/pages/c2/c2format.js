@@ -25,6 +25,7 @@ export const harmOf = (rec) => {
   return h == null ? null : Math.max(h, 0);
 };
 export const c1PredOf = (rec) => {
+  if (rec?.c1_source === "fake") return null;     // the fake C1 copies the true drop: not a prediction
   const p = rec?.c1?.predicted_harm;
   return p == null ? null : p * 100;           // C1 contract v1.1: a proportion
 };

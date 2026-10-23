@@ -116,7 +116,10 @@ def harm_points(record):
 
 
 def c1_points(record):
-    """C1's predicted harm in pp (contract v1.1: a proportion), None without C1."""
+    """C1's predicted harm in pp (contract v1.1: a proportion). None without C1, and None for the
+    team's fake C1: it copies the true drop from the answer key, so it is not a prediction."""
+    if record.get("c1_source") == "fake":
+        return None
     p = (record.get("c1") or {}).get("predicted_harm")
     return None if p is None else round(100 * float(p), 2)
 
