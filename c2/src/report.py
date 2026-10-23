@@ -192,10 +192,12 @@ def writer_name():
     return f"{host}:{os.environ.get('OPENAI_MODEL', DEFAULT_MODEL)}"
 
 
-def openai_text(ev, model=None, timeout=30):
+def openai_text(ev, model=None, timeout=20):
     """Four sections written by the OpenAI model. Raises on any problem."""
     from openai import OpenAI          # optional dependency, only needed here
-    client = OpenAI(timeout=timeout)   # reads OPENAI_API_KEY and OPENAI_BASE_URL
+    # one retry at most, so a slow or rate-limited service never holds the report for long:
+    # after about 40 s the template text is used instead
+    client = OpenAI(timeout=timeout, max_retries=1)   # reads OPENAI_API_KEY and OPENAI_BASE_URL
     resp = client.chat.completions.create(
         model=model or os.environ.get("OPENAI_MODEL", DEFAULT_MODEL),
         temperature=0.2,

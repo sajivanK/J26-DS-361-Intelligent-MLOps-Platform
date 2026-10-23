@@ -116,3 +116,4 @@
   .scroll-x svg { min-width: 0 !important; }
 }
 .c2-setup-head { display: flex; flex-direction: column; gap: 2px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+.c2-wait { display: flex; flex-direction: column; gap: 4px; max-width: 72ch; padding: 14px 16px; border: 1px dashed var(--line); border-radius: var(--radius); background: var(--surface); }
