@@ -36,9 +36,11 @@ Endpoints
 
 Errors are always structured JSON: {"error": <code>, "message": ..., "problems": [...]}
 
-Rows are pandas to_dict(orient="records") records with every model feature and
-the label column "target" (the performance evidence and localization need
-labels). Both outputs are validated against the team contracts before returning.
+Rows are pandas to_dict(orient="records") records with every model feature. No
+labels are needed (production never has them); a "target" column, if sent, is
+dropped unread. c1_trusted=false marks C1 output that is not a real prediction
+(e.g. the team's fake C1): its hints are used, its predicted harm is not.
+Both outputs are validated against the team contracts before returning.
 """
 import json
 import time
@@ -72,6 +74,7 @@ class DiagnoseRequest(BaseModel):
     c1_output: Optional[dict] = None
     production_data: list[dict]
     source: str = ""               # shown in the run history, e.g. "Drift Lab"
+    c1_trusted: bool = True        # False for the team's fake C1 (its harm copies the answer key)
 
 
 def _error(status, code, message, problems=None):
@@ -88,7 +91,8 @@ def _engine():
 def _frame(rows):
     eng = _engine()
     df = pd.DataFrame(rows)
-    needed = eng.a["feature_names"] + [TARGET_COL]
+    needed = eng.a["feature_names"]                     # labels are never needed
+    df = df.drop(columns=[TARGET_COL]) if TARGET_COL in df.columns else df
     missing = [c for c in needed if c not in df.columns]
     if missing:
         raise _error(422, "bad_production_data", "production_data is missing columns",
@@ -146,7 +150,7 @@ def diagnose(req: DiagnoseRequest):
         raise _error(409, "not_warmed_up", "call /warmup with clean batches first")
     df = _frame(req.production_data)
     t = time.time()
-    result = _engine().diagnose(df, req.c1_output)
+    result = _engine().diagnose(df, req.c1_output, c1_trusted=req.c1_trusted)
     ENGINE["cycles"] += 1
     ref = _engine().a["ref_df"]
     result["contract_problems"] = {

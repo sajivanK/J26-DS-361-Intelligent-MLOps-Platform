@@ -25,7 +25,8 @@ URL = "http://localhost:8002"
 
 
 def rows(df):
-    return df.to_dict(orient="records")
+    """Production rows: the label column is never sent (C2 works without labels)."""
+    return df.drop(columns=[TARGET_COL]).to_dict(orient="records")
 
 
 def main():
@@ -40,7 +41,8 @@ def main():
     for s in stream[2:]:
         c1 = build_fake_c1_output(s["ground_truth"], seed=s["spec"]["seed"])
         r = requests.post(f"{URL}/diagnose", timeout=300,
-                          json={"c1_output": c1, "production_data": rows(s["drifted_df"]),
+                          json={"c1_output": c1, "c1_trusted": False,      # fake C1: hints only
+                                "production_data": rows(s["drifted_df"]),
                                 "source": "demo · capital_gain shift 0.6"})
         out = r.json()
         print(f"\nrun {out.get('run')}: HTTP {r.status_code}  "

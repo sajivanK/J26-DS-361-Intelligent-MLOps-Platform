@@ -262,6 +262,44 @@ def sliceline_localization(cur_df, model, feature_types, n_bins=10, alpha=0.95,
     return best[2]
 
 
+
+def shift_region_localization(cur_df, ref_df, root, feature_types, n_bins=10,
+                              min_support=0.02):
+    """
+    Label-free baseline: the value range (or category) of the root feature where the
+    batch has gained the most share against the reference data ("where the values
+    moved"). Uses no labels and no model. It answers "where did the data change",
+    not "where does the change matter to the model".
+    """
+    x, r = cur_df[root].to_numpy(), ref_df[root].to_numpy()
+    min_rows = max(int(min_support * len(x)), MIN_GROUP_SIZE)
+    best = (-np.inf, "")
+    if feature_types.get(root) == "categorical":
+        for c in np.unique(x):
+            m = x == c
+            if m.sum() >= min_rows:
+                gain = m.mean() - np.mean(r == c)
+                if gain > best[0]:
+                    best = (gain, f"{root} == {int(c)}")
+        return best[1]
+    edges = np.unique(np.quantile(x, np.linspace(0, 1, n_bins + 1)))
+    k = len(edges) - 1
+    for i in range(k):
+        for j in range(i, k):
+            lo = -_INF if i == 0 else edges[i]
+            hi = _INF if j == k - 1 else edges[j + 1]
+            if lo == -_INF and hi == _INF:
+                continue
+            m = (x > lo) & (x <= hi)
+            if m.sum() < min_rows:
+                continue
+            gain = m.mean() - np.mean((r > lo) & (r <= hi))
+            if gain > best[0]:
+                parts = ([f"{root} > {_fmt(lo)}"] if lo != -_INF else []) + \
+                        ([f"{root} <= {_fmt(hi)}"] if hi != _INF else [])
+                best = (gain, " and ".join(parts))
+    return best[1]
+
 if __name__ == "__main__":
     # Quick self-check: python3.11 -m c2.src.localization
     import warnings

@@ -9,10 +9,12 @@ record keeps aggregates only, never data rows (NFR5):
     temporal_shap   z per feature (combined, distribution, behaviour channels),
                     accumulated EWMA z, alarm line, persistent features,
                     mean |SHAP| normal vs this run
-    evidence        Drift Impact Score per feature, the four signals (E, D, P, G)
-                    raw and normalised, estimated harm per feature
-    localization    levels used, harmed rows estimate, precision / recall
-                    estimates, share of the group in training data
+    evidence        label-free Drift Impact Score per feature, the four signals
+                    (E explanation, D drift, DI decision change, PS prediction shift)
+                    raw and normalised, the share of decisions each feature changes,
+                    C1's estimated accuracy drop when C1 is real
+    localization    levels used, rows at risk (decisions the drift changes),
+                    risk-weighted precision / recall, share of the group in training data
     outputs         the exact to_c3 / to_c4 messages and warnings
     report          the business report, cached after it is first generated
 
@@ -33,6 +35,8 @@ from c2.src.config import C2_DIR
 
 DEFAULT_HISTORY = C2_DIR / "logs" / "runs.jsonl"
 MALIGNANT_PP = 2.0
+RECORD_VERSION = 2          # 2 = label-free records; version 1 (labelled) runs are set aside
+_RAW_KEYS = ("E", "D", "DI", "PS", "decision_change", "flip_share")
 
 
 def run_state(alarm, malignant):
@@ -60,13 +64,15 @@ def build_run_record(engine, result, source="", latency_s=None, c1_output=None,
         ref_share = None
     c1 = c1_output or {}
     raw = dis["signals_raw"]
+    d = result["details"]
     return {
+        "record_version": RECORD_VERSION,
         "timestamp": result["to_c4"]["diagnosis_timestamp"],
         "diagnosis_version": result["to_c4"]["diagnosis_version"],
         "source": source,
         "latency_s": None if latency_s is None else round(latency_s, 3),
         "n_rows": n_rows,
-        "state": run_state(shap_r["alarm"], dis["is_malignant"]),
+        "state": run_state(shap_r["alarm"], d["is_malignant"]),
         "c1": {"status": result["details"]["c1_status"],
                "harm_severity": c1.get("harm_severity"),
                "predicted_harm": c1.get("predicted_harm"),
@@ -87,17 +93,23 @@ def build_run_record(engine, result, source="", latency_s=None, c1_output=None,
         "evidence": {
             "drift_impact_scores": dis["drift_impact_scores"],
             "signals": {f: _r(s) for f, s in dis["signals_normalised"].items()},
-            "signals_raw": {f: _r({k: v for k, v in s.items() if k != "harm_pp"})
+            "signals_raw": {f: _r({k: v for k, v in s.items() if k in _RAW_KEYS and v is not None})
                             for f, s in raw.items()},
-            "harm_pp_by_feature": {f: round(float(s["harm_pp"]), 2) for f, s in raw.items()},
+            "decision_change_by_feature": {f: round(max(float(s["decision_change"]), 0.0), 4)
+                                           for f, s in raw.items()},
             "weights": list(dis["weights"]),
-            "estimated_harm_pp": dis["estimated_harm_pp"],
-            "is_malignant": dis["is_malignant"],
+            "labels_used": False,
+            "decision_change": d["decision_change"],
+            "decision_change_part": d["decision_change_part"],
+            "c1_estimated_harm_pp": d["c1_estimated_harm_pp"],
+            "estimated_harm_pp": d["estimated_harm_pp"],
+            "is_malignant": d["is_malignant"],
+            "harm_basis": d["harm_basis"],
         },
         "localization": {
             "levels_used": loc["levels_used"],
             "level2_rule": loc.get("level2_rule"),
-            "harmed_rows_estimate": loc.get("harmed_rows_estimate"),
+            "rows_at_risk": loc.get("rows_at_risk"),
             "est_precision": loc.get("est_precision"),
             "est_recall": loc.get("est_recall"),
             "ref_share": None if ref_share is None else round(ref_share, 4),
@@ -110,9 +122,19 @@ def build_run_record(engine, result, source="", latency_s=None, c1_output=None,
     }
 
 
+def decision_points(record):
+    """Share of the model's decisions that change because of the root feature, in %."""
+    return round(100 * float(record["evidence"]["decision_change"]), 1)
+
+
 def harm_points(record):
-    """Accuracy lost in pp (never below 0)."""
-    return round(max(float(record["evidence"]["estimated_harm_pp"]), 0.0), 2)
+    """Estimated accuracy loss in pp, never below 0: the harm predictor's estimate for the
+    root feature, else real C1's batch estimate. None when neither exists (no labels, so
+    accuracy is never measured)."""
+    ev = record["evidence"]
+    v = ev.get("estimated_harm_pp")
+    v = ev.get("c1_estimated_harm_pp") if v is None else v
+    return None if v is None else round(max(float(v), 0.0), 2)
 
 
 def c1_points(record):
@@ -132,7 +154,18 @@ class RunHistory:
         self.runs = []
         if path is not None and path.exists():
             with open(path) as f:
-                self.runs = [json.loads(line) for line in f if line.strip()]
+                runs = [json.loads(line) for line in f if line.strip()]
+            old = [r for r in runs if r.get("record_version") != RECORD_VERSION]
+            if old:                     # labelled-era runs: kept aside, not mixed in
+                backup = path.with_name(path.stem + "_v1_backup.jsonl")
+                with open(backup, "a") as f:
+                    for r in old:
+                        f.write(json.dumps(r) + "\n")
+                runs = [r for r in runs if r.get("record_version") == RECORD_VERSION]
+                print(f"[c2] {len(old)} older (labelled) runs moved to {backup.name}")
+            self.runs = runs
+            if old:
+                self._save()
 
     def _save(self):
         if self.path is None:
@@ -176,6 +209,7 @@ class RunHistory:
                 "run": r["run"], "timestamp": r["timestamp"], "source": r["source"],
                 "state": r["state"],
                 "root_cause_feature": None if r["state"] == "clean" else c3["root_cause_feature"],
+                "decision_change_pct": decision_points(r),
                 "estimated_harm_pp": harm_points(r),
                 "c1_predicted_pp": c1_points(r),
                 "diagnosis_stability": c3["diagnosis_stability"],

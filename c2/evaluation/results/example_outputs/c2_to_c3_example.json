@@ -15,6 +15,6 @@
   },
   "slice_support": 0.29,
   "diagnosis_stability": 1.0,
-  "drift_impact_score": 0.8874,
+  "drift_impact_score": 0.7999,
   "temporal_window": 3
 }

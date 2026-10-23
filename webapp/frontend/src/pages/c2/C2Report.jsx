@@ -77,22 +77,23 @@ function Paper({ rep, rec }) {
 
       <section className="stack"><h3 className="sec">At a glance</h3>
         <div className="c2-tiles">
-          <Tile col="var(--chart-2)" k="Accuracy lost" v={`${sg(k.accuracy_lost_points)} pp`}
-            s={`harmful above 2 pp${k.detection_step_predicted_points != null ? ` · C1 predicted ${sg(k.detection_step_predicted_points)} pp` : ""}`} />
-          <Tile col="var(--chart-5)" k="Extra wrong predictions" v={k.extra_wrong_predictions_per_1000} s="per 1,000 customers scored" />
+          <Tile col="var(--chart-2)" k="Decisions changed" v={`${sg(k.decisions_changed_percent)}%`}
+            s={`harmful above 2%${k.detection_step_predicted_points != null ? ` · C1 predicted ${sg(k.detection_step_predicted_points)} pp accuracy drop` : ""}`} />
+          <Tile col="var(--chart-5)" k="Decisions at risk" v={(k.decisions_changed_rows ?? 0).toLocaleString()}
+            s={k.estimated_accuracy_loss_points != null ? `in this batch · est. accuracy loss ${sg(k.estimated_accuracy_loss_points)} pp` : "in this batch · accuracy not measured (no labels)"} />
           <Tile col="var(--chart-1)" k="Customers affected" v={st === "clean" || st === "harmless" ? "0%" : `${k.affected_share_percent}%`}
             s={st === "clean" || st === "harmless" ? "no group" : `of this batch${k.training_share_percent != null ? ` · ${k.training_share_percent}% normally` : ""}`} />
           <Tile col="var(--chart-3)" k="Confidence" v={`${k.recent_runs_agreeing} of ${k.runs_checked}`} s="recent runs agree on the cause" />
         </div></section>
 
-      <section className="stack"><h3 className="sec">Accuracy lost, run by run</h3>
-        <p className="c2-sub">Green: healthy. Yellow: suspected. Orange: confirmed damage. Diamond: the drop C1 predicted for the same batch (when C1 ran).</p>
+      <section className="stack"><h3 className="sec">Decisions changed, run by run</h3>
+        <p className="c2-sub">Green: healthy. Yellow: suspected. Orange: confirmed damage. Diamond: the accuracy drop C1 predicted for the same batch (real C1 only).</p>
         <TrendBars trend={rep.charts.trend} current={rec.run} /></section>
 
       {ORDER.slice(1).map((key) => (
         <section key={key} className="stack"><h3 className="sec">{rep.section_titles[key]}</h3><p>{rep.sections[key]}</p>
           {key === "what_changed" && st !== "clean" && (<>
-            <p className="c2-sub">Accuracy each factor would give back if it returned to normal.</p><FactorBars factors={rep.charts.factors} root={rep.evidence.root_cause} /></>)}
+            <p className="c2-sub">Share of the model's decisions each factor changes (what flips back when it returns to normal).</p><FactorBars factors={rep.charts.factors} root={rep.evidence.root_cause} /></>)}
           {key === "who_is_affected" && st !== "clean" && st !== "harmless" && (
             <ShareBars training={rec.localization.ref_share} batch={rec.to_c3.slice_support} />)}
         </section>))}

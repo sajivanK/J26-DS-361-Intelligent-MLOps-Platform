@@ -12,7 +12,7 @@ import {
   EvidenceChart, HeatKey, ProofBars, RelianceChart, SIGNALS, ShareBars, TemporalChart, TemporalLegend,
   temporalWindow, ZHeatmap,
 } from "./C2Charts.jsx";
-import { answer, baselines, c1PredOf, clock, harmOf, pct, runsAgreeing, sg, STATE, time } from "./c2format.js";
+import { answer, baselines, c1PredOf, clock, decOf, harmOf, pct, runsAgreeing, sg, STATE, time } from "./c2format.js";
 import "./C2Page.css";
 
 const DEFAULT_FORM = { drift_type: "marginal_single", features: ["capital_gain"], magnitude: 0.6, batch_size: 1000 };
@@ -149,11 +149,11 @@ function RunBar({ info, form, setForm, busy, onRun, onReset }) {
 }
 
 function Answer({ rec, latest }) {
-  const st = rec.state, s = STATE[st], c3 = rec.to_c3, a = answer(rec), harm = harmOf(rec), c1 = c1PredOf(rec);
+  const st = rec.state, s = STATE[st], c3 = rec.to_c3, a = answer(rec), harm = harmOf(rec), dec = decOf(rec), c1 = c1PredOf(rec);
   const agree = runsAgreeing(rec), stab = c3.diagnosis_stability, group = rec.plain?.group || c3.affected_slice_rule;
   const verdictText = {
     clean: "Nothing needs repair in this batch.",
-    harmless: "It changed, but it costs almost no accuracy.",
+    harmless: "It changed, but it barely changes the model's decisions.",
     suspected: "Seen in one run so far. The next run will confirm it or clear it.",
     confirmed: "Above the alarm line in at least 2 of the last 3 runs. Repair recommended.",
   }[st];
@@ -173,7 +173,7 @@ function Answer({ rec, latest }) {
           {st === "clean" ? <><span className="a sm">Nothing harmful</span><span className="s">no feature above the alarm line in 2 of the last 3 runs</span></>
             : <><span className="a">{c3.root_cause_feature}</span><span className="s">{c3.root_cause_category} drift · top cause in {agree} of the last 3 runs</span></>}</div>
         <div><span className="q">How much does it hurt?</span>
-          <span className="a">{sg(harm)} pp</span><span className="s">accuracy recovered when {c3.root_cause_feature} is put back to normal · score {c3.drift_impact_score.toFixed(2)}{c1 != null ? ` · C1 predicted ${sg(c1)} pp` : ""}</span></div>
+          <span className="a">{sg(dec)}%</span><span className="s">of decisions flip back when {c3.root_cause_feature} is put back to normal · score {c3.drift_impact_score.toFixed(2)}{harm != null ? ` · est. accuracy loss ${sg(harm)} pp` : ""}{c1 != null ? ` · C1 predicted ${sg(c1)} pp` : ""}</span></div>
         <div><span className="q">Who is affected?</span>
           {st === "clean" || st === "harmless" ? <><span className="a sm">No group</span><span className="s">nothing sent to C3 for repair</span></>
             : <><span className="a">{pct(c3.slice_support)}</span><span className="s">of this batch ({a.rows.toLocaleString()} rows){rec.localization.ref_share != null ? ` · ${pct(rec.localization.ref_share, 1)} in training data` : ""}</span></>}</div>
@@ -181,7 +181,7 @@ function Answer({ rec, latest }) {
       {rec.truth && rec.injection?.drift_type !== undefined && (
         <div className="c2-truth"><span className="eyebrow">Answer key · hidden from C2</span>
           <span>true accuracy drop <b className="mono">{sg(rec.truth.true_harm_pp)} pp</b></span>
-          <span>C2 estimate <b className="mono">{sg(harm)} pp</b></span>
+          <span>C2 decisions changed <b className="mono">{sg(dec)}%</b></span>
           <span>injected <b className="mono">{rec.truth.true_causes.join(", ") || "nothing"}</b></span>
           <span>C2 root cause <b className="mono">{c3.root_cause_feature}</b> {rec.truth.true_causes.length ? (rec.truth.true_causes.includes(c3.root_cause_feature) ? "✓" : "✗") : ""}</span>
         </div>)}
@@ -227,7 +227,7 @@ function Who({ rec }) {
       <ShareBars training={loc.ref_share} batch={c3.slice_support} />
       <div className="c2-rule mono">{c3.affected_slice_rule}</div>
       <p className="c2-sub">
-        {`${loc.ref_share ? `This group is ${(c3.slice_support / loc.ref_share).toFixed(1)} times more common now than in training. ` : ""}About ${Math.round(loc.harmed_rows_estimate || 0)} rows look harmed by the drift; the group holds an estimated ${pct(loc.est_recall)} of them.`}
+        {`${loc.ref_share ? `This group is ${(c3.slice_support / loc.ref_share).toFixed(1)} times more common now than in training. ` : ""}About ${Math.round(loc.rows_at_risk || 0)} decisions change because of the drift; the group holds an estimated ${pct(loc.est_recall)} of the movement. Found without labels.`}
         {" "}Groups under 20 rows are never reported (privacy).{rec.plain && !rec.plain.decoded ? " Values are scaled: add preprocessor.pkl to decode them." : ""}
       </p>
     </div>
@@ -235,14 +235,14 @@ function Who({ rec }) {
 }
 
 function Compare({ rec }) {
-  const b = baselines(rec), clean = rec.state === "clean", harm = harmOf(rec);
+  const b = baselines(rec), clean = rec.state === "clean", dec = decOf(rec);
   return (
     <div className="stack">
       <div className="section-title"><span className="eyebrow">What simpler tools would say about this run</span></div>
       <div className="c2-cmp">
         <div className="cmp"><span className="k">A drift monitor ranks</span><span className="v mono">{b.drift.join(", ")}</span><span className="gap">Says what changed, not what hurts.</span></div>
         <div className="cmp"><span className="k">One SHAP snapshot ranks</span><span className="v mono">{b.snapshot.join(", ")}</span><span className="gap">{clean ? "Names a cause even on clean data." : "No noise check, no run history."}</span></div>
-        <div className="cmp c2-ans"><span className="k">C2 says</span><span className="v mono">{clean ? "no alarm" : `${rec.to_c3.root_cause_feature}${harm != null ? ` · ${sg(harm)} pp` : ""}`}</span>
+        <div className="cmp c2-ans"><span className="k">C2 says</span><span className="v mono">{clean ? "no alarm" : `${rec.to_c3.root_cause_feature}${dec != null ? ` · ${sg(dec)}% decisions` : ""}`}</span>
           <span className="gap">{clean ? "Normal noise." : "Cause, damage and group, confirmed over runs."}</span></div>
       </div>
     </div>
@@ -256,7 +256,7 @@ function History({ runs, current, latest, onSelect }) {
       <div className="scroll-x">
         <table className="tbl c2-hist">
           <thead><tr><th>Run</th><th>Time</th><th>Batch</th><th>Result</th><th>Root cause</th>
-            <th className="num">Accuracy lost</th><th className="num">True drop</th><th className="num">Stability</th><th>Report</th></tr></thead>
+            <th className="num">Decisions changed</th><th className="num">True drop</th><th className="num">Stability</th><th>Report</th></tr></thead>
           <tbody>
             {runs.map((r) => (
               <tr key={r.run} aria-selected={r.run === current} tabIndex="0" onClick={() => onSelect(r.run)}
@@ -266,7 +266,7 @@ function History({ runs, current, latest, onSelect }) {
                 <td>{r.source.replace("Drift Lab · ", "")}</td>
                 <td><StatePill state={r.state} /></td>
                 <td className="mono">{r.root_cause_feature || "none"}</td>
-                <td className="num">{sg(r.estimated_harm_pp)} pp</td>
+                <td className="num">{r.decision_change_pct == null ? "–" : `${sg(r.decision_change_pct)}%`}</td>
                 <td className="num">{r.truth_pp == null ? "–" : `${sg(r.truth_pp)} pp`}</td>
                 <td className="num">{r.diagnosis_stability.toFixed(2)}</td>
                 <td><Link className="c2-link" to={`/c2/report/${r.run}`} onClick={(e) => e.stopPropagation()}>View report</Link></td>
@@ -283,7 +283,7 @@ function Proof({ rec }) {
   const cur = rec[p];
   return (
     <section className="stack">
-      <div className="section-title"><span className="eyebrow">Why trust it · recorded UCI Adult benchmark, 158 monitoring streams, 3 seeds</span><span className="small muted">click a card</span></div>
+      <div className="section-title"><span className="eyebrow">Why trust it · recorded UCI Adult benchmark, no labels used, graded with the answer key</span><span className="small muted">click a card</span></div>
       <div className="c2-proof">
         {["n1", "n2", "n3"].map((k) => (
           <button key={k} type="button" className="c2-pcard" aria-pressed={p === k} onClick={() => setP(k)}>

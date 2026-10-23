@@ -41,7 +41,7 @@ export function RelianceChart({ rec }) {
 
 // ── Why this feature: Drift Impact Score split into its weighted evidence (stacked bars) ──────────
 export const SIGNALS = [["E", "explanation change", "var(--chart-1)"], ["D", "data drift", "var(--chart-2)"],
-  ["P", "accuracy impact", "var(--chart-3)"], ["G", "error concentration", "var(--chart-5)"]];
+  ["DI", "decision change", "var(--chart-3)"], ["PS", "prediction shift", "var(--chart-5)"]];
 
 export function EvidenceChart({ rec }) {
   const dis = rec.evidence.drift_impact_scores, sig = rec.evidence.signals, w = rec.evidence.weights;
@@ -216,12 +216,12 @@ export function ProofBars({ chart }) {
   );
 }
 
-// ── Report: accuracy lost per run (bars), C1's predicted drop (diamond) ─────────────────────────────
+// ── Report: share of decisions changed per run (bars), C1's predicted drop (diamond) ───────────────
 const STATE_COL = { clean: "var(--chart-3)", harmless: "var(--chart-3)", suspected: "var(--chart-4)", confirmed: "var(--chart-2)" };
 
 export function TrendBars({ trend, current }) {
   const W = 640, H = 210, pl = 40, pr = 12, pt = 16, pb = 36, n = Math.max(trend.length, 6);
-  const vals = trend.flatMap((t) => [t.accuracy_lost_points, t.detection_step_predicted_points]).filter((v) => v != null);
+  const vals = trend.flatMap((t) => [t.decisions_changed_percent, t.detection_step_predicted_points]).filter((v) => v != null);
   const max = Math.max(4, ...vals) * 1.18;
   const x = (i) => pl + ((i + 0.5) * (W - pl - pr)) / n, bw = Math.min(46, (W - pl - pr) / n - 16);
   const y = (v) => pt + (H - pt - pb) * (1 - Math.max(v, 0) / max);
@@ -229,17 +229,17 @@ export function TrendBars({ trend, current }) {
   for (let v = 0; v <= max; v += step) grid.push(v);
   return (
     <div className="scroll-x">
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 440, maxWidth: 760 }} role="img" aria-label="Accuracy lost per run">
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 440, maxWidth: 760 }} role="img" aria-label="Share of decisions changed per run">
         {grid.map((v) => (<g key={v}><line x1={pl} x2={W - pr} y1={y(v)} y2={y(v)} stroke="var(--line)" />
           <text x={pl - 6} y={y(v) + 4} textAnchor="end" fill="var(--muted)">{v}</text></g>))}
         <line x1={pl} x2={W - pr} y1={y(2)} y2={y(2)} stroke="var(--truth)" strokeWidth="1.5" strokeDasharray="5 3" />
-        <text x={pl + 4} y={y(2) - 5} fill="var(--warn-fg)" fontSize="10">harmful above 2 pp</text>
+        <text x={pl + 4} y={y(2) - 5} fill="var(--warn-fg)" fontSize="10">harmful above 2%</text>
         {trend.map((t, i) => {
-          const v = t.accuracy_lost_points, c1 = t.detection_step_predicted_points, on = t.run === current;
+          const v = t.decisions_changed_percent || 0, c1 = t.detection_step_predicted_points, on = t.run === current;
           return (<g key={t.run}>
             {on && <rect x={x(i) - bw / 2 - 6} y={pt - 6} width={bw + 12} height={H - pt - pb + 34} rx="6" fill="var(--tint)" />}
             <rect x={x(i) - bw / 2} y={y(v)} width={bw} height={Math.max(y(0) - y(v), 2)} rx="4" fill={STATE_COL[t.state]}>
-              <title>{`run #${t.run}: ${v.toFixed(1)} pp · ${STATE[t.state].label}`}</title></rect>
+              <title>{`run #${t.run}: ${v.toFixed(1)}% of decisions changed · ${STATE[t.state].label}`}</title></rect>
             <text x={x(i)} y={y(v) - 6} textAnchor="middle" fill="var(--fg)" fontSize="10.5">{v.toFixed(1)}</text>
             {c1 != null && (<path d={`M${x(i) + bw / 2 + 6},${y(c1) - 5} l5,5 l-5,5 l-5,-5 z`} fill="var(--fg)" opacity=".75">
               <title>{`run #${t.run}: C1 predicted ${c1.toFixed(1)} pp`}</title></path>)}
@@ -252,19 +252,19 @@ export function TrendBars({ trend, current }) {
 }
 
 export function FactorBars({ factors, root }) {
-  const rows = factors.filter((f) => f.accuracy_lost_points > 0.05);
-  if (!rows.length) return <p className="small muted">No single factor costs measurable accuracy.</p>;
-  const max = Math.max(...rows.map((f) => f.accuracy_lost_points), 1) * 1.1, W = 620, pl = 230, pr = 64, rh = 30, H = rows.length * rh + 8;
+  const rows = factors.filter((f) => f.decisions_changed_percent > 0.05);
+  if (!rows.length) return <p className="small muted">No single factor changes a measurable share of decisions.</p>;
+  const max = Math.max(...rows.map((f) => f.decisions_changed_percent), 1) * 1.1, W = 620, pl = 230, pr = 64, rh = 30, H = rows.length * rh + 8;
   return (
     <div className="scroll-x">
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 420, maxWidth: 760 }} role="img" aria-label="Accuracy each factor would give back">
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 420, maxWidth: 760 }} role="img" aria-label="Decisions each factor changes">
         {rows.map((f, i) => {
-          const y = 4 + i * rh, w = Math.max(((W - pl - pr) * f.accuracy_lost_points) / max, 2);
+          const y = 4 + i * rh, w = Math.max(((W - pl - pr) * f.decisions_changed_percent) / max, 2);
           const me = f.factor === root;        // orange marks the root cause only, never just the biggest bar
           return (<g key={f.factor}>
             <text x={pl - 10} y={y + 15} textAnchor="end" fill={me ? "var(--fg)" : "var(--muted)"} fontWeight={me ? 600 : 400}>{f.factor}{me ? " (root cause)" : ""}</text>
             <rect x={pl} y={y + 3} width={w} height="18" rx="4" fill={me ? "var(--chart-2)" : "var(--chart-1)"} opacity={me ? 1 : 0.4} />
-            <text x={pl + w + 8} y={y + 16} fill="var(--fg)">{f.accuracy_lost_points.toFixed(1)} pp</text>
+            <text x={pl + w + 8} y={y + 16} fill="var(--fg)">{f.decisions_changed_percent.toFixed(1)}%</text>
           </g>);
         })}
       </svg>

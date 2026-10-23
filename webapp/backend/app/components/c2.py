@@ -1,16 +1,15 @@
 """
 C2 XAI Root Cause Diagnosis (owner: Tharmika N, IT22247940). REAL component.
 
-load()  loads the C2 engine (c2/src: temporal SHAP, Drift Impact Score, hierarchical localization)
-        for the UCI Adult model and warms it up on two clean labelled batches from test.csv, the
-        "first clean cycles after deployment": they set the temporal SHAP history and the
-        performance noise band. Takes about 10 to 30 s at backend startup.
-run()   one pipeline cycle. C2 needs the batch's labels (the accuracy impact, the harm estimate
-        and the harmed group are measured with them). The platform removes labels before
-        monitoring, so until delayed labels are passed as upstream["labels"] (a list or Series in
-        the batch's row order) the pipeline step returns the contract example, and /api/health
-        counts it. The C2 page (routers/c2.py) builds its own labelled Drift Lab batches and runs
-        the real diagnosis.
+load()  loads the C2 engine (c2/src: temporal SHAP, label-free Drift Impact Score, rows-at-risk
+        localization) for the UCI Adult model and warms it up on two clean batches from test.csv
+        (labels dropped), the "first clean cycles after deployment": they set the temporal SHAP
+        history and the clean baselines. Takes about 10 to 30 s at backend startup.
+run()   one pipeline cycle on the batch exactly as the platform passes it: WITHOUT labels. C2 never
+        needs labels: it finds the responsible feature, the share of decisions it changes and the
+        group at risk from the model's predictions and the reference data. C1's output from the
+        same run is checked against the C1 contract and used (hints, and its predicted harm as the
+        accuracy estimate).
 
 Fails safe: if the C2 engine cannot load (a missing library or data file on this machine), the
 component still loads in fallback mode, says why in /api/health, shows as "fake", and answers the
@@ -50,7 +49,6 @@ class C2Component(Component):
         self.lock = threading.Lock()
         self.warmup_sec = None
         self.fake_runs = 0
-        self.unlabelled_runs = 0
         self.engine_error = None
 
     def load(self):
@@ -95,18 +93,17 @@ class C2Component(Component):
         return {"datasets": list(SUPPORTED_DATASETS), "warmup_sec": self.warmup_sec,
                 "runs_stored": len(self.history.runs), "z_thresh": round(self.engine.monitor.z_thresh, 3),
                 "plain_language_decoded": self.plain.decoded,
-                "fake_runs_unsupported_dataset": self.fake_runs,
-                "pipeline_runs_without_labels": self.unlabelled_runs}
+                "fake_runs_unsupported_dataset": self.fake_runs, "labels_used": False}
 
-    def diagnose(self, batch, c1=None, labels=None, source="", truth=None, injection=None, c1_source=None):
-        """One diagnosis, stored in the run history. Returns (engine result, history record)."""
+    def diagnose(self, batch, c1=None, source="", truth=None, injection=None, c1_source=None):
+        """One label-free diagnosis, stored in the run history. Returns (engine result, record).
+        c1_source: "real" (C1's predicted harm is used), "fake" (team fake C1: hints only,
+        its harm copies the answer key) or None."""
         from c2.src.history import build_run_record
-        df = batch.copy()
-        if labels is not None:
-            df[TARGET_COL] = list(labels)
+        df = batch.drop(columns=[TARGET_COL]) if TARGET_COL in batch.columns else batch
         with self.lock:
             t0 = time.time()
-            result = self.engine.diagnose(df, c1)
+            result = self.engine.diagnose(df, c1, c1_trusted=(c1_source == "real"))
             rec = build_run_record(self.engine, result, source=source, latency_s=time.time() - t0,
                                    c1_output=c1, n_rows=len(df))
             rec["truth"], rec["injection"] = truth, injection
@@ -124,11 +121,7 @@ class C2Component(Component):
         if self.engine is None or ctx.get("dataset") not in SUPPORTED_DATASETS:
             self.fake_runs += 1
             return fakes.fake_c2(upstream)
-        labels = upstream.get("labels")
-        if labels is None:                   # labels removed by the platform: not diagnosable yet
-            self.unlabelled_runs += 1
-            return fakes.fake_c2(upstream)
         origin = ctx.get("current_dataset_uri") or "pipeline run"
-        result, _ = self.diagnose(batch, upstream.get("c1"), labels, source=f"Pipeline · {origin}",
+        result, _ = self.diagnose(batch, upstream.get("c1"), source=f"Pipeline · {origin}",
                                   c1_source="real" if upstream.get("c1") else None)
         return {"c2_to_c3": result["to_c3"], "c2_to_c4": result["to_c4"]}

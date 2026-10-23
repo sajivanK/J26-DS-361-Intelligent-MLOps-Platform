@@ -5,9 +5,12 @@ J26-DS-361 | C2 XAI Root Cause Diagnosis Engine | Tharmika N (IT22247940)
 Pipeline
   1. report_evidence()  turns one stored run into a small set of aggregate
                         facts in business language (no data rows ever leave
-                        C2, NFR5): accuracy lost, extra wrong predictions per
-                        1,000, the affected group in plain words, how many
-                        recent runs agree, the run-by-run trend.
+                        C2, NFR5). There are no labels in production, so
+                        accuracy is never measured: the report states the share
+                        of the model's decisions the root cause changes, C1's
+                        estimated accuracy loss when C1 is real, the affected
+                        group in plain words, how many recent runs agree, and
+                        the run-by-run trend.
   2. decision()         rule-based, never written by the language model:
                         no action / watch / approve targeted repair, with owners.
   3. writer             OpenAI (if OPENAI_API_KEY is set) writes four short
@@ -15,8 +18,9 @@ Pipeline
   4. claim_check()      every number in the text must match the evidence, and
                         no feature may be named that the evidence does not
                         contain. Any failure -> template text, reason recorded.
-  5. charts             data for the report visuals: accuracy lost per run,
-                        biggest factors, affected-group share, reliance shift.
+  5. charts             data for the report visuals: decisions changed per run,
+                        decisions changed by each factor, affected-group share,
+                        reliance shift.
 
 Configuration (environment variables, never committed):
     OPENAI_API_KEY   enables the language-model writer
@@ -35,11 +39,12 @@ import os
 import re
 from datetime import datetime, timezone
 
-from c2.src.history import c1_points, harm_points
+from c2.src.history import c1_points, decision_points, harm_points
 from c2.src.plain import NAMES, PlainLanguage
 
 DEFAULT_MODEL = "gpt-4o-mini"
 MALIGNANT_PP = 2.0
+DECISION_LINE_PCT = 2.0     # 2% of decisions changed ~ the most that could reach the 2 pp harm line
 SECTIONS = ["summary", "what_changed", "who_is_affected", "outlook"]
 SECTION_TITLES = {"summary": "Summary", "what_changed": "What changed",
                   "who_is_affected": "Who is affected", "outlook": "What happens next"}
@@ -55,11 +60,14 @@ Rules:
 - 1 to 3 plain sentences per section. No jargon: never say SHAP, z-score,
   EWMA, drift impact score, or feature. Say "factor" or name it in words.
 - Use the plain names given (e.g. "capital gain"), not code names.
+- There are no labels: accuracy is never measured. Describe the damage as the
+  share of the model's decisions that change. Mention an accuracy loss ONLY if
+  estimated_accuracy_loss_points is given, and call it an estimate.
 - If state is "clean" or "harmless", say plainly that no repair is needed.
 - If state is "suspected", say it is not confirmed yet.
-- The summary MUST name the root cause in plain words, the accuracy points lost
-  (when given) and the affected group (when given), so a manager who reads only
-  the summary knows what broke, how badly and for whom.
+- The summary MUST name the root cause in plain words, the share of decisions it
+  changes and the affected group (when given), so a manager who reads only the
+  summary knows what broke, how much and for whom.
 - The decision is already made (evidence.decision); explain it, do not change it.
 - Return only the JSON object."""
 
@@ -71,11 +79,11 @@ def report_evidence(record, history, plain=None):
     c3, ts, ev, loc = (record["to_c3"], record["temporal_shap"],
                        record["evidence"], record["localization"])
     state, root, n = record["state"], c3["root_cause_feature"], record.get("n_rows") or 1000
-    harm = round(harm_points(record), 1)
+    est = harm_points(record)
     ref_now = ts["mean_abs_shap_ref"].get(root) or 0.0
     reliance = round(ts["mean_abs_shap_now"].get(root, 0.0) / ref_now, 1) if ref_now else None
     runs_agree = int(round(c3["diagnosis_stability"] * 3))
-    others = sorted(((f, x) for f, x in (ev.get("harm_pp_by_feature") or {}).items()
+    others = sorted(((f, x) for f, x in (ev.get("decision_change_by_feature") or {}).items()
                      if f != root), key=lambda kv: kv[1], reverse=True)[:2]
     upto = [r for r in history if r["run"] <= record["run"]][-6:]
     out = {
@@ -84,11 +92,15 @@ def report_evidence(record, history, plain=None):
         "model": "income prediction model (UCI Adult, XGBoost)",
         "state": state,
         "rows_in_batch": n,
-        "accuracy_lost_points": harm,
-        "harmful_above_points": MALIGNANT_PP,
-        "extra_wrong_predictions_per_1000": int(round(harm * 10)),
-        "trend": [{"run": r["run"], "accuracy_lost_points":
-                   round(harm_points(r), 1),
+        "accuracy_measured": False,
+        "decisions_changed_percent": decision_points(record),
+        "decisions_changed_rows": int(loc.get("rows_at_risk") or 0),
+        "decision_line_percent": DECISION_LINE_PCT,
+        "harm_line_points": MALIGNANT_PP,
+        "estimated_accuracy_loss_points": None if est is None else round(est, 1),
+        "trend": [{"run": r["run"], "decisions_changed_percent": decision_points(r),
+                   "estimated_accuracy_loss_points":
+                   None if harm_points(r) is None else round(harm_points(r), 1),
                    "detection_step_predicted_points":
                    None if c1_points(r) is None else round(c1_points(r), 1),
                    "state": r["state"]} for r in upto],
@@ -106,10 +118,11 @@ def report_evidence(record, history, plain=None):
             "affected_rows": int(round(c3["slice_support"] * n)),
             "training_share_percent": (None if loc["ref_share"] is None
                                        else round(100 * loc["ref_share"], 1)),
-            "next_factors": [{"factor": pl.feature(f), "accuracy_lost_points": round(max(x, 0), 1)}
+            "next_factors": [{"factor": pl.feature(f),
+                              "decisions_changed_percent": round(100 * max(x, 0), 1)}
                              for f, x in others],
         })
-        pred = c1_points(record)          # C1 v1.1 predicted_harm is a proportion
+        pred = c1_points(record)          # real C1 only (contract v1.1: a proportion)
         if pred is not None:
             out["detection_step_predicted_points"] = round(pred, 1)
     out["decision"] = decision(out)
@@ -124,11 +137,12 @@ def decision(ev):
                 "text": "Keep the model in production and keep monitoring.",
                 "actions": [{"action": "Keep the model in production", "owner": "Platform"},
                             {"action": "Check the next batch as usual", "owner": "C1, C2"}]}
-    root = ev["root_cause"]
+    root, dec, est = ev["root_cause"], ev["decisions_changed_percent"], ev["estimated_accuracy_loss_points"]
+    est_txt = f" C1 estimates about {est} points of accuracy lost." if est is not None else ""
     if s == "suspected":
         return {"level": "watch", "head": "Watch, do not repair yet",
-                "text": f"A change in {root} looks harmful but is seen in one run only. "
-                        "Confirm it with the next batch before repairing.",
+                "text": f"A change in {root} changes about {dec}% of the model's decisions but is "
+                        f"seen in one run only.{est_txt} Confirm it with the next batch before repairing.",
                 "actions": [{"action": "Run the next batch to confirm the cause", "owner": "C2"},
                             {"action": "Hold any retraining until it is confirmed", "owner": "C4"},
                             {"action": f"Ask the data owner why {root} values changed",
@@ -141,7 +155,7 @@ def decision(ev):
                                "the next most affected factor", "owner": "C2"})
     return {"level": "act", "head": "Approve targeted repair",
             "text": f"Repair the affected group, retrain, and let the release check decide. "
-                    f"Expected recovery: about {ev['accuracy_lost_points']} points of accuracy.",
+                    f"{root.capitalize()} changes about {dec}% of the model's decisions.{est_txt}",
             "actions": acts}
 
 
@@ -150,25 +164,30 @@ def template_text(ev):
     s = ev["state"]
     if s == "clean":
         return {"summary": f"The {ev['model']} handled run #{ev['run']} normally. No change in "
-                           "the incoming data is hurting its predictions.",
+                           "the incoming data is changing its decisions.",
                 "what_changed": "Nothing harmful. Small day-to-day changes stayed within "
                                 "normal noise.",
                 "who_is_affected": "No group of customers is affected.",
                 "outlook": "No repair is needed. The next batch will be checked as usual."}
-    harm, root = ev["accuracy_lost_points"], ev["root_cause"]
+    root, dec, est = ev["root_cause"], ev["decisions_changed_percent"], ev["estimated_accuracy_loss_points"]
     if s == "harmless":
-        return {"summary": f"{root.capitalize()} changed in run #{ev['run']}, but the change "
-                           f"costs only {harm} points of accuracy, below the "
-                           f"{ev['harmful_above_points']} point harm line.",
-                "what_changed": f"The values of {root} shifted, and the model reads them "
-                                "differently, but its answers stay correct.",
+        detail = (f"C1 estimates only {est} points of accuracy lost, below the "
+                  f"{ev['harm_line_points']} point harm line." if est is not None else
+                  f"It changes only {dec}% of the model's decisions, below the "
+                  f"{ev['decision_line_percent']}% line.")
+        return {"summary": f"{root.capitalize()} changed in run #{ev['run']}, but it barely affects "
+                           f"the model. {detail}",
+                "what_changed": f"The values of {root} shifted and the model reads them "
+                                "differently, but its decisions stay almost the same.",
                 "who_is_affected": "No group needs repair.",
                 "outlook": "No repair is needed. The change stays under watch."}
     rel = ev.get("model_reliance_vs_normal")
     summary = (f"Since run #{ev['change_first_seen_run']}, the reported {root} of incoming "
                f"customers has changed, and the model now leans on it {rel} times more than "
-               f"normal. It gets about {ev['extra_wrong_predictions_per_1000']} more predictions "
-               f"wrong per 1,000 customers ({harm} points of accuracy).")
+               f"normal. This changes about {dec}% of the model's decisions "
+               f"({ev['decisions_changed_rows']} of {ev['rows_in_batch']:,} customers).")
+    if est is not None:
+        summary += f" C1 estimates about {est} points of accuracy lost."
     if s == "confirmed":
         what = (f"The same cause was found in {ev['recent_runs_agreeing']} of the last "
                 f"{ev['runs_checked']} runs, so it is confirmed.")
@@ -177,13 +196,13 @@ def template_text(ev):
     if "detection_step_predicted_points" in ev:
         what += (f" The detection step also flagged the batch, predicting a "
                  f"{ev['detection_step_predicted_points']} point drop.")
-    who = (f"The damage sits in one group: {ev['affected_group']}. That is "
+    who = (f"The changed decisions concentrate in one group: {ev['affected_group']}. That is "
            f"{ev['affected_rows']} of {ev['rows_in_batch']:,} records "
            f"({ev['affected_share_percent']}%)")
     who += (f", against {ev['training_share_percent']}% of the data the model learned from."
             if ev.get("training_share_percent") is not None else ".")
-    outlook = ("Repairing this group is expected to recover about "
-               f"{harm} points of accuracy." if s == "confirmed"
+    outlook = ("Repairing this group should bring most of these decisions back to normal."
+               if s == "confirmed"
                else "If the next run shows the same cause, repair will be recommended.")
     return {"summary": summary, "what_changed": what, "who_is_affected": who,
             "outlook": outlook}
@@ -268,12 +287,12 @@ def claim_check(sections, ev):
 # ── 5. charts and assembly ─────────────────────────────────────────────────
 def charts(record, plain):
     ts, ev = record["temporal_shap"], record["evidence"]
-    factors = sorted(((plain.feature(f), round(max(h, 0.0), 2))
-                      for f, h in (ev.get("harm_pp_by_feature") or {}).items()),
+    factors = sorted(((plain.feature(f), round(100 * max(h, 0.0), 1))
+                      for f, h in (ev.get("decision_change_by_feature") or {}).items()),
                      key=lambda kv: kv[1], reverse=True)[:5]
     reliance = sorted(((f, ts["mean_abs_shap_ref"][f], ts["mean_abs_shap_now"][f])
                        for f in ts["mean_abs_shap_ref"]), key=lambda t: -max(t[1], t[2]))[:8]
-    return {"factors": [{"factor": f, "accuracy_lost_points": v} for f, v in factors],
+    return {"factors": [{"factor": f, "decisions_changed_percent": v} for f, v in factors],
             "reliance": [{"feature": f, "factor": plain.feature(f), "normal": a, "now": b}
                          for f, a, b in reliance]}
 
@@ -303,8 +322,8 @@ def build_report(record, history, plain=None, use_openai=True):
     title = {
         "clean": f"Run #{ev['run']}: the model is healthy",
         "harmless": f"Run #{ev['run']}: harmless change in {root}",
-        "suspected": f"Run #{ev['run']}: {root} may be costing {ev['accuracy_lost_points']} points of accuracy",
-        "confirmed": f"Run #{ev['run']}: {root} is costing {ev['accuracy_lost_points']} points of accuracy",
+        "suspected": f"Run #{ev['run']}: {root} may be changing {ev['decisions_changed_percent']}% of decisions",
+        "confirmed": f"Run #{ev['run']}: {root} changes {ev['decisions_changed_percent']}% of the model's decisions",
     }[ev["state"]]
     return {
         "run": ev["run"],
@@ -315,9 +334,10 @@ def build_report(record, history, plain=None, use_openai=True):
         "decision": ev["decision"],
         "sections": sections,
         "section_titles": SECTION_TITLES,
-        "kpis": {"accuracy_lost_points": ev["accuracy_lost_points"],
+        "kpis": {"decisions_changed_percent": ev["decisions_changed_percent"],
+                 "decisions_changed_rows": ev["decisions_changed_rows"],
+                 "estimated_accuracy_loss_points": ev["estimated_accuracy_loss_points"],
                  "detection_step_predicted_points": ev.get("detection_step_predicted_points"),
-                 "extra_wrong_predictions_per_1000": ev["extra_wrong_predictions_per_1000"],
                  "affected_share_percent": ev.get("affected_share_percent", 0.0),
                  "training_share_percent": ev.get("training_share_percent"),
                  "recent_runs_agreeing": ev.get("recent_runs_agreeing", 0),
@@ -335,16 +355,17 @@ def report_markdown(report, record=None):
              f"Written by: {report['writer']}", "",
              f"**Decision: {report['decision']['head']}.** {report['decision']['text']}", ""]
     k = report["kpis"]
-    lost, wrong = f"{k['accuracy_lost_points']} pp", k["extra_wrong_predictions_per_1000"]
-    lines += ["| Accuracy lost | Extra wrong per 1,000 | Customers affected | Runs agreeing |",
+    est = "not available" if k["estimated_accuracy_loss_points"] is None else \
+        f"{k['estimated_accuracy_loss_points']} pp (C1 estimate)"
+    lines += ["| Decisions changed | Estimated accuracy loss | Customers in the group | Runs agreeing |",
               "|---|---|---|---|",
-              f"| {lost} | {wrong} | "
-              f"{k['affected_share_percent']}% | {k['recent_runs_agreeing']} of {k['runs_checked']} |", ""]
+              f"| {k['decisions_changed_percent']}% | {est} | "
+              f"{k['affected_share_percent']}% | {k['recent_runs_agreeing']} of {k['runs_checked']} |", "",
+              "No labels exist in production, so accuracy is not measured.", ""]
     for s in SECTIONS:
         lines += [f"## {SECTION_TITLES[s]}", report["sections"][s], ""]
-    lines += ["## Accuracy lost per run", "", "| Run | Accuracy lost (pp) | Result |", "|---|---|---|"]
-    lines += [f"| #{t['run']} | {t['accuracy_lost_points']}"
-              f" | {t['state']} |"
+    lines += ["## Decisions changed per run", "", "| Run | Decisions changed (%) | Result |", "|---|---|---|"]
+    lines += [f"| #{t['run']} | {t['decisions_changed_percent']} | {t['state']} |"
               for t in report["charts"]["trend"]]
     lines += ["", "## Recommended actions"]
     lines += [f"{i}. {a['action']} (owner: {a['owner']})"

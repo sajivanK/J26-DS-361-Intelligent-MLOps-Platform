@@ -12,8 +12,9 @@ C2 endpoints (owner: Tharmika N): the C2 Root Cause Diagnosis page.
     POST /api/c2/reset              start a new monitoring period (empty history, fresh warm-up)
 
 The page builds its batches with C2's own scenario builder (the shared injector on test.csv rows),
-so it works even when the C1 engine files are not on this machine. The batch keeps its labels for
-C2 (C1 never sees them): C2 measures the accuracy lost and the harmed group with them.
+so it works even when the C1 engine files are not on this machine. Neither C1 nor C2 sees the
+labels: they stay with the answer key (true accuracy drop, injected features), which the page
+shows only to check C2 afterwards.
 
 C1 output: C2 always receives a C1 JSON (contract v1.1). It comes from the real C1 engine when that
 is loaded; otherwise from the team's fake C1 builder (shared/contracts/c1_fake_output.py), which
@@ -128,7 +129,8 @@ def run(req: C2Run):
              "note": "same rows before vs after injection; the answer key never reaches C2"}
     injection = {"drift_type": req.drift_type, "features": req.features, "magnitude": req.magnitude,
                  "batch_size": len(batch), "seed": seed}
-    result, rec = c2.diagnose(batch, c1, labelled[TARGET_COL], source=source, truth=truth,
+    # C2 gets the batch WITHOUT labels, like in production; the labels stay in the answer key
+    result, rec = c2.diagnose(batch, c1, source=source, truth=truth,
                               injection=injection, c1_source=c1_source)
     errors = {k: contracts.validate(k, result[f"to_{k[-2:]}"]) for k in ("c2_to_c3", "c2_to_c4")}
     return {"run": rec, "contract_errors": errors, "c1_source": c1_source, "c1_note": c1_note}

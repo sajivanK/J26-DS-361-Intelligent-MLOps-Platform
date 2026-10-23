@@ -20,8 +20,16 @@ export const pct = (v, d = 0) => (v == null ? "–" : `${(v * 100).toFixed(d)}%`
 export const time = (iso) => (iso ? new Date(iso).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "");
 export const clock = (iso) => (iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "");
 
+// No labels in production, so accuracy is never measured. What C2 measures is the share of the
+// model's decisions that flip when the root feature is put back to normal (c2/src/drift_impact_free.py).
+export const decOf = (rec) => {
+  const d = rec?.evidence?.decision_change;
+  return d == null ? null : Math.max(d, 0) * 100;
+};
+// Estimated accuracy loss: only from a harm predictor or a real C1; null otherwise.
 export const harmOf = (rec) => {
-  const h = rec?.evidence?.estimated_harm_pp;
+  const ev = rec?.evidence || {};
+  const h = ev.estimated_harm_pp ?? ev.c1_estimated_harm_pp;
   return h == null ? null : Math.max(h, 0);
 };
 export const c1PredOf = (rec) => {
@@ -40,19 +48,20 @@ export const topZ = (rec) => Object.entries(rec.temporal_shap.z).sort((a, b) => 
 export function answer(rec) {
   const st = rec.state, c3 = rec.to_c3, root = c3.root_cause_feature, plain = rec.plain || {};
   const name = plain.root_cause || nice(root);
-  const harm = harmOf(rec), rel = relianceOf(rec, root);
+  const harm = harmOf(rec), dec = decOf(rec), rel = relianceOf(rec, root);
   const n = rec.n_rows || 1000, rows = Math.round(c3.slice_support * n);
   if (st === "clean") {
     const [zf, zv] = topZ(rec);
-    return { name, harm, rows, sentence: ["The model is reading this batch the way it normally does. The biggest change was in ",
+    return { name, harm, dec, rows, sentence: ["The model is reading this batch the way it normally does. The biggest change was in ",
       { b: nice(zf) }, `, at ${zv.toFixed(1)} times normal noise, below the alarm line of ${rec.temporal_shap.z_thresh.toFixed(2)}.`] };
   }
   if (st === "harmless") {
-    return { name, harm, rows, sentence: [{ b: name }, " changed, but the change costs only ", { b: `${sg(harm)} points` },
-      " of accuracy, below the 2-point harm line. No repair needed."] };
+    return { name, harm, dec, rows, sentence: [{ b: name }, " changed, but putting it back to normal changes only ", { b: `${sg(dec)}%` },
+      " of the model's decisions, below the 2% line. No repair needed."] };
   }
-  return { name, harm, rows, sentence: ["The model now leans on ", { b: name }, " about ", { b: `${rel?.toFixed(1)} times` },
-    " more than normal, and that costs about ", { b: `${sg(harm)} points of accuracy` }, ". The damage sits in a group of about ",
+  return { name, harm, dec, rows, sentence: ["The model now leans on ", { b: name }, " about ", { b: `${rel?.toFixed(1)} times` },
+    " more than normal, and the change flips about ", { b: `${sg(dec)}% of its decisions` },
+    harm != null ? ` (estimated accuracy loss ${sg(harm)} points)` : "", ". The affected decisions sit in a group of about ",
     { b: `${rows.toLocaleString()} of ${n.toLocaleString()} records` }, "."] };
 }
 

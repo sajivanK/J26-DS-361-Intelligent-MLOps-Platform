@@ -2,10 +2,23 @@
 C2 Diagnosis Engine: full pipeline and the two contract outputs.
 J26-DS-361 | C2 XAI Root Cause Diagnosis Engine | Tharmika N (IT22247940)
 
-Pipeline per monitoring cycle:
-    Novelty 1  TemporalSHAPMonitor.update()   explanation evidence over cycles
-    Novelty 2  DriftImpactScorer.score()      fused root cause + estimated harm
-    Novelty 3  HierarchicalLocalizer.localize() subgroup rule for C3
+Pipeline per monitoring cycle, WITHOUT labels (production batches never have
+them; a label column, if present, is dropped before anything reads the batch):
+    Novelty 1  TemporalSHAPMonitor.update()            explanation evidence over cycles
+    Novelty 2  LabelFreeImpactScorer.score()           fused root cause: explanation,
+                                                       drift, decision change, prediction shift
+    Novelty 3  HierarchicalLocalizer.localize(harm=rows at risk)
+                                                       value range / subgroup rule for C3,
+                                                       targeted at rows whose decision the
+                                                       drift changes
+Damage: the share of the model's decisions that change because of the root
+feature, and C1's predicted accuracy drop when C1's output can be trusted (real
+C1; the team's fake C1 copies the answer key, so its number is never used).
+"Potentially harmful" (is_malignant) = C1's estimate above 2 pp; without a
+trusted C1 estimate, the root's decision change at or above 2% of decisions
+(the most that could reach the 2 pp harm line).
+The labelled research versions (drift_impact.py, HierarchicalLocalizer.drift_harm)
+stay as upper bounds in the evaluations; they are not used here.
 
 Outputs (contracts v1.1, shared/contracts/):
     to_c3   Repair Specification   c2_output_to_c3_schema.json
@@ -23,7 +36,7 @@ Robustness and audit (proposal FR9, NFR4, NFR5, NFR7):
 Usage:
     engine = C2DiagnosisEngine()                 # loads shared artifacts
     engine.warmup(clean_batches)                 # first clean cycles after deployment
-    result = engine.diagnose(batch, c1_output)   # once per monitoring cycle
+    result = engine.diagnose(batch, c1_output)   # once per monitoring cycle (no labels needed)
     result["to_c3"], result["to_c4"], result["details"]
 """
 import json
@@ -33,8 +46,8 @@ from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 
-from c2.src.config import C2_DIR, CONTRACTS_DIR, load_artifacts
-from c2.src.drift_impact import DriftImpactScorer
+from c2.src.config import C2_DIR, CONTRACTS_DIR, TARGET_COL, load_artifacts
+from c2.src.drift_impact_free import DI_FLIP_SIGNIFICANT, MALIGNANT_PP, LabelFreeImpactScorer
 from c2.src.localization import MIN_GROUP_SIZE, HierarchicalLocalizer
 from c2.src.temporal_shap import TemporalSHAPMonitor
 
@@ -114,7 +127,7 @@ def _json_safe(v):
 # ── ENGINE ─────────────────────────────────────────────────────────────────
 class C2DiagnosisEngine:
 
-    def __init__(self, artifacts=None, window=3, log_path=DEFAULT_LOG):
+    def __init__(self, artifacts=None, window=3, log_path=DEFAULT_LOG, harm_fn=None):
         self.a = artifacts or load_artifacts()
         self.log_path = log_path
         if log_path is not None:
@@ -122,20 +135,28 @@ class C2DiagnosisEngine:
         a = self.a
         self.monitor = TemporalSHAPMonitor(a["model"], a["ref_df"], a["feature_types"],
                                            window=window)
-        self.scorer = DriftImpactScorer(a["model"], a["ref_df"], a["feature_types"],
-                                        self.monitor.z_thresh)
+        # harm_fn: C1's predict_harm when it is handed over (agreed plan, 23 Oct 2026)
+        self.scorer = LabelFreeImpactScorer(a["model"], a["ref_df"], a["feature_types"],
+                                            self.monitor.z_thresh, harm_fn=harm_fn)
         self.localizer = HierarchicalLocalizer(a["model"], a["ref_df"], a["feature_types"])
         self.window = window
         self.root_history = []
         self.n_diagnoses = 0
 
+    @staticmethod
+    def _unlabelled(df):
+        """Production batches have no labels; if one is present it is dropped unread."""
+        return df.drop(columns=[TARGET_COL]) if TARGET_COL in df.columns else df
+
     def warmup(self, clean_batches):
-        """Feed the first clean production cycles: SHAP history + performance noise band."""
+        """Feed the first clean production cycles (no labels needed): SHAP history and
+        the clean baselines of the restore test and the per-slice predictions."""
+        batches = [self._unlabelled(b) for b in clean_batches]
         self.monitor.reset()
         self.root_history = []
-        for b in clean_batches:
+        for b in batches:
             self.monitor.update(b)
-        self.scorer.calibrate_performance(clean_batches)
+        self.scorer.calibrate(batches)
         return self
 
     def _stability(self, root):
@@ -156,20 +177,28 @@ class C2DiagnosisEngine:
         problems = validate_output(c1_output, C1_SCHEMA, allow_extra=True)
         return ("malformed" if problems else "ok"), problems
 
-    def diagnose(self, cur_df, c1_output=None):
-        if self.scorer.mu_P is None:
+    def diagnose(self, cur_df, c1_output=None, c1_trusted=True):
+        """
+        One monitoring cycle on a production batch (no labels). c1_trusted=False marks
+        C1 output that is not a real prediction (the team's fake C1 copies the answer
+        key): its hints are still checked and used, its predicted harm is not.
+        """
+        if self.scorer.base is None:
             raise RuntimeError("call warmup(clean_batches) before diagnose()")
         t0 = datetime.now(timezone.utc)
         a = self.a
+        cur_df = self._unlabelled(cur_df)
         c1_status, c1_problems = self.check_c1(c1_output)
         c1_used = c1_output if c1_status == "ok" else {}
         warnings_ = ([f"C1 input {c1_status}: diagnosing from C2 evidence only"]
                      + c1_problems if c1_status != "ok" else [])
         shap_r = self.monitor.update(cur_df)
-        dis = self.scorer.score(cur_df, shap_r)
+        dis = self.scorer.score(cur_df, shap_r, c1_used if c1_trusted else None)
         ranked = list(dis["drift_impact_scores"])
         root = ranked[0]
-        loc = self.localizer.localize(cur_df, root, ranked)
+        moves, flips = self.scorer.rows_at_risk(cur_df, root)
+        loc = self.localizer.localize(cur_df, root, ranked, harm=moves)
+        loc["rows_at_risk"] = int(round(float(flips.sum())))
 
         rule = loc["affected_slice_rule"]
         ranges = loc["affected_value_ranges"]
@@ -177,7 +206,7 @@ class C2DiagnosisEngine:
         if not rule:
             rule, ranges = _fallback_rule(cur_df, a["ref_df"], root, a["feature_types"])
             support = round(float(len(cur_df.query(rule)) / len(cur_df)), 4)
-            warnings_.append("no concentrated drift harm: slice rule shows where the "
+            warnings_.append("no concentrated rows at risk: slice rule shows where the "
                              "root feature shifted")
         if support * len(cur_df) < MIN_GROUP_SIZE:          # NFR4 privacy guard
             rule, ranges = f"{root} == {root}", {}
@@ -214,12 +243,27 @@ class C2DiagnosisEngine:
             "diagnosis_version": version,
             "diagnosis_timestamp": now,
         }
+        decision_change = max(dis["signals_raw"][root]["decision_change"], 0.0)
+        c1_pp = dis["c1_predicted_harm_pp"]
+        if dis["estimated_harm_pp"] is not None:
+            harmful, basis = dis["estimated_harm_pp"] > MALIGNANT_PP, "harm predictor (root feature)"
+        elif c1_pp is not None:
+            harmful, basis = c1_pp > MALIGNANT_PP, "C1 predicted accuracy drop"
+        else:
+            harmful, basis = decision_change >= DI_FLIP_SIGNIFICANT, "decision change (upper bound)"
         details = {
             "c1_status": c1_status,
+            "c1_trusted": bool(c1_trusted and c1_status == "ok"),
             "warnings": warnings_,
             "c1_evidence_version": (c1_output or {}).get("evidence_version"),
+            "labels_used": False,
+            "decision_change": round(float(decision_change), 4),
+            "decision_change_part": dis["decision_flip_part"],
+            "rows_at_risk": loc["rows_at_risk"],
+            "c1_estimated_harm_pp": c1_pp,
             "estimated_harm_pp": dis["estimated_harm_pp"],
-            "is_malignant": dis["is_malignant"],
+            "is_malignant": bool(harmful),
+            "harm_basis": basis,
             "explanation_alarm": shap_r["alarm"],
             "shift_pattern": shap_r["shift_pattern"],
             "localization_levels": loc["levels_used"],
@@ -254,8 +298,11 @@ class C2DiagnosisEngine:
                 "top_features": dict(list(dis["drift_impact_scores"].items())[:5]),
                 "root_signals_raw": dis["signals_raw"][root],
                 "explanation_alarm": shap_r["alarm"],
-                "estimated_harm_pp": dis["estimated_harm_pp"],
-                "is_malignant": dis["is_malignant"],
+                "decision_change": result["details"]["decision_change"],
+                "c1_estimated_harm_pp": result["details"]["c1_estimated_harm_pp"],
+                "is_malignant": result["details"]["is_malignant"],
+                "harm_basis": result["details"]["harm_basis"],
+                "rows_at_risk": loc["rows_at_risk"],
                 "localization_levels": loc["levels_used"],
                 "localization_est_precision": loc.get("est_precision"),
                 "localization_est_recall": loc.get("est_recall"),
@@ -331,10 +378,16 @@ if __name__ == "__main__":
 
     engine = C2DiagnosisEngine()
     stream = make_temporal_stream("marginal_single", ["capital_gain"], 0.6, seed=22)
-    engine.warmup([s["drifted_df"] for s in stream[:2]])
-    for s in stream[2:]:
+    unlabelled = [s["drifted_df"].drop(columns=[TARGET_COL]) for s in stream]   # production: no labels
+    engine.warmup(unlabelled[:2])
+    for s, b in zip(stream[2:], unlabelled[2:]):
         c1 = build_fake_c1_output(s["ground_truth"], seed=s["spec"]["seed"])
-        result = engine.diagnose(s["drifted_df"], c1)
+        result = engine.diagnose(b, c1, c1_trusted=False)        # fake C1: hints only
+    d = result["details"]
+    print(f"labels used: {d['labels_used']} | root {result['to_c3']['root_cause_feature']} | "
+          f"decisions changed {d['decision_change']:.1%} | rows at risk {d['rows_at_risk']} | "
+          f"potentially harmful {d['is_malignant']} ({d['harm_basis']}) | "
+          f"true accuracy drop {stream[-1]['ground_truth']['actual_accuracy_drop']:.1f} pp (answer key)\n")
 
     print("C2 -> C3 Repair Specification:")
     print(json.dumps(result["to_c3"], indent=2))
@@ -350,7 +403,7 @@ if __name__ == "__main__":
     bad_c1 = dict(c1, harm_severity="huge")
     del bad_c1["marginal_extent"]
     for label, c1_in in [("missing C1", None), ("malformed C1", bad_c1)]:
-        r = engine.diagnose(stream[-1]["drifted_df"], c1_in)
+        r = engine.diagnose(unlabelled[-1], c1_in, c1_trusted=False)
         valid = not (validate_output(r["to_c3"], C3_SCHEMA, ref)
                      or validate_output(r["to_c4"], C4_SCHEMA, ref))
         print(f"{label}: c1_status={r['details']['c1_status']}, outputs still valid={valid}, "
