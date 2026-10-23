@@ -110,9 +110,13 @@ function RunBar({ info, form, setForm, busy, onRun, onReset }) {
   });
   const ok = form.features.length >= t.min && form.features.length <= t.max;
   return (
-    <section className="card stack" aria-label="Run a diagnosis">
+    <section className="card stack" aria-label="Simulate drift and run a diagnosis">
+      <div className="c2-setup-head">
+        <span className="eyebrow">Test setup · simulate drift</span>
+        <span className="small muted">Each run builds a new test batch from unseen data and breaks the feature you pick. C2 is <b>not told</b> what you picked: it analyses all 12 features and must find the cause itself.</span>
+      </div>
       <div className="c2-runbar">
-        <div className="field"><label htmlFor="c2type">Drift to inject (Drift Lab recipe)</label>
+        <div className="field"><label htmlFor="c2type">Type of drift to simulate</label>
           <select id="c2type" value={form.drift_type} onChange={(e) => setForm((f) => ({ ...f, drift_type: e.target.value, features: e.target.value === "none" ? [] : f.features }))}>
             {types.map((x) => <option key={x.id} value={x.id}>{x.id === "none" ? "none (clean batch)" : x.id.replace("_", " ")}</option>)}
           </select></div>
@@ -130,8 +134,8 @@ function RunBar({ info, form, setForm, busy, onRun, onReset }) {
       </div>
       {form.drift_type !== "none" && (
         <div className="stack tight">
-          <span className="small muted">{t.help} {ok ? "" : <b>Pick {t.min === t.max ? t.min : `${t.min} to ${t.max}`}.</b>}</span>
-          <div className="row" role="group" aria-label="Features to drift">
+          <span className="small muted"><b>Feature{t.max > 1 ? "s" : ""} to break (C2 is not told):</b> {t.help} {ok ? "" : <b>Pick {t.min === t.max ? t.min : `${t.min} to ${t.max}`}.</b>}</span>
+          <div className="row" role="group" aria-label="Features to break (hidden from C2)">
             {feats.map((f) => (<button key={f} type="button" className="pbtn" aria-pressed={form.features.includes(f)} onClick={() => toggle(f)}>
               {f}{info.features.high.includes(f) ? " ·hi" : ""}</button>))}
           </div>
@@ -171,7 +175,7 @@ function Answer({ rec, latest }) {
             : <><span className="a">{pct(c3.slice_support)}</span><span className="s">of this batch ({a.rows.toLocaleString()} rows){rec.localization.ref_share != null ? ` · ${pct(rec.localization.ref_share, 1)} in training data` : ""}</span></>}</div>
       </div>
       {rec.truth && rec.injection?.drift_type !== undefined && (
-        <div className="c2-truth"><span className="eyebrow">Drift Lab answer key</span>
+        <div className="c2-truth"><span className="eyebrow">Answer key · hidden from C2</span>
           <span>true accuracy drop <b className="mono">{sg(rec.truth.true_harm_pp)} pp</b></span>
           <span>C2 estimate <b className="mono">{sg(harm)} pp</b></span>
           <span>injected <b className="mono">{rec.truth.true_causes.join(", ") || "nothing"}</b></span>

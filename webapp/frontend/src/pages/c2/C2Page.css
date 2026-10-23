@@ -115,3 +115,4 @@
   .c2-paper section, .c2-tiles, .c2-decision { break-inside: avoid; }
   .scroll-x svg { min-width: 0 !important; }
 }
+.c2-setup-head { display: flex; flex-direction: column; gap: 2px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
