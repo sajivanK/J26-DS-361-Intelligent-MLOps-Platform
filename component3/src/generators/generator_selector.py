@@ -131,6 +131,8 @@ class GeneratorSelector:
 
                 filtered_params = {k: v for k, v in gen_params.items() if k in accepted}
                 generator_inst = gen_cls(**filtered_params)
+                if hasattr(getattr(generator_inst, "model", None), "set_random_state"):
+                    generator_inst.model.set_random_state(seed)
 
                 # Fit generator on training data
                 t0_fit = time.perf_counter()

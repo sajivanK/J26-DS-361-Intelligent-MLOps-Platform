@@ -142,8 +142,8 @@ def _parse_request(raw_request: RepairRequest | dict[str, Any] | str | Path) -> 
         c1_adapter = C1DriftAdapter(default_dataset_id=dc.dataset_id)
         req = c1_adapter.adapt(
             payload={
-                "predicted_accuracy_drop": c1.predicted_accuracy_drop,
-                "confidence_interval": c1.confidence_interval,
+                "predicted_harm": c1.predicted_harm_proportion,
+                "confidence_interval": c1.confidence_interval_proportions,
                 "drift_type": c1.drift_type,
                 "drift_severity": c1.drift_severity,
                 "affected_features": c1.affected_features,
@@ -230,6 +230,23 @@ def _load_package(package_or_path: str | Path | RepairPackage) -> dict[str, Any]
 def validate_repair_request(request: RepairRequest | dict[str, Any] | str | Path) -> dict[str, Any]:
     """Validate a RepairRequest schema and authorized data references."""
     try:
+        raw = request
+        if isinstance(raw, (str, Path)):
+            raw = json.loads(Path(raw).read_text(encoding="utf-8"))
+        if isinstance(raw, dict) and any(k in raw for k in ("c1_evidence", "c1", "upstream", "data_context")):
+            ok, errors, container = validate_three_section_contract(raw)
+            if not ok:
+                raise ContractValidationError("; ".join(errors))
+            ok, errors, paths = resolve_data_context_artifacts(container.data_context)
+            if not ok:
+                raise DependencyResolutionError("; ".join(errors))
+            from component3.src.live_repair import artifact_path
+            dc = container.data_context
+            reg = get_model_registry()
+            entry = reg.get(dc.model_id) if reg.has(dc.model_id) else None
+            artifact_path(dc.raw_metadata.get("model_uri") or dc.raw_metadata.get("model_path") or (entry.model_path if entry else dc.model_id), "models")
+            return {"valid": True, "dataset_id": dc.dataset_id, "model_id": dc.model_id,
+                    "validation_scope": "contract and artifact existence; full schema/model compatibility is checked at execution", "errors": []}
         req = _parse_request(request)
         return {
             "valid": True,
@@ -272,6 +289,16 @@ def execute_repair(
     decision_mode: str | DecisionMode = "RULE_BASED",
 ) -> tuple[RepairPackage, OrchestratorExecutionLog]:
     """Execute end-to-end repair pipeline for a given RepairRequest."""
+    raw = request
+    if isinstance(raw, (str, Path)):
+        raw = json.loads(Path(raw).read_text(encoding="utf-8"))
+    if isinstance(raw, dict) and any(k in raw for k in ("c1_evidence", "c1", "upstream", "data_context")):
+        if str(getattr(decision_mode, "value", decision_mode)).upper() != "RULE_BASED":
+            raise ContractValidationError("Integrated repair currently supports RULE_BASED prescription only.")
+        if pre_generated_candidates_df is not None:
+            raise ContractValidationError("Integrated repair does not accept cached/pre-generated candidates. Use the research orchestrator explicitly for experiments.")
+        from component3.src.live_repair import execute_live_repair
+        return execute_live_repair(raw, output_directory)
     req = _parse_request(request)
     mode_enum = DecisionMode(decision_mode.upper()) if isinstance(decision_mode, str) else decision_mode
     if output_directory is None:

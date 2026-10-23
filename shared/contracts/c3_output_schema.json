@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "component": "C3",
   "component_name": "Adaptive Intelligent Synthetic Data Repair Engine",
   "owner": "Mathusan K (IT23174580)",
@@ -62,8 +62,8 @@
       "type": "string",
       "required": true,
       "example": "CTGAN",
-      "allowed_values": ["CTGAN", "TVAE", "TabDDPM"],
-      "description": "Generative model selected by the Repair Prescription Engine for this condition.",
+      "allowed_values": ["CTGAN", "TVAE", "TabDDPM", "NONE"],
+      "description": "Generator actually executed. NONE means no generator ran; the package must be REJECTED.",
       "used_by": ["C4"]
     },
     "n_synthetic_rows": {
@@ -93,8 +93,8 @@
       "type": "float",
       "required": true,
       "example": 0.87,
-      "range": "0.0 to 1.0",
-      "description": "Downstream model accuracy improvement on affected slice when trained with synthetic data.",
+      "range": "-1.0 to 1.0",
+      "description": "Affected-slice improvement over the supplied baseline in the selected metric (proportion; 0.01 = one percentage point). May be negative for rejected candidates. See package metadata for metric and real-only control.",
       "used_by": ["C4"]
     },
     "privacy_status": {

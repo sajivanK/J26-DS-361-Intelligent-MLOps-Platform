@@ -14,6 +14,22 @@ from component3.src.validation.validation_models import (
 )
 
 
+def _nearest_distances(samples, reference):
+    """Exact DCR with bounded temporary distance matrices (at most ~16 MB)."""
+    if len(samples) == 0 or len(reference) == 0:
+        raise ValueError("DCR requires non-empty synthetic and reference data.")
+    distances = np.full(len(samples), np.inf)
+    for start in range(0, len(samples), 256):
+        block = samples[start:start + 256]
+        best = np.full(len(block), np.inf)
+        for offset in range(0, len(reference), 8192):
+            best = np.minimum(best, cdist(block, reference[offset:offset + 8192], metric="euclidean").min(axis=1))
+        distances[start:start + len(block)] = best
+    if not np.isfinite(distances).all():
+        raise ValueError("DCR produced non-finite distances.")
+    return distances
+
+
 class PrivacyValidator:
     """Evaluates memorization, exact copies, and Distance to Closest Record (DCR)."""
 
@@ -226,8 +242,7 @@ def validate_privacy(
 
         # Distance to closest record: min distance from each synthetic row to reference rows
         # Vectorized cdist (computationally lightweight for research batch sizes)
-        dist_matrix = cdist(X_syn_scaled, X_ref_scaled, metric="euclidean")
-        min_distances = np.min(dist_matrix, axis=1)
+        min_distances = _nearest_distances(X_syn_scaled, X_ref_scaled)
 
         dcr_p05 = float(np.percentile(min_distances, 5))
         dcr_p50 = float(np.percentile(min_distances, 50))
@@ -277,8 +292,7 @@ def validate_privacy(
                 holdout_encoded_parts.append(h_dummies)
 
             X_holdout = np.hstack(holdout_encoded_parts) * scale_factor
-            dist_holdout = cdist(X_syn_scaled, X_holdout, metric="euclidean")
-            min_dist_holdout = np.min(dist_holdout, axis=1)
+            min_dist_holdout = _nearest_distances(X_syn_scaled, X_holdout)
 
             # Nearest Neighbor Distance Ratio: mean(DCR_train) / mean(DCR_holdout)
             # A ratio significantly < 1 suggests synthetic data is memorizing training data relative to holdout
@@ -291,6 +305,7 @@ def validate_privacy(
             }
         except Exception:
             metrics["holdout_comparison"] = "EVALUATION_ERROR"
+            reasons.append("Requested holdout privacy comparison could not be evaluated.")
 
     status = ValidationStatus.FAIL if reasons else ValidationStatus.PASS
     return ValidationStageResult(

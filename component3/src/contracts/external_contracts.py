@@ -18,6 +18,7 @@ import math
 from pathlib import Path
 import re
 import tempfile
+import os
 from typing import Any
 
 import jsonschema
@@ -74,7 +75,7 @@ VALID_C2_ROOT_CAUSE_CATEGORIES = {
 VALID_LABEL_STATUSES = {"AVAILABLE", "UNAVAILABLE"}
 
 VALID_C4_PACKAGE_STATUSES = {"APPROVED", "REJECTED"}
-VALID_C4_GENERATORS = {"CTGAN", "TVAE", "TabDDPM"}
+VALID_C4_GENERATORS = {"CTGAN", "TVAE", "TabDDPM", "NONE"}
 VALID_C4_PRIVACY_STATUSES = {"PASS", "FAIL"}
 
 
@@ -123,7 +124,7 @@ def _check_finite_int(
 
 def get_authorized_directory_roots() -> dict[str, list[Path]]:
     """Return canonical paths for authorized dataset, model, and output directories."""
-    return {
+    roots = {
         "datasets": [
             (REPO_ROOT / "component3" / "data").resolve(),
             (REPO_ROOT / "shared").resolve(),
@@ -142,6 +143,9 @@ def get_authorized_directory_roots() -> dict[str, list[Path]]:
             Path(tempfile.gettempdir()).resolve(),
         ],
     }
+    for category, variable in (("datasets", "C3_DATA_ROOTS"), ("models", "C3_MODEL_ROOTS")):
+        roots[category].extend(Path(value).resolve() for value in os.environ.get(variable, "").split(os.pathsep) if value)
+    return roots
 
 
 def verify_path_authorization(path: Path | str, allowed_category: str = "datasets") -> tuple[bool, str | None, Path | None]:
@@ -197,7 +201,8 @@ class C1EvidenceContract:
         - Values in [0.0, 1.0] are interpreted as proportions (e.g., 0.18 = 18% accuracy drop).
         - Values in (1.0, 100.0] are interpreted as percentages and converted to proportions.
         """
-        if self.predicted_accuracy_drop > 1.0:
+        unit = self.raw_metadata.get("harm_unit")
+        if unit == "percentage_points" or (unit is None and self.predicted_accuracy_drop > 1.0):
             return round(self.predicted_accuracy_drop / 100.0, 4)
         return round(self.predicted_accuracy_drop, 4)
 
@@ -205,7 +210,8 @@ class C1EvidenceContract:
     def confidence_interval_proportions(self) -> tuple[float, float]:
         """Return confidence interval as proportions [0.0, 1.0]."""
         low, high = self.confidence_interval
-        if high > 1.0 or low > 1.0:
+        unit = self.raw_metadata.get("harm_unit")
+        if unit == "percentage_points" or (unit is None and (high > 1.0 or low > 1.0)):
             return (round(low / 100.0, 4), round(high / 100.0, 4))
         return (round(low, 4), round(high, 4))
 
@@ -289,7 +295,7 @@ def validate_c1_evidence(data: dict[str, Any]) -> tuple[bool, list[str], C1Evide
         errors.append("c1_evidence missing required field: 'predicted_accuracy_drop' (or 'predicted_harm').")
     else:
         ok_drop, err_drop, drop_val = _check_finite_number(
-            raw_drop, "predicted_accuracy_drop", min_val=0.0, max_val=100.0
+            raw_drop, "predicted_accuracy_drop", min_val=-100.0, max_val=100.0
         )
         if not ok_drop and err_drop:
             errors.append(err_drop)
@@ -303,8 +309,8 @@ def validate_c1_evidence(data: dict[str, Any]) -> tuple[bool, list[str], C1Evide
         errors.append("confidence_interval must be a list or tuple of exactly two numbers [lower, upper].")
     else:
         low, high = raw_ci
-        ok_low, err_low, low_val = _check_finite_number(low, "confidence_interval[0]", min_val=0.0, max_val=100.0)
-        ok_high, err_high, high_val = _check_finite_number(high, "confidence_interval[1]", min_val=0.0, max_val=100.0)
+        ok_low, err_low, low_val = _check_finite_number(low, "confidence_interval[0]", min_val=-100.0, max_val=100.0)
+        ok_high, err_high, high_val = _check_finite_number(high, "confidence_interval[1]", min_val=-100.0, max_val=100.0)
         if not ok_low and err_low:
             errors.append(err_low)
         if not ok_high and err_high:
@@ -317,13 +323,28 @@ def validate_c1_evidence(data: dict[str, Any]) -> tuple[bool, list[str], C1Evide
 
     # Drift type
     raw_type = data.get("drift_type")
+    if "marginal_extent" in data:
+        extent = data["marginal_extent"]
+        interaction = data.get("interaction_suspected", 0.0)
+        valid_i, error_i, interaction = _check_finite_number(interaction, "interaction_suspected", 0.0, 1.0)
+        if not valid_i:
+            errors.append(error_i)
+        if extent not in ("none", "single", "multi"):
+            errors.append("marginal_extent must be none, single, or multi.")
+        elif raw_type is None:
+            has_interaction = valid_i and interaction >= 0.4
+            raw_type = ("combined" if has_interaction else f"marginal_{extent}") if extent != "none" else ("interaction" if has_interaction else "none")
+    elif "interaction_suspected" in data:
+        ok_interaction, error_interaction, _ = _check_finite_number(data["interaction_suspected"], "interaction_suspected", 0.0, 1.0)
+        if not ok_interaction:
+            errors.append(error_interaction)
     if not raw_type or not isinstance(raw_type, str):
         errors.append("c1_evidence missing required string field: 'drift_type'.")
     elif raw_type.lower() not in VALID_C1_DRIFT_TYPES:
         errors.append(f"drift_type '{raw_type}' not in allowed values: {sorted(VALID_C1_DRIFT_TYPES)}.")
 
     # Drift severity
-    raw_sev = data.get("drift_severity")
+    raw_sev = data.get("harm_severity", data.get("drift_severity"))
     if not raw_sev or not isinstance(raw_sev, str):
         errors.append("c1_evidence missing required string field: 'drift_severity'.")
     elif raw_sev.lower() not in VALID_C1_DRIFT_SEVERITIES:
@@ -343,19 +364,31 @@ def validate_c1_evidence(data: dict[str, Any]) -> tuple[bool, list[str], C1Evide
         if len(cleaned_features) != len(set(cleaned_features)):
             errors.append("affected_features cannot contain duplicate feature names.")
 
+    # C1 v1.1 uses proportions, including signed uncertainty intervals.
+    if "predicted_harm" in data:
+        if drop_val is not None and not -1.0 <= drop_val <= 1.0:
+            errors.append("predicted_harm must be a proportion between -1 and 1.")
+        if ci_tuple is not None and not all(-1.0 <= v <= 1.0 for v in ci_tuple):
+            errors.append("harm_interval must use proportions between -1 and 1.")
+    if "drift_detected" in data and not isinstance(data["drift_detected"], bool):
+        errors.append("drift_detected must be a boolean.")
+    harm_unit = "proportion" if "predicted_harm" in data else data.get("harm_unit", "percentage_points")
+    if harm_unit not in ("proportion", "percentage_points"):
+        errors.append("harm_unit must be proportion or percentage_points.")
+
     if errors:
         return False, errors, None
 
     contract = C1EvidenceContract(
         predicted_accuracy_drop=float(drop_val),  # type: ignore[arg-type]
         confidence_interval=ci_tuple,  # type: ignore[arg-type]
-        drift_type=str(raw_type),
-        drift_severity=str(raw_sev),
+        drift_type=str(raw_type).lower(),
+        drift_severity=str(raw_sev).lower(),
         affected_features=tuple(cleaned_features),
-        raw_metadata={k: v for k, v in data.items() if k not in {
+        raw_metadata={**{k: v for k, v in data.items() if k not in {
             "predicted_accuracy_drop", "predicted_harm", "confidence_interval",
             "harm_interval", "drift_type", "drift_severity", "affected_features", "features_drifted"
-        }},
+        }}, "harm_unit": harm_unit},
     )
     return True, [], contract
 
@@ -421,7 +454,7 @@ def validate_c2_diagnosis(data: dict[str, Any]) -> tuple[bool, list[str], C2Diag
 
     contract = C2DiagnosisContract(
         root_cause_feature=str(rc_feature).strip(),
-        root_cause_category=str(rc_cat).strip(),
+        root_cause_category=str(rc_cat).strip().lower(),
         affected_slice_rule=str(slice_rule).strip(),
         affected_features_ranked=tuple(cleaned_ranked),
         affected_value_ranges=dict(val_ranges or {}),
@@ -450,7 +483,7 @@ def validate_data_context(data: dict[str, Any]) -> tuple[bool, list[str], DataCo
         if not val or not isinstance(val, str) or not val.strip():
             errors.append(f"data_context missing required non-empty string field: '{req_field}'.")
 
-    lbl_status = data.get("label_status", "AVAILABLE")
+    lbl_status = data.get("label_status", "UNAVAILABLE")
     if not isinstance(lbl_status, str) or lbl_status.upper() not in VALID_LABEL_STATUSES:
         errors.append(f"label_status must be one of {sorted(VALID_LABEL_STATUSES)}, got '{lbl_status}'.")
 
@@ -659,11 +692,11 @@ C4_FLAT_CONTRACT_JSON_SCHEMA = {
     "properties": {
         "repair_dataset_uri": {"type": "string"},
         "repair_package_status": {"type": "string", "enum": ["APPROVED", "REJECTED"]},
-        "generator": {"type": "string", "enum": ["CTGAN", "TVAE", "TabDDPM"]},
+        "generator": {"type": "string", "enum": ["CTGAN", "TVAE", "TabDDPM", "NONE"]},
         "n_synthetic_rows": {"type": "integer", "minimum": 0},
         "augmentation_ratio": {"type": "number", "minimum": 0.0, "maximum": 1.0},
         "fidelity_score": {"type": "number", "minimum": 0.0, "maximum": 1.0},
-        "utility_score": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "utility_score": {"type": "number", "minimum": -1.0, "maximum": 1.0},
         "privacy_status": {"type": "string", "enum": ["PASS", "FAIL"]},
         "target_coverage": {"type": "number", "minimum": 0.0, "maximum": 1.0},
         "prescription_confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
@@ -671,6 +704,13 @@ C4_FLAT_CONTRACT_JSON_SCHEMA = {
         "repair_timestamp": {"type": "string"},
     },
     "additionalProperties": False,
+    "allOf": [
+        {"if": {"properties": {"generator": {"const": "NONE"}}},
+         "then": {"properties": {"repair_package_status": {"const": "REJECTED"},
+                                  "n_synthetic_rows": {"const": 0}, "repair_dataset_uri": {"const": "NONE"}}}},
+        {"if": {"properties": {"repair_package_status": {"const": "REJECTED"}}},
+         "then": {"properties": {"n_synthetic_rows": {"const": 0}, "repair_dataset_uri": {"const": "NONE"}}}},
+    ],
 }
 
 
