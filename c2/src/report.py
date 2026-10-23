@@ -25,6 +25,10 @@ Configuration (environment variables, never committed):
                      Gemini  https://generativelanguage.googleapis.com/v1beta/openai/
                      Groq    https://api.groq.com/openai/v1
                      Ollama  http://localhost:11434/v1   (local, key = "ollama")
+    OPENAI_REASONING_EFFORT  optional thinking level for models that think before
+                     answering ("low", "medium", ...). Default "low" for Gemini: on
+                     the C2 report it halves the time (about 17 s instead of 32 s
+                     for gemini-3.7-flash, measured 23 Oct 2026); not sent otherwise.
 """
 import json
 import os
@@ -192,13 +196,27 @@ def writer_name():
     return f"{host}:{os.environ.get('OPENAI_MODEL', DEFAULT_MODEL)}"
 
 
-def openai_text(ev, model=None, timeout=20):
+WRITER_TIMEOUT_S = 35           # one try, no automatic retry (retries use up free-tier quota)
+
+
+def reasoning_effort():
+    """Thinking level to request: OPENAI_REASONING_EFFORT, else "low" for Gemini, else none."""
+    v = os.environ.get("OPENAI_REASONING_EFFORT")
+    if v is not None:
+        return v or None
+    return "low" if "googleapis.com" in os.environ.get("OPENAI_BASE_URL", "") else None
+
+
+def openai_text(ev, model=None, timeout=WRITER_TIMEOUT_S):
     """Four sections written by the OpenAI model. Raises on any problem."""
     from openai import OpenAI          # optional dependency, only needed here
-    # one retry at most, so a slow or rate-limited service never holds the report for long:
-    # after about 40 s the template text is used instead
-    client = OpenAI(timeout=timeout, max_retries=1)   # reads OPENAI_API_KEY and OPENAI_BASE_URL
+    # a single try: a slow, busy or rate-limited service never holds the report for long;
+    # after WRITER_TIMEOUT_S the template text is used instead
+    client = OpenAI(timeout=timeout, max_retries=0)   # reads OPENAI_API_KEY and OPENAI_BASE_URL
+    effort = reasoning_effort()
+    extra = {"reasoning_effort": effort} if effort else {}
     resp = client.chat.completions.create(
+        **extra,
         model=model or os.environ.get("OPENAI_MODEL", DEFAULT_MODEL),
         temperature=0.2,
         response_format={"type": "json_object"},

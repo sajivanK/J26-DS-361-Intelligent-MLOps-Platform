@@ -48,7 +48,7 @@ export default function C2Report() {
       {rep.loading || rec.loading ? (
         <div className="c2-wait" role="status">
           <b>{refresh ? "Writing the report again…" : "Preparing the report…"}</b>
-          <span className="small muted">The first time a run's report is opened, the language model writes it from the run's evidence and every number is checked. This usually takes 5 to 20 seconds. If the model does not answer within about 40 seconds, the checked template text is used instead. Later visits open instantly.</span>
+          <span className="small muted">The first time a run's report is opened, the language model writes it from the run's evidence and every number is checked. This usually takes 10 to 20 seconds. If the model does not answer within about 35 seconds, the checked template text is used instead. Later visits open instantly.</span>
         </div>)
         : rep.data && rec.data && <Paper rep={rep.data} rec={rec.data} />}
     </>
