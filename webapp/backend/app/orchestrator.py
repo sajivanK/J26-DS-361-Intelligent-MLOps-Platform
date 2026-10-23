@@ -20,7 +20,7 @@ def repair_gate(c1):
 
 def run_pipeline(batch, context):
     run_id = uuid.uuid4().hex[:12]
-    upstream = {"context": {**context, "run_id": run_id}}
+    upstream = {"context": {**context, "run_id": run_id}, "component_sources": {}}
     steps, status, stopped_reason = [], "completed", None
     t_all = time.time()
 
@@ -48,9 +48,15 @@ def run_pipeline(batch, context):
                 if errs:
                     problems[name] = errs
         upstream.update(out)
+        upstream["component_sources"][comp.name] = comp.source
         step.update(status="ok", runtime_sec=round(time.time() - t0, 3), outputs=list(out),
                     contract_ok=not problems, contract_errors=problems)
         steps.append(step)
+
+        if problems:
+            step["status"] = "error"
+            status, stopped_reason = "failed", f"{comp.name} output contract failed"
+            break
 
         if comp.name == "c1" and not repair_gate(out["c1"]):
             status, stopped_reason = "no_action", "C1 harm_severity is 'none': nothing to repair"
@@ -58,4 +64,5 @@ def run_pipeline(batch, context):
 
     return {"run_id": run_id, "status": status, "stopped_reason": stopped_reason,
             "runtime_sec": round(time.time() - t_all, 3), "context": upstream["context"],
-            "steps": steps, "outputs": {k: v for k, v in upstream.items() if k != "context"}}
+            "steps": steps, "outputs": {k: v for k, v in upstream.items() if k not in ("context", "component_sources")},
+            "component_sources": upstream["component_sources"]}

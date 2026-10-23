@@ -1,0 +1,44 @@
+{
+  "c1_evidence": {
+    "model_id": "team-model-v1",
+    "predicted_harm": 0.052,
+    "harm_interval": [-0.01, 0.09],
+    "harm_severity": "moderate",
+    "drift_detected": true,
+    "marginal_extent": "single",
+    "interaction_suspected": 0.2,
+    "affected_features": ["age"],
+    "harm_metric": "accuracy_drop"
+  },
+  "c2_diagnosis": {
+    "root_cause_feature": "age",
+    "root_cause_category": "marginal",
+    "affected_slice_rule": "age > 40",
+    "affected_features_ranked": ["age"],
+    "affected_value_ranges": {},
+    "slice_support": 0.5,
+    "diagnosis_stability": 0.9,
+    "drift_impact_score": 0.052,
+    "temporal_window": 1
+  },
+  "data_context": {
+    "model_id": "team-model-v1",
+    "dataset_id": "team-dataset-v1",
+    "model_uri": "component3/models/integration_uploads/REPLACE_WITH_MODEL.joblib",
+    "preprocessing_uri": "component3/models/integration_uploads/REPLACE_WITH_PREPROCESSOR.joblib",
+    "reference_dataset_uri": "component3/data/integration_uploads/REPLACE_WITH_REFERENCE.csv",
+    "current_dataset_uri": "component3/data/integration_uploads/REPLACE_WITH_CURRENT.csv",
+    "target_column": "target",
+    "feature_columns": ["age", "income"],
+    "categorical_features": [],
+    "label_status": "AVAILABLE",
+    "schema_version": "1.0.0",
+    "adaptation_budget_size": 200,
+    "source_retention_tolerance": 0.05,
+    "repair_metric": "f1",
+    "generator_epochs": 15,
+    "augmentation_ratio": 0.3,
+    "max_synthetic_rows": 1000,
+    "minimum_utility_gain": 0.01
+  }
+}

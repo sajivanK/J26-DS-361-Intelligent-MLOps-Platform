@@ -18,6 +18,7 @@ from component3.src.contracts.input_validator import (
     validate_c2_input,
     validate_cross_component_consistency,
 )
+from component3.src.contracts.safe_slice_evaluator import evaluate_slice_rule
 
 C1_CONTRACT, C2_CONTRACT = load_contracts()
 REFERENCE = pd.read_csv(ROOT / "shared/uci_adult/data/reference.csv")
@@ -29,6 +30,9 @@ def load_scenario(scenario_id: str):
     c1 = load_json(ROOT / f"component3/data/simulated_c1/c1_evidence_{scenario_id}.json")
     c2 = load_json(ROOT / f"component3/data/simulated_c2/c2_diagnosis_{scenario_id}.json")
     current = pd.read_csv(ROOT / f"component3/data/drifted/{scenario_id}.csv")
+    # These are simulated fixtures: bind support to regenerated current rows,
+    # rather than an archived support estimate from another injector version.
+    c2["slice_support"] = float(evaluate_slice_rule(current, c2["affected_slice_rule"]).mean())
     return c1, c2, current
 
 

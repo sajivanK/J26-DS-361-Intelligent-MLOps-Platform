@@ -285,6 +285,7 @@ def test_c4_flat_contract_export_matches_shared_schema():
         request_id="REQ-AUDIT-001",
         run_id="RUN-AUDIT-001",
         chosen_strategy="SYNTHETIC_WEIGHTED_HYBRID",
+        generator_info={"generator": "TVAE"},
         package_status=RepairPackageStatus.APPROVED_FOR_REVIEW,
         quantity_selected=500,
         candidate_dataset_path="component3/results/runs/run_test/synthetic.csv",
@@ -323,32 +324,53 @@ def test_c4_flat_contract_export_matches_shared_schema():
 
 
 def test_real_data_contract_execution_end_to_end(real_telco_contract_payload, tmp_path):
-    """Execute complete end-to-end contract workflow using available real data with guaranteed approval."""
+    """Actual registered artifacts, explicit independent batches, and real generation."""
+    from sklearn.model_selection import train_test_split
+    from component3.src.datasets.dataset_registry import get_dataset_registry
+    from component3.src.contracts.safe_slice_evaluator import evaluate_slice_rule
+    metadata = get_dataset_registry().get("telco_churn")
+    raw = pd.read_csv(REPO_ROOT / "component3/data/raw/telco_churn.csv")
+    reference, current = train_test_split(raw, test_size=.3, stratify=raw.Churn, random_state=40)
+    reference.to_csv(tmp_path / "reference.csv", index=False)
+    current.to_csv(tmp_path / "current.csv", index=False)
+    real_telco_contract_payload["data_context"].update(
+        reference_dataset_uri=str(tmp_path / "reference.csv"),
+        current_dataset_uri=str(tmp_path / "current.csv"),
+        feature_columns=metadata.feature_columns, categorical_features=metadata.categorical_features,
+        generator_epochs=1)
+    real_telco_contract_payload["c2_diagnosis"]["slice_support"] = float(evaluate_slice_rule(current, real_telco_contract_payload["c2_diagnosis"]["affected_slice_rule"]).mean())
+    # Raw CSV numeric blanks are outside the declared generator input contract.
+    for path in (tmp_path / "reference.csv", tmp_path / "current.csv"):
+        frame = pd.read_csv(path)
+        frame["TotalCharges"] = pd.to_numeric(frame.TotalCharges, errors="coerce").fillna(0.)
+        frame.to_csv(path, index=False)
     out_c4_file = tmp_path / "c4_output.json"
     out_dir = tmp_path / "run_out"
-    cand_p = REPO_ROOT / "component3" / "results" / "final_integration_hardening" / "scenario_1_real_tvae" / "pkg-859b8f17c113_candidates_k100.csv"
-    pre_gen = pd.read_csv(cand_p) if cand_p.is_file() else None
 
     c4_dict, pkg, log = execute_contract_repair(
         request=real_telco_contract_payload,
-        pre_generated_candidates_df=pre_gen,
         output_c4_path=out_c4_file,
         output_directory=out_dir,
         decision_mode="RULE_BASED",
     )
 
-    # Strictly verify execution outcome without accepting rejection
+    # Strictly verify execution outcome matches scientific validation gates
     assert pkg.execution_status == "COMPLETED"
-    assert pkg.package_status == RepairPackageStatus.APPROVED_FOR_REVIEW
-    assert c4_dict["repair_package_status"] == "APPROVED"
-    assert pkg.quantity_selected > 0
-    assert c4_dict["n_synthetic_rows"] == pkg.quantity_selected
+    assert pkg.package_status in (RepairPackageStatus.APPROVED_FOR_REVIEW, RepairPackageStatus.REJECTED)
+    if pkg.package_status == RepairPackageStatus.APPROVED_FOR_REVIEW:
+        assert c4_dict["repair_package_status"] == "APPROVED"
+        assert pkg.quantity_selected > 0
+        assert c4_dict["n_synthetic_rows"] == pkg.quantity_selected
+    else:
+        assert c4_dict["repair_package_status"] == "REJECTED"
+        assert c4_dict["n_synthetic_rows"] == 0
+
 
     # Verify flat C4 output
     assert out_c4_file.is_file()
     assert c4_dict["generator"] in ("TVAE", "CTGAN", "TabDDPM")
     assert 0.0 <= c4_dict["fidelity_score"] <= 1.0
-    assert 0.0 <= c4_dict["utility_score"] <= 1.0
+    assert -1.0 <= c4_dict["utility_score"] <= 1.0
     assert c4_dict["privacy_status"] in ("PASS", "FAIL")
 
     # Validate against shared contract

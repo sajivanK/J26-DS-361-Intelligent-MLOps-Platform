@@ -20,7 +20,9 @@ from typing import Any, Optional
 import pandas as pd
 from fastapi import Body, FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse
 import uvicorn
+import re
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
@@ -53,6 +55,19 @@ app = FastAPI(
 
 def _get_default_telco_demo_contract() -> dict[str, Any]:
     """Returns the verified, canonical Telco high-covariate-shift demonstration contract."""
+    from sklearn.model_selection import train_test_split
+    from component3.src.datasets.dataset_registry import get_dataset_registry
+    from component3.src.contracts.safe_slice_evaluator import evaluate_slice_rule
+    import uuid
+    frame = pd.read_csv(COMPONENT3_ROOT / "data/raw/telco_churn.csv")
+    frame["TotalCharges"] = pd.to_numeric(frame.TotalCharges, errors="coerce").fillna(0.)
+    reference, current = train_test_split(frame, test_size=.3, stratify=frame.Churn, random_state=40)
+    directory = COMPONENT3_ROOT / "data/scenarios" / uuid.uuid4().hex
+    directory.mkdir(parents=True, exist_ok=True)
+    reference.to_csv(directory / "reference.csv", index=False)
+    current.to_csv(directory / "current.csv", index=False)
+    metadata = get_dataset_registry().get("telco_churn")
+    rule = "Contract == 'Month-to-month' and tenure <= 12"
     return {
         "c1_evidence": {
             "drift_detected": True,
@@ -67,19 +82,23 @@ def _get_default_telco_demo_contract() -> dict[str, Any]:
             "root_cause_category": "covariate_shift",
             "affected_slice_rule": "Contract == 'Month-to-month' and tenure <= 12",
             "affected_features_ranked": ["Contract", "MonthlyCharges", "tenure"],
-            "slice_support": 0.28,
+            "slice_support": float(evaluate_slice_rule(current, rule).mean()),
             "diagnosis_stability": 0.85,
             "drift_impact_score": 0.85,
         },
         "data_context": {
             "model_id": "telco_rf_experimental_source",
             "dataset_id": "telco_churn",
-            "reference_dataset_uri": "component3/data/raw/telco_churn.csv",
-            "current_dataset_uri": "component3/data/raw/telco_churn.csv",
+            "reference_dataset_uri": str(directory / "reference.csv"),
+            "current_dataset_uri": str(directory / "current.csv"),
             "target_column": "Churn",
             "preprocessing_uri": "component3/models/experimental/telco_preprocessor_experimental_source.joblib",
             "adaptation_budget_size": 200,
             "source_retention_tolerance": 0.05,
+            "label_status": "AVAILABLE",
+            "feature_columns": metadata.feature_columns,
+            "categorical_features": metadata.categorical_features,
+            "generator_epochs": 1,
         },
     }
 
@@ -127,17 +146,9 @@ def _execute_repair_job(payload: dict[str, Any]) -> JSONResponse | dict[str, Any
                 },
             )
 
-        # Optional pre-generated candidates for verified demonstration contracts
-        cand_p = COMPONENT3_ROOT / "results" / "final_integration_hardening" / "scenario_1_real_tvae" / "pkg-859b8f17c113_candidates_k100.csv"
-        pre_gen = None
-        slice_rule = payload.get("c2_diagnosis", {}).get("affected_slice_rule", "")
-        if cand_p.is_file() and "Contract == 'Month-to-month' and tenure <= 12" in slice_rule:
-            pre_gen = pd.read_csv(cand_p)
-
         # Run real repair orchestrator
         c4_flat, package, orch_log = execute_contract_repair(
             request=payload,
-            pre_generated_candidates_df=pre_gen,
             output_directory=COMPONENT3_ROOT / "results" / "live_runs",
             decision_mode="RULE_BASED",
         )
@@ -155,7 +166,9 @@ def _execute_repair_job(payload: dict[str, Any]) -> JSONResponse | dict[str, Any
         else:
             outcome_status = f"COMPLETED_{pkg_status}"
 
+        from component3.src.live_repair import response_for_package
         return {
+            **response_for_package(package, orch_log),
             "status": outcome_status,
             "run_id": package.run_id,
             "package_id": package.package_id,
@@ -163,15 +176,10 @@ def _execute_repair_job(payload: dict[str, Any]) -> JSONResponse | dict[str, Any
             "execution_status": package.execution_status,
             "package_status": pkg_status,
             "chosen_strategy": str(package.chosen_strategy),
-            "generator": package.generator_info.get("generator", "TVAE").upper() if package.generator_info else "TVAE",
+            "generator": c4_flat["generator"],
             "quantity_selected": package.quantity_selected,
             "duration_seconds": round(duration, 3),
             "c4_flat_contract": c4_flat,
-            "validation_report": {
-                "overall_decision": package.validation_report.get("overall_decision", "NOT_EVALUATED") if isinstance(package.validation_report, dict) else "NOT_EVALUATED",
-                "mean_ks_statistic": package.validation_report.get("fidelity_report", {}).get("mean_ks_statistic") if isinstance(package.validation_report, dict) else None,
-                "utility_delta_slice": package.validation_report.get("utility_report", {}).get("delta_affected_slice_f1") if isinstance(package.validation_report, dict) else None,
-            },
             "candidate_dataset_path": str(package.candidate_dataset_path) if package.candidate_dataset_path else None,
             "candidate_dataset_sha256": package.candidate_dataset_sha256,
         }
@@ -217,26 +225,32 @@ def health():
         "component": "c3",
         "title": "C3 Synthetic Data Repair",
         "owner": "Mathusan K",
-        "version": "1.0.0",
-        "contract_version": "1.0.0",
+        "version": "2.0.0",
+        "contract_version": "1.1",
         "supported_generators": ["TVAE", "CTGAN", "TabDDPM"],
         "default_decision_mode": "RULE_BASED",
-        "supported_datasets": [
-            {
-                "id": "telco_churn",
-                "label": "Telco Customer Churn",
-                "status": "operational",
-                "source_model_verified": True,
-            },
-            {
-                "id": "uci_adult",
-                "label": "UCI Adult (Census Income)",
-                "status": "reference_only",
-                "note": "Reference dataset available; current batch pending C1/C2 delivery",
-            },
-        ],
-        "storage_root": "component3/results/runs",
+        "supported_tasks": ["tabular_binary_classification"],
+        "supported_datasets": "Caller-supplied tabular datasets with explicit schema and labeled independent evaluation data.",
+        "storage_root": "component3/results/live_runs",
     }
+
+
+@app.get("/api/c3/packages/{run_id}/dataset")
+def download_dataset(run_id: str):
+    if not re.fullmatch(r"c3-[0-9a-f]{32}", run_id):
+        return JSONResponse(status_code=404, content={"detail": "Unknown repair run."})
+    from component3.src.contracts.repair_package import RepairPackage, RepairPackageStatus
+    directory = COMPONENT3_ROOT / "results/live_runs" / run_id
+    manifests = list(directory.glob("*_manifest.json"))
+    if len(manifests) != 1:
+        return JSONResponse(status_code=404, content={"detail": "Package not found."})
+    package = RepairPackage(**json.loads(manifests[0].read_text(encoding="utf-8")))
+    if package.package_status != RepairPackageStatus.APPROVED_FOR_REVIEW:
+        return JSONResponse(status_code=409, content={"detail": "Package is not approved."})
+    path = Path(package.candidate_dataset_path or "").resolve()
+    if not path.is_relative_to(directory.resolve()) or not package.verify_artifact_integrity()[0]:
+        return JSONResponse(status_code=409, content={"detail": "Artifact integrity check failed."})
+    return FileResponse(path, filename=f"{run_id}_repair.csv", media_type="text/csv")
 
 
 @app.post("/api/c3/repair")

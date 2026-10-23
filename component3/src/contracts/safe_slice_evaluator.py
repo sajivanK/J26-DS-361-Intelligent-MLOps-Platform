@@ -139,11 +139,55 @@ def evaluate_slice_rule(df: pd.DataFrame, rule: str) -> pd.Series:
             f"Slice rule exceeds maximum length of {MAX_RULE_LENGTH} characters."
         )
 
-    import re
-    cleaned_rule = rule.strip()
-    cleaned_rule = re.sub(r"\bAND\b", "and", cleaned_rule)
-    cleaned_rule = re.sub(r"\bOR\b", "or", cleaned_rule)
-    cleaned_rule = re.sub(r"\bNOT\b", "not", cleaned_rule)
+    # Backticks quote literal feature names (e.g. `Total Charges`). Aliases are
+    # data columns, never Python expressions, and quoted string values stay intact.
+    aliases, rewritten, index = {}, [], 0
+    while index < len(rule):
+        char = rule[index]
+        if char in ("'", '"'):
+            quote = char
+            rewritten.append(char)
+            index += 1
+            while index < len(rule):
+                char = rule[index]
+                rewritten.append(char)
+                index += 1
+                if char == "\\" and index < len(rule):
+                    rewritten.append(rule[index])
+                    index += 1
+                elif char == quote:
+                    break
+        elif char == "`":
+            end = rule.find("`", index + 1)
+            if end < 0:
+                raise UnsafeSliceRuleError("Unclosed backtick feature name.")
+            name = rule[index + 1:end]
+            if name not in df.columns:
+                raise UnsafeSliceRuleError(f"Unknown feature: {name}")
+            alias = f"__c3_quoted_feature_{len(aliases)}"
+            while alias in df.columns or alias in rule:
+                alias += "_"
+            aliases[alias] = df[name]
+            rewritten.append(alias)
+            index = end + 1
+        else:
+            rewritten.append(char)
+            index += 1
+    if aliases:
+        df = df.assign(**aliases)
+    cleaned_rule = "".join(rewritten).strip()
+    import io
+    import tokenize
+    operators = {"AND": "and", "OR": "or", "NOT": "not"}
+    try:
+        tokens = tokenize.generate_tokens(io.StringIO(cleaned_rule).readline)
+        cleaned_rule = tokenize.untokenize([
+            token._replace(string=operators[token.string])
+            if token.type == tokenize.NAME and token.string in operators else token
+            for token in tokens
+        ])
+    except (tokenize.TokenError, IndentationError) as exc:
+        raise UnsafeSliceRuleError(f"Syntax error in slice rule: {exc}") from exc
 
     try:
         parsed = ast.parse(cleaned_rule, mode="eval")

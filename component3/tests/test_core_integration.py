@@ -51,6 +51,7 @@ def test_end_to_end_readiness_pipeline(integration_resources, scenario_id):
     current = load_current_dataset(config, scenario_id)
     c1 = load_c1_evidence(config, scenario_id)
     c2 = load_c2_diagnosis(config, scenario_id)
+    c2["slice_support"] = float(evaluate_slice_rule(current, c2["affected_slice_rule"]).mean())
 
     reference_before = reference.copy(deep=True)
     current_before = current.copy(deep=True)
@@ -125,13 +126,15 @@ from component3.src.contracts.safe_slice_evaluator import evaluate_slice_rule
 def negative_integration_resources():
     """Load real saved S05 resources for negative integration tests."""
     config = load_config()
-    return {
+    resources = {
         "config": config,
         "reference": load_reference_dataset(config),
         "current": load_current_dataset(config, "S05"),
         "c1": load_c1_evidence(config, "S05"),
         "c2": load_c2_diagnosis(config, "S05"),
     }
+    resources["c2"]["slice_support"] = float(evaluate_slice_rule(resources["current"], resources["c2"]["affected_slice_rule"]).mean())
+    return resources
 
 
 @pytest.mark.parametrize(

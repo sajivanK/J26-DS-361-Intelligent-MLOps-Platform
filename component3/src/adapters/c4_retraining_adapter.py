@@ -186,7 +186,7 @@ class C4RetrainingAdapter:
 
         # 1. repair_dataset_uri
         uri = "NONE"
-        if package.candidate_dataset_path:
+        if package.candidate_dataset_path and package.package_status == RepairPackageStatus.APPROVED_FOR_REVIEW:
             uri = to_portable_relative_uri(package.candidate_dataset_path)
 
         # 2. repair_package_status (APPROVED or REJECTED)
@@ -199,7 +199,7 @@ class C4RetrainingAdapter:
         raw_gen = (
             package.generator_info.get("generator")
             or package.generator_info.get("selected_generator")
-            or "TVAE"
+            or "NONE"
         )
         gen_clean = str(raw_gen).strip().upper()
         if "TVAE" in gen_clean:
@@ -209,7 +209,10 @@ class C4RetrainingAdapter:
         elif "TABDDPM" in gen_clean or "DIFFUSION" in gen_clean:
             generator_name = "TabDDPM"
         else:
-            generator_name = "TVAE"
+            generator_name = "NONE"
+
+        if generator_name == "NONE" or not package.candidate_dataset_path or package.quantity_selected <= 0:
+            pkg_status, uri = "REJECTED", "NONE"
 
         # 4. n_synthetic_rows
         n_synth = int(package.quantity_selected) if pkg_status == "APPROVED" else 0
@@ -219,7 +222,7 @@ class C4RetrainingAdapter:
         if n_synth == 0 or training_rows <= 0:
             aug_ratio = 0.0
         else:
-            aug_ratio = round(min(1.0, max(0.0, n_synth / training_rows)), 4)
+            aug_ratio = round(min(1.0, max(0.0, n_synth / max(1, training_rows - n_synth))), 4)
 
         # 6. fidelity_score
         fid = package.fidelity_indicators or {}
@@ -228,23 +231,20 @@ class C4RetrainingAdapter:
         elif "mean_ks_statistic" in fid and fid["mean_ks_statistic"] is not None:
             fidelity_score = round(max(0.0, min(1.0, 1.0 - float(fid["mean_ks_statistic"]))), 4)
         else:
-            fidelity_score = 0.0 if pkg_status == "REJECTED" else 0.85
+            fidelity_score = 0.0
 
         # 7. utility_score (target accuracy or downstream F1)
         util = package.utility_metrics or {}
-        if "target_candidate_f1" in util and util["target_candidate_f1"] is not None:
-            utility_score = round(float(util["target_candidate_f1"]), 4)
-        elif "target_positive_f1" in util and util["target_positive_f1"] is not None:
-            utility_score = round(float(util["target_positive_f1"]), 4)
+        if "utility_gain" in util:
+            utility_score = round(float(util["utility_gain"]), 4)
         elif "delta_target_f1_vs_baseline" in util and util["delta_target_f1_vs_baseline"] is not None:
-            base = float(util.get("target_baseline_f1", 0.70))
-            utility_score = round(min(1.0, max(0.0, base + float(util["delta_target_f1_vs_baseline"]))), 4)
+            utility_score = round(float(util["delta_target_f1_vs_baseline"]), 4)
         else:
-            utility_score = 0.0 if pkg_status == "REJECTED" else 0.80
+            utility_score = 0.0
 
         # 8. privacy_status (PASS or FAIL)
         priv = package.privacy_risk_indicators or {}
-        priv_status = "PASS" if priv.get("status", "PASS").upper() == "PASS" else "FAIL"
+        priv_status = "PASS" if priv.get("status", "FAIL").upper() == "PASS" else "FAIL"
 
         # 9. target_coverage
         val_rep = package.validation_report or {}
@@ -260,9 +260,9 @@ class C4RetrainingAdapter:
                     mask = evaluate_slice_rule(synth_df, rule)
                     target_cov = round(float(mask.mean()), 4)
                 except Exception:
-                    target_cov = 1.0
+                    target_cov = 0.0
             else:
-                target_cov = 1.0
+                target_cov = 0.0
         else:
             target_cov = 0.0
 
@@ -280,6 +280,8 @@ class C4RetrainingAdapter:
         if not ev_strength and isinstance(package.drift_summary, dict):
             ev_strength = package.drift_summary.get("evidence_strength")
         presc_conf = conf_map.get(str(ev_strength), 0.88 if pkg_status == "APPROVED" else 0.40)
+        if "prescription_confidence" in package.downstream_handoff_metadata:
+            presc_conf = float(package.downstream_handoff_metadata["prescription_confidence"])
 
         # 11. repair_version
         v_tag = repair_version or f"c3-{package.request_id[-8:].lower() if package.request_id else '001'}"

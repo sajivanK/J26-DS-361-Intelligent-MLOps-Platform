@@ -49,5 +49,25 @@ export const api = {
   // C1
   c1EngineInfo: (dataset) => get(`/api/c1/engine-info?dataset=${encodeURIComponent(dataset)}`),
   c1Detect: (dataset, file) => postForm("/api/c1/detect", { dataset, file }),
-  // C2, C3, C4: add your own calls here, e.g.  c2Diagnose: (...) => postForm("/api/c2/diagnose", {...}),
+  // C3 (Mathusan K)
+  c3Info: () => get("/api/c3/info"),
+  c3LatestUpstream: () => get("/api/c3/upstream/latest"),
+  c3IntegratedRepair: (payload) => postJson("/api/c3/repair", payload),
+  c3UploadArtifact: (role, file) => postForm("/api/c3/artifacts", { role, file }),
+  c3Scenarios: (dataset) => get(`/api/c3/scenarios${dataset ? `?dataset=${encodeURIComponent(dataset)}` : ""}`),
+  c3ScenarioEvidence: (scenarioId, dataset) => get(`/api/c3/scenario/${encodeURIComponent(scenarioId)}/evidence${dataset ? `?dataset=${encodeURIComponent(dataset)}` : ""}`),
+  c3Benchmarks: (dataset) => get(`/api/c3/benchmarks${dataset ? `?dataset=${encodeURIComponent(dataset)}` : ""}`),
+  c3Repair: (payload) => postJson("/api/c3/repair", payload),
+  c3DemoRepair: (payloadOrDataset, maybeScenario) => {
+    const body =
+      typeof payloadOrDataset === "object" && payloadOrDataset !== null
+        ? payloadOrDataset
+        : {
+            dataset: payloadOrDataset || "uci",
+            scenario: maybeScenario || "education_num_marginal",
+          };
+    return postJson("/api/c3/demo/repair", body);
+  },
+  c3DownloadUrl: (runId) => `/api/c3/packages/${encodeURIComponent(runId)}/dataset`,
+  // C2, C4: add your own calls here
 };

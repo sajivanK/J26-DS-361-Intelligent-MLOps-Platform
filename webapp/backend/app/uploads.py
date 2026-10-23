@@ -1,10 +1,12 @@
 """Reading an uploaded CSV batch (shared by the C1 and pipeline endpoints)."""
 import io
+import uuid
+from pathlib import Path
 
 import pandas as pd
 from fastapi import HTTPException, UploadFile
 
-from .settings import DATASETS, LABEL_COLUMNS, MAX_UPLOAD_MB
+from .settings import DATASETS, LABEL_COLUMNS, MAX_UPLOAD_MB, REPO_ROOT, c3_data_context
 
 
 def read_batch(file: UploadFile, dataset: str):
@@ -18,8 +20,16 @@ def read_batch(file: UploadFile, dataset: str):
         batch = pd.read_csv(io.BytesIO(raw))
     except Exception as e:  # noqa: BLE001
         raise HTTPException(400, f"could not read CSV: {e}")
-    removed = [c for c in LABEL_COLUMNS if c in batch.columns]
+    onboarding = c3_data_context(DATASETS[dataset]["model_id"])
+    target = onboarding.get("target_column", "target")
+    removed = [c for c in set(LABEL_COLUMNS + (target,)) if c in batch.columns]
+    # Persist the labeled artifact for C3; C1/C2 receive only the feature view.
+    directory = REPO_ROOT / "component3/data/integration_uploads"
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / f"batch_{uuid.uuid4().hex}.csv"
+    path.write_bytes(raw)
     batch = batch.drop(columns=removed)
-    context = {"dataset": dataset, "model_id": DATASETS[dataset]["model_id"],
-               "current_dataset_uri": file.filename or ""}
+    context = {**onboarding, "dataset": dataset, "dataset_id": onboarding.get("dataset_id", dataset),
+               "model_id": DATASETS[dataset]["model_id"], "current_dataset_uri": str(path),
+               "label_status": "AVAILABLE" if target in removed else "UNAVAILABLE"}
     return batch, context, removed

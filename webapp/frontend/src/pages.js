@@ -1,6 +1,7 @@
 // The page registry: the sidebar and the routes are both built from these two lists.
 // To add your component page: create it under src/pages/, import it here and put it in PAGE_BY_STEP.
 import C1Page from "./pages/c1/C1Page.jsx";
+import C3Page from "./pages/c3/C3Page.jsx";
 import DriftLab from "./pages/DriftLab.jsx";
 import Overview from "./pages/Overview.jsx";
 import RunDetail from "./pages/runs/RunDetail.jsx";
@@ -22,7 +23,7 @@ export const EXTRA_ROUTES = [
 const PAGE_BY_STEP = {
   c1: C1Page,
   // c2: C2Page,   (Tharmika)
-  // c3: C3Page,   (Mathusan)
+  c3: C3Page,
   // c4: C4Page,   (Kesigan)
 };
 
