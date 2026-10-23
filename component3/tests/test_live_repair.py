@@ -213,7 +213,7 @@ def test_supplied_transformer_categorical_features_and_string_labels(supplied):
     joblib.dump(prep, path / "prep.joblib")
     joblib.dump(model, path / "model.joblib")
     payload["data_context"].update(feature_columns=features, categorical_features=["group"],
-        preprocessing_uri=str(path / "prep.joblib"), target_mapping={"No": 0, "Yes": 1})
+        input_representation="raw", preprocessing_uri=str(path / "prep.joblib"), target_mapping={"No": 0, "Yes": 1})
     class Sampler(IndependentSampler):
         def fit_and_sample(self, **kwargs):
             frame, info = super().fit_and_sample(**kwargs)

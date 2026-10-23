@@ -13,6 +13,12 @@ from ..settings import C1_ENGINES, DATASETS, REPO_ROOT
 from .base import Component
 from .c1_results import RECORDED
 
+try:
+    import sklearn._loss._loss
+    sys.modules.setdefault("_loss", sklearn._loss._loss)
+except Exception:
+    pass
+
 sys.path.insert(0, str(REPO_ROOT))
 from c1.src.engine import ENGINE_VERSION  # noqa: E402
 from c1.src.engine_io import load_engine  # noqa: E402

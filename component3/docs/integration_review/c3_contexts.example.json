@@ -1,0 +1,54 @@
+{
+  "adult-xgb-v1": {
+    "model_id": "adult-xgb-v1",
+    "model_uri": "C:\\J26\\data\\c2\\base_model_adult.pkl",
+    "dataset_id": "uci",
+    "reference_dataset_uri": "C:\\J26\\data\\uci\\reference.csv",
+    "target_column": "target",
+    "input_representation": "model_ready",
+    "feature_columns": [
+      "age",
+      "workclass",
+      "education_num",
+      "marital_status",
+      "occupation",
+      "relationship",
+      "race",
+      "sex",
+      "capital_gain",
+      "capital_loss",
+      "hours_per_week",
+      "native_country"
+    ],
+    "categorical_features": [
+      "workclass",
+      "marital_status",
+      "occupation",
+      "relationship",
+      "race",
+      "sex",
+      "native_country"
+    ],
+    "repair_metric": "accuracy",
+    "adaptation_budget_size": 200,
+    "generator_epochs": 200,
+    "augmentation_ratio": 0.3,
+    "max_synthetic_rows": 1000,
+    "minimum_utility_gain": 0.01,
+    "source_retention_tolerance": 0.05,
+    "fidelity_ks_max": 0.35,
+    "privacy_dcr_min": 0.05,
+    "max_near_duplicate_ratio": 0.0,
+    "control_utility_tolerance": 0.0,
+    "require_bootstrap_positive": true,
+    "min_diagnosis_stability": 0.5,
+    "generator_discrete_numeric_features": [
+      "age",
+      "education_num",
+      "capital_gain",
+      "capital_loss",
+      "hours_per_week"
+    ],
+    "privacy_candidate_pool_multiplier": 3
+  }
+}

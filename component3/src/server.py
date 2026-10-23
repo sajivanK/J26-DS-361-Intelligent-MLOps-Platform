@@ -7,6 +7,7 @@ Can be run standalone:
 """
 
 from __future__ import annotations
+from component3.src.integration_storage import upload_root, run_root
 
 import argparse
 import json
@@ -62,7 +63,7 @@ def _get_default_telco_demo_contract() -> dict[str, Any]:
     frame = pd.read_csv(COMPONENT3_ROOT / "data/raw/telco_churn.csv")
     frame["TotalCharges"] = pd.to_numeric(frame.TotalCharges, errors="coerce").fillna(0.)
     reference, current = train_test_split(frame, test_size=.3, stratify=frame.Churn, random_state=40)
-    directory = COMPONENT3_ROOT / "data/scenarios" / uuid.uuid4().hex
+    directory = upload_root() / "scenarios" / uuid.uuid4().hex
     directory.mkdir(parents=True, exist_ok=True)
     reference.to_csv(directory / "reference.csv", index=False)
     current.to_csv(directory / "current.csv", index=False)
@@ -149,7 +150,7 @@ def _execute_repair_job(payload: dict[str, Any]) -> JSONResponse | dict[str, Any
         # Run real repair orchestrator
         c4_flat, package, orch_log = execute_contract_repair(
             request=payload,
-            output_directory=COMPONENT3_ROOT / "results" / "live_runs",
+            output_directory=run_root(),
             decision_mode="RULE_BASED",
         )
 
@@ -231,7 +232,7 @@ def health():
         "default_decision_mode": "RULE_BASED",
         "supported_tasks": ["tabular_binary_classification"],
         "supported_datasets": "Caller-supplied tabular datasets with explicit schema and labeled independent evaluation data.",
-        "storage_root": "component3/results/live_runs",
+        "storage_root": str(run_root()),
     }
 
 
@@ -240,7 +241,7 @@ def download_dataset(run_id: str):
     if not re.fullmatch(r"c3-[0-9a-f]{32}", run_id):
         return JSONResponse(status_code=404, content={"detail": "Unknown repair run."})
     from component3.src.contracts.repair_package import RepairPackage, RepairPackageStatus
-    directory = COMPONENT3_ROOT / "results/live_runs" / run_id
+    directory = run_root() / run_id
     manifests = list(directory.glob("*_manifest.json"))
     if len(manifests) != 1:
         return JSONResponse(status_code=404, content={"detail": "Package not found."})

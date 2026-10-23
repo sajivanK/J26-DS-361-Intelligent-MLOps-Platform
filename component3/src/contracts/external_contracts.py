@@ -143,6 +143,10 @@ def get_authorized_directory_roots() -> dict[str, list[Path]]:
             Path(tempfile.gettempdir()).resolve(),
         ],
     }
+    from component3.src.integration_storage import data_root, upload_root, run_root
+    roots["datasets"].extend([data_root().resolve(), upload_root().resolve()])
+    roots["models"].extend([data_root().resolve(), upload_root().resolve()])
+    roots["outputs"].append(run_root().resolve())
     for category, variable in (("datasets", "C3_DATA_ROOTS"), ("models", "C3_MODEL_ROOTS")):
         roots[category].extend(Path(value).resolve() for value in os.environ.get(variable, "").split(os.pathsep) if value)
     return roots
@@ -521,7 +525,7 @@ def validate_data_context(data: dict[str, Any]) -> tuple[bool, list[str], DataCo
         target_column=str(data["target_column"]).strip(),
         schema_version=str(data.get("schema_version", "1.0.0")).strip(),
         label_status=str(lbl_status).upper().strip(),
-        preprocessing_uri=str(data.get("preprocessing_uri", "")).strip() or None,
+        preprocessing_uri=str(data.get("preprocessing_uri") or "").strip() or None,
         adaptation_budget_size=int(val_budget),  # type: ignore[arg-type]
         source_retention_tolerance=float(val_tol),  # type: ignore[arg-type]
         raw_metadata={k: v for k, v in data.items() if k not in {

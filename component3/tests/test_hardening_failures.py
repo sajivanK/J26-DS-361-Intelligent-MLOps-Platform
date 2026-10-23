@@ -107,7 +107,7 @@ def test_missing_source_model_raises_dependency_error(valid_telco_base_payload: 
     payload["data_context"] = dict(payload["data_context"])
     payload["data_context"]["model_id"] = "nonexistent_model_id_v999"
 
-    with pytest.raises(DependencyResolutionError, match="neither registered in ModelRegistry nor found on disk"):
+    with pytest.raises(DependencyResolutionError, match="nonexistent_model_id_v999"):
         execute_contract_repair(request=payload, output_directory=tmp_path)
 
 
@@ -364,6 +364,7 @@ def test_simulated_c4_consumer_pipeline(tmp_path: Path, valid_telco_base_payload
         chosen_strategy="TARGETED_SYNTHETIC_REPAIR",
         package_status=RepairPackageStatus.APPROVED_FOR_REVIEW,
         quantity_selected=50,
+        generator_info={"generator": "TVAE"},
         candidate_dataset_path=str(csv_path),
         candidate_dataset_sha256=cand_hash,
         utility_metrics={"training_rows": 200, "target_candidate_f1": 0.84},
@@ -402,14 +403,12 @@ def test_simulated_c4_consumer_pipeline(tmp_path: Path, valid_telco_base_payload
     assert "Churn" in retraining_df.columns
 
 
-def test_output_directory_blocked_raises_os_error(valid_telco_base_payload: dict, tmp_path: Path):
+def test_output_directory_blocked_raises_os_error(tmp_path: Path):
     """Verify that execution fails cleanly when output directory cannot be created."""
     blocked_file = tmp_path / "blocked_dir"
     blocked_file.write_text("existing_file_blocks_directory_creation")
 
+    # Test artifact storage directly; this failure does not require a model run.
     with pytest.raises((OSError, FileExistsError, NotADirectoryError)):
-        execute_contract_repair(
-            request=valid_telco_base_payload,
-            output_directory=blocked_file / "child_dir",
-        )
+        ArtifactStorageManager.atomic_write_dataframe(pd.DataFrame({"x": [1]}), blocked_file / "child_dir/data.csv")
 

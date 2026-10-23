@@ -40,7 +40,9 @@ _INF = float("inf")
 MIN_GROUP_SIZE = 20   # NFR4 privacy: no slice smaller than this is scored or reported
 
 def _fmt(v):
-    return f"{float(v):.4g}"
+    # These numbers are executable C2-to-C3 predicates, not display labels.
+    # Round-trip precision preserves the exact mask used to calculate support.
+    return repr(float(v))
 
 
 def _f1(mask, h):

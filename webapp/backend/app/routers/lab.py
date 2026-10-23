@@ -9,7 +9,7 @@ from .. import contracts, runs
 from ..components import C1
 from ..lab import LAB, N_FEATURES, LabError
 from ..orchestrator import run_pipeline
-from ..settings import DATASETS, REPO_ROOT, c3_data_context
+from ..settings import DATASETS, REPO_ROOT, C3_UPLOAD_DIR, c3_data_context
 
 router = APIRouter(prefix="/api/lab", tags=["Drift Lab"])
 
@@ -70,14 +70,14 @@ def run(req: LabRun):
         raise HTTPException(503, f"lab data not found: {e}")
 
     run_id = runs.new_run_id()
-    directory = REPO_ROOT / "component3/data/integration_uploads"
+    directory = C3_UPLOAD_DIR
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / f"lab_{run_id}.csv"
     labelled.to_csv(path, index=False)
     context = {**c3_data_context(DATASETS[req.dataset]["model_id"]),
                "dataset": req.dataset, "dataset_id": req.dataset,
                "model_id": DATASETS[req.dataset]["model_id"], "current_dataset_uri": str(path),
-               "label_status": "AVAILABLE"}
+               "batch_id": path.stem, "label_status": "AVAILABLE", "label_source": "drift_lab_ground_truth_available_to_c3_only"}
     out = {"run_id": run_id, "truth": truth, "injection": injection, "mode": req.mode}
     if req.mode == "c1":
         c1 = C1.run(batch, {"context": context})["c1"]

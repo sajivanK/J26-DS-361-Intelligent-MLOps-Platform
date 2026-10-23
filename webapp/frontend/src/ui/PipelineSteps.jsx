@@ -11,7 +11,7 @@ export function stepSummary(component, outputs) {
     return { text: `${v.det ? "drift" : "no drift"} · ${sg(v.harm)} pp · ${v.sev} · ${v.ext}`, sub: v.aff.join(", ") };
   }
   if (component === "c2" && o.c2_to_c3) return { text: `${o.c2_to_c3.root_cause_category}: ${o.c2_to_c3.root_cause_feature}` };
-  if (component === "c3" && o.c3) return { text: `${o.c3.repair_package_status} · ${o.c3.generator} · ${o.c3.n_synthetic_rows} rows` };
+  if (component === "c3" && o.c3) return { text: `${o.c3.execution_status || o.c3.status || o.c3.repair_package_status} · ${o.c3.generator} · ${o.c3.n_synthetic_rows} rows`, sub: o.c3.reason };
   if (component === "c4" && o.c4) return { text: o.c4.decision };
   return null;
 }
@@ -27,7 +27,7 @@ export default function PipelineSteps({ run }) {
           return (
             <div key={s.component} className="st skip">
               <span className="eyebrow">C{s.n}</span><b>{s.title}</b>
-              <span className="small muted">{run.status === "no_action" ? "not needed: severity none" : "not run"}</span>
+              <span className="small muted">{run.status === "no_action" ? "not needed: no meaningful harmful drift" : "not run"}</span>
             </div>
           );
         }
@@ -38,7 +38,8 @@ export default function PipelineSteps({ run }) {
             <b>{s.title}</b>
             {st.status === "error"
               ? <span className="small" style={{ color: "var(--bad-fg)" }}>{st.error}</span>
-              : <span className="small mono">{sum?.text}</span>}
+              : <span className="small mono">{st.status === "running" ? "Running…" : sum?.text}</span>}
+            {sum?.sub && <span className="small muted">{sum.sub}</span>}
             {st.status === "ok" && (st.contract_ok
               ? <span className="badge ok">contract ok</span>
               : <span className="badge off" title={JSON.stringify(st.contract_errors)}>contract errors</span>)}

@@ -1,4 +1,5 @@
 """Explicit UCI research scenarios. Real integration uses live_repair directly."""
+from component3.src.integration_storage import upload_root
 from pathlib import Path
 import json
 import sys
@@ -73,7 +74,7 @@ def execute_c3_repair_flow(scenario_key="education_num_marginal", run_id=None, e
                            custom_c1=None, custom_c2=None):
     """Simulation only; the same strict engine evaluates its actual artifacts."""
     evidence = get_scenario_evidence(scenario_key)
-    directory = REPO_ROOT / "component3/data/scenarios" / uuid.uuid4().hex
+    directory = upload_root() / "scenarios" / uuid.uuid4().hex
     directory.mkdir(parents=True, exist_ok=True)
     current = evidence["drifted_df"]
     current_path = directory / "current.csv"

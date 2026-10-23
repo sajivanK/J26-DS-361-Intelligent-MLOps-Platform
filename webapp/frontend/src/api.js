@@ -51,6 +51,8 @@ export const api = {
   c1Detect: (dataset, file) => postForm("/api/c1/detect", { dataset, file }),
   // C3 (Mathusan K)
   c3Info: () => get("/api/c3/info"),
+  c3Runs: () => get("/api/c3/runs"),
+  c3Models: () => get("/api/c3/models"),
   c3LatestUpstream: () => get("/api/c3/upstream/latest"),
   c3IntegratedRepair: (payload) => postJson("/api/c3/repair", payload),
   c3UploadArtifact: (role, file) => postForm("/api/c3/artifacts", { role, file }),

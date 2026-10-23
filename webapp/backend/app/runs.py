@@ -72,6 +72,7 @@ def summarise(rec):
         "classic_alarm": c1.get("detectors_fired", 0) >= MIN_DETECTORS_FOR_ALARM,
         "inside": None if truth is None or lo is None else bool(lo <= truth <= hi),
         "outcome": outcome(truth, sev), "pipeline_status": (rec.get("pipeline") or {}).get("status"),
+        "c3_status": ((rec.get("pipeline") or {}).get("outputs", {}).get("c3") or {}).get("execution_status"),
         "has_batch": bool(rec.get("batch_csv")),
     }
 

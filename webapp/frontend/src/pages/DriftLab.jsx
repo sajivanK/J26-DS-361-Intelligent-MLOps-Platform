@@ -236,7 +236,7 @@ function LabResult({ r }) {
         <div className="card stack">
           <div className="head"><h3>Full pipeline</h3><span className="small muted mono">run {r.pipeline.run_id} · {r.pipeline.status} · {r.pipeline.runtime_sec} s</span></div>
           <PipelineSteps run={r.pipeline} />
-          <p className="small muted">C2 to C4 show contract-based fakes until each member plugs in their real component.</p>
+          <p className="small muted">Each stage reports its actual source. C4 remains a stub; a completed handoff does not mean production release.</p>
         </div>
       )}
     </div>

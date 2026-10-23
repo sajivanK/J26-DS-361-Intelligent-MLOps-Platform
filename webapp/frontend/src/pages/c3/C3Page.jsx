@@ -1,169 +1,108 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../../api.js";
-import { useApi } from "../../hooks.js";
-import { useSession } from "../../session.jsx";
-import { ErrorBox, JsonBox, KV, PageHeader, Verdict } from "../../ui/parts.jsx";
+import { ErrorBox } from "../../ui/parts.jsx";
 import "./C3Page.css";
 
-const example = {
-  c1_evidence: {
-    model_id: "your-model-v1", predicted_harm: 0.052, harm_interval: [0.02, 0.08],
-    harm_severity: "moderate", drift_detected: true, marginal_extent: "single",
-    interaction_suspected: 0.2, affected_features: ["age"], harm_metric: "accuracy_drop",
-  },
-  c2_diagnosis: {
-    root_cause_feature: "age", root_cause_category: "marginal",
-    affected_slice_rule: "age > 40", affected_features_ranked: ["age"],
-    affected_value_ranges: {}, slice_support: 0.5, diagnosis_stability: 0.9,
-    drift_impact_score: 0.052, temporal_window: 1,
-  },
-  data_context: {
-    model_id: "your-model-v1", model_uri: "", dataset_id: "your-dataset-v1",
-    reference_dataset_uri: "", current_dataset_uri: "", target_column: "target",
-    feature_columns: ["age", "income"], categorical_features: [],
-    label_status: "AVAILABLE", input_representation: "model_ready",
-    repair_metric: "f1", generator_epochs: 15,
-  },
-};
-
-const artifactFields = {
-  model: "model_uri", preprocessor: "preprocessing_uri",
-  reference_dataset: "reference_dataset_uri", current_dataset: "current_dataset_uri",
-  evaluation_dataset: "evaluation_dataset_uri", source_evaluation: "source_evaluation_uri",
-};
+const STAGES = ["Input Validation", "Repair Readiness", "Slice Extraction", "Generator Prescription", "Repair Quantity Calculation", "Generator Training", "Synthetic Data Generation", "Structural Validation", "Target Coverage Validation", "Fidelity Validation", "Privacy Validation", "Utility Evaluation", "Final Decision", "C4 Package Preparation"];
+const fmt = (v, digits = 3) => typeof v === "number" && Number.isFinite(v) ? v.toFixed(digits) : "â€”";
+const text = (v) => v === undefined || v === null || v === "" ? "â€”" : typeof v === "object" ? JSON.stringify(v) : String(v);
+const pp = (v) => typeof v === "number" ? `${v >= 0 ? "+" : ""}${(v * 100).toFixed(2)} pp` : "â€”";
+function Badge({ value }) {
+  const good = ["PASS", "Completed", "APPROVED", "APPROVED_FOR_REVIEW"].includes(value);
+  return <span className={`c3-badge-pill ${good ? "green" : "amber"}`}>{value || "NOT EVALUATED"}</span>;
+}
+function Fields({ values }) {
+  return <dl className="c3-facts">{values.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{text(value)}</dd></div>)}</dl>;
+}
 
 export default function C3Page() {
-  const info = useApi(() => api.c3Info(), []);
-  const [mode, setMode] = useState("integrated");
-  const [contract, setContract] = useSession("c3:contract:v2", JSON.stringify(example, null, 2));
-  const [history, setHistory] = useSession("c3:history:v2", []);
-  const [selected, setSelected] = useState(-1);
-  const [busy, setBusy] = useState("");
+  const [data, setData] = useState({ pipeline: null, repairs: [], info: null, registry: null });
   const [error, setError] = useState(null);
-  const [scenario, setScenario] = useState("education_num_marginal");
-  const scenarios = useApi(() => mode === "simulation" ? api.c3Scenarios("uci") : Promise.resolve([]), [mode]);
-  const output = selected >= 0 ? history[selected] : history[history.length - 1];
-  let parsed;
-  try { parsed = JSON.parse(contract); } catch { parsed = null; }
+  const [selection, setSelection] = useState(() => new URLSearchParams(window.location.search).get("run") || "");
+  const [checked, setChecked] = useState(null);
+  const [payload, setPayload] = useState("");
+  const [standalone, setStandalone] = useState(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    let alive = true, timer;
+    const refresh = async () => {
+      try {
+        const [pipeline, repairs, info, registry] = await Promise.all([api.latestRun(), api.c3Runs(), api.c3Info(), api.c3Models()]);
+        if (alive) { setData({ pipeline, repairs, info, registry }); setError(null); setChecked(new Date().toISOString()); }
+      } catch (e) { if (alive) setError(e.message); }
+      if (alive) timer = setTimeout(refresh, 3000);
+    };
+    refresh();
+    return () => { alive = false; clearTimeout(timer); };
+  }, []);
 
-  async function act(label, operation) {
-    setBusy(label); setError(null);
-    try { return await operation(); }
-    catch (e) { setError(e.message || String(e)); }
-    finally { setBusy(""); }
-  }
-
-  async function upload(role, file) {
-    if (!file) return;
-    await act(`Uploading ${role}`, async () => {
-      if (!parsed) throw new Error("Correct the contract JSON before uploading artifacts.");
-      const artifact = await api.c3UploadArtifact(role, file);
-      const next = { ...parsed, data_context: { ...parsed.data_context,
-        [artifactFields[role]]: artifact.uri,
-        artifact_sha256: { ...parsed.data_context?.artifact_sha256, [role]: artifact.sha256 },
-      } };
-      if (role === "preprocessor") delete next.data_context.input_representation;
-      if (next.c1_evidence && ["current_dataset", "reference_dataset"].includes(role)) {
-        next.c1_evidence[artifactFields[role]] = artifact.uri;
-      }
-      setContract(JSON.stringify(next, null, 2));
-    });
-  }
-
-  async function run() {
-    await act("Repair running", async () => {
-      const result = mode === "simulation"
-        ? await api.c3DemoRepair({ dataset: "uci", scenario })
-        : await api.c3IntegratedRepair(JSON.parse(contract));
-      setHistory((previous) => [...previous, result]);
-      setSelected(-1);
-    });
-  }
-
+  const pipe = data.pipeline;
+  const selected = selection ? data.repairs.find(r => r.run_id === selection) : null;
+  const active = pipe?.run_id ? data.repairs.find(r => r.progress?.pipeline_run_id === pipe.run_id || r.result?.pipeline_run_id === pipe.run_id) : null;
+  const record = selected || (!selection ? active : null);
+  // Always bind evidence, output and preview to one run. A newer clean run has no older C3 output.
+  const output = selection ? selected?.result : standalone || pipe?.outputs?.c3 || record?.result;
+  const progress = selection ? selected?.progress : standalone ? data.repairs.find(r => r.run_id === standalone.run_id)?.progress : record?.progress;
+  const provenance = output?.provenance || {};
+  const context = output ? provenance.data_context || (selection ? {} : pipe?.context) || {} : pipe?.context || {};
+  const c1 = output?.upstream_evidence?.c1 || (!selection && !standalone ? pipe?.outputs?.c1 : null);
+  const c2 = output?.upstream_evidence?.c2 || (!selection && !standalone ? pipe?.outputs?.c2_to_c3 : null);
+  const validation = output?.validation_report || {};
+  const fidelity = validation.fidelity_report;
+  const privacy = validation.privacy_report;
+  const utility = output?.utility_metrics || {};
+  const thresholds = provenance.quality_thresholds || {};
+  const config = provenance.generator_configuration || {};
   const approved = output?.repair_package_status === "APPROVED";
-  const utility = output?.utility_metrics;
-  const validation = output?.validation_report;
-  return <>
-    <PageHeader eyebrow="Component 3 · Mathusan K (IT23174580)" title="C3 Synthetic Data Repair"
-      subtitle="Repair the supplied binary classifier using the actual diagnosed data slice. Approve candidates only after independent validation."
-      chip={`c3 v${info.data?.engine_version || "2.0.0"}`} />
-    <section className="card stack">
-      <div className="row" style={{ gap: 12 }}>
-        <button className={`btn ${mode === "integrated" ? "primary" : ""}`} disabled={!!busy} onClick={() => setMode("integrated")}>Real C1/C2 integration</button>
-        <button className={`btn ${mode === "simulation" ? "primary" : ""}`} disabled={!!busy} onClick={() => setMode("simulation")}>Research simulation</button>
-      </div>
-      {mode === "integrated" ? <>
-        <p>Import the team's three-section contract or load a real upstream run. Supply the exact model, fitted preprocessing and labeled datasets described by that evidence.</p>
-        <div className="row" style={{ gap: 12, flexWrap: "wrap" }}>
-          <button className="btn" disabled={!!busy} onClick={() => act("Loading upstream", async () => {
-            const data = await api.c3LatestUpstream();
-            setContract(JSON.stringify(data, null, 2));
-          })}>Load latest real C1/C2 inputs</button>
-          <label className="btn">Import contract JSON
-            <input aria-label="Import C1 C2 contract JSON" type="file" accept=".json" disabled={!!busy} style={{ display: "none" }}
-              onChange={(event) => { const file = event.target.files?.[0]; if (file) act("Reading contract", async () => {
-                const data = JSON.parse(await file.text()); setContract(JSON.stringify(data, null, 2));
-              }); event.target.value = ""; }} />
-          </label>
-        </div>
-        <div className="c3-gates-grid">
-          {Object.entries(artifactFields).map(([role, field]) => <label key={role} className="field" style={{ minWidth: 0 }}>
-            <span>{role.replaceAll("_", " ")}{["model", "reference_dataset", "current_dataset"].includes(role) ? "" : " (optional)"}</span>
-            <input type="file" accept={["model", "preprocessor"].includes(role) ? ".joblib,.pkl,.pickle" : ".csv"}
-              aria-label={`Upload ${role.replaceAll("_", " ")}`} disabled={!!busy}
-              onChange={(event) => { upload(role, event.target.files?.[0]); event.target.value = ""; }} />
-            <small className="muted" style={{ overflowWrap: "anywhere" }}>{parsed?.data_context?.[field] || "Use an uploaded artifact or an authorized local path in the contract."}</small>
-          </label>)}
-        </div>
-        <p className="small muted">Upload trusted model artifacts from your team. Preprocessing is optional for a complete fitted Pipeline or explicitly model-ready features. Separate evaluation CSVs are recommended; otherwise C3 creates stratified holdouts. Slice rules use the supplied dataset's feature values.</p>
-        <label className="field" htmlFor="c3-contract">C1 evidence, C2 diagnosis and model/data context</label>
-        <textarea id="c3-contract" className="mono" rows={22} spellCheck={false} value={contract}
-          style={{ width: "100%", resize: "vertical", padding: 12, boxSizing: "border-box" }}
-          disabled={!!busy} onChange={(event) => setContract(event.target.value)} />
-        {!parsed && <p role="alert">Contract JSON is invalid.</p>}
-        {parsed && <KV rows={[
-          ["Model", parsed.data_context?.model_id || "Missing"],
-          ["Dataset", parsed.data_context?.dataset_id || "Missing"],
-          ["Diagnosed slice", parsed.c2_diagnosis?.affected_slice_rule || parsed.c2_to_c3?.affected_slice_rule || "Missing"],
-          ["Labels", parsed.data_context?.label_status || "Unknown: repair will abstain"],
-        ]} />}
-      </> : <>
-        <p>This mode constructs simulated C1/C2 evidence for a controlled Adult scenario. Its results are labeled as simulation.</p>
-        <select aria-label="Research scenario" value={scenario} disabled={!!busy} onChange={(event) => setScenario(event.target.value)}>
-          {(scenarios.data || []).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-        </select>
-      </>}
-      <button className="btn primary" type="button" disabled={!!busy || (mode === "integrated" && !parsed)} onClick={run}>
-        {busy || (mode === "integrated" ? "Start repair with supplied inputs" : "Run research simulation")}
-      </button>
-      <ErrorBox error={error || info.error} />
-    </section>
-    {output && <section className="card stack" aria-live="polite">
-      <Verdict title={output.execution_status || output.repair_package_status} tone={approved ? "ok" : "warn"}
-        text={approved ? "Candidate passed validation and is ready for C4 review." : output.reason || "Candidate was not approved."}
-        aside={output.mode === "simulation" ? "SIMULATION" : "Supplied artifacts"} />
-      <KV rows={[
-        ["Run", output.run_id], ["Generator executed", output.generator], ["Approved synthetic rows", output.n_synthetic_rows],
-        ["Affected-slice metric", utility?.metric || "Not evaluated"],
-        ["Affected-slice gain", utility?.utility_gain == null ? "Not evaluated" : `${(utility.utility_gain * 100).toFixed(2)} pp`],
-        ["Real-only control", utility?.authentic_control_score == null ? "Not evaluated" : utility.authentic_control_score.toFixed(4)],
-        ["Privacy", output.privacy_status], ["Target coverage", validation?.target_coverage == null ? "Not evaluated" : `${(validation.target_coverage * 100).toFixed(1)}%`],
-      ]} />
-      {approved && output.download_url && <a className="btn primary" href={output.download_url} download>Download approved repair CSV</a>}
-      <JsonBox title="Validation evidence" data={validation} />
-      <JsonBox title="Input artifacts and provenance" data={output.provenance} />
-      <JsonBox title="C3 result" data={output} />
-    </section>}
-    {history.length > 0 && <section className="card stack">
-      <h3>Repair history</h3>
-      {history.map((item, index) => <button className="btn" key={item.run_id || index} onClick={() => setSelected(index)}>
-        {item.run_id} · {item.execution_status || item.repair_package_status}
-      </button>)}
-    </section>}
-    {info.data && <section className="card stack">
-      <KV rows={[["Supported models", info.data.model_requirements], ["Supported data", info.data.dataset_requirements],
-        ["Prescription", "Rule based, using diagnosis and feature types"],
-        ["C2 platform implementation", info.data.upstream_sources?.c2], ["C4 platform implementation", info.data.upstream_sources?.c4]]} />
-    </section>}
-  </>;
+  const status = output?.execution_status || output?.status || output?.repair_package_status || progress?.status || (!selection ? pipe?.status : null) || "NO RUNS AVAILABLE";
+  const columns = output?.preview_columns || [];
+  const rows = output?.preview_rows || [];
+  const c4Source = !selection && !standalone ? pipe?.component_sources?.c4 : data.info?.upstream_sources?.c4;
+  const sourceNote = !selection && !standalone ? `C1: ${pipe?.component_sources?.c1 || "not run"}; C2: ${pipe?.component_sources?.c2 || "not run"}` : "Evidence saved with this repair";
+
+  async function runStandalone(e) {
+    e.preventDefault(); setBusy(true); setError(null);
+    try { const result = await api.c3IntegratedRepair(JSON.parse(payload)); setStandalone(result); setSelection(""); }
+    catch (e) { setError(e.message); }
+    finally { setBusy(false); }
+  }
+
+  return <div className="c3-dashboard">
+    <div className="c3-header-row"><div className="c3-header-titles"><h1>C3 Adaptive Synthetic Data Repair</h1><p>Targeted repair for the exact monitored model, batch and diagnosed slice.</p></div><Badge value={error ? "BACKEND ERROR" : status} /></div>
+    {error && <ErrorBox error={error} />}
+    <div className="c3-header-meta">
+      <label>View run <select aria-label="Repair run" value={selection} onChange={e => { setSelection(e.target.value); setStandalone(null); }}><option value="">Latest pipeline</option>{data.repairs.map(r => <option key={r.run_id} value={r.run_id}>{r.run_id} Â· {r.progress?.status || r.result?.execution_status}</option>)}</select></label>
+      <Link className="btn" to="/lab">Open Drift Lab</Link>
+      <button className="btn" onClick={() => { setSelection(""); setStandalone(null); }}>Follow latest pipeline</button>
+      <span className="small muted">Backend checked: {checked || "Connectingâ€¦"}</span>
+    </div>
+    <div className="c3-card"><Fields values={[["Model", output?.model_id || context.model_id || progress?.model_id], ["Dataset", output?.dataset_id || context.dataset_id || progress?.dataset_id], ["Batch", output?.batch_id || context.batch_id || progress?.batch_id], ["Pipeline run", output?.pipeline_run_id || progress?.pipeline_run_id || (!selection ? pipe?.run_id : null)], ["Repair run", output?.run_id || progress?.run_id], ["Result timestamp", output?.repair_timestamp || progress?.updated_at]]} /></div>
+    {!pipe && !output && !progress && <div className="empty">No runs available. Run the full pipeline in Drift Lab or supply a standalone contract below.</div>}
+    {pipe?.stopped_reason && !selection && !standalone && <div className="c3-card">Pipeline: {pipe.stopped_reason}</div>}
+    <div className="c3-upstream-grid">
+      <section className="c3-card"><h3>C1 drift evidence</h3><p className="small muted">{sourceNote}</p><Fields values={[["Evidence ID", c1?.evidence_version], ["Drift detected", c1?.drift_detected], ["Predicted harm", pp(c1?.predicted_harm)], ["Severity", c1?.harm_severity], ["Affected features", c1?.affected_features], ["Interaction signal", c1?.interaction_suspected], ["Harm interval", c1?.harm_interval], ["Execution seconds", c1?.runtime_sec]]} /><details><summary>Detector results</summary><pre>{JSON.stringify(c1?.detector_scores || {}, null, 2)}</pre></details></section>
+      <section className="c3-card"><h3>C2 diagnosis</h3><Fields values={[["Root cause", c2?.root_cause_feature], ["Category", c2?.root_cause_category], ["Exact slice rule", c2?.affected_slice_rule], ["Slice support", c2?.slice_support], ["Observed support", provenance.observed_slice_support], ["Stability", c2?.diagnosis_stability], ["Ranked features", c2?.affected_features_ranked], ["Drift impact", c2?.drift_impact_score]]} /></section>
+    </div>
+    <section className="c3-card"><h3>Actual execution stages</h3><p className="small muted">Stages update from backend events. Waiting means the stage has not executed. Training loss and epoch progress appear only when the generator reports them.</p><ol className="c3-stage-list">{STAGES.map((name, i) => {
+      const event = progress?.stages?.[i];
+      return <li key={name}><span>{name}</span><Badge value={event?.status || "Waiting"} />{event?.detail != null && <details><summary>Measured details</summary><pre>{JSON.stringify(event.detail, null, 2)}</pre></details>}</li>;
+    })}</ol></section>
+    <div className="c3-upstream-grid">
+      <section className="c3-card"><h3>Generator and repair quantity</h3><Fields values={[["Executed generator", output?.generator], ["Selection", config.selection_mode], ["Policy", provenance.prescription_policy], ["Prescription confidence", output ? provenance.prescription_confidence : null], ["Epochs", config.epochs], ["Training batch size", config.batch_size], ["Numeric features generated as discrete values", config.discrete_numeric_features], ["Training slice rows", provenance.partition_rows?.generator_training_slice], ["Requested ratio", provenance.requested_augmentation_ratio], ["Requested rows", config.requested_rows], ["Generated pool rows", provenance.generated_rows], ["Candidate rows after privacy screening", provenance.candidate_rows], ["Discarded too-close rows", provenance.privacy_sampling?.discarded_too_close_rows], ["Approved rows", output?.n_synthetic_rows]]} /><p className="small muted">Labels: {context.label_status || "not specified"}. Authentic adaptation labels and independent evaluation labels are required. Drift Lab labels are withheld from C1/C2.</p><details><summary>Partitions, provenance and artifact hashes</summary><pre>{JSON.stringify(provenance, null, 2)}</pre></details></section>
+      <section className="c3-card"><h3>Validation scorecard</h3><div className="c3-preview-scroll"><table className="c3-table"><thead><tr><th>Gate</th><th>Measured</th><th>Required</th><th>Result</th></tr></thead><tbody>
+        <tr><td>Structure</td><td>{validation.structure ? "Schema checked" : "â€”"}</td><td>Exact schema, finite values, valid categories</td><td><Badge value={validation.structure ? validation.structure.passed ? "PASS" : "FAIL" : null} /></td></tr>
+        <tr><td>Slice coverage</td><td>{fmt(validation.target_coverage)}</td><td>{text(thresholds.target_coverage_min)}</td><td><Badge value={validation.target_coverage == null ? null : validation.target_coverage >= thresholds.target_coverage_min ? "PASS" : "FAIL"} /></td></tr>
+        <tr><td>Fidelity (mean KS)</td><td>{fmt(fidelity?.metrics?.continuous_metrics_summary?.mean_ks_statistic)}</td><td>â‰¤ {text(thresholds.fidelity_ks_max)}</td><td><Badge value={fidelity?.status} /></td></tr>
+        <tr><td>Privacy (DCR p05)</td><td>{fmt(privacy?.metrics?.dcr_metrics?.dcr_p05)}</td><td>â‰¥ {text(thresholds.privacy_dcr_min)}; no exact copies</td><td><Badge value={privacy?.status} /></td></tr>
+        <tr><td>Utility ({utility.metric || "not evaluated"})</td><td>{pp(utility.utility_gain)}</td><td>â‰¥ {text(thresholds.minimum_utility_gain)} gain, control and retention checks</td><td><Badge value={validation.utility == null ? null : validation.utility.passed ? "PASS" : "FAIL"} /></td></tr>
+      </tbody></table></div><details><summary>Full validation measurements and failure reasons</summary><pre>{JSON.stringify(validation, null, 2)}</pre></details></section>
+    </div>
+    <section className="c3-card"><h3>Model utility comparison</h3><Fields values={[["Metric", utility.metric], ["Original affected slice", fmt(utility.baseline_score)], ["Real-only control", fmt(utility.authentic_control_score)], ["Synthetic-assisted candidate", fmt(utility.candidate_score)], ["Gain over original", pp(utility.utility_gain)], ["Gain over real-only", typeof utility.candidate_score === "number" ? pp(utility.candidate_score - utility.authentic_control_score) : null], ["Paired 95% interval", utility.bootstrap_ci_95], ["Source retention", output?.source_retention_metrics], ["Overall current before", utility.overall_before], ["Overall current after", utility.overall_after]]} /></section>
+    <section className="c3-card"><h3>Final decision and C4 handoff</h3><Badge value={status} /><p>{output?.reason || progress?.reason || (output ? "All configured gates passed; candidate ready for review." : "Waiting for actual repair results.")}</p><p>C4 adapter: <b>{c4Source || "not available"}</b>. {c4Source === "fake" ? "Stub handoff only. Real C4 retraining and production release are not connected." : "C3 approval is a candidate review decision; deployment belongs to C4."}</p>{approved && output?.download_url && <a className="btn primary" href={output.download_url} download>Download approved synthetic CSV ({output.n_synthetic_rows} rows)</a>}<details><summary>C3-to-C4 contract</summary><pre>{output ? JSON.stringify(Object.fromEntries(["repair_dataset_uri", "repair_package_status", "generator", "n_synthetic_rows", "augmentation_ratio", "fidelity_score", "utility_score", "privacy_status", "target_coverage", "prescription_confidence", "repair_version", "repair_timestamp"].map(k => [k, output[k]])), null, 2) : "No contract available."}</pre></details></section>
+    <section className="c3-card"><h3>Synthetic artifact preview</h3>{rows.length ? <div className="c3-preview-scroll"><table className="c3-table"><thead><tr>{columns.map(c => <th key={c}>{c}</th>)}</tr></thead><tbody>{rows.map((row, i) => <tr key={i}>{columns.map(c => <td key={c}>{text(row[c])}</td>)}</tr>)}</tbody></table></div> : <p className="muted">No approved artifact preview for this run.</p>}</section>
+    <section className="c3-card"><h3>Registered model artifacts</h3>{data.registry?.error && <p>{data.registry.error}</p>}{data.registry?.models?.map(m => <div key={m.model_id}><b>{m.model_id}</b> Â· {m.dataset_id} Â· {m.algorithm || "Algorithm not loaded"} Â· <Badge value={m.ready ? "ARTIFACTS AVAILABLE" : "MISSING ARTIFACTS"} /><Fields values={Object.entries(m.artifacts).map(([k, a]) => [k, `${a.path || "not configured"} (${a.available ? "available" : "missing"})`])} /></div>)}</section>
+    <section className="c3-card"><h3>Persisted repair history</h3><p className="small muted">Select a saved run above to inspect its own evidence, stages and artifact. Historical runs retain the policy used at the time.</p>{data.repairs.length ? <div className="c3-preview-scroll"><table className="c3-table"><thead><tr><th>Run</th><th>Model</th><th>Generator</th><th>Generated rows</th><th>Utility gain</th><th>Status</th></tr></thead><tbody>{data.repairs.map(r => <tr key={r.run_id}><td><button className="btn small" onClick={() => { setSelection(r.run_id); setStandalone(null); }}>{r.run_id}</button></td><td>{text(r.result?.model_id || r.progress?.model_id)}</td><td>{text(r.result?.generator)}</td><td>{text(r.result?.provenance?.generated_rows)}</td><td>{pp(r.result?.utility_metrics?.utility_gain)}</td><td><Badge value={r.progress?.status || r.result?.execution_status} /></td></tr>)}</tbody></table></div> : <p>No saved repair runs available.</p>}</section>
+    <details className="c3-card"><summary>Standalone research mode â€” same real repair engine</summary><p>Supply C1 evidence, C2 diagnosis and exact model/data context. This runs real generation and validation.</p><form onSubmit={runStandalone}><label htmlFor="c3-contract">Three-section contract JSON</label><textarea id="c3-contract" rows={10} value={payload} onChange={e => setPayload(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)" }} required /><button className="btn primary" disabled={busy}>{busy ? "Repair runningâ€¦" : "Run supplied contract"}</button></form></details>
+  </div>;
 }

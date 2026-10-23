@@ -131,6 +131,11 @@ class GeneratorSelector:
 
                 filtered_params = {k: v for k, v in gen_params.items() if k in accepted}
                 generator_inst = gen_cls(**filtered_params)
+                provenance["training_configuration"] = {
+                    key: getattr(generator_inst, key) for key in ("epochs", "batch_size")
+                    if hasattr(generator_inst, key)
+                }
+                provenance["training_rows"] = len(training_df)
                 if hasattr(getattr(generator_inst, "model", None), "set_random_state"):
                     generator_inst.model.set_random_state(seed)
 
