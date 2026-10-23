@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../api.js";
 import { useAction, useApi } from "../../hooks.js";
+import { refreshAlerts } from "../../platform.jsx";
 import { useSession } from "../../session.jsx";
 import { c1View, driftKind, isC1Alert, isClassicAlarm, sg, verdict } from "../../ui/c1format.js";
 import ClassicVsC1 from "../../ui/ClassicVsC1.jsx";
@@ -26,6 +27,7 @@ export default function C1Page() {
     const short = file.name.replace(/\.csv$/i, "").slice(0, 14);
     setRuns((r) => [...r, { out, v: c1View(out), file: file.name, short, runId: out.runId }]);
     setSel(runs.length);
+    refreshAlerts();                       // a C1 alert on an uploaded batch waits for C2
   }
 
   const cur = sel >= 0 ? runs[sel] : null;

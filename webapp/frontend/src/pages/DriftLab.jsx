@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { api } from "../api.js";
 import { useAction, useApi } from "../hooks.js";
+import { refreshAlerts } from "../platform.jsx";
 import { useSession } from "../session.jsx";
 import { c1View, isC1Alert, isClassicAlarm, OUTCOME_CLASS, OUTCOME_HELP, outcomeOf, sg } from "../ui/c1format.js";
 import ClassicVsC1 from "../ui/ClassicVsC1.jsx";
@@ -87,6 +88,7 @@ export default function DriftLab() {
     const entry = { ...res, at: Date.now(), dataset: ds };
     setLast(entry);
     setRuns((r) => [...r, entry]);
+    refreshAlerts();                       // a "Run C1 only" alert waits for C2 (badge on the C2 tab)
   }
 
   const chip = (f, cls = "") => (
@@ -160,6 +162,9 @@ export default function DriftLab() {
             <div className="btnrow">
               <button className={`btn primary ${busy ? "busy" : ""}`} type="button" disabled={!valid || busy} onClick={() => run("c1")}>
                 {busy && mode === "c1" ? "Running…" : "Run C1 only"}</button>
+              <button className={`btn ${busy ? "busy" : ""}`} type="button" disabled={!valid || busy} onClick={() => run("c1c2")}
+                title="Runs C1, then C2 on the same batch, and stops before C3">
+                {busy && mode === "c1c2" ? "Running…" : "Run C1 → C2"}</button>
               <button className={`btn ${busy ? "busy" : ""}`} type="button" disabled={!valid || busy} onClick={() => run("pipeline")}>
                 {busy && mode === "pipeline" ? "Running…" : "Run full pipeline"}</button>
             </div>
@@ -199,6 +204,8 @@ function LabResult({ r }) {
       : [`Severity ${v.sev}`, `Predicted cost about ${v.harm.toFixed(1)} pp: repair recommended.`, "warn"];
   const inj = r.injection;
   const shifted = inj.shifted || [];
+  const fh = r.truth.feature_harm_pp || {};
+  const sm = r.summary || {};
   return (
     <div className="stack" style={{ gap: 14 }}>
       <Verdict title={title} text={text} tone={tone}
@@ -228,15 +235,25 @@ function LabResult({ r }) {
           {injectedTags(inj).length ? injectedTags(inj).map((f) => <span key={f} className="tagf none">{f}</span>) : <span className="tagf none">none</span>}</div>
         <div className="frow2"><span className="lbl">C1 found</span>
           {v.aff.length ? v.aff.map((f) => <span key={f} className="tagf">{f}{shifted.includes(f) ? " ✓" : ""}</span>) : <span className="tagf none">none listed</span>}</div>
+        {Object.keys(fh).length > 0 && (
+          <div className="frow2"><span className="lbl" title="With the labels: put each shifted feature back to normal and measure how much comes back">True harm if undone</span>
+            {Object.entries(fh).map(([f, pp]) => (
+              <span key={f} className={`tagf ${f === r.truth.main_cause ? "" : "none"}`}>{f} {pp >= 0 ? "+" : ""}{pp.toFixed(2)} pp{f === r.truth.main_cause ? " · main cause" : ""}</span>))}</div>)}
+        {r.truth.cause_note && inj.drift_type !== "none" && <p className="small muted">Answer key: {r.truth.cause_note}.</p>}
         <p className="small muted">{inj.drift_type === "interaction"
           ? "An interaction changes no single feature, so none is listed; C1 reports it through the interaction probability."
           : "A feature is listed only when every detector that scores it passes its strictest clean-batch level."}</p>
       </div>
       {r.pipeline && (
         <div className="card stack">
-          <div className="head"><h3>Full pipeline</h3><span className="small muted mono">run {r.pipeline.run_id} · {r.pipeline.status} · {r.pipeline.runtime_sec} s</span></div>
+          <div className="head"><h3>{r.mode === "c1c2" ? "C1 → C2" : "Full pipeline"}</h3><span className="small muted mono">run {r.pipeline.run_id} · {r.pipeline.status} · {r.pipeline.runtime_sec} s</span></div>
           <PipelineSteps run={r.pipeline} />
-          <p className="small muted">C2 to C4 show contract-based fakes until each member plugs in their real component.</p>
+          {sm.c2_root && (
+            <p className="small">C2 root cause <b className="mono">{sm.c2_root}</b>{" "}
+              {sm.c2_ok === true ? <span style={{ color: "var(--ok-fg)" }}>✓ matches the answer key</span>
+                : sm.c2_ok === false ? <span style={{ color: "var(--bad-fg)" }}>✗ answer key: {inj.drift_type === "interaction" ? `interaction ${inj.features.join(" × ")}` : sm.true_cause}</span>
+                  : <span className="muted">(no single true cause to grade against)</span>}</p>)}
+          <p className="small muted">Badges show what each component did in this run: real, or fake when it used its contract example (the reason is shown under it).</p>
         </div>
       )}
     </div>
@@ -262,7 +279,7 @@ function Scoreboard({ runs, onClear }) {
       </div>
       <div className="scroll-x">
         <table className="tbl">
-          <thead><tr><th>#</th><th>Data</th><th>Drift</th><th>Features</th><th className="mono">Strength</th><th className="mono">Truth</th><th className="mono">C1</th><th>Inside?</th><th>Classic</th><th>C1 says</th><th>Outcome</th><th /></tr></thead>
+          <thead><tr><th>#</th><th>Data</th><th>Drift</th><th>Features</th><th className="mono">Strength</th><th className="mono">Truth</th><th className="mono">C1</th><th>Inside?</th><th>Classic</th><th>C1 says</th><th>Outcome</th><th>C2 cause</th><th /></tr></thead>
           <tbody>
             {n ? rows.slice().reverse().map(({ r, v }, i) => {
               const t = r.truth.true_harm_pp;
@@ -275,9 +292,10 @@ function Scoreboard({ runs, onClear }) {
                   <td>{t >= v.lo && t <= v.hi ? "✓" : "✗"}</td>
                   <td>{isClassicAlarm(v) ? "ALARM" : "-"}</td><td>{isC1Alert(v) ? "repair" : "no repair"}</td>
                   <td><span className={`outcome ${OUTCOME_CLASS[outcomeOf(t, v.sev)]}`} title={OUTCOME_HELP[outcomeOf(t, v.sev)]}>{outcomeOf(t, v.sev)}</span></td>
+                  <td className="mono">{r.summary?.c2_root ? `${r.summary.c2_root}${r.summary.c2_ok === true ? " ✓" : r.summary.c2_ok === false ? " ✗" : ""}` : "-"}</td>
                   <td>{r.run_id && <Link className="linkbtn" to={`/runs/${r.run_id}`}>View</Link>}</td>
                 </tr>);
-            }) : <tr><td colSpan="12" className="muted">No runs yet.</td></tr>}
+            }) : <tr><td colSpan="13" className="muted">No runs yet.</td></tr>}
           </tbody>
         </table>
       </div>

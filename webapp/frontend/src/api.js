@@ -46,6 +46,10 @@ export const api = {
   runFileUrl: (id) => `/api/runs/${encodeURIComponent(id)}`,
   runBatchUrl: (id) => `/api/runs/${encodeURIComponent(id)}/batch`,
   runsExportUrl: () => "/api/runs/export.csv",
+  // drift alerts waiting for C2 (badge on the C2 tab, list on the C2 page)
+  alerts: () => get("/api/alerts"),
+  alertDiagnose: (id) => postJson(`/api/alerts/${encodeURIComponent(id)}/diagnose`, {}),
+  alertDismiss: (id) => postJson(`/api/alerts/${encodeURIComponent(id)}/dismiss`, {}),
   // C1
   c1EngineInfo: (dataset) => get(`/api/c1/engine-info?dataset=${encodeURIComponent(dataset)}`),
   c1Detect: (dataset, file) => postForm("/api/c1/detect", { dataset, file }),

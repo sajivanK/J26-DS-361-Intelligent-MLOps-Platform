@@ -73,6 +73,12 @@ class C1Component(Component):
     def reference_stats(self, dataset):
         return self.ref_stats.get(dataset)
 
+    def harm_fn(self, dataset):
+        """C1's predicted harm only (pp, no labels), as a callable df -> float, for C2's label-free
+        restore test. Uses the same engine and lock as run()."""
+        from c1.src.harm_only import make_harm_fn
+        return make_harm_fn(self.engine(dataset), seed=0, lock=self._locks[dataset])
+
     def run(self, batch, upstream):
         ctx = upstream["context"]
         eng = self.engine(ctx["dataset"])
