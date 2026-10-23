@@ -17,14 +17,17 @@ Usage:
     pl.feature("capital_gain")                       # "capital gain"
     pl.rule("capital_gain > 0.5518 and marital_status == 2")
 """
+import os
 import re
 import sys
+from pathlib import Path
 
 import joblib
 
 from c2.src.config import SHARED_DIR
 
-PREPROCESSOR_PKL = SHARED_DIR / "uci_adult" / "models" / "preprocessor.pkl"
+PREPROCESSOR_PKL = Path(os.environ.get("C2_PREPROCESSOR_PKL",
+                                      SHARED_DIR / "uci_adult" / "models" / "preprocessor.pkl"))
 
 NAMES = {
     "age": "age", "workclass": "type of employer", "education_num": "education level",

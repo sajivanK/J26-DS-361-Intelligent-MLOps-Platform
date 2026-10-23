@@ -110,6 +110,17 @@ def build_run_record(engine, result, source="", latency_s=None, c1_output=None,
     }
 
 
+def harm_points(record):
+    """Accuracy lost in pp (never below 0)."""
+    return round(max(float(record["evidence"]["estimated_harm_pp"]), 0.0), 2)
+
+
+def c1_points(record):
+    """C1's predicted harm in pp (contract v1.1: a proportion), None without C1."""
+    p = (record.get("c1") or {}).get("predicted_harm")
+    return None if p is None else round(100 * float(p), 2)
+
+
 class RunHistory:
 
     def __init__(self, path=DEFAULT_HISTORY):
@@ -123,7 +134,7 @@ class RunHistory:
     def _save(self):
         if self.path is None:
             return
-        self.path.parent.mkdir(exist_ok=True)
+        self.path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self.path.with_suffix(".tmp")
         with open(tmp, "w") as f:
             for r in self.runs:
@@ -162,10 +173,12 @@ class RunHistory:
                 "run": r["run"], "timestamp": r["timestamp"], "source": r["source"],
                 "state": r["state"],
                 "root_cause_feature": None if r["state"] == "clean" else c3["root_cause_feature"],
-                "estimated_harm_pp": max(r["evidence"]["estimated_harm_pp"], 0.0),
+                "estimated_harm_pp": harm_points(r),
+                "c1_predicted_pp": c1_points(r),
                 "diagnosis_stability": c3["diagnosis_stability"],
                 "alarm": r["temporal_shap"]["alarm"],
                 "has_report": r["report"] is not None,
+                "truth_pp": (r.get("truth") or {}).get("true_harm_pp"),   # Drift Lab answer key
             })
         return out
 

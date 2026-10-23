@@ -7,6 +7,7 @@ Feature types are always read from feature_importance_adult.json (never hardcode
 as required by the C2 research guide.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -19,9 +20,12 @@ REPO_ROOT = C2_DIR.parent                             # repo root
 SHARED_DIR = REPO_ROOT / "shared"
 
 UCI_DIR = SHARED_DIR / "uci_adult"
-REFERENCE_CSV = UCI_DIR / "data" / "reference.csv"
-TEST_CSV = UCI_DIR / "data" / "test.csv"
-MODEL_PKL = UCI_DIR / "models" / "base_model_adult.pkl"
+# Data and model files come from the team Drive. Default: inside shared/uci_adult
+# (git-ignored). Another location (e.g. the platform data folder) can be set with
+# environment variables, so the web app can load C2 on any member's machine.
+REFERENCE_CSV = Path(os.environ.get("C2_REFERENCE_CSV", UCI_DIR / "data" / "reference.csv"))
+TEST_CSV = Path(os.environ.get("C2_TEST_CSV", UCI_DIR / "data" / "test.csv"))
+MODEL_PKL = Path(os.environ.get("C2_MODEL_PKL", UCI_DIR / "models" / "base_model_adult.pkl"))
 FEATURE_JSON = UCI_DIR / "feature_importance_adult.json"
 CONTRACTS_DIR = SHARED_DIR / "contracts"
 
@@ -40,7 +44,7 @@ if str(SHARED_DIR) not in sys.path:
 def _check_exists(path):
     if not path.exists():
         raise FileNotFoundError(
-            f"Missing {path.relative_to(REPO_ROOT)}. Download it from the team Drive "
+            f"Missing {path}. Download it from the team Drive "
             f"folder J26-DS-361-Datasets (it is not in GitHub because of .gitignore)."
         )
 

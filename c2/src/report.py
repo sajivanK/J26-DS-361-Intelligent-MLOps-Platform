@@ -31,6 +31,7 @@ import os
 import re
 from datetime import datetime, timezone
 
+from c2.src.history import c1_points, harm_points
 from c2.src.plain import NAMES, PlainLanguage
 
 DEFAULT_MODEL = "gpt-4o-mini"
@@ -52,6 +53,9 @@ Rules:
 - Use the plain names given (e.g. "capital gain"), not code names.
 - If state is "clean" or "harmless", say plainly that no repair is needed.
 - If state is "suspected", say it is not confirmed yet.
+- The summary MUST name the root cause in plain words, the accuracy points lost
+  (when given) and the affected group (when given), so a manager who reads only
+  the summary knows what broke, how badly and for whom.
 - The decision is already made (evidence.decision); explain it, do not change it.
 - Return only the JSON object."""
 
@@ -63,12 +67,12 @@ def report_evidence(record, history, plain=None):
     c3, ts, ev, loc = (record["to_c3"], record["temporal_shap"],
                        record["evidence"], record["localization"])
     state, root, n = record["state"], c3["root_cause_feature"], record.get("n_rows") or 1000
-    harm = round(max(ev["estimated_harm_pp"], 0.0), 1)
+    harm = round(harm_points(record), 1)
     ref_now = ts["mean_abs_shap_ref"].get(root) or 0.0
     reliance = round(ts["mean_abs_shap_now"].get(root, 0.0) / ref_now, 1) if ref_now else None
     runs_agree = int(round(c3["diagnosis_stability"] * 3))
-    others = sorted(((f, h) for f, h in ev["harm_pp_by_feature"].items() if f != root),
-                    key=lambda kv: kv[1], reverse=True)[:2]
+    others = sorted(((f, x) for f, x in (ev.get("harm_pp_by_feature") or {}).items()
+                     if f != root), key=lambda kv: kv[1], reverse=True)[:2]
     upto = [r for r in history if r["run"] <= record["run"]][-6:]
     out = {
         "run": record["run"],
@@ -80,7 +84,9 @@ def report_evidence(record, history, plain=None):
         "harmful_above_points": MALIGNANT_PP,
         "extra_wrong_predictions_per_1000": int(round(harm * 10)),
         "trend": [{"run": r["run"], "accuracy_lost_points":
-                   round(max(r["evidence"]["estimated_harm_pp"], 0.0), 1),
+                   round(harm_points(r), 1),
+                   "detection_step_predicted_points":
+                   None if c1_points(r) is None else round(c1_points(r), 1),
                    "state": r["state"]} for r in upto],
     }
     if state != "clean":
@@ -96,13 +102,12 @@ def report_evidence(record, history, plain=None):
             "affected_rows": int(round(c3["slice_support"] * n)),
             "training_share_percent": (None if loc["ref_share"] is None
                                        else round(100 * loc["ref_share"], 1)),
-            "next_factors": [{"factor": pl.feature(f), "accuracy_lost_points": round(max(h, 0), 1)}
-                             for f, h in others],
+            "next_factors": [{"factor": pl.feature(f), "accuracy_lost_points": round(max(x, 0), 1)}
+                             for f, x in others],
         })
-        pred = (record.get("c1") or {}).get("predicted_harm")
+        pred = c1_points(record)          # C1 v1.1 predicted_harm is a proportion
         if pred is not None:
-            # C1 contract v1.1: predicted_harm is a proportion (0.0433 = 4.33 pp)
-            out["detection_step_predicted_points"] = round(100 * float(pred), 1)
+            out["detection_step_predicted_points"] = round(pred, 1)
     out["decision"] = decision(out)
     return out
 
@@ -244,7 +249,7 @@ def claim_check(sections, ev):
 def charts(record, plain):
     ts, ev = record["temporal_shap"], record["evidence"]
     factors = sorted(((plain.feature(f), round(max(h, 0.0), 2))
-                      for f, h in ev["harm_pp_by_feature"].items()),
+                      for f, h in (ev.get("harm_pp_by_feature") or {}).items()),
                      key=lambda kv: kv[1], reverse=True)[:5]
     reliance = sorted(((f, ts["mean_abs_shap_ref"][f], ts["mean_abs_shap_now"][f])
                        for f in ts["mean_abs_shap_ref"]), key=lambda t: -max(t[1], t[2]))[:8]
@@ -275,10 +280,12 @@ def build_report(record, history, plain=None, use_openai=True):
         sections = template_text(ev)
     check = claim_check(sections, ev)
     root = ev.get("root_cause")
-    title = (f"Run #{ev['run']}: the model is healthy" if ev["state"] == "clean" else
-             f"Run #{ev['run']}: {root} {'is costing' if ev['state'] == 'confirmed' else 'may be costing'} "
-             f"{ev['accuracy_lost_points']} points of accuracy"
-             if ev["state"] != "harmless" else f"Run #{ev['run']}: harmless change in {root}")
+    title = {
+        "clean": f"Run #{ev['run']}: the model is healthy",
+        "harmless": f"Run #{ev['run']}: harmless change in {root}",
+        "suspected": f"Run #{ev['run']}: {root} may be costing {ev['accuracy_lost_points']} points of accuracy",
+        "confirmed": f"Run #{ev['run']}: {root} is costing {ev['accuracy_lost_points']} points of accuracy",
+    }[ev["state"]]
     return {
         "run": ev["run"],
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -289,6 +296,7 @@ def build_report(record, history, plain=None, use_openai=True):
         "sections": sections,
         "section_titles": SECTION_TITLES,
         "kpis": {"accuracy_lost_points": ev["accuracy_lost_points"],
+                 "detection_step_predicted_points": ev.get("detection_step_predicted_points"),
                  "extra_wrong_predictions_per_1000": ev["extra_wrong_predictions_per_1000"],
                  "affected_share_percent": ev.get("affected_share_percent", 0.0),
                  "training_share_percent": ev.get("training_share_percent"),
@@ -307,14 +315,16 @@ def report_markdown(report, record=None):
              f"Written by: {report['writer']}", "",
              f"**Decision: {report['decision']['head']}.** {report['decision']['text']}", ""]
     k = report["kpis"]
+    lost, wrong = f"{k['accuracy_lost_points']} pp", k["extra_wrong_predictions_per_1000"]
     lines += ["| Accuracy lost | Extra wrong per 1,000 | Customers affected | Runs agreeing |",
               "|---|---|---|---|",
-              f"| {k['accuracy_lost_points']} pp | {k['extra_wrong_predictions_per_1000']} | "
+              f"| {lost} | {wrong} | "
               f"{k['affected_share_percent']}% | {k['recent_runs_agreeing']} of {k['runs_checked']} |", ""]
     for s in SECTIONS:
         lines += [f"## {SECTION_TITLES[s]}", report["sections"][s], ""]
     lines += ["## Accuracy lost per run", "", "| Run | Accuracy lost (pp) | Result |", "|---|---|---|"]
-    lines += [f"| #{t['run']} | {t['accuracy_lost_points']} | {t['state']} |"
+    lines += [f"| #{t['run']} | {t['accuracy_lost_points']}"
+              f" | {t['state']} |"
               for t in report["charts"]["trend"]]
     lines += ["", "## Recommended actions"]
     lines += [f"{i}. {a['action']} (owner: {a['owner']})"
