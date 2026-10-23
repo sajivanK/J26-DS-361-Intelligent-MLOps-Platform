@@ -1,0 +1,11 @@
+/* Drift alerts panel (C2 page). Uses the shared status tokens. */
+.da-banner { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: var(--radius);
+  border: 1px solid var(--warn-line); background: var(--warn-bg); color: var(--warn-fg); flex-wrap: wrap; }
+.da-banner svg { flex: none; }
+.da-tag { font-family: var(--mono); font-size: .74rem; padding: 2px 7px; border-radius: 5px;
+  background: var(--warn-bg); color: var(--warn-fg); border: 1px solid var(--warn-line); }
+.da-ok { color: var(--ok-fg); font-weight: 500; }
+.da-done td { color: var(--muted); }
+.da-act { white-space: nowrap; }
+.da-act .btn + .btn { margin-left: 6px; }
+.btn.sm { min-height: 34px; padding: 0 12px; font-size: .82rem; }

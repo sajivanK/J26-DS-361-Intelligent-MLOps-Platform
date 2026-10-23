@@ -7,7 +7,7 @@ import "./Sidebar.css";
 const navClass = ({ isActive }) => "nav" + (isActive ? " active" : "");
 
 export default function Sidebar() {
-  const { health, datasets, connected, checked } = usePlatform();
+  const { health, datasets, connected, checked, alertsWaiting } = usePlatform();
   const c1 = componentInfo(health, "c1");
   const enginesLoaded = c1?.engines ? Object.values(c1.engines).filter((e) => e.loaded).length : 0;
 
@@ -31,7 +31,10 @@ export default function Sidebar() {
         return (
           <NavLink key={p.path} to={p.path} className={navClass}>
             <span className="lft"><Icon name={p.icon} /><span className="txt">{p.label}<small>C{p.n} {p.title}</small></span></span>
-            <span className={`dot ${st}`} title={st} />
+            {p.component === "c2" && alertsWaiting > 0
+              ? <span className="alertbadge" title={`${alertsWaiting} drift alert${alertsWaiting === 1 ? "" : "s"} waiting for diagnosis`}>
+                  <Icon name="warn" size={12} className="" strokeWidth={2.6} /><span className="mono">{alertsWaiting}</span></span>
+              : <span className={`dot ${st}`} title={st} />}
           </NavLink>
         );
       })}
