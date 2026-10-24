@@ -146,9 +146,17 @@ class ModelInputs:
             return float(accuracy_score(y, predictions))
         return float(f1_score(y, predictions, pos_label=self.positive, zero_division=0))
 
-    def fit(self, frame):
+    def fit(self, frame, sample_weight=None):
         candidate = clone(self.model)
-        candidate.fit(self.X(frame), self.y(frame))
+        X, y = self.X(frame), self.y(frame)
+        if sample_weight is None:
+            candidate.fit(X, y)
+        elif isinstance(candidate, Pipeline):
+            # sklearn Pipeline routes fit parameters by final-step name.
+            final_step = candidate.steps[-1][0]
+            candidate.fit(X, y, **{f"{final_step}__sample_weight": sample_weight})
+        else:
+            candidate.fit(X, y, sample_weight=sample_weight)
         return candidate
 
     def improvement_interval(self, baseline, candidate, frame, metric):
@@ -488,6 +496,105 @@ def _execute_live_repair(payload, output_directory=None, *, generator_selector=N
                                   "source": "supplied holdout" if options.get("source_evaluation_uri") else "derived reference holdout",
                                   "original_model_training_overlap": "Must be checked by the model/data owner; C3 checks candidate-training overlap."},
         "evaluation_policy": "single candidate; independent rows; no evaluation-driven generator search"})
+
+    real_training = pd.concat([source_train, adaptation], ignore_index=True)
+    authentic_weights = np.concatenate([
+        np.ones(len(source_train), dtype=float),
+        np.full(len(adaptation), 2.0, dtype=float),
+    ])
+    authentic_cache = {}
+
+    def evaluate_authentic_fallback(synthetic_reasons, synthetic_report, *, control=None):
+        """Evaluate and, only when every safety gate passes, publish labelled real adaptation."""
+        nonlocal package
+        progress.stage(12, "Running", {"strategy": "AUTHENTIC_WEIGHTED_ADAPTATION"})
+        log.transition_to(ExecutionState.EVALUATING,
+                          "Synthetic candidate was unsuitable; evaluating authentic weighted adaptation")
+        try:
+            authentic = control if control is not None else authentic_cache.get("model")
+            if authentic is None:
+                authentic = inputs.fit(real_training, authentic_weights)
+            authentic_cache["model"] = authentic
+            authentic_score = inputs.score(authentic, evaluation_slice, metric)
+            source_after = inputs.score(authentic, source_eval, metric)
+            overall_before = inputs.score(model, evaluation, metric)
+            overall_after = inputs.score(authentic, evaluation, metric)
+            interval = inputs.improvement_interval(model, authentic, evaluation_slice, metric)
+        except Exception as exc:
+            authentic_reasons = [f"Authentic weighted adaptation evaluation failed: {exc}"]
+            combined = [f"Synthetic candidate: {reason}" for reason in synthetic_reasons]
+            combined.extend(authentic_reasons)
+            progress.stage(12, "Failed", {"reasons": authentic_reasons})
+            return finish(combined, package_status=RepairPackageStatus.REJECTED,
+                          validation_report={**synthetic_report,
+                              "authentic_fallback": {"passed": False, "reasons": authentic_reasons}})
+
+        gain = authentic_score - baseline
+        authentic_reasons = []
+        if gain < min_gain:
+            authentic_reasons.append(f"Affected-slice {metric} gain {gain:+.4f} below {min_gain:.4f}.")
+        if interval[0] <= 0.0:
+            authentic_reasons.append("Paired bootstrap 95% interval does not establish a positive affected-slice gain.")
+        if source_after - source_baseline < -dc.source_retention_tolerance:
+            authentic_reasons.append("Source performance retention exceeded its permitted loss.")
+        if overall_after - overall_before < -dc.source_retention_tolerance:
+            authentic_reasons.append("Overall current performance exceeded its permitted loss.")
+        utility = {
+            "metric": metric,
+            "baseline_score": baseline,
+            "candidate_score": authentic_score,
+            "authentic_control_score": authentic_score,
+            "delta_target_f1_vs_baseline": gain,
+            "utility_gain": gain,
+            "training_rows": len(real_training),
+            "bootstrap_ci_95": interval,
+            "overall_before": overall_before,
+            "overall_after": overall_after,
+            "sample_weight_policy": {"source": 1.0, "target": 2.0},
+        }
+        fallback_report = {
+            "passed": not authentic_reasons,
+            "reasons": authentic_reasons,
+            "utility": utility,
+            "source_retention": {"before": source_baseline, "after": source_after,
+                                 "delta": source_after - source_baseline},
+        }
+        report = {**synthetic_report,
+                  "synthetic_utility": synthetic_report.get("utility"),
+                  "authentic_fallback": fallback_report,
+                  "utility": {"passed": not authentic_reasons, **utility}}
+        progress.stage(12, "Failed" if authentic_reasons else "Completed", fallback_report)
+        if authentic_reasons:
+            combined = [f"Synthetic candidate: {reason}" for reason in synthetic_reasons]
+            combined.extend(f"Authentic fallback: {reason}" for reason in authentic_reasons)
+            package = replace(package, utility_metrics=utility, validation_report=report,
+                source_retention_metrics=fallback_report["source_retention"])
+            return finish(combined, package_status=RepairPackageStatus.REJECTED)
+
+        out_dir.mkdir(parents=True, exist_ok=True)
+        csv_path, model_path_out = out_dir / "authentic_adaptation.csv", out_dir / "candidate_model.joblib"
+        adaptation.to_csv(csv_path, index=False)
+        import joblib
+        joblib.dump(authentic, model_path_out)
+        provenance["decision_reason"] = (
+            "Synthetic repair did not pass all gates; approved authentic weighted adaptation "
+            "after positive independent utility and retention checks."
+        )
+        provenance["fallback_from_synthetic_reasons"] = list(synthetic_reasons)
+        package = replace(package,
+            chosen_strategy="AUTHENTIC_WEIGHTED_ADAPTATION",
+            generator_info={"generator": "NONE", "requested_generator": generator,
+                            "sample_weight_policy": {"source": 1.0, "target": 2.0}},
+            quantity_selected=0,
+            validation_report=report,
+            fidelity_indicators={},
+            privacy_risk_indicators={"status": "PASS", "applicability": "NOT_APPLICABLE_AUTHENTIC_DATA"},
+            utility_metrics=utility,
+            source_retention_metrics=fallback_report["source_retention"])
+        return finish(package_status=RepairPackageStatus.APPROVED_FOR_REVIEW,
+            candidate_dataset_path=str(csv_path), candidate_dataset_sha256=compute_file_sha256(csv_path),
+            candidate_model_path=str(model_path_out), candidate_model_sha256=compute_file_sha256(model_path_out))
+
     log.transition_to(ExecutionState.GENERATING, f"Training {generator} on actual current diagnosed slice")
     progress.stage(6, "Running", {"generator": generator, "epochs": epochs, "training_rows": len(training_slice)})
     try:
@@ -511,7 +618,8 @@ def _execute_live_repair(payload, output_directory=None, *, generator_selector=N
     reasons = []
     progress.stage(8, "Running")
     if set(synthetic.columns) != set(features + [target]) or len(synthetic) != pool_count or synthetic.isna().any().any():
-        return finish(["Generated data failed structural schema/missing-value checks."], package_status=RepairPackageStatus.REJECTED, validation_report={"structure": {"passed": False}})
+        synthetic_reasons = ["Generated data failed structural schema/missing-value checks."]
+        return evaluate_authentic_fallback(synthetic_reasons, {"structure": {"passed": False}})
     synthetic = synthetic[features + [target]]
     try:
         for col in numeric:
@@ -535,10 +643,10 @@ def _execute_live_repair(payload, output_directory=None, *, generator_selector=N
                 "raw_pool_privacy_report": screening.to_dict()}
             if len(eligible) < count:
                 progress.stage(11, "Failed", screening.to_dict())
-                return finish([f"Bounded privacy sampling found {len(eligible)} eligible records; {count} required. No repair approved."],
-                    package_status=RepairPackageStatus.REJECTED,
-                    validation_report={"structure": {"passed": True}, "privacy_report": screening.to_dict()},
-                    privacy_risk_indicators={"status": "FAIL", **screening.metrics})
+                synthetic_reasons = [f"Bounded privacy sampling found {len(eligible)} eligible records; {count} required."]
+                package = replace(package, privacy_risk_indicators={"status": "FAIL", **screening.metrics})
+                return evaluate_authentic_fallback(synthetic_reasons,
+                    {"structure": {"passed": True}, "privacy_report": screening.to_dict()})
             synthetic = eligible.head(count).reset_index(drop=True)
         provenance["candidate_rows"] = len(synthetic)
         progress.stage(8)
@@ -556,7 +664,8 @@ def _execute_live_repair(payload, output_directory=None, *, generator_selector=N
             pd.concat([source_train, adaptation], ignore_index=True)[features],
             continuous_columns=numeric, discrete_columns=categories)
     except Exception as exc:
-        return finish([f"Candidate validation could not complete: {exc}"], package_status=RepairPackageStatus.REJECTED)
+        return evaluate_authentic_fallback([f"Candidate validation could not complete: {exc}"],
+                                           {"structure": {"passed": True}})
     progress.stage(11, "Completed" if privacy.status.value == "PASS" else "Failed", privacy.to_dict())
     if fidelity.status.value != "PASS":
         reasons.extend(fidelity.reasons or ["Fidelity validation did not pass."])
@@ -567,14 +676,14 @@ def _execute_live_repair(payload, output_directory=None, *, generator_selector=N
     package = replace(package, validation_report=report, fidelity_indicators=fidelity.metrics,
                       privacy_risk_indicators={"status": privacy.status.value, **privacy.metrics})
     if reasons:
-        return finish(reasons, package_status=RepairPackageStatus.REJECTED)
+        return evaluate_authentic_fallback(reasons, report)
 
     progress.stage(12, "Running")
     log.transition_to(ExecutionState.EVALUATING, "Comparing same-family candidate with baseline and real-only control")
-    real_training = pd.concat([source_train, adaptation], ignore_index=True)
     augmented = pd.concat([real_training, synthetic], ignore_index=True)
     try:
-        control = inputs.fit(real_training)
+        control = inputs.fit(real_training, authentic_weights)
+        authentic_cache["model"] = control
         candidate = inputs.fit(augmented)
         control_score = inputs.score(control, evaluation_slice, metric)
         candidate_score = inputs.score(candidate, evaluation_slice, metric)
@@ -589,7 +698,7 @@ def _execute_live_repair(payload, output_directory=None, *, generator_selector=N
         reasons.append(f"Affected-slice {metric} gain {gain:+.4f} below {min_gain:.4f}.")
     if confidence_interval[0] <= 0.0:
         reasons.append("Paired bootstrap 95% interval does not establish a positive affected-slice gain.")
-    if candidate_score < control_score - control_tol:
+    if candidate_score <= control_score - control_tol:
         reasons.append("Synthetic augmentation underperforms the matched real-only retraining control.")
     if source_after - source_baseline < -dc.source_retention_tolerance:
         reasons.append("Source performance retention exceeded its permitted loss.")
@@ -606,7 +715,7 @@ def _execute_live_repair(payload, output_directory=None, *, generator_selector=N
         source_retention_metrics={"before": source_baseline, "after": source_after,
                                   "delta": source_after - source_baseline})
     if reasons:
-        return finish(reasons, package_status=RepairPackageStatus.REJECTED)
+        return evaluate_authentic_fallback(reasons, report, control=control)
     # Persist approved artifacts only; no stale or rejected CSV is downloadable.
     out_dir.mkdir(parents=True, exist_ok=True)
     csv_path, model_path_out = out_dir / "repair.csv", out_dir / "candidate_model.joblib"
@@ -628,7 +737,7 @@ def response_for_package(package, log):
     preview = pd.read_csv(package.candidate_dataset_path).head(8) if approved else pd.DataFrame()
     return {
         **contract, "run_id": package.run_id, "package_id": package.package_id,
-        "reason": "; ".join(package.rejection_reasons), "execution_status": package.package_status.value,
+        "reason": "; ".join(package.rejection_reasons) or metadata.get("decision_reason", ""),
         "validation_report": package.validation_report,
         "readiness_passed": package.package_status not in (RepairPackageStatus.BLOCKED, RepairPackageStatus.FAILED),
         "readiness_reason": "; ".join(package.rejection_reasons),

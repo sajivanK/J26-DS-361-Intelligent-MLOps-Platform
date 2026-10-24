@@ -323,6 +323,43 @@ def test_c4_flat_contract_export_matches_shared_schema():
         assert 0.0 <= val <= 1.0, f"{flt_col} out of range [0, 1]: {val}"
 
 
+def test_c4_v12_authentic_weighted_contract_is_approved_and_nullable(tmp_path):
+    adaptation = tmp_path / "authentic_adaptation.csv"
+    adaptation.write_text("feature,target\n1,0\n2,1\n", encoding="utf-8")
+    pkg = RepairPackage(
+        chosen_strategy="AUTHENTIC_WEIGHTED_ADAPTATION",
+        generator_info={"generator": "NONE", "sample_weight_policy": {"source": 1.0, "target": 2.0}},
+        package_status=RepairPackageStatus.APPROVED_FOR_REVIEW,
+        candidate_dataset_path=str(adaptation),
+        quantity_selected=0,
+        privacy_risk_indicators={"status": "PASS", "applicability": "NOT_APPLICABLE_AUTHENTIC_DATA"},
+        utility_metrics={"utility_gain": 0.02, "training_rows": 100},
+    )
+    payload = export_c4_flat_contract(pkg)
+    assert payload["repair_strategy"] == "AUTHENTIC_WEIGHTED_ADAPTATION"
+    assert payload["repair_package_status"] == "APPROVED"
+    assert payload["generator"] == "NONE"
+    assert payload["n_synthetic_rows"] == 0
+    assert payload["augmentation_ratio"] == 0.0
+    assert payload["fidelity_score"] is None
+    assert payload["target_coverage"] is None
+    assert validate_c4_flat_contract(payload) == (True, [])
+
+
+def test_c4_v12_rejects_nullable_synthetic_metrics():
+    payload = {
+        "repair_dataset_uri": "repair.csv", "repair_package_status": "APPROVED",
+        "repair_strategy": "TARGETED_SYNTHETIC_REPAIR", "generator": "TVAE",
+        "n_synthetic_rows": 10, "augmentation_ratio": 0.1,
+        "fidelity_score": None, "utility_score": 0.02, "privacy_status": "PASS",
+        "target_coverage": None, "prescription_confidence": 0.8,
+        "repair_version": "c3-test", "repair_timestamp": "2026-10-24T00:00:00Z",
+    }
+    valid, errors = validate_c4_flat_contract(payload)
+    assert not valid
+    assert errors
+
+
 def test_real_data_contract_execution_end_to_end(real_telco_contract_payload, tmp_path):
     """Actual registered artifacts, explicit independent batches, and real generation."""
     from sklearn.model_selection import train_test_split

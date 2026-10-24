@@ -178,7 +178,7 @@ class C4RetrainingAdapter:
         package: RepairPackage,
         repair_version: str | None = None,
     ) -> dict[str, Any]:
-        """Transform RepairPackage into the exact 12-field flat schema expected by Component 4.
+        """Transform RepairPackage into the version 1.2 flat schema expected by Component 4.
         
         Adheres to shared/contracts/c3_output_schema.json.
         """
@@ -211,7 +211,16 @@ class C4RetrainingAdapter:
         else:
             generator_name = "NONE"
 
-        if generator_name == "NONE" or not package.candidate_dataset_path or package.quantity_selected <= 0:
+        strategy = str(package.chosen_strategy or "NO_REPAIR")
+        authentic_approved = (
+            strategy == "AUTHENTIC_WEIGHTED_ADAPTATION"
+            and generator_name == "NONE"
+            and bool(package.candidate_dataset_path)
+            and pkg_status == "APPROVED"
+        )
+        if (not package.candidate_dataset_path
+                or (generator_name == "NONE" and not authentic_approved)
+                or (package.quantity_selected <= 0 and not authentic_approved)):
             pkg_status, uri = "REJECTED", "NONE"
 
         # 4. n_synthetic_rows
@@ -226,7 +235,9 @@ class C4RetrainingAdapter:
 
         # 6. fidelity_score
         fid = package.fidelity_indicators or {}
-        if "fidelity_score" in fid and fid["fidelity_score"] is not None:
+        if authentic_approved:
+            fidelity_score = None
+        elif "fidelity_score" in fid and fid["fidelity_score"] is not None:
             fidelity_score = round(float(fid["fidelity_score"]), 4)
         elif "mean_ks_statistic" in fid and fid["mean_ks_statistic"] is not None:
             fidelity_score = round(max(0.0, min(1.0, 1.0 - float(fid["mean_ks_statistic"]))), 4)
@@ -248,9 +259,11 @@ class C4RetrainingAdapter:
 
         # 9. target_coverage
         val_rep = package.validation_report or {}
-        if "target_coverage" in val_rep and val_rep["target_coverage"] is not None:
+        if authentic_approved:
+            target_cov = None
+        elif "target_coverage" in val_rep and val_rep["target_coverage"] is not None:
             target_cov = round(float(val_rep["target_coverage"]), 4)
-        elif pkg_status == "APPROVED":
+        elif pkg_status == "APPROVED" and not authentic_approved:
             # If targeted slice rule is present, evaluate coverage against synthetic dataset if available
             rule = (package.diagnostic_summary or {}).get("affected_slice_rule")
             if rule and package.candidate_dataset_path and Path(package.candidate_dataset_path).is_file():
@@ -292,6 +305,11 @@ class C4RetrainingAdapter:
         return {
             "repair_dataset_uri": uri,
             "repair_package_status": pkg_status,
+            "repair_strategy": (
+                "AUTHENTIC_WEIGHTED_ADAPTATION" if authentic_approved
+                else "TARGETED_SYNTHETIC_REPAIR" if pkg_status == "APPROVED"
+                else "NO_REPAIR"
+            ),
             "generator": generator_name,
             "n_synthetic_rows": n_synth,
             "augmentation_ratio": aug_ratio,

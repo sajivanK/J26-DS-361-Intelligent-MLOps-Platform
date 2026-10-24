@@ -54,14 +54,15 @@ def test_invalid_ctgan_packing_rejected(value):
         CTGANGenerator(batch_size=value)
 
 
-def test_bounded_pool_rejects_when_only_copies_are_generated(supplied):
+def test_bounded_pool_uses_authentic_fallback_when_only_copies_are_generated(supplied):
     payload, root = supplied
     payload["data_context"]["privacy_candidate_pool_multiplier"] = 2
     package, _ = live.execute_live_repair(payload, root / "out", generator_selector=IndependentSampler("copies"))
-    assert package.package_status.value == "REJECTED"
+    assert package.package_status.value == "APPROVED_FOR_REVIEW"
+    assert package.chosen_strategy == "AUTHENTIC_WEIGHTED_ADAPTATION"
     assert package.downstream_handoff_metadata["privacy_sampling"]["selected_rows"] == 0
-    assert package.candidate_dataset_path is None
-    assert not package.utility_metrics
+    assert package.candidate_dataset_path.endswith("authentic_adaptation.csv")
+    assert package.utility_metrics["utility_gain"] >= .01
 
 
 def test_bounded_pool_discards_copies_then_revalidates_candidate(supplied):

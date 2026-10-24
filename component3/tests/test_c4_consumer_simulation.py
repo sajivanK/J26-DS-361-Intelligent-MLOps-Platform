@@ -69,7 +69,8 @@ class SimulatedC4Consumer:
 
         # 3. Approved branch
         assert status == "APPROVED"
-        assert c4_data["n_synthetic_rows"] > 0
+        authentic = c4_data.get("repair_strategy") == "AUTHENTIC_WEIGHTED_ADAPTATION"
+        assert c4_data["n_synthetic_rows"] == 0 if authentic else c4_data["n_synthetic_rows"] > 0
         assert c4_data["repair_dataset_uri"] is not None
 
         # Resolve relative URI
@@ -82,7 +83,7 @@ class SimulatedC4Consumer:
             raise FileNotFoundError(f"Candidate dataset URI not found on disk: {dataset_path}")
 
         df_synthetic = pd.read_csv(dataset_path)
-        if len(df_synthetic) != c4_data["n_synthetic_rows"]:
+        if not authentic and len(df_synthetic) != c4_data["n_synthetic_rows"]:
             raise ValueError(
                 f"Row count mismatch: contract declares {c4_data['n_synthetic_rows']}, "
                 f"CSV contains {len(df_synthetic)} rows"
@@ -175,6 +176,29 @@ def test_c4_consumer_approved_package(base_approved_payload, tmp_path):
         assert len(preds) == len(df_eval)
         assert set(preds).issubset({0, 1})
 
+
+def test_c4_consumer_accepts_authentic_weighted_package(tmp_path):
+    adaptation = tmp_path / "authentic_adaptation.csv"
+    pd.DataFrame({"feature": [1, 2], "target": [0, 1]}).to_csv(adaptation, index=False)
+    package = RepairPackage(
+        chosen_strategy="AUTHENTIC_WEIGHTED_ADAPTATION",
+        generator_info={"generator": "NONE", "sample_weight_policy": {"source": 1.0, "target": 2.0}},
+        package_status=RepairPackageStatus.APPROVED_FOR_REVIEW,
+        candidate_dataset_path=str(adaptation),
+        privacy_risk_indicators={"status": "PASS", "applicability": "NOT_APPLICABLE_AUTHENTIC_DATA"},
+        utility_metrics={"utility_gain": 0.02, "training_rows": 100},
+    )
+    contract = C4RetrainingAdapter().to_c4_flat_contract(package)
+    contract_path = tmp_path / "c4_authentic.json"
+    contract_path.write_text(json.dumps(contract), encoding="utf-8")
+
+    result = SimulatedC4Consumer(repo_root=REPO_ROOT).consume_c3_output(contract_path)
+    assert result["proceed_to_retrain"] is True
+    assert len(result["synthetic_df"]) == 2
+    assert contract["generator"] == "NONE"
+    assert contract["n_synthetic_rows"] == 0
+    assert contract["fidelity_score"] is None
+    assert contract["target_coverage"] is None
 
 def test_c4_consumer_rejected_package(base_approved_payload, tmp_path):
     """Verify that simulated C4 consumer cleanly aborts retraining on a rejected repair package."""
