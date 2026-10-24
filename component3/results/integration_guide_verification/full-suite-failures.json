@@ -1,0 +1,368 @@
+[
+  {
+    "module": "component3.tests.test_affected_slice_extraction",
+    "test": "test_affected_slice_extraction_scenarios[S01]",
+    "type": "failure",
+    "message": "AssertionError: S01: support mismatch\nassert 0.0005003333333333249 <= 1e-05\n +  where 0.0005003333333333249 = abs((0.359833 - 0.36033333333333334))"
+  },
+  {
+    "module": "component3.tests.test_affected_slice_extraction",
+    "test": "test_affected_slice_extraction_scenarios[S03]",
+    "type": "failure",
+    "message": "AssertionError: S03: support mismatch\nassert 0.00866699999999998 <= 1e-05\n +  where 0.00866699999999998 = abs((0.287167 - 0.2785))"
+  },
+  {
+    "module": "component3.tests.test_affected_slice_extraction",
+    "test": "test_affected_slice_extraction_scenarios[S04]",
+    "type": "failure",
+    "message": "AssertionError: S04: support mismatch\nassert 0.004833333333333328 <= 1e-05\n +  where 0.004833333333333328 = abs((0.06 - 0.05516666666666667))"
+  },
+  {
+    "module": "component3.tests.test_affected_slice_extraction",
+    "test": "test_affected_slice_extraction_scenarios[S05]",
+    "type": "failure",
+    "message": "AssertionError: S05: support mismatch\nassert 0.00016666666666666913 <= 1e-05\n +  where 0.00016666666666666913 = abs((0.057 - 0.05683333333333333))"
+  },
+  {
+    "module": "component3.tests.test_affected_slice_extraction",
+    "test": "test_affected_slice_extraction_scenarios[S06]",
+    "type": "failure",
+    "message": "AssertionError: S06: support mismatch\nassert 0.002333333333333354 <= 1e-05\n +  where 0.002333333333333354 = abs((0.279 - 0.27666666666666667))"
+  },
+  {
+    "module": "component3.tests.test_affected_slice_extraction",
+    "test": "test_affected_slice_extraction_scenarios[S07]",
+    "type": "failure",
+    "message": "AssertionError: S07: support mismatch\nassert 0.0023336666666666783 <= 1e-05\n +  where 0.0023336666666666783 = abs((0.258333 - 0.26066666666666666))"
+  },
+  {
+    "module": "component3.tests.test_authentic_adaptation_control",
+    "test": "test_batch05g_protocol_integrity",
+    "type": "error",
+    "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\SLIIT_Research\\\\J26-DS-361-Intelligent-MLOps-Platform\\\\component3\\\\results\\\\experimental_models\\\\telco_adaptation_predictions_audit.csv'\""
+  },
+  {
+    "module": "component3.tests.test_authentic_adaptation_control",
+    "test": "test_adaptation_budgets_nesting_and_transformation",
+    "type": "error",
+    "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\SLIIT_Research\\\\J26-DS-361-Intelligent-MLOps-Platform\\\\component3\\\\results\\\\experimental_models\\\\telco_adaptation_predictions_audit.csv'\""
+  },
+  {
+    "module": "component3.tests.test_authentic_adaptation_control",
+    "test": "test_training_set_composition_and_zero_generators",
+    "type": "error",
+    "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\SLIIT_Research\\\\J26-DS-361-Intelligent-MLOps-Platform\\\\component3\\\\results\\\\experimental_models\\\\telco_adaptation_predictions_audit.csv'\""
+  },
+  {
+    "module": "component3.tests.test_authentic_adaptation_control",
+    "test": "test_model_and_preprocessor_isolation",
+    "type": "error",
+    "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\SLIIT_Research\\\\J26-DS-361-Intelligent-MLOps-Platform\\\\component3\\\\results\\\\experimental_models\\\\telco_adaptation_predictions_audit.csv'\""
+  },
+  {
+    "module": "component3.tests.test_authentic_adaptation_control",
+    "test": "test_reload_prediction_and_probability_parity",
+    "type": "error",
+    "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\SLIIT_Research\\\\J26-DS-361-Intelligent-MLOps-Platform\\\\component3\\\\results\\\\experimental_models\\\\telco_adaptation_predictions_audit.csv'\""
+  },
+  {
+    "module": "component3.tests.test_authentic_adaptation_control",
+    "test": "test_source_retention_and_no_catastrophic_forgetting",
+    "type": "error",
+    "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\SLIIT_Research\\\\J26-DS-361-Intelligent-MLOps-Platform\\\\component3\\\\results\\\\experimental_models\\\\telco_adaptation_predictions_audit.csv'\""
+  },
+  {
+    "module": "component3.tests.test_authentic_adaptation_control",
+    "test": "test_paired_statistical_analysis_and_multiplicity",
+    "type": "error",
+    "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\SLIIT_Research\\\\J26-DS-361-Intelligent-MLOps-Platform\\\\component3\\\\results\\\\experimental_models\\\\telco_adaptation_predictions_audit.csv'\""
+  },
+  {
+    "module": "component3.tests.test_authentic_adaptation_control",
+    "test": "test_anonymized_prediction_audit_privacy",
+    "type": "error",
+    "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\SLIIT_Research\\\\J26-DS-361-Intelligent-MLOps-Platform\\\\component3\\\\results\\\\experimental_models\\\\telco_adaptation_predictions_audit.csv'\""
+  },
+  {
+    "module": "component3.tests.test_authentic_controls_benchmark",
+    "test": "test_frozen_concept_label_rule",
+    "type": "failure",
+    "message": "FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\SLIIT_Research\\\\J26-DS-361-Intelligent-MLOps-Platform\\\\component3\\\\results\\\\experimental_models\\\\telco_authentic_controls_predictions_audit.csv'"
+  },
+  {
+    "module": "component3.tests.test_authentic_controls_benchmark",
+    "test": "test_reload_prediction_parity",
+    "type": "failure",
+    "message": "FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\SLIIT_Research\\\\J26-DS-361-Intelligent-MLOps-Platform\\\\component3\\\\models\\\\experimental\\\\telco_rf_b2_b200_k200.joblib'"
+  },
+  {
+    "module": "component3.tests.test_authentic_controls_benchmark",
+    "test": "test_prediction_to_metric_parity_and_label_alignment",
+    "type": "failure",
+    "message": "FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\SLIIT_Research\\\\J26-DS-361-Intelligent-MLOps-Platform\\\\component3\\\\results\\\\experimental_models\\\\telco_authentic_controls_predictions_audit.csv'"
+  },
+  {
+    "module": "component3.tests.test_authentic_controls_benchmark",
+    "test": "test_arm_to_model_mapping_and_artifacts_presence",
+    "type": "failure",
+    "message": "AssertionError: Missing expected model artifact: telco_rf_a1_b50.joblib\nassert False\n +  where False = is_file()\n +    where is_file = WindowsPath('D:/SLIIT_Research/J26-DS-361-Intelligent-MLOps-Platform/component3/models/experimental/telco_rf_a1_b50.joblib').is_file"
+  },
+  {
+    "module": "component3.tests.test_batch05k_audit",
+    "test": "test_metric_and_prediction_parity",
+    "type": "failure",
+    "message": "AssertionError: assert False\n +  where False = is_file()\n +    where is_file = WindowsPath('D:/SLIIT_Research/J26-DS-361-Intelligent-MLOps-Platform/component3/results/experimental_models/batch05k_repair_benchmark_predictions_audit.csv').is_file"
+  },
+  {
+    "module": "component3.tests.test_batch05k_audit",
+    "test": "test_matched_k50_ros_control_provenance_and_comparison",
+    "type": "failure",
+    "message": "AssertionError: Expected saved control D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\models\\experimental\\telco_rf_b2_b200_k50.joblib to exist!\nassert False\n +  where False = is_file()\n +    where is_file = WindowsPath('D:/SLIIT_Research/J26-DS-361-Intelligent-MLOps-Platform/component3/models/experimental/telco_rf_b2_b200_k50.joblib').is_file"
+  },
+  {
+    "module": "component3.tests.test_batch05k_audit",
+    "test": "test_candidate_screening_isolation_without_target_eval",
+    "type": "failure",
+    "message": "FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\SLIIT_Research\\\\J26-DS-361-Intelligent-MLOps-Platform\\\\component3\\\\results\\\\generators\\\\batch05j_synthetic_candidates_tvae.csv'"
+  },
+  {
+    "module": "component3.tests.test_batch05m_evidence_and_taxonomy",
+    "test": "test_metric_reconciliation_discrepancy_1",
+    "type": "failure",
+    "message": "AssertionError: assert False\n +  where False = is_file()\n +    where is_file = WindowsPath('D:/SLIIT_Research/J26-DS-361-Intelligent-MLOps-Platform/component3/models/experimental/telco_rf_b2_b200_k200.joblib').is_file"
+  },
+  {
+    "module": "component3.tests.test_core_loaders",
+    "test": "test_reference_dataset",
+    "type": "failure",
+    "message": "assert (39073, 13) == (26048, 13)\n  \n  At index 0 diff: 39073 != 26048\n  Use -v to get more diff"
+  },
+  {
+    "module": "component3.tests.test_generator_feasibility",
+    "test": "test_batch05j_artifacts_exist_and_conform",
+    "type": "failure",
+    "message": "AssertionError: Candidate CSV for TVAE must exist\nassert False\n +  where False = is_file()\n +    where is_file = WindowsPath('D:/SLIIT_Research/J26-DS-361-Intelligent-MLOps-Platform/component3/results/generators/batch05j_synthetic_candidates_tvae.csv').is_file"
+  },
+  {
+    "module": "component3.tests.test_phase2_integration_and_hardening",
+    "test": "test_workflow_05_authentic_weighted_repair",
+    "type": "failure",
+    "message": "AssertionError: assert <RepairPackag...D: 'REJECTED'> == <RepairPackag...D_FOR_REVIEW'>\n  \n  - APPROVED_FOR_REVIEW\n  + REJECTED"
+  },
+  {
+    "module": "component3.tests.test_phase2_integration_and_hardening",
+    "test": "test_workflow_06_tvae_synthetic_repair",
+    "type": "failure",
+    "message": "assert 0 in (25, 50, 100, 200)\n +  where 0 = RepairPackage(package_id='PKG-CEE5520DF4F0', schema_version='1.0.0', request_id='WF06-TVAE-REPAIR', run_id='RUN-4FD8AD...ld (0.350)']\"]}], 'decision_mode': 'RULE_BASED', 'predicted_delta_f1': None, 'evidence_strength': 'EXPLORATORY_PILOT'}).quantity_selected"
+  },
+  {
+    "module": "component3.tests.test_phase2_integration_and_hardening",
+    "test": "test_workflow_09_weighted_synthetic_hybrid",
+    "type": "failure",
+    "message": "assert False is True\n +  where False = <built-in method get of dict object at 0x000001EF43401940>('source_retention_preserved')\n +    where <built-in method get of dict object at 0x000001EF43401940> = {'source_f1': None, 'source_delta': None, 'source_retention_delta': None, 'source_retention_preserved': False, ...}.get\n +      where {'source_f1': None, 'source_delta': None, 'source_retention_delta': None, 'source_retention_preserved': False, ...} = RepairPackage(package_id='PKG-9D474943AB07', schema_version='1.0.0', request_id='WF09-HYBRID', run_id='RUN-9E078113C2'...ld (0.350)']\"]}], 'decision_mode': 'RULE_BASED', 'predicted_delta_f1': None, 'evidence_strength': 'EXPLORATORY_PILOT'}).source_retention_metrics"
+  },
+  {
+    "module": "component3.tests.test_phase3_scientific_validation",
+    "test": "test_adaptation_splits_disjointness_and_files",
+    "type": "failure",
+    "message": "AssertionError: File D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\adaptation_splits\\uci_adult_full_source_train.csv missing\nassert False\n +  where False = is_file()\n +    where is_file = WindowsPath('D:/SLIIT_Research/J26-DS-361-Intelligent-MLOps-Platform/component3/results/adaptation_splits/uci_adult_full_source_train.csv').is_file"
+  },
+  {
+    "module": "component3.tests.test_phase3_scientific_validation",
+    "test": "test_learned_prescription_model_ood_detection",
+    "type": "failure",
+    "message": "FileNotFoundError: Learned prescription model not found at: D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\models\\prescription\\learned_prescription_model.joblib"
+  },
+  {
+    "module": "component3.tests.test_phase3_scientific_validation",
+    "test": "test_learned_prescription_mode_toggle",
+    "type": "failure",
+    "message": "AssertionError: assert <DecisionMode... 'RULE_BASED'> == <DecisionMode...ED: 'LEARNED'>\n  \n  - LEARNED\n  + RULE_BASED"
+  },
+  {
+    "module": "component3.tests.test_phase3_scientific_validation",
+    "test": "test_phase3_demonstration_execution",
+    "type": "failure",
+    "message": "AssertionError"
+  },
+  {
+    "module": "component3.tests.test_phase4_completion_and_hardening",
+    "test": "test_api_prescribe_and_status",
+    "type": "failure",
+    "message": "AssertionError: assert 'RULE_BASED' == 'LEARNED'\n  \n  - LEARNED\n  + RULE_BASED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_readiness_across_drift_scenarios[S01]",
+    "type": "failure",
+    "message": "AssertionError: assert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...IEW: 'REVIEW'>\n  \n  - REVIEW\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_readiness_across_drift_scenarios[S03]",
+    "type": "failure",
+    "message": "AssertionError: assert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...IEW: 'REVIEW'>\n  \n  - REVIEW\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_readiness_across_drift_scenarios[S04]",
+    "type": "failure",
+    "message": "AssertionError: assert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...IEW: 'REVIEW'>\n  \n  - REVIEW\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_readiness_across_drift_scenarios[S05]",
+    "type": "failure",
+    "message": "AssertionError: assert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...IEW: 'REVIEW'>\n  \n  - REVIEW\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_readiness_across_drift_scenarios[S06]",
+    "type": "failure",
+    "message": "AssertionError: assert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...IEW: 'REVIEW'>\n  \n  - REVIEW\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_readiness_across_drift_scenarios[S07]",
+    "type": "failure",
+    "message": "AssertionError: assert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...IEW: 'REVIEW'>\n  \n  - REVIEW\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_readiness_decision_json_serialization",
+    "type": "failure",
+    "message": "AssertionError: assert 'BLOCKED' == 'REVIEW'\n  \n  - REVIEW\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_readiness_failure_conditions[small_reference-BLOCKED-INSUFFICIENT_REFERENCE_ROWS]",
+    "type": "failure",
+    "message": "AssertionError: assert <ReadinessReason.INSUFFICIENT_REFERENCE_ROWS: 'INSUFFICIENT_REFERENCE_ROWS'> in (<ReadinessReason.CROSS_COMPONENT_INCONSISTENCY: 'CROSS_COMPONENT_INCONSISTENCY'>,)\n +  where (<ReadinessReason.CROSS_COMPONENT_INCONSISTENCY: 'CROSS_COMPONENT_INCONSISTENCY'>,) = ReadinessDecision(status=<ReadinessStatus.BLOCKED: 'BLOCKED'>, reason_codes=(<ReadinessReason.CROSS_COMPONENT_INCONSIS...training_ready=False, warnings=('C2 slice_support (0.057000) does not match actual current data support (0.056833).',)).reason_codes"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_readiness_failure_conditions[insufficient_slice-BLOCKED-INSUFFICIENT_AFFECTED_SLICE]",
+    "type": "failure",
+    "message": "AssertionError: assert <ReadinessReason.INSUFFICIENT_AFFECTED_SLICE: 'INSUFFICIENT_AFFECTED_SLICE'> in (<ReadinessReason.CROSS_COMPONENT_INCONSISTENCY: 'CROSS_COMPONENT_INCONSISTENCY'>,)\n +  where (<ReadinessReason.CROSS_COMPONENT_INCONSISTENCY: 'CROSS_COMPONENT_INCONSISTENCY'>,) = ReadinessDecision(status=<ReadinessStatus.BLOCKED: 'BLOCKED'>, reason_codes=(<ReadinessReason.CROSS_COMPONENT_INCONSIS...training_ready=False, warnings=('C2 slice_support (0.057000) does not match actual current data support (0.056833).',)).reason_codes"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_readiness_failure_conditions[low_stability-REVIEW-LOW_DIAGNOSIS_STABILITY]",
+    "type": "failure",
+    "message": "AssertionError: assert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...IEW: 'REVIEW'>\n  \n  - REVIEW\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_malformed_inputs_and_warnings[category_mismatch_warning-REVIEW-CROSS_COMPONENT_INCONSISTENCY]",
+    "type": "failure",
+    "message": "AssertionError: assert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...IEW: 'REVIEW'>\n  \n  - REVIEW\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_label_provenance_safety[missing_provenance-None-True-REVIEW-True-False]",
+    "type": "failure",
+    "message": "AssertionError: missing_provenance\nassert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...IEW: 'REVIEW'>\n  \n  - REVIEW\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_label_provenance_safety[labels_unavailable-provenance1-True-REVIEW-True-False]",
+    "type": "failure",
+    "message": "AssertionError: labels_unavailable\nassert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...IEW: 'REVIEW'>\n  \n  - REVIEW\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_label_provenance_safety[unverified_labels-provenance2-True-REVIEW-True-False]",
+    "type": "failure",
+    "message": "AssertionError: unverified_labels\nassert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...IEW: 'REVIEW'>\n  \n  - REVIEW\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_label_provenance_safety[untrusted_labels-provenance3-True-REVIEW-True-False]",
+    "type": "failure",
+    "message": "AssertionError: untrusted_labels\nassert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...IEW: 'REVIEW'>\n  \n  - REVIEW\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_label_provenance_safety[verified_trusted_labels-provenance4-True-READY-True-True]",
+    "type": "failure",
+    "message": "AssertionError: verified_trusted_labels\nassert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...EADY: 'READY'>\n  \n  - READY\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_label_provenance_safety[verified_labels_unlabeled_disallowed-provenance6-False-READY-True-True]",
+    "type": "failure",
+    "message": "AssertionError: verified_labels_unlabeled_disallowed\nassert <ReadinessSta...ED: 'BLOCKED'> == <ReadinessSta...EADY: 'READY'>\n  \n  - READY\n  + BLOCKED"
+  },
+  {
+    "module": "component3.tests.test_readiness_engine",
+    "test": "test_critical_failure_takes_priority_over_review",
+    "type": "failure",
+    "message": "AssertionError: assert <ReadinessReason.INSUFFICIENT_CURRENT_ROWS: 'INSUFFICIENT_CURRENT_ROWS'> in (<ReadinessReason.CROSS_COMPONENT_INCONSISTENCY: 'CROSS_COMPONENT_INCONSISTENCY'>,)\n +  where <ReadinessReason.INSUFFICIENT_CURRENT_ROWS: 'INSUFFICIENT_CURRENT_ROWS'> = ReadinessReason.INSUFFICIENT_CURRENT_ROWS\n +  and   (<ReadinessReason.CROSS_COMPONENT_INCONSISTENCY: 'CROSS_COMPONENT_INCONSISTENCY'>,) = ReadinessDecision(status=<ReadinessStatus.BLOCKED: 'BLOCKED'>, reason_codes=(<ReadinessReason.CROSS_COMPONENT_INCONSIS...training_ready=False, warnings=('C2 slice_support (0.057000) does not match actual current data support (0.056833).',)).reason_codes"
+  },
+  {
+    "module": "component3.tests.test_synthetic_augmentation_evaluation",
+    "test": "test_random_forest_hyperparameters_matched",
+    "type": "failure",
+    "message": "AssertionError: Repaired model missing at D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\models\\repair\\telco_churn_rf_track_a_arm_a2.joblib\nassert False\n +  where False = exists()\n +    where exists = WindowsPath('D:/SLIIT_Research/J26-DS-361-Intelligent-MLOps-Platform/component3/models/repair/telco_churn_rf_track_a_arm_a2.joblib').exists"
+  },
+  {
+    "module": "component3.tests.test_synthetic_repair_benchmark",
+    "test": "test_candidate_csv_validity_and_funnel",
+    "type": "failure",
+    "message": "AssertionError: Missing candidate CSV: D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\results\\experimental_models\\batch05k_candidates_tvae_k50.csv\nassert False\n +  where False = is_file()\n +    where is_file = WindowsPath('D:/SLIIT_Research/J26-DS-361-Intelligent-MLOps-Platform/component3/results/experimental_models/batch05k_candidates_tvae_k50.csv').is_file"
+  },
+  {
+    "module": "component3.tests.test_synthetic_repair_benchmark",
+    "test": "test_downstream_models_exist_and_frozen",
+    "type": "failure",
+    "message": "AssertionError: Missing model: D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\component3\\models\\experimental\\telco_rf_experimental_s1_tvae_k50.joblib\nassert False\n +  where False = is_file()\n +    where is_file = WindowsPath('D:/SLIIT_Research/J26-DS-361-Intelligent-MLOps-Platform/component3/models/experimental/telco_rf_experimental_s1_tvae_k50.joblib').is_file"
+  },
+  {
+    "module": "component3.tests.test_synthetic_repair_benchmark",
+    "test": "test_predictions_audit_completeness",
+    "type": "failure",
+    "message": "AssertionError: assert False\n +  where False = is_file()\n +    where is_file = WindowsPath('D:/SLIIT_Research/J26-DS-361-Intelligent-MLOps-Platform/component3/results/experimental_models/batch05k_repair_benchmark_predictions_audit.csv').is_file"
+  },
+  {
+    "module": "component3.tests.test_system_audit_scenarios",
+    "test": "test_scenario_a_successful_repair",
+    "type": "failure",
+    "message": "AssertionError: assert <RepairPackag...ED_NO_REPAIR'> == <RepairPackag...D_FOR_REVIEW'>\n  \n  - APPROVED_FOR_REVIEW\n  + ABSTAINED_NO_REPAIR"
+  },
+  {
+    "module": "component3.tests.test_system_audit_scenarios",
+    "test": "test_scenario_c_candidate_rejection",
+    "type": "failure",
+    "message": "component3.src.contracts.external_contracts.ContractValidationError: Integrated repair does not accept cached/pre-generated candidates. Use the research orchestrator explicitly for experiments."
+  },
+  {
+    "module": "component3.tests.test_system_audit_scenarios",
+    "test": "test_scenario_e_malformed_contract_and_numeric_bounds",
+    "type": "failure",
+    "message": "assert True is False"
+  },
+  {
+    "module": "component3.tests.test_system_audit_scenarios",
+    "test": "test_scenario_h1_approved_artifact_integrity",
+    "type": "failure",
+    "message": "AssertionError: assert <RepairPackag...ED_NO_REPAIR'> == <RepairPackag...D_FOR_REVIEW'>\n  \n  - APPROVED_FOR_REVIEW\n  + ABSTAINED_NO_REPAIR"
+  },
+  {
+    "module": "component3.tests.test_system_audit_scenarios",
+    "test": "test_scenario_h2_rejected_package_no_approved_artifact",
+    "type": "failure",
+    "message": "component3.src.contracts.external_contracts.ContractValidationError: Integrated repair does not accept cached/pre-generated candidates. Use the research orchestrator explicitly for experiments."
+  },
+  {
+    "module": "component3.tests.test_targeted_weighted_repair",
+    "test": "test_budget_parity_and_hyperparameters",
+    "type": "failure",
+    "message": "AssertionError: Missing model artifact: telco_rf_b2_b200_k50.joblib\nassert False\n +  where False = is_file()\n +    where is_file = WindowsPath('D:/SLIIT_Research/J26-DS-361-Intelligent-MLOps-Platform/component3/models/experimental/telco_rf_b2_b200_k50.joblib').is_file"
+  },
+  {
+    "module": "component3.tests.test_targeted_weighted_repair",
+    "test": "test_metric_and_prediction_parity_batch05l",
+    "type": "failure",
+    "message": "AssertionError: assert False\n +  where False = is_file()\n +    where is_file = WindowsPath('D:/SLIIT_Research/J26-DS-361-Intelligent-MLOps-Platform/component3/results/experimental_models/batch05l_weighted_repair_predictions_audit.csv').is_file"
+  }
+]

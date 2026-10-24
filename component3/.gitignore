@@ -16,6 +16,9 @@
 # Ignore local colab workspace, temporary checkpoints, and serialized models
 colab_workspace/
 models/
+# Keep model-registry Python source; only serialized model artifacts are private.
+!src/models/
+!src/models/*.py
 results/checkpoints/
 results/repair_experiments/
 *.joblib

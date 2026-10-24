@@ -1,0 +1,795 @@
+{
+  "protocol": "One fixed training comparison on a saved real upstream batch, without an evaluation search.\n\nThe old 20-epoch configuration receives quality/privacy screening only. The\npredeclared improved configuration gets one independent utility evaluation if\nit passes the unchanged gates. This is not a search for a favourable seed.\n",
+  "parent_pipeline_run_id": "adfad83442f3",
+  "c2": {
+    "root_cause_feature": "relationship",
+    "root_cause_category": "marginal",
+    "affected_slice_rule": "relationship == 2 and education_num > -0.4179650267872039",
+    "affected_features_ranked": [
+      "relationship",
+      "sex",
+      "age"
+    ],
+    "affected_value_ranges": {
+      "relationship": [
+        2
+      ]
+    },
+    "slice_support": 0.4385,
+    "diagnosis_stability": 1.0,
+    "drift_impact_score": 0.8079,
+    "temporal_window": 1
+  },
+  "baseline": {
+    "generation": {
+      "requested_generator": "CTGAN",
+      "executed_generator": "ctgan",
+      "seed": 42,
+      "num_requested_samples": 60,
+      "retries_attempted": 0,
+      "fallback_used": false,
+      "fit_duration_seconds": 4.642,
+      "sample_duration_seconds": 0.051,
+      "training_configuration": {
+        "epochs": 20,
+        "batch_size": 500
+      },
+      "training_rows": 200,
+      "num_produced_samples": 60
+    },
+    "fidelity": {
+      "stage": "fidelity",
+      "status": "FAIL",
+      "metrics": {
+        "synthetic_rows": 60,
+        "reference_rows": 200,
+        "continuous_metrics": {
+          "age": {
+            "ref_mean": 0.7335162780051044,
+            "syn_mean": 0.4365436662293544,
+            "mean_abs_diff": 0.29697261177575,
+            "ref_std": 0.9486323451613808,
+            "syn_std": 1.19118764500929,
+            "std_abs_diff": 0.24255529984790913,
+            "ks_statistic": 0.18666666666666668,
+            "ks_pvalue": 0.07072648110917851,
+            "wasserstein_distance": 0.3745838362889114,
+            "normalized_wasserstein_distance": 0.39486724040090304,
+            "quantile_diffs": {
+              "q25_diff": 0.3349046560800176,
+              "q50_diff": 0.3534316151347095,
+              "q75_diff": 0.37692672844035213
+            },
+            "boundary_concentration": 0.16666666666666666
+          },
+          "education_num": {
+            "ref_mean": 0.6175978335936065,
+            "syn_mean": 0.30826490188122907,
+            "mean_abs_diff": 0.30933293171237747,
+            "ref_std": 0.668765196290887,
+            "syn_std": 0.7135441968488436,
+            "std_abs_diff": 0.04477900055795658,
+            "ks_statistic": 0.43333333333333335,
+            "ks_pvalue": 2.5513967148325877e-08,
+            "wasserstein_distance": 0.3154860887760121,
+            "normalized_wasserstein_distance": 0.4717441794605409,
+            "quantile_diffs": {
+              "q25_diff": 0.1258999070514848,
+              "q50_diff": 0.3371363070763152,
+              "q75_diff": 0.2408512040586659
+            },
+            "boundary_concentration": 0.45
+          },
+          "capital_gain": {
+            "ref_mean": 0.007699984379263838,
+            "syn_mean": 1.487238435038455,
+            "mean_abs_diff": 1.4795384506591913,
+            "ref_std": 1.0142412396454934,
+            "syn_std": 4.2732017408307765,
+            "std_abs_diff": 3.258960501185283,
+            "ks_statistic": 0.8216666666666667,
+            "ks_pvalue": 1.286654451874155e-32,
+            "wasserstein_distance": 1.489314395798175,
+            "normalized_wasserstein_distance": 1.468402523564052,
+            "quantile_diffs": {
+              "q25_diff": 0.054400833277531285,
+              "q50_diff": 0.13563441405743693,
+              "q75_diff": 0.21491816510517903
+            },
+            "boundary_concentration": 0.13333333333333333
+          },
+          "capital_loss": {
+            "ref_mean": -0.01883139332899706,
+            "syn_mean": 0.4272311800869962,
+            "mean_abs_diff": 0.44606257341599326,
+            "ref_std": 0.9687608418475453,
+            "syn_std": 1.8288442019993252,
+            "std_abs_diff": 0.8600833601517799,
+            "ks_statistic": 0.48833333333333334,
+            "ks_pvalue": 1.5298669238652437e-10,
+            "wasserstein_distance": 0.5768324358378508,
+            "normalized_wasserstein_distance": 0.5954332699263122,
+            "quantile_diffs": {
+              "q25_diff": 0.07298313494954656,
+              "q50_diff": 0.013502110994246863,
+              "q75_diff": 0.10584390228926051
+            },
+            "boundary_concentration": 0.5
+          },
+          "hours_per_week": {
+            "ref_mean": -0.01858105194469961,
+            "syn_mean": 0.4273846441690849,
+            "mean_abs_diff": 0.4459656961137845,
+            "ref_std": 1.010849928194245,
+            "syn_std": 1.2319687004560695,
+            "std_abs_diff": 0.22111877226182464,
+            "ks_statistic": 0.395,
+            "ks_pvalue": 5.949285633579777e-07,
+            "wasserstein_distance": 0.4684722167445334,
+            "normalized_wasserstein_distance": 0.4634438838823479,
+            "quantile_diffs": {
+              "q25_diff": 0.23593828700753405,
+              "q50_diff": 0.25891789902139567,
+              "q75_diff": 0.6846528757449623
+            },
+            "boundary_concentration": 0.016666666666666666
+          }
+        },
+        "categorical_metrics": {
+          "workclass": {
+            "total_variation_distance": 0.395,
+            "js_divergence": 0.12050440245339344,
+            "category_coverage": 1.0,
+            "unseen_categories": []
+          },
+          "marital_status": {
+            "total_variation_distance": 0.18833333333333335,
+            "js_divergence": 0.061876318289723245,
+            "category_coverage": 1.0,
+            "unseen_categories": []
+          },
+          "occupation": {
+            "total_variation_distance": 0.27,
+            "js_divergence": 0.10589500382954814,
+            "category_coverage": 1.0,
+            "unseen_categories": []
+          },
+          "relationship": {
+            "total_variation_distance": 0.0,
+            "js_divergence": 0.0,
+            "category_coverage": 1.0,
+            "unseen_categories": []
+          },
+          "race": {
+            "total_variation_distance": 0.33333333333333337,
+            "js_divergence": 0.11747438635485205,
+            "category_coverage": 1.0,
+            "unseen_categories": []
+          },
+          "sex": {
+            "total_variation_distance": 0.04666666666666665,
+            "js_divergence": 0.0032107350446319806,
+            "category_coverage": 1.0,
+            "unseen_categories": []
+          },
+          "native_country": {
+            "total_variation_distance": 0.3783333333333334,
+            "js_divergence": 0.1867563443074814,
+            "category_coverage": 1.0,
+            "unseen_categories": []
+          },
+          "target": {
+            "total_variation_distance": 0.08499999999999999,
+            "js_divergence": 0.00631299458191582,
+            "category_coverage": 1.0,
+            "unseen_categories": []
+          }
+        },
+        "correlation_difference": {
+          "mean_absolute_difference": 0.1549388636027902,
+          "max_absolute_difference": 0.35112696058750176,
+          "frobenius_norm": 0.8200224660381679
+        },
+        "diversity_metrics": {
+          "duplicate_count": 0,
+          "duplicate_ratio": 0.0,
+          "unique_record_ratio": 1.0
+        },
+        "continuous_metrics_summary": {
+          "mean_ks_statistic": 0.465,
+          "mean_normalized_wasserstein": 0.6787782194468313
+        },
+        "categorical_metrics_summary": {
+          "mean_js_divergence": 0.07525377310769325,
+          "mean_total_variation_distance": 0.21208333333333335
+        },
+        "fidelity_score": 0.7941
+      },
+      "reasons": [
+        "Mean KS statistic (0.465) exceeds threshold (0.350)"
+      ]
+    },
+    "privacy": {
+      "stage": "privacy",
+      "status": "PASS",
+      "metrics": {
+        "synthetic_rows": 60,
+        "reference_rows": 19685,
+        "exact_matches": {
+          "exact_match_count": 0,
+          "exact_match_ratio": 0.0,
+          "max_allowable_ratio": 0.0
+        },
+        "dcr_metrics": {
+          "dcr_min": 0.0378,
+          "dcr_p05": 0.1052,
+          "dcr_p50": 0.3948,
+          "dcr_mean": 0.3499,
+          "near_duplicate_count": 0,
+          "near_duplicate_ratio": 0.0,
+          "min_dcr_p05_threshold": 0.05,
+          "max_near_duplicate_ratio": 0.0
+        },
+        "holdout_comparison": null
+      },
+      "reasons": []
+    },
+    "utility": "Not evaluated; baseline used for training diagnostics only."
+  },
+  "candidate": {
+    "repair_dataset_uri": "NONE",
+    "repair_package_status": "REJECTED",
+    "generator": "CTGAN",
+    "n_synthetic_rows": 0,
+    "augmentation_ratio": 0.0,
+    "fidelity_score": 0.9412,
+    "utility_score": 0.0,
+    "privacy_status": "FAIL",
+    "target_coverage": 1.0,
+    "prescription_confidence": 1.0,
+    "repair_version": "c3-552f9593",
+    "repair_timestamp": "2026-10-23T19:22:20.782429+00:00",
+    "run_id": "c3-6ae6471a38e9450e85b523c47083437e",
+    "package_id": "PKG-A977B7FBDA3D",
+    "reason": "5th percentile DCR (0.0326) is below threshold (0.0500), indicating possible memorization",
+    "execution_status": "REJECTED",
+    "validation_report": {
+      "structure": {
+        "passed": true
+      },
+      "target_coverage": 1.0,
+      "fidelity_report": {
+        "stage": "fidelity",
+        "status": "PASS",
+        "metrics": {
+          "synthetic_rows": 60,
+          "reference_rows": 200,
+          "continuous_metrics": {
+            "age": {
+              "ref_mean": 0.7335162780051044,
+              "syn_mean": 0.9435749881539642,
+              "mean_abs_diff": 0.2100587101488598,
+              "ref_std": 0.9486323451613808,
+              "syn_std": 1.049829194346706,
+              "std_abs_diff": 0.10119684918532512,
+              "ks_statistic": 0.13166666666666665,
+              "ks_pvalue": 0.369477545261613,
+              "wasserstein_distance": 0.21061309312042412,
+              "normalized_wasserstein_distance": 0.2220176174623212,
+              "quantile_diffs": {
+                "q25_diff": 0.15459969016666783,
+                "q50_diff": 0.08362731637087628,
+                "q75_diff": 0.002441581869875531
+              },
+              "boundary_concentration": 0.03333333333333333
+            },
+            "education_num": {
+              "ref_mean": 0.6175978335936065,
+              "syn_mean": 0.7369617770019867,
+              "mean_abs_diff": 0.11936394340838019,
+              "ref_std": 0.668765196290887,
+              "syn_std": 0.7320668630401891,
+              "std_abs_diff": 0.06330166674930204,
+              "ks_statistic": 0.09666666666666666,
+              "ks_pvalue": 0.746379300677259,
+              "wasserstein_distance": 0.11936394340838,
+              "normalized_wasserstein_distance": 0.17848408390627626,
+              "quantile_diffs": {
+                "q25_diff": 0.0,
+                "q50_diff": 0.38712630294609734,
+                "q75_diff": 0.0
+              },
+              "boundary_concentration": 0.43333333333333335
+            },
+            "capital_gain": {
+              "ref_mean": 0.007699984379263838,
+              "syn_mean": 0.21412730372029856,
+              "mean_abs_diff": 0.20642731934103473,
+              "ref_std": 1.0142412396454934,
+              "syn_std": 1.79967183334817,
+              "std_abs_diff": 0.7854305937026766,
+              "ks_statistic": 0.07166666666666667,
+              "ks_pvalue": 0.9583898954424952,
+              "wasserstein_distance": 0.2064273193410353,
+              "normalized_wasserstein_distance": 0.20352881668782036,
+              "quantile_diffs": {
+                "q25_diff": 0.0,
+                "q50_diff": 0.0,
+                "q75_diff": 0.0
+              },
+              "boundary_concentration": 0.85
+            },
+            "capital_loss": {
+              "ref_mean": -0.01883139332899706,
+              "syn_mean": -0.010929687267908883,
+              "mean_abs_diff": 0.007901706061088178,
+              "ref_std": 0.9687608418475453,
+              "syn_std": 0.907410058633647,
+              "std_abs_diff": 0.06135078321389831,
+              "ks_statistic": 0.025,
+              "ks_pvalue": 0.9999999999999923,
+              "wasserstein_distance": 0.07138697569564334,
+              "normalized_wasserstein_distance": 0.07368895666705484,
+              "quantile_diffs": {
+                "q25_diff": 0.0,
+                "q50_diff": 0.0,
+                "q75_diff": 0.0
+              },
+              "boundary_concentration": 0.95
+            },
+            "hours_per_week": {
+              "ref_mean": -0.01858105194469961,
+              "syn_mean": 0.04852921442461987,
+              "mean_abs_diff": 0.06711026636931948,
+              "ref_std": 1.010849928194245,
+              "syn_std": 1.1022398335899843,
+              "std_abs_diff": 0.09138990539573943,
+              "ks_statistic": 0.08833333333333333,
+              "ks_pvalue": 0.8340838081212166,
+              "wasserstein_distance": 0.1814661602626399,
+              "normalized_wasserstein_distance": 0.17951839852905382,
+              "quantile_diffs": {
+                "q25_diff": 0.04026615982159165,
+                "q50_diff": 0.0,
+                "q75_diff": 0.40266159821591696
+              },
+              "boundary_concentration": 0.0
+            }
+          },
+          "categorical_metrics": {
+            "workclass": {
+              "total_variation_distance": 0.06333333333333332,
+              "js_divergence": 0.006244762181536388,
+              "category_coverage": 1.0,
+              "unseen_categories": []
+            },
+            "marital_status": {
+              "total_variation_distance": 0.0883333333333333,
+              "js_divergence": 0.00989283512954861,
+              "category_coverage": 1.0,
+              "unseen_categories": []
+            },
+            "occupation": {
+              "total_variation_distance": 0.17166666666666666,
+              "js_divergence": 0.058352827203259156,
+              "category_coverage": 0.8333333333333334,
+              "unseen_categories": []
+            },
+            "relationship": {
+              "total_variation_distance": 0.0,
+              "js_divergence": 0.0,
+              "category_coverage": 1.0,
+              "unseen_categories": []
+            },
+            "race": {
+              "total_variation_distance": 0.016666666666666666,
+              "js_divergence": 0.0041381642910404215,
+              "category_coverage": 0.8,
+              "unseen_categories": []
+            },
+            "sex": {
+              "total_variation_distance": 0.020000000000000004,
+              "js_divergence": 0.0007377287262051996,
+              "category_coverage": 1.0,
+              "unseen_categories": []
+            },
+            "native_country": {
+              "total_variation_distance": 0.044999999999999984,
+              "js_divergence": 0.0069711486896173805,
+              "category_coverage": 0.6,
+              "unseen_categories": []
+            },
+            "target": {
+              "total_variation_distance": 0.0016666666666666496,
+              "js_divergence": 2.2514055325376316e-06,
+              "category_coverage": 1.0,
+              "unseen_categories": []
+            }
+          },
+          "correlation_difference": {
+            "mean_absolute_difference": 0.16562315314957154,
+            "max_absolute_difference": 0.3368720600063824,
+            "frobenius_norm": 0.8528564044540201
+          },
+          "diversity_metrics": {
+            "duplicate_count": 0,
+            "duplicate_ratio": 0.0,
+            "unique_record_ratio": 1.0
+          },
+          "continuous_metrics_summary": {
+            "mean_ks_statistic": 0.08266666666666667,
+            "mean_normalized_wasserstein": 0.1714475746505053
+          },
+          "categorical_metrics_summary": {
+            "mean_js_divergence": 0.01079246470334246,
+            "mean_total_variation_distance": 0.05083333333333332
+          },
+          "fidelity_score": 0.9412
+        },
+        "reasons": []
+      },
+      "privacy_report": {
+        "stage": "privacy",
+        "status": "FAIL",
+        "metrics": {
+          "synthetic_rows": 60,
+          "reference_rows": 19685,
+          "exact_matches": {
+            "exact_match_count": 0,
+            "exact_match_ratio": 0.0,
+            "max_allowable_ratio": 0.0
+          },
+          "dcr_metrics": {
+            "dcr_min": 0.0131,
+            "dcr_p05": 0.0326,
+            "dcr_p50": 0.126,
+            "dcr_mean": 0.1811,
+            "near_duplicate_count": 0,
+            "near_duplicate_ratio": 0.0,
+            "min_dcr_p05_threshold": 0.05,
+            "max_near_duplicate_ratio": 0.0
+          },
+          "holdout_comparison": null
+        },
+        "reasons": [
+          "5th percentile DCR (0.0326) is below threshold (0.0500), indicating possible memorization"
+        ]
+      }
+    },
+    "readiness_passed": true,
+    "readiness_reason": "5th percentile DCR (0.0326) is below threshold (0.0500), indicating possible memorization",
+    "preview_rows": [],
+    "preview_columns": [],
+    "download_url": null,
+    "upstream_evidence": {
+      "c1": {
+        "evidence_version": "c1-a4d4dedc",
+        "engine_version": "1.2.3",
+        "model_id": "adult-xgb-v1",
+        "reference_dataset_uri": "",
+        "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_70628f7169.csv",
+        "batch_size": 2000,
+        "drift_detected": true,
+        "predicted_harm": 0.0395,
+        "harm_interval": [
+          -0.0182,
+          0.0971
+        ],
+        "harm_metric": "accuracy_drop",
+        "harm_severity": "moderate",
+        "marginal_extent": "multi",
+        "interaction_suspected": 0.0021,
+        "affected_features": [
+          "relationship",
+          "sex",
+          "age",
+          "native_country"
+        ],
+        "detector_scores": {
+          "ks_mean": 0.0667,
+          "ks_max": 0.2951,
+          "chi2_mean": 0.3096,
+          "chi2_max": 0.8188,
+          "psi_mean": 1.177,
+          "psi_max": 7.1687,
+          "mmd": 0.1582,
+          "lsdd": 0.2849,
+          "clf_auc": 0.9955
+        },
+        "detectors_fired": 6,
+        "detectors_fired_list": [
+          "ks",
+          "chi2",
+          "psi",
+          "mmd",
+          "lsdd",
+          "classifier"
+        ],
+        "prediction_stats": {
+          "conf_mean": 0.901,
+          "conf_std": 0.1241,
+          "conf_pct_lt_06": 0.043,
+          "mean_pos_prob": 0.1587,
+          "pos_prob_std": 0.2442,
+          "pct_pos_prob_lt_06": 0.92
+        },
+        "warnings": [],
+        "runtime_sec": 1.713
+      },
+      "c2": {
+        "root_cause_feature": "relationship",
+        "root_cause_category": "marginal",
+        "affected_slice_rule": "relationship == 2 and education_num > -0.4179650267872039",
+        "affected_features_ranked": [
+          "relationship",
+          "sex",
+          "age"
+        ],
+        "affected_value_ranges": {
+          "relationship": [
+            2
+          ]
+        },
+        "slice_support": 0.4385,
+        "diagnosis_stability": 1.0,
+        "drift_impact_score": 0.8079,
+        "temporal_window": 1
+      }
+    },
+    "provenance": {
+      "mode": "integrated",
+      "artifact_sha256": {
+        "reference_dataset": "84cbc88cbfac5567a3954445aa8b154d58644d6eef3b43c24eec9fd547474ad3",
+        "current_dataset": "c34885a20a825391c5f9bad12a3305ce09d5d4985568374e6d508db36fa08c74",
+        "model": "02c1f225867bb001f143305625e671fee56698974a2dc509472bfe2c2f75cfc9"
+      },
+      "artifact_paths": {
+        "reference_dataset": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\uci\\reference.csv",
+        "current_dataset": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_70628f7169.csv",
+        "model": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\c2\\base_model_adult.pkl"
+      },
+      "original_c1": {
+        "evidence_version": "c1-a4d4dedc",
+        "engine_version": "1.2.3",
+        "model_id": "adult-xgb-v1",
+        "reference_dataset_uri": "",
+        "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_70628f7169.csv",
+        "batch_size": 2000,
+        "drift_detected": true,
+        "predicted_harm": 0.0395,
+        "harm_interval": [
+          -0.0182,
+          0.0971
+        ],
+        "harm_metric": "accuracy_drop",
+        "harm_severity": "moderate",
+        "marginal_extent": "multi",
+        "interaction_suspected": 0.0021,
+        "affected_features": [
+          "relationship",
+          "sex",
+          "age",
+          "native_country"
+        ],
+        "detector_scores": {
+          "ks_mean": 0.0667,
+          "ks_max": 0.2951,
+          "chi2_mean": 0.3096,
+          "chi2_max": 0.8188,
+          "psi_mean": 1.177,
+          "psi_max": 7.1687,
+          "mmd": 0.1582,
+          "lsdd": 0.2849,
+          "clf_auc": 0.9955
+        },
+        "detectors_fired": 6,
+        "detectors_fired_list": [
+          "ks",
+          "chi2",
+          "psi",
+          "mmd",
+          "lsdd",
+          "classifier"
+        ],
+        "prediction_stats": {
+          "conf_mean": 0.901,
+          "conf_std": 0.1241,
+          "conf_pct_lt_06": 0.043,
+          "mean_pos_prob": 0.1587,
+          "pos_prob_std": 0.2442,
+          "pct_pos_prob_lt_06": 0.92
+        },
+        "warnings": [],
+        "runtime_sec": 1.713
+      },
+      "original_c2": {
+        "root_cause_feature": "relationship",
+        "root_cause_category": "marginal",
+        "affected_slice_rule": "relationship == 2 and education_num > -0.4179650267872039",
+        "affected_features_ranked": [
+          "relationship",
+          "sex",
+          "age"
+        ],
+        "affected_value_ranges": {
+          "relationship": [
+            2
+          ]
+        },
+        "slice_support": 0.4385,
+        "diagnosis_stability": 1.0,
+        "drift_impact_score": 0.8079,
+        "temporal_window": 1
+      },
+      "decision_mode": "RULE_BASED",
+      "seed": 42,
+      "pipeline_run_id": "training-study-a1c186da0af4",
+      "batch_id": "lab_70628f7169",
+      "drift_event_id": "c1-a4d4dedc",
+      "data_context": {
+        "model_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\c2\\base_model_adult.pkl",
+        "input_representation": "model_ready",
+        "feature_columns": [
+          "age",
+          "workclass",
+          "education_num",
+          "marital_status",
+          "occupation",
+          "relationship",
+          "race",
+          "sex",
+          "capital_gain",
+          "capital_loss",
+          "hours_per_week",
+          "native_country"
+        ],
+        "categorical_features": [
+          "workclass",
+          "marital_status",
+          "occupation",
+          "relationship",
+          "race",
+          "sex",
+          "native_country"
+        ],
+        "repair_metric": "accuracy",
+        "generator_epochs": 200,
+        "augmentation_ratio": 0.3,
+        "max_synthetic_rows": 1000,
+        "minimum_utility_gain": 0.01,
+        "fidelity_ks_max": 0.35,
+        "privacy_dcr_min": 0.05,
+        "max_near_duplicate_ratio": 0.0,
+        "control_utility_tolerance": 0.0,
+        "require_bootstrap_positive": true,
+        "min_diagnosis_stability": 0.5,
+        "generator_discrete_numeric_features": [
+          "age",
+          "education_num",
+          "capital_gain",
+          "capital_loss",
+          "hours_per_week"
+        ],
+        "dataset": "uci",
+        "batch_id": "lab_70628f7169",
+        "label_source": "drift_lab_ground_truth_available_to_c3_only",
+        "run_id": "training-study-a1c186da0af4",
+        "drift_event_id": "c1-a4d4dedc",
+        "parent_pipeline_run_id": "adfad83442f3",
+        "experiment_mode": "saved_real_c1_fresh_c2_training_remediation",
+        "model_id": "adult-xgb-v1",
+        "dataset_id": "uci",
+        "target_column": "target",
+        "label_status": "AVAILABLE",
+        "preprocessing_uri": null,
+        "adaptation_budget_size": 200,
+        "source_retention_tolerance": 0.05,
+        "positive_label": 1
+      },
+      "model_class": "xgboost.sklearn.XGBClassifier",
+      "quality_thresholds": {
+        "fidelity_ks_max": 0.35,
+        "privacy_dcr_min": 0.05,
+        "minimum_utility_gain": 0.01,
+        "target_coverage_min": 0.8,
+        "max_near_duplicate_ratio": 0.0,
+        "source_retention_tolerance": 0.05
+      },
+      "generator_configuration": {
+        "epochs": 200,
+        "batch_size": 100,
+        "requested_rows": 60,
+        "discrete_numeric_features": [
+          "age",
+          "education_num",
+          "capital_gain",
+          "capital_loss",
+          "hours_per_week"
+        ],
+        "selection_mode": "automatic"
+      },
+      "observed_slice_support": 0.4385,
+      "metric": "accuracy",
+      "prescription_confidence": 1.0,
+      "prescription_policy": "Rule based: categorical root cause selects CTGAN; combined diagnosis selects TabDDPM; otherwise TVAE. An explicit generator may be requested.",
+      "requested_augmentation_ratio": 0.3,
+      "label_policy": "Budgeted current adaptation labels plus independent labelled evaluation; full current labels are optional when both sample artifacts are supplied.",
+      "labelled_current_adaptation_rows_used": 200,
+      "labelled_target_evaluation_rows_used": 500,
+      "feature_columns": [
+        "age",
+        "workclass",
+        "education_num",
+        "marital_status",
+        "occupation",
+        "relationship",
+        "race",
+        "sex",
+        "capital_gain",
+        "capital_loss",
+        "hours_per_week",
+        "native_country"
+      ],
+      "categorical_features": [
+        "workclass",
+        "marital_status",
+        "occupation",
+        "relationship",
+        "race",
+        "sex",
+        "native_country"
+      ],
+      "partition_rows": {
+        "source_train": 19485,
+        "source_eval": 6563,
+        "adaptation": 200,
+        "evaluation": 500,
+        "generator_training_slice": 200,
+        "reference_current_overlap_excluded": 0
+      },
+      "partition_seeds": {
+        "source": 42,
+        "current": 43,
+        "adaptation_budget": 44
+      },
+      "evaluation_provenance": {
+        "target": "derived current holdout",
+        "source": "derived reference holdout",
+        "original_model_training_overlap": "Must be checked by the model/data owner; C3 checks candidate-training overlap."
+      },
+      "evaluation_policy": "single candidate; independent rows; no evaluation-driven generator search",
+      "generated_rows": 60
+    },
+    "model_id": "adult-xgb-v1",
+    "dataset_id": "uci",
+    "pipeline_run_id": "training-study-a1c186da0af4",
+    "batch_id": "lab_70628f7169",
+    "utility_metrics": {},
+    "source_retention_metrics": {},
+    "execution_log": {
+      "run_id": "c3-6ae6471a38e9450e85b523c47083437e",
+      "request_id": "REQ-ec7ce37eb6b74769b7c26490552f9593",
+      "current_state": "REJECTED",
+      "transitions": [
+        {
+          "from_state": "VALIDATING",
+          "to_state": "GENERATING",
+          "timestamp_utc": "2026-10-23T19:22:21.038445+00:00",
+          "detail": "Training CTGAN on actual current diagnosed slice"
+        },
+        {
+          "from_state": "GENERATING",
+          "to_state": "REJECTED",
+          "timestamp_utc": "2026-10-23T19:22:54.972221+00:00",
+          "detail": "5th percentile DCR (0.0326) is below threshold (0.0500), indicating possible memorization"
+        }
+      ],
+      "stage_durations": {
+        "total_pipeline_seconds": 34.19
+      },
+      "error_message": null,
+      "package_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_repairs\\c3-6ae6471a38e9450e85b523c47083437e\\pkg-a977b7fbda3d_manifest.json"
+    }
+  },
+  "elapsed_seconds": 46.084
+}

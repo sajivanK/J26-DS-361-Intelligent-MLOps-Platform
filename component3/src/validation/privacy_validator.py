@@ -74,6 +74,7 @@ class PrivacyValidator:
         holdout_data: pd.DataFrame | None = None,
         continuous_columns: list[str] | tuple[str, ...] | None = None,
         discrete_columns: list[str] | tuple[str, ...] | None = None,
+        include_record_distances: bool = False,
     ) -> ValidationStageResult:
         """Evaluate privacy risk against reference and optional holdout data."""
         return validate_privacy(
@@ -86,6 +87,7 @@ class PrivacyValidator:
             min_dcr_p05=self.min_dcr_p05,
             epsilon_near_duplicate=self.epsilon_near_duplicate,
             max_near_duplicate_ratio=self.max_near_duplicate_ratio,
+            include_record_distances=include_record_distances,
         )
 
 
@@ -99,6 +101,7 @@ def validate_privacy(
     min_dcr_p05: float = 0.02,
     epsilon_near_duplicate: float = 0.01,
     max_near_duplicate_ratio: float = 0.0,
+    include_record_distances: bool = False,
 ) -> ValidationStageResult:
     """Evaluate Distance to Closest Record (DCR), exact copies, and memorization risk.
 
@@ -243,6 +246,8 @@ def validate_privacy(
         # Distance to closest record: min distance from each synthetic row to reference rows
         # Vectorized cdist (computationally lightweight for research batch sizes)
         min_distances = _nearest_distances(X_syn_scaled, X_ref_scaled)
+        if include_record_distances:
+            metrics["record_distances"] = min_distances.tolist()
 
         dcr_p05 = float(np.percentile(min_distances, 5))
         dcr_p50 = float(np.percentile(min_distances, 50))

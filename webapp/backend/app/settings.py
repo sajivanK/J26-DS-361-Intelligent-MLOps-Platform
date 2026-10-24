@@ -11,7 +11,8 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]           # <repo>/webapp/backend/app/settings.py
 CONTRACTS_DIR = REPO_ROOT / "shared" / "contracts"
-DATA_DIR = Path(os.environ.get("J26_DATA_DIR", r"C:\J26\data"))
+default_data_dir = REPO_ROOT / "data" if (REPO_ROOT / "data").is_dir() else Path(r"C:\J26\data")
+DATA_DIR = Path(os.environ.get("J26_DATA_DIR", default_data_dir))
 
 # Datasets the platform can monitor. Every component receives the dataset id in upstream["context"].
 DATASETS = {
@@ -47,8 +48,20 @@ RUNS_DIR = Path(os.environ.get("J26_RUNS_DIR", str(DATA_DIR / "platform_runs")))
 C2_RUNS_FILE = Path(os.environ.get("C2_RUNS_FILE", str(DATA_DIR / "c2" / "runs.jsonl")))
 C2_AUDIT_LOG = Path(os.environ.get("C2_AUDIT_LOG", str(DATA_DIR / "c2" / "diagnosis_log.jsonl")))
 
+# Bind the integrated diagnosis to the same team artifacts used by monitoring/C3.
+# Explicit owner-provided paths still take precedence; C3 verifies fitted-model identity.
+for variable, candidate in {
+    "C2_REFERENCE_CSV": DATA_DIR / "uci/reference.csv",
+    "C2_TEST_CSV": DATA_DIR / "uci/test.csv",
+    "C2_MODEL_PKL": DATA_DIR / "c2/base_model_adult.pkl",
+}.items():
+    if candidate.is_file():
+        os.environ.setdefault(variable, str(candidate))
+
 # C3 (Mathusan): model storage and per-model onboarding context.
 C3_MODEL_DIR = Path(os.environ.get("C3_MODEL_DIR", str(DATA_DIR / "c3")))
+from component3.src.integration_storage import upload_root, contexts_file
+C3_UPLOAD_DIR = upload_root()
 
 LABEL_COLUMNS = ("target",)        # labels never reach the monitoring components
 MAX_UPLOAD_MB = 50
@@ -56,12 +69,15 @@ MAX_UPLOAD_MB = 50
 
 def c3_data_context(model_id):
     """Optional onboarding JSON keyed by exact model ID; requests may supply it directly."""
-    path = os.environ.get("C3_CONTEXTS_FILE")
-    if not path:
+    path = contexts_file()
+    if not path.is_file():
         return {}
-    data = json.loads(Path(path).read_text(encoding="utf-8"))
-    value = data.get(model_id, {})
-    if not isinstance(value, dict):
-        raise ValueError("C3_CONTEXTS_FILE entries must be data_context objects.")
-    return dict(value)
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8-sig"))
+        value = data.get(model_id, {}) if isinstance(data, dict) else {}
+        return dict(value) if isinstance(value, dict) else {}
+    except (OSError, ValueError):
+        # Optional C3 onboarding must not prevent C1/C2 batch ingestion.
+        # C3 will reject explicitly when the required context is unavailable.
+        return {}
 FRONTEND_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]   # Vite dev server

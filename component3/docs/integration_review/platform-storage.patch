@@ -1,0 +1,40 @@
+--- a/webapp/backend/app/routers/lab.py
++++ b/webapp/backend/app/routers/lab.py
+@@ -9,7 +9,7 @@
+ from ..components import C1
+ from ..lab import LAB, N_FEATURES, LabError
+ from ..orchestrator import run_pipeline
+-from ..settings import DATASETS, REPO_ROOT, c3_data_context
++from ..settings import DATASETS, REPO_ROOT, C3_UPLOAD_DIR, c3_data_context
+ 
+ router = APIRouter(prefix="/api/lab", tags=["Drift Lab"])
+ 
+@@ -70,7 +70,7 @@
+         raise HTTPException(503, f"lab data not found: {e}")
+ 
+     run_id = runs.new_run_id()
+-    directory = REPO_ROOT / "component3/data/integration_uploads"
++    directory = C3_UPLOAD_DIR
+     directory.mkdir(parents=True, exist_ok=True)
+     path = directory / f"lab_{run_id}.csv"
+     labelled.to_csv(path, index=False)
+--- a/webapp/backend/app/uploads.py
++++ b/webapp/backend/app/uploads.py
+@@ -6,7 +6,7 @@
+ import pandas as pd
+ from fastapi import HTTPException, UploadFile
+ 
+-from .settings import DATASETS, LABEL_COLUMNS, MAX_UPLOAD_MB, REPO_ROOT, c3_data_context
++from .settings import DATASETS, LABEL_COLUMNS, MAX_UPLOAD_MB, REPO_ROOT, C3_UPLOAD_DIR, c3_data_context
+ 
+ 
+ def read_batch(file: UploadFile, dataset: str):
+@@ -24,7 +24,7 @@
+     target = onboarding.get("target_column", "target")
+     removed = [c for c in set(LABEL_COLUMNS + (target,)) if c in batch.columns]
+     # Persist the labeled artifact for C3; C1/C2 receive only the feature view.
+-    directory = REPO_ROOT / "component3/data/integration_uploads"
++    directory = C3_UPLOAD_DIR
+     directory.mkdir(parents=True, exist_ok=True)
+     path = directory / f"batch_{uuid.uuid4().hex}.csv"
+     path.write_bytes(raw)

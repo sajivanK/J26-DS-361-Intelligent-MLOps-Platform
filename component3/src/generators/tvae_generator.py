@@ -15,6 +15,7 @@ class TVAEGenerator(BaseGenerator):
         self,
         epochs: int = 300,
         discrete_columns: list[str] | tuple[str, ...] | None = None,
+        batch_size: int = 128,
     ):
         if not isinstance(epochs, int) or isinstance(epochs, bool):
             raise ValueError("epochs must be a positive integer")
@@ -43,8 +44,12 @@ class TVAEGenerator(BaseGenerator):
             self.discrete_columns = None
 
         self.epochs = epochs
+        if isinstance(batch_size, bool) or not isinstance(batch_size, int) or batch_size <= 0:
+            raise ValueError("batch_size must be a positive integer")
+        self.batch_size = batch_size
         self.model = TVAE(
             epochs=epochs,
+            batch_size=batch_size,
             verbose=False,
         )
         self.is_fitted = False

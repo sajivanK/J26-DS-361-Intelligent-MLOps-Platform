@@ -11,12 +11,12 @@ export function stepSummary(component, outputs) {
     return { text: `${v.det ? "drift" : "no drift"} · ${sg(v.harm)} pp · ${v.sev} · ${v.ext}`, sub: v.aff.join(", ") };
   }
   if (component === "c2" && o.c2_to_c3) return { text: `${o.c2_to_c3.root_cause_category}: ${o.c2_to_c3.root_cause_feature}` };
-  if (component === "c3" && o.c3) return { text: `${o.c3.repair_package_status} · ${o.c3.generator} · ${o.c3.n_synthetic_rows} rows` };
+  if (component === "c3" && o.c3) return { text: `${o.c3.execution_status || o.c3.status || o.c3.repair_package_status} · ${o.c3.generator} · ${o.c3.n_synthetic_rows} rows`, sub: o.c3.reason };
   if (component === "c4" && o.c4) return { text: o.c4.decision };
   return null;
 }
 
-const SKIPPED = { no_action: "not needed: severity none", stopped: "not run: C1 → C2 only" };
+const SKIPPED = { no_action: "not needed: no meaningful harmful drift", stopped: "not run: C1 → C2 only" };
 
 // The four step cards for one pipeline run (the response of /api/pipeline/run).
 // The badge shows what the component did IN THIS RUN: "fake" when it used its contract example
@@ -43,7 +43,8 @@ export default function PipelineSteps({ run }) {
             <b>{s.title}</b>
             {st.status === "error"
               ? <span className="small" style={{ color: "var(--bad-fg)" }}>{st.error}</span>
-              : <span className="small mono">{sum?.text}</span>}
+              : <span className="small mono">{st.status === "running" ? "Running…" : sum?.text}</span>}
+            {sum?.sub && <span className="small muted">{sum.sub}</span>}
             {st.note && <span className="small" style={{ color: "var(--warn-fg)" }}>{st.note}</span>}
             {done && (st.contract_ok
               ? <span className="badge ok">contract ok</span>

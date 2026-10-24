@@ -1,0 +1,57 @@
+{
+  "scope": "Real C2 and real C3 with shared preprocessed artifacts; representative C1 input, NOT a real C1 full pipeline run",
+  "elapsed_seconds": 12.989,
+  "c2": {
+    "root_cause_feature": "age",
+    "root_cause_category": "marginal",
+    "affected_slice_rule": "age > -0.3435 and age <= 0.2066 and marital_status == 2",
+    "affected_features_ranked": [
+      "age",
+      "education_num",
+      "relationship"
+    ],
+    "affected_value_ranges": {
+      "age": [
+        -0.3434606880173028,
+        0.20661621692419255
+      ]
+    },
+    "slice_support": 0.0828,
+    "diagnosis_stability": 1.0,
+    "drift_impact_score": 0.7795,
+    "temporal_window": 1
+  },
+  "observed_slice_rows": 497,
+  "status": "REJECTED",
+  "generator": "TVAE",
+  "reason": "Mean KS statistic (0.551) exceeds threshold (0.350); 5th percentile DCR (0.0021) is below threshold (0.0500), indicating possible memorization; Near-duplicate ratio (88.33%) exceeds threshold (0.00%), indicating memorization of individual records",
+  "partitions": {
+    "source_train": 29295,
+    "source_eval": 9778,
+    "adaptation": 200,
+    "evaluation": 1500,
+    "generator_training_slice": 200,
+    "reference_current_overlap_excluded": 0
+  },
+  "run_artifacts": "C:\\Users\\mathu\\AppData\\Local\\Temp\\c3-real-c2-check-en9vnw6l",
+  "model_sha256": "d90f096b439f369cf9871dc3e681fe6a1982712b5895562c33f7a9d5282e273e",
+  "environment": {
+    "python": "3.13.15",
+    "numpy": "2.1.3",
+    "pandas": "2.2.3",
+    "scikit-learn": "1.6.1",
+    "scipy": "1.16.3",
+    "joblib": "1.6.0",
+    "xgboost": "3.4.1",
+    "lightgbm": "4.6.0",
+    "torch": "2.11.0",
+    "ctgan": "0.12.1",
+    "jsonschema": "4.26.0",
+    "psutil": "7.2.2",
+    "matplotlib": "3.11.2",
+    "fastapi": "0.143.3",
+    "uvicorn": "0.54.0"
+  },
+  "local_shared_model_test_accuracy": 0.8764459002968574,
+  "local_shared_test_rows": 9769
+}

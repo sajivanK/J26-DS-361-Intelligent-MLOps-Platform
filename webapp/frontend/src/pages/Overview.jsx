@@ -11,6 +11,8 @@ export default function Overview() {
   const nav = useNavigate();
   const { health, datasets } = usePlatform();
   const latest = useApi(api.latestRun, []);
+  const models = useApi(api.c3Models, []);
+  const history = useApi(api.runs, []);
   const run = latest.data;
   const c1 = componentInfo(health, "c1");
   const engines = c1?.engines ? Object.entries(c1.engines).filter(([, e]) => e.loaded).map(([k]) => k.toUpperCase()) : [];
@@ -32,9 +34,23 @@ export default function Overview() {
         </div>
         <div className="stat3">
           <div><b>4</b><span>components, one pipeline</span></div>
-          <div><b>{datasets.length || 2}</b><span>datasets: {datasets.length ? datasets.map((d) => d.label.split(" (")[0]).join(", ") : "UCI Adult, IEEE-CIS"}</span></div>
+          <div><b>{datasets.length}</b><span>datasets: {datasets.length ? datasets.map((d) => d.label.split(" (")[0]).join(", ") : "not loaded"}</span></div>
           <div><b>{run ? `${run.runtime_sec} s` : "-"}</b><span>last full pipeline run</span></div>
         </div>
+      </section>
+
+      <section className="stack">
+        <h2>Registered repair models</h2>
+        {(models.error || models.data?.error) && <p>{models.error || models.data.error}</p>}
+        {models.data?.models?.map(m => <div className="card" key={m.model_id}>
+          <b>{m.model_id}</b> · {m.dataset_id} · {m.algorithm || "Algorithm not loaded"} · {m.ready ? "Required artifacts available" : "Missing artifacts"} · Monitoring {m.monitoring_available ? "available" : "unavailable"}
+          {Object.entries(m.artifacts).map(([role, artifact]) => <p className="small mono" key={role}>{role}: {artifact.path || "not configured"} · {artifact.available ? "available" : "missing"}</p>)}
+        </div>)}
+        <p className="small muted">Saved pipeline runs: {(history.data || []).filter(r => r.mode === "pipeline").length} ·
+          Completed: {(history.data || []).filter(r => r.pipeline_status === "completed").length} ·
+          Failed: {(history.data || []).filter(r => r.pipeline_status === "failed").length} ·
+          Blocked repairs: {(history.data || []).filter(r => r.c3_status === "BLOCKED").length} ·
+          Active latest run: {run?.status === "running" ? 1 : 0}. C3 approval and real C4 release are separate decisions.</p>
       </section>
 
       <section className="stack">

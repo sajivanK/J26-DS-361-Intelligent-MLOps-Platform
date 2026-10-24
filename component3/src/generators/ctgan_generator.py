@@ -15,6 +15,7 @@ class CTGANGenerator(BaseGenerator):
         self,
         epochs: int = 300,
         discrete_columns: list[str] | tuple[str, ...] | None = None,
+        batch_size: int = 100,
     ):
         if not isinstance(epochs, int) or isinstance(epochs, bool):
             raise ValueError("epochs must be a positive integer")
@@ -39,8 +40,12 @@ class CTGANGenerator(BaseGenerator):
             self.discrete_columns = None
 
         self.epochs = epochs
+        if isinstance(batch_size, bool) or not isinstance(batch_size, int) or batch_size <= 0 or batch_size % 10:
+            raise ValueError("batch_size must be a positive multiple of 10 for CTGAN packing")
+        self.batch_size = batch_size
         self.model = CTGAN(
             epochs=epochs,
+            batch_size=batch_size,
             verbose=False,
         )
         self.is_fitted = False

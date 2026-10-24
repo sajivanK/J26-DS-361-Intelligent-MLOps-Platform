@@ -24,6 +24,8 @@ def client(supplied, monkeypatch):
     application = FastAPI()
     application.include_router(router_module.router)
     monkeypatch.setattr(router_module, "REPO_ROOT", root)
+    monkeypatch.setattr(router_module, "C3_UPLOAD_DIR", root / "uploads")
+    monkeypatch.setattr(router_module, "run_root", lambda: root / "component3/results/live_runs")
     execute = live.execute_live_repair
     monkeypatch.setattr(router_module, "execute_live_repair", lambda payload:
         execute(payload, root / "component3/results/live_runs", generator_selector=IndependentSampler()))

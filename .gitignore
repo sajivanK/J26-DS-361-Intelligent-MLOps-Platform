@@ -24,3 +24,6 @@ desktop.ini
 
 # Local scratch files
 /scratch/
+
+# Local datasets and runtime artifacts
+/data/

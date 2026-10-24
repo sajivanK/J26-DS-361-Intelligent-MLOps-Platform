@@ -86,7 +86,8 @@ def c2_grade(rec, c2):
 def alert_state(rec, c2=None):
     if not rec.get("alerts_v"):
         return None
-    if (rec.get("c1") or {}).get("harm_severity", "none") == "none":
+    from .orchestrator import repair_gate      # same rule as the pipeline (late import: no cycle)
+    if not repair_gate(rec.get("c1") or {}):
         return None
     review = (rec.get("c2_review") or {}).get("status")
     if review in ("diagnosed", "dismissed"):
@@ -113,6 +114,7 @@ def summarise(rec):
         "classic_alarm": c1.get("detectors_fired", 0) >= MIN_DETECTORS_FOR_ALARM,
         "inside": None if truth is None or lo is None else bool(lo <= truth <= hi),
         "outcome": outcome(truth, sev), "pipeline_status": (rec.get("pipeline") or {}).get("status"),
+        "c3_status": ((rec.get("pipeline") or {}).get("outputs", {}).get("c3") or {}).get("execution_status"),
         "has_batch": bool(rec.get("batch_csv")),
         "true_cause": (rec.get("truth") or {}).get("main_cause"),
         "c2_root": (c2 := c2_result(rec)) and c2["root"],

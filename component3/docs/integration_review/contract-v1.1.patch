@@ -1,0 +1,13 @@
+--- a/shared/contracts/README.md
++++ b/shared/contracts/README.md
+@@ -157,3 +157,10 @@
+ Thursday:         C2 + C4 and C3 + C4 connections
+ Friday:           Full pipeline C1 -> C2 -> C3 -> C4 demo
+ ```
++
++
++### C3 output v1.1 ? 23 October 2026
++
++- `generator: "NONE"` represents a rejected no-generation result. It carries zero synthetic rows and `repair_dataset_uri: "NONE"`. C4 must not attempt to load an artifact for it.
++- `utility_score` is signed affected-slice improvement in the selected metric, in proportions (0.01 = one percentage point), with range [-1, 1]. Rejected candidates may have negative improvement.
++- These describe the existing v1.1 schema; C4 consumer agreement is required before merging this documentation change.

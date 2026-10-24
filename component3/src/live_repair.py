@@ -52,7 +52,7 @@ def _number(options, name, default, low, high, integer=False):
 
 def _frame(path, features, target, name):
     frame = pd.read_csv(path)
-    required = features + [target]
+    required = features + ([target] if target else [])
     missing = sorted(set(required) - set(frame.columns))
     if missing:
         raise ContractValidationError(f"{name} missing columns: {missing}")
@@ -173,6 +173,17 @@ class ModelInputs:
 
 
 def execute_live_repair(payload, output_directory=None, *, generator_selector=None):
+    progress_holder = []
+    try:
+        return _execute_live_repair(payload, output_directory, generator_selector=generator_selector,
+                                    progress_holder=progress_holder)
+    except Exception as exc:
+        if progress_holder:
+            progress_holder[0].finish("FAILED", str(exc))
+        raise
+
+
+def _execute_live_repair(payload, output_directory=None, *, generator_selector=None, progress_holder=None):
     """Return (RepairPackage, execution log) for an explicit three-section input.
 
     New datasets need feature_columns and categorical_features. Models may be
@@ -193,15 +204,24 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
             raise ContractValidationError(f"C1 {name} does not match data_context.")
     if c2.raw_metadata.get("model_id", dc.model_id) != dc.model_id:
         raise ContractValidationError("C2 model_id does not match data_context.model_id.")
+    for evidence_name, evidence in (("C1", c1_raw), ("C2", c2.raw_metadata)):
+        for key, expected in (("dataset_id", dc.dataset_id), ("run_id", options.get("run_id")),
+                              ("batch_id", options.get("batch_id")), ("drift_event_id", options.get("drift_event_id"))):
+            if evidence.get(key) is not None and expected is not None and evidence[key] != expected:
+                raise ContractValidationError(f"{evidence_name} {key} does not match data_context.")
     ok, errors, paths = resolve_data_context_artifacts(dc)
     if not ok:
         raise DependencyResolutionError("; ".join(errors))
 
     registry = get_model_registry()
     entry = registry.get(dc.model_id) if registry.has(dc.model_id) else None
+    if entry and entry.dataset_id != dc.dataset_id:
+        raise ContractValidationError("Registered model dataset_id does not match data_context.")
     model_uri = options.get("model_uri") or options.get("model_path") or (entry.model_path if entry else dc.model_id)
     model_path = artifact_path(model_uri, "models")
     explicit_model = options.get("model_uri") or options.get("model_path")
+    if options.get("input_representation") == "model_ready" and dc.preprocessing_uri:
+        raise ContractValidationError("model_ready data must not specify preprocessing_uri: values are already transformed.")
     prep_uri = dc.preprocessing_uri or (entry.preprocessor_path if entry and not explicit_model and options.get("input_representation") != "model_ready" else None)
     prep_path = artifact_path(prep_uri, "models") if prep_uri else None
     paths["model"] = model_path
@@ -214,7 +234,7 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
     if c1_raw.get("model_sha256") and c1_raw["model_sha256"] != hashes["model"]:
         raise DependencyResolutionError("C1 monitored-model hash does not match the supplied model.")
     for key, expected in expected_hashes.items():
-        if key in ("source_evaluation_uri", "evaluation_dataset_uri"):
+        if key in ("source_evaluation_uri", "evaluation_dataset_uri", "adaptation_dataset_uri"):
             continue
         if key not in hashes or hashes[key] != expected:
             raise DependencyResolutionError(f"Artifact hash mismatch: {key}")
@@ -222,12 +242,17 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
     run_id = f"c3-{uuid.uuid4().hex}"
     request_id = f"REQ-{uuid.uuid4().hex}"
     log = OrchestratorExecutionLog(run_id, request_id, ExecutionState.VALIDATING)
-    from component3.src.contracts.external_contracts import REPO_ROOT
-    out_dir = Path(output_directory) if output_directory else REPO_ROOT / "component3/results/live_runs"
+    from component3.src.integration_storage import run_root
+    out_dir = Path(output_directory) if output_directory else run_root()
     authorized, error, resolved = verify_path_authorization(out_dir, "outputs")
     if not authorized:
         raise DependencyResolutionError(error)
     out_dir = resolved / run_id
+    from component3.src.execution_progress import Progress
+    progress = Progress(out_dir, run_id, {**options, "model_id": dc.model_id, "dataset_id": dc.dataset_id})
+    progress_holder.append(progress)
+    progress.stage(1)
+    progress.stage(2, "Running")
     started = time.perf_counter()
     original = dict(container.raw_payload)
     original = {**original.get("upstream", {}), **original}
@@ -237,9 +262,15 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
         "original_c1": original.get("c1_evidence", original.get("c1", {})),
         "original_c2": original.get("c2_diagnosis", original.get("c2_to_c3", original.get("c2", {}))),
         "decision_mode": "RULE_BASED", "seed": 42,
+        "pipeline_run_id": options.get("run_id"), "batch_id": options.get("batch_id"),
+        "drift_event_id": options.get("drift_event_id", c1_raw.get("evidence_version")),
         "data_context": {**options, "model_id": dc.model_id, "dataset_id": dc.dataset_id,
+                         "reference_dataset_uri": str(paths["reference_dataset"]),
+                         "current_dataset_uri": str(paths["current_dataset"]),
                          "target_column": dc.target_column, "label_status": dc.label_status,
-                         "preprocessing_uri": str(prep_path) if prep_path else None},
+                         "preprocessing_uri": str(prep_path) if prep_path else None,
+                         "adaptation_budget_size": dc.adaptation_budget_size,
+                         "source_retention_tolerance": dc.source_retention_tolerance},
     }
     package = RepairPackage(request_id=request_id, run_id=run_id, dataset_id=dc.dataset_id,
         model_id=dc.model_id, diagnostic_summary={"affected_slice_rule": c2.affected_slice_rule},
@@ -257,7 +288,11 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
                  RepairPackageStatus.FAILED: ExecutionState.FAILED}.get(result.package_status, ExecutionState.REJECTED)
         log.transition_to(state, "; ".join(reasons))
         log.stage_durations["total_pipeline_seconds"] = round(time.perf_counter() - started, 3)
+        progress.stage(13, detail=result.package_status.value)
         log.package_path = str(result.save_package(out_dir))
+        progress.stage(14)
+        progress.finish(result.package_status.value, "; ".join(reasons))
+        (out_dir / "result.json").write_text(json.dumps(response_for_package(result, log), default=str), encoding="utf-8")
         return result, log
 
     if c1.drift_severity.lower() == "none" or c1.predicted_harm_proportion < 0.01:
@@ -266,9 +301,12 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
     if not dc.has_authentic_labels:
         return finish(["Authentic current labels unavailable; repair utility cannot be verified."],
                       package_status=RepairPackageStatus.BLOCKED)
-    if c2.diagnosis_stability < 0.5:
-        return finish(["Diagnosis stability below 0.50."], package_status=RepairPackageStatus.BLOCKED)
+    min_stability = _number(options, "min_diagnosis_stability", 0.50, 0.50, 1.0)
+    if c2.diagnosis_stability < min_stability:
+        return finish([f"Diagnosis stability below {min_stability:.2f}."], package_status=RepairPackageStatus.BLOCKED)
 
+    progress.stage(2)
+    progress.stage(3, "Running")
     features = options.get("feature_columns")
     if not isinstance(features, list) or not features or not all(isinstance(f, str) and f for f in features):
         raise ContractValidationError("data_context.feature_columns must list the model's ordered input features.")
@@ -279,17 +317,25 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
             or len(set(categories)) != len(categories) or not set(categories).issubset(features)):
         raise ContractValidationError("categorical_features must be a subset of feature_columns.")
     numeric = [f for f in features if f not in categories]
+    discrete_numeric = options.get("generator_discrete_numeric_features", [])
+    if (not isinstance(discrete_numeric, list) or not all(isinstance(f, str) for f in discrete_numeric)
+            or len(discrete_numeric) != len(set(discrete_numeric)) or not set(discrete_numeric).issubset(numeric)):
+        raise ContractValidationError("generator_discrete_numeric_features must be a unique subset of numeric features.")
     if not set(c1.affected_features).issubset(features) or not set(c2.affected_features_ranked).issubset(features) or c2.root_cause_feature not in features:
         raise ContractValidationError("C1/C2 affected features must exist in feature_columns.")
     reference = _frame(paths["reference_dataset"], features, dc.target_column, "reference dataset")
-    current = _frame(paths["current_dataset"], features, dc.target_column, "current dataset")
+    sampled_labels = options.get("adaptation_dataset_uri")
+    if sampled_labels and not options.get("evaluation_dataset_uri"):
+        raise ContractValidationError("A labelled adaptation sample requires independent evaluation_dataset_uri.")
+    current = _frame(paths["current_dataset"], features, None if sampled_labels else dc.target_column, "current dataset")
     if "batch_size" in c1_raw and (isinstance(c1_raw["batch_size"], bool) or c1_raw["batch_size"] != len(current)):
         raise ContractValidationError("C1 batch_size does not match the supplied current dataset.")
     for name, frame in (("reference", reference), ("current", current)):
         if any(not pd.api.types.is_numeric_dtype(frame[f]) for f in numeric):
             raise ContractValidationError(f"{name}: non-numeric feature missing from categorical_features.")
     if len(current) < 100 or len(reference) < 100:
-        raise ContractValidationError("Reference and current datasets each require at least 100 labeled rows.")
+        return finish(["Reference and current datasets each require at least 100 rows."],
+                      package_status=RepairPackageStatus.BLOCKED)
     try:
         current_mask = evaluate_slice_rule(current[features], c2.affected_slice_rule)
     except UnsafeSliceRuleError as exc:
@@ -307,9 +353,22 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
     current_keys = set(_row_keys(current, features))
     independent_reference = reference.loc[~_row_keys(reference, features).isin(current_keys)]
     if len(independent_reference) < 100:
-        raise ContractValidationError("Need at least 100 reference rows independent of the current batch.")
+        return finish(["Need at least 100 reference rows independent of the current batch."],
+                      package_status=RepairPackageStatus.BLOCKED)
     source_train, source_eval = _split(independent_reference, target, 42)
-    adaptation, evaluation = _split(current, target, 43)
+    if sampled_labels:
+        sample_path = artifact_path(sampled_labels, "datasets")
+        adaptation = _frame(sample_path, features, target, "labelled adaptation sample")
+        if not set(_row_keys(adaptation, features)).issubset(current_keys):
+            raise ContractValidationError("Labelled adaptation sample must contain rows from the actual monitored current batch.")
+        provenance["artifact_paths"]["adaptation_dataset_uri"] = str(sample_path)
+        sample_hash = compute_file_sha256(sample_path)
+        provenance["artifact_sha256"]["adaptation_dataset_uri"] = sample_hash
+        if "adaptation_dataset_uri" in expected_hashes and expected_hashes["adaptation_dataset_uri"] != sample_hash:
+            raise DependencyResolutionError("Artifact hash mismatch: adaptation_dataset_uri")
+        evaluation = None  # required supplied holdout is loaded below
+    else:
+        adaptation, evaluation = _split(current, target, 43)
     for field, destination in (("source_evaluation_uri", "source"), ("evaluation_dataset_uri", "target")):
         if options.get(field):
             path = artifact_path(options[field], "datasets")
@@ -321,11 +380,18 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
             if destination == "source":
                 source_train, source_eval = independent_reference, supplied
             else:
-                adaptation, evaluation = current, supplied
+                adaptation, evaluation = adaptation if sampled_labels else current, supplied
     _disjoint(source_train, source_eval, features, "source training/evaluation")
     _disjoint(adaptation, evaluation, features, "current adaptation/evaluation")
     _disjoint(source_train, evaluation, features, "source training/target evaluation")
     _disjoint(adaptation, source_eval, features, "current adaptation/source evaluation")
+    # Spend the annotation budget on the diagnosed group, after holding out
+    # evaluation rows. C2 thresholds are evaluated on unchanged input values.
+    if len(adaptation) > dc.adaptation_budget_size:
+        try:
+            adaptation = adaptation.loc[evaluate_slice_rule(adaptation[features], c2.affected_slice_rule)].copy()
+        except UnsafeSliceRuleError as exc:
+            raise ContractValidationError(str(exc)) from exc
     if len(adaptation) > dc.adaptation_budget_size:
         try:
             adaptation, _ = train_test_split(adaptation, train_size=dc.adaptation_budget_size,
@@ -343,6 +409,9 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
                       package_status=RepairPackageStatus.BLOCKED)
 
     model = load_trusted_pickle(model_path, trusted=True)
+    declared_names = getattr(model, "feature_names_in_", None)
+    if declared_names is not None and list(declared_names) != features:
+        raise ContractValidationError("feature_columns order differs from the fitted model feature names.")
     provenance["model_class"] = f"{type(model).__module__}.{type(model).__qualname__}"
     preprocessor = load_trusted_pickle(prep_path, trusted=True) if prep_path else None
     if preprocessor is None and not isinstance(model, Pipeline) and options.get("input_representation") != "model_ready":
@@ -365,10 +434,19 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
     except (ValueError, TypeError) as exc:
         raise ContractValidationError(f"Model/preprocessor/schema compatibility failed: {exc}") from exc
 
+    progress.stage(3, detail={"affected_rows": int(current_mask.sum()), "adaptation_rows": len(training_slice), "evaluation_rows": len(evaluation_slice)})
+    progress.stage(4, "Running")
     ratio = _number(options, "augmentation_ratio", 0.3, 0.05, 1.0)
     epochs = _number(options, "generator_epochs", 15, 1, 1000, integer=True)
     max_rows = _number(options, "max_synthetic_rows", 1000, 1, 50000, integer=True)
-    min_gain = _number(options, "minimum_utility_gain", 0.01, 0.001, 1.0)
+    # Artifact-bound approval uses the documented policy; requests may tighten it.
+    min_gain = _number(options, "minimum_utility_gain", 0.01, 0.01, 1.0)
+    ks_max = _number(options, "fidelity_ks_max", 0.35, 0.05, 0.35)
+    min_dcr = _number(options, "privacy_dcr_min", 0.05, 0.05, 1.0)
+    max_near_dup = _number(options, "max_near_duplicate_ratio", 0.0, 0.0, 0.0)
+    control_tol = _number(options, "control_utility_tolerance", 0.0, 0.0, 0.0)
+    if options.get("require_bootstrap_positive", True) is not True:
+        raise ContractValidationError("require_bootstrap_positive must be true for artifact-bound approval.")
     generator = options.get("generator")
     if generator is None:
         interaction = float(c1_raw.get("interaction_suspected", 0.0))
@@ -377,11 +455,29 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
     if not isinstance(generator, str) or generator.lower() not in names:
         raise ContractValidationError("generator must be TVAE, CTGAN, or TabDDPM.")
     generator = names[generator.lower()]
+    default_batch_size = 100 if generator == "CTGAN" else 128
+    training_batch_size = _number(options, "generator_batch_size", default_batch_size, 1, 4096, integer=True)
+    if generator == "CTGAN" and training_batch_size % 10:
+        raise ContractValidationError("generator_batch_size must be a multiple of 10 for CTGAN.")
+    progress.stage(4, detail={"generator": generator, "selection": "manual experiment" if options.get("generator") else "automatic rule policy"})
     count = min(max_rows, max(1, math.ceil(ratio * len(training_slice))))
+    pool_multiplier = _number(options, "privacy_candidate_pool_multiplier", 1, 1, 5, integer=True)
+    pool_count = min(50000, count * pool_multiplier)
+    progress.stage(5, detail={"adaptation_rows": len(training_slice), "augmentation_ratio": ratio, "requested_rows": count, "max_rows": max_rows})
+    provenance["quality_thresholds"] = {"fidelity_ks_max": ks_max, "privacy_dcr_min": min_dcr,
+        "minimum_utility_gain": min_gain, "target_coverage_min": 0.8,
+        "max_near_duplicate_ratio": max_near_dup, "source_retention_tolerance": dc.source_retention_tolerance}
+    provenance["generator_configuration"] = {"epochs": epochs, "batch_size": training_batch_size, "requested_rows": count,
+        "candidate_pool_rows": pool_count,
+        "discrete_numeric_features": discrete_numeric,
+        "selection_mode": "manual experiment" if options.get("generator") else "automatic"}
     provenance.update({"observed_slice_support": observed_support, "metric": metric,
         "prescription_confidence": c2.diagnosis_stability,
         "prescription_policy": "Rule based: categorical root cause selects CTGAN; combined diagnosis selects TabDDPM; otherwise TVAE. An explicit generator may be requested.",
         "requested_augmentation_ratio": ratio,
+        "label_policy": "Budgeted current adaptation labels plus independent labelled evaluation; full current labels are optional when both sample artifacts are supplied.",
+        "labelled_current_adaptation_rows_used": len(adaptation),
+        "labelled_target_evaluation_rows_used": len(evaluation),
         "feature_columns": features, "categorical_features": categories,
         "partition_rows": {"source_train": len(source_train), "source_eval": len(source_eval),
                            "adaptation": len(adaptation), "evaluation": len(evaluation),
@@ -393,22 +489,29 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
                                   "original_model_training_overlap": "Must be checked by the model/data owner; C3 checks candidate-training overlap."},
         "evaluation_policy": "single candidate; independent rows; no evaluation-driven generator search"})
     log.transition_to(ExecutionState.GENERATING, f"Training {generator} on actual current diagnosed slice")
+    progress.stage(6, "Running", {"generator": generator, "epochs": epochs, "training_rows": len(training_slice)})
     try:
         synthetic, generation = (generator_selector or GeneratorSelector()).fit_and_sample(
-            generator_name=generator, training_df=training_slice, num_samples=count,
-            categorical_columns=categories + [target], numerical_columns=numeric,
-            enable_fallback=False, max_retries=1, generator_kwargs={"epochs": epochs})
+            generator_name=generator, training_df=training_slice, num_samples=pool_count,
+            categorical_columns=categories + discrete_numeric + [target],
+            numerical_columns=[f for f in numeric if f not in discrete_numeric],
+            enable_fallback=False, max_retries=1,
+            generator_kwargs={"epochs": epochs, "batch_size": training_batch_size})
     except GeneratorExecutionError as exc:
         return finish([str(exc)], package_status=RepairPackageStatus.FAILED,
                       generator_info={"generator": "NONE", "requested_generator": generator})
+    progress.stage(6, detail=generation)
+    progress.stage(7, detail={"generated_rows": len(synthetic)})
+    provenance["generated_rows"] = len(synthetic)
     actual = names.get(str(generation.get("executed_generator", "")).lower())
     if actual is None:
         raise ContractValidationError("Generator did not report a supported executed_generator.")
     package = replace(package, chosen_strategy="TARGETED_SYNTHETIC_REPAIR",
                       generator_info={**generation, "generator": actual})
     reasons = []
-    if set(synthetic.columns) != set(features + [target]) or len(synthetic) != count or synthetic.isna().any().any():
-        return finish(["Generated data failed structural schema/missing-value checks."], package_status=RepairPackageStatus.REJECTED)
+    progress.stage(8, "Running")
+    if set(synthetic.columns) != set(features + [target]) or len(synthetic) != pool_count or synthetic.isna().any().any():
+        return finish(["Generated data failed structural schema/missing-value checks."], package_status=RepairPackageStatus.REJECTED, validation_report={"structure": {"passed": False}})
     synthetic = synthetic[features + [target]]
     try:
         for col in numeric:
@@ -417,16 +520,44 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
         for col in categories + [target]:
             if not set(synthetic[col]).issubset(set(training_slice[col])):
                 raise ValueError(f"Unknown discrete values in {col}")
+        if pool_multiplier > 1:
+            # One fitted generator, one bounded pool, and no evaluation feedback.
+            # Use the validator's exact distance calculation rather than jittering
+            # records or changing the privacy threshold to manufacture a pass.
+            screening = PrivacyValidator(min_dcr_p05=min_dcr, max_near_duplicate_ratio=max_near_dup).validate(
+                synthetic[features], pd.concat([source_train, adaptation], ignore_index=True)[features],
+                continuous_columns=numeric, discrete_columns=categories, include_record_distances=True)
+            distances = np.asarray(screening.metrics.pop("record_distances"), dtype=float)
+            eligible = synthetic.loc[distances >= min_dcr].drop_duplicates(subset=features)
+            provenance["privacy_sampling"] = {"policy": "First eligible records in generation order; training-data DCR only; no holdout access",
+                "pool_rows": len(synthetic), "eligible_rows": len(eligible), "selected_rows": min(count, len(eligible)),
+                "discarded_too_close_rows": int((distances < min_dcr).sum()), "minimum_record_distance": min_dcr,
+                "raw_pool_privacy_report": screening.to_dict()}
+            if len(eligible) < count:
+                progress.stage(11, "Failed", screening.to_dict())
+                return finish([f"Bounded privacy sampling found {len(eligible)} eligible records; {count} required. No repair approved."],
+                    package_status=RepairPackageStatus.REJECTED,
+                    validation_report={"structure": {"passed": True}, "privacy_report": screening.to_dict()},
+                    privacy_risk_indicators={"status": "FAIL", **screening.metrics})
+            synthetic = eligible.head(count).reset_index(drop=True)
+        provenance["candidate_rows"] = len(synthetic)
+        progress.stage(8)
+        progress.stage(9, "Running")
         coverage = float(evaluate_slice_rule(synthetic[features], c2.affected_slice_rule).mean())
         if coverage < 0.8:
             reasons.append("Synthetic target coverage below 0.80.")
-        fidelity = FidelityValidator().validate(synthetic, training_slice, numeric, categories + [target])
+        progress.stage(9, "Completed" if coverage >= .8 else "Failed", {"coverage": coverage, "minimum": .8})
+        progress.stage(10, "Running")
+        fidelity = FidelityValidator(max_mean_ks_statistic=ks_max).validate(synthetic, training_slice, numeric, categories + [target])
+        progress.stage(10, "Completed" if fidelity.status.value == "PASS" else "Failed", fidelity.to_dict())
+        progress.stage(11, "Running")
         # Feature-level privacy also catches rows copied with a different label.
-        privacy = PrivacyValidator(min_dcr_p05=0.05).validate(synthetic[features],
+        privacy = PrivacyValidator(min_dcr_p05=min_dcr, max_near_duplicate_ratio=max_near_dup).validate(synthetic[features],
             pd.concat([source_train, adaptation], ignore_index=True)[features],
             continuous_columns=numeric, discrete_columns=categories)
     except Exception as exc:
         return finish([f"Candidate validation could not complete: {exc}"], package_status=RepairPackageStatus.REJECTED)
+    progress.stage(11, "Completed" if privacy.status.value == "PASS" else "Failed", privacy.to_dict())
     if fidelity.status.value != "PASS":
         reasons.extend(fidelity.reasons or ["Fidelity validation did not pass."])
     if privacy.status.value != "PASS":
@@ -438,6 +569,7 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
     if reasons:
         return finish(reasons, package_status=RepairPackageStatus.REJECTED)
 
+    progress.stage(12, "Running")
     log.transition_to(ExecutionState.EVALUATING, "Comparing same-family candidate with baseline and real-only control")
     real_training = pd.concat([source_train, adaptation], ignore_index=True)
     augmented = pd.concat([real_training, synthetic], ignore_index=True)
@@ -457,7 +589,7 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
         reasons.append(f"Affected-slice {metric} gain {gain:+.4f} below {min_gain:.4f}.")
     if confidence_interval[0] <= 0.0:
         reasons.append("Paired bootstrap 95% interval does not establish a positive affected-slice gain.")
-    if candidate_score < control_score:
+    if candidate_score < control_score - control_tol:
         reasons.append("Synthetic augmentation underperforms the matched real-only retraining control.")
     if source_after - source_baseline < -dc.source_retention_tolerance:
         reasons.append("Source performance retention exceeded its permitted loss.")
@@ -468,6 +600,7 @@ def execute_live_repair(payload, output_directory=None, *, generator_selector=No
                "utility_gain": gain, "training_rows": len(augmented),
                "bootstrap_ci_95": confidence_interval,
                "overall_before": overall_before, "overall_after": overall_after}
+    progress.stage(12, "Failed" if reasons else "Completed", utility)
     report["utility"] = {"passed": not reasons, **utility}
     package = replace(package, utility_metrics=utility, validation_report=report,
         source_retention_metrics={"before": source_baseline, "after": source_after,
@@ -502,6 +635,8 @@ def response_for_package(package, log):
         "preview_rows": preview.to_dict(orient="records"), "preview_columns": preview.columns.tolist(),
         "download_url": f"/api/c3/packages/{package.run_id}/dataset" if approved else None,
         "upstream_evidence": {"c1": metadata.get("original_c1"), "c2": metadata.get("original_c2")},
-        "provenance": metadata, "utility_metrics": package.utility_metrics,
+        "provenance": metadata, "model_id": package.model_id, "dataset_id": package.dataset_id,
+        "pipeline_run_id": metadata.get("pipeline_run_id"), "batch_id": metadata.get("batch_id"),
+        "utility_metrics": package.utility_metrics,
         "source_retention_metrics": package.source_retention_metrics, "execution_log": log.to_dict(),
     }
