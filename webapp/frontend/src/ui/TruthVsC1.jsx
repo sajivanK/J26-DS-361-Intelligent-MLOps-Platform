@@ -10,7 +10,7 @@ export default function TruthVsC1({ truth, harm, lo, hi }) {
   const X = (v) => pl + ((v - min) / (max - min)) * (W - pl - 70);
   const label = { stroke: "var(--surface)", strokeWidth: 4, paintOrder: "stroke" };
   const bar = (y, v, color) => (
-    <rect x={Math.min(X(0), X(v))} y={y} width={Math.max(2, Math.abs(X(v) - X(0)))} height="20" rx="3" fill={color} />
+    <rect x={Math.min(X(0), X(v))} y={y} width={Math.max(2, Math.abs(X(v) - X(0)))} height="20" rx="10" fill={color} opacity=".85" />
   );
   return (
     <div className="stack tight">
@@ -24,7 +24,8 @@ export default function TruthVsC1({ truth, harm, lo, hi }) {
           <text x={pl - 10} y="28" textAnchor="end" fill="var(--muted)">Truth</text>
           {has ? (<>
             {bar(14, truth, "var(--truth)")}
-            <text x={Math.max(X(truth), X(0)) + 8} y="28" fill="var(--fg)" {...label}>{sg(truth)} pp</text>
+            <circle cx={X(truth)} cy="24" r="9" fill="var(--truth)" stroke="var(--surface)" strokeWidth="3" />
+            <text x={Math.max(X(truth), X(0)) + 14} y="28" fill="#B45309" fontWeight="600" {...label}>{sg(truth)} pp</text>
           </>) : <text x={X(0) + 8} y="28" fill="var(--muted)">unknown: no labels for an uploaded batch</text>}
 
           <text x={pl - 10} y="70" textAnchor="end" fill="var(--muted)">C1</text>
@@ -32,7 +33,8 @@ export default function TruthVsC1({ truth, harm, lo, hi }) {
           <line x1={X(lo)} x2={X(hi)} y1="66" y2="66" stroke="var(--fg)" strokeWidth="1.5" />
           <line x1={X(lo)} x2={X(lo)} y1="58" y2="74" stroke="var(--fg)" strokeWidth="1.5" />
           <line x1={X(hi)} x2={X(hi)} y1="58" y2="74" stroke="var(--fg)" strokeWidth="1.5" />
-          <text x={Math.max(X(harm), X(hi), X(0)) + 8} y="70" fill="var(--fg)" {...label}>{sg(harm)} pp</text>
+          <circle cx={X(harm)} cy="66" r="8" fill="var(--accent-2)" stroke="var(--surface)" strokeWidth="3" />
+          <text x={Math.max(X(harm), X(hi), X(0)) + 8} y="70" fill="var(--accent)" fontWeight="600" {...label}>{sg(harm)} pp</text>
         </svg>
       </div>
       <div className="chart-legend">

@@ -5,7 +5,7 @@
 */
 :root {
   /* body */
-  --bg: #F5F7F9;          /* page background */
+  --bg: #F4F7F9;          /* page background */
   --surface: #FFFFFF;     /* cards */
   --line: #E2E6EB;        /* borders, dividers */
   --fg: #111827;          /* main text */
@@ -44,9 +44,20 @@
   --dot-real: #2DD4BF; --dot-fake: #A78BFA; --dot-off: #F87171;
 
   /* type and shape */
-  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
-  --radius: 10px;
-  --radius-sm: 6px;
-  --sidebar-w: 248px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 2px rgba(16,24,40,.04), 0 4px 14px rgba(16,24,40,.05);
+  --sidebar-w: 252px;
+
+  /* v0.4 polish: soft tints for result tiles and icon chips */
+  --heading: #0B1524;
+  --t-red-bg: #FDEEEC;   --t-red-line: #F8D3CE;   --t-red-fg: #912018;   --t-red-ic: #B42318;
+  --t-green-bg: #E9F7EE; --t-green-line: #C6E9D2; --t-green-fg: #1F5F35; --t-green-ic: #1F7A3F;
+  --t-grey-bg: #F3F4F7;  --t-grey-line: #E1E5EA;  --t-grey-fg: #344054;  --t-grey-ic: #475467;
+  --t-purple-bg: #F5F2FE; --t-purple-line: #DCD5FA; --t-purple-fg: #4B3F9E; --t-purple-ic: #6D4FD8;
+  --t-amber-bg: #FFF4DE; --t-amber-line: #F5C26B; --t-amber-fg: #8A4B08; --t-amber-ic: #B45309;
+  --t-blue-bg: #E3EEFD;  --t-blue-ic: #2563EB;
+  --t-teal-bg: #DDF2EE;
 }
