@@ -90,7 +90,7 @@ export default function C4Page(){
     <button type="button" aria-pressed={mode==="integrated"} onClick={()=>{closeHistory();setMode("integrated");}}>Integrated evaluation</button>
     <button type="button" aria-pressed={mode==="history"} onClick={()=>{closeHistory();setMode("history");}}>C4 assessment history</button>
    </div>
-   <p className="small muted">{mode==="history"?"Saved C4 assessment events and evidence snapshots.":mode==="research"?"Inspect a frozen benchmark assessment with simulated upstream evidence.":"Check upstream availability before evaluating a live repair package."}</p>
+   <p className="small muted">{mode==="history"?"Saved C4 assessment events and evidence snapshots.":mode==="research"?"Inspect a frozen benchmark assessment with simulated upstream evidence.":""}</p>
   </section>
   {mode==="integrated"?<Integration health={health}/>:mode==="history"?<><History history={history} onOpen={openHistory} onClose={closeHistory} busy={openState.busy}/><ErrorBox error={c4ErrorMessage(openState.error)}/>{selectedHistory&&<><div className="c4-note c4-between"><span>Saved assessment · {new Date(selectedHistory.entry.recorded_at).toLocaleString()} · recorded simulation replay</span><button className="btn" type="button" onClick={closeHistory}>Close assessment</button></div><Assessment key={selectedHistory.entry.id} payload={selectedHistory.assessment}/></>}</>:<>
    <section className="c4-card c4-run-card">
