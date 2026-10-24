@@ -51,7 +51,7 @@ def test_actual_contract_executes_and_download_is_integrity_checked(client, supp
     download = client.get(result["download_url"])
     assert download.status_code == 200
     assert "outcome" in download.text
-    path = root / "component3/results/live_runs" / result["run_id"] / "repair.csv"
+    path = Path(result["repair_dataset_uri"])
     path.write_text("modified", encoding="utf-8")
     assert client.get(result["download_url"]).status_code == 409
 

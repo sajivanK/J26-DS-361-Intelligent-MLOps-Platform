@@ -105,6 +105,7 @@ def test_new_models_datasets_preserve_family_and_actual_batch(supplied, family):
     assert package.verify_artifact_integrity()[0]
     result = live.response_for_package(package, log)
     flat = {key: result[key] for key in live_contract_keys()}
+    flat["repair_strategy"] = result["repair_strategy"]
     assert validate_c4_flat_contract(flat) == (True, [])
     if package.package_status == RepairPackageStatus.APPROVED_FOR_REVIEW:
         assert result["preview_rows"] and result["download_url"]
@@ -156,23 +157,46 @@ def test_abstention_does_not_generate_or_claim_privacy(supplied, case):
     assert validate_c4_flat_contract({key: result[key] for key in live_contract_keys()})[0]
 
 
-def test_copied_data_is_rejected_and_not_published(supplied):
+def test_copied_synthetic_data_falls_back_to_authentic_weighted_adaptation(supplied):
     payload, path = supplied
     package, log = live.execute_live_repair(payload, path / "out", generator_selector=IndependentSampler("copies"))
-    assert package.package_status == RepairPackageStatus.REJECTED
-    assert package.privacy_risk_indicators["status"] == "FAIL"
-    assert package.candidate_dataset_path is None
-    assert live.response_for_package(package, log)["download_url"] is None
+    assert package.package_status == RepairPackageStatus.APPROVED_FOR_REVIEW
+    assert package.chosen_strategy == "AUTHENTIC_WEIGHTED_ADAPTATION"
+    assert package.generator_info["generator"] == "NONE"
+    assert package.generator_info["sample_weight_policy"] == {"source": 1.0, "target": 2.0}
+    result = live.response_for_package(package, log)
+    assert result["repair_strategy"] == "AUTHENTIC_WEIGHTED_ADAPTATION"
+    assert result["n_synthetic_rows"] == 0
+    assert result["augmentation_ratio"] == 0.0
+    assert result["fidelity_score"] is None
+    assert result["target_coverage"] is None
+    assert result["privacy_status"] == "PASS"
+    assert result["download_url"]
+    assert "authentic weighted adaptation" in result["reason"].lower()
 
 
-def test_privacy_exception_fails_closed(supplied, monkeypatch):
+def test_privacy_exception_cannot_approve_synthetic_but_can_use_authentic_fallback(supplied, monkeypatch):
     payload, path = supplied
     def broken(*args, **kwargs): raise ValueError("distance calculation unavailable")
     monkeypatch.setattr(live.PrivacyValidator, "validate", broken)
     package, log = live.execute_live_repair(payload, path / "out", generator_selector=IndependentSampler())
+    assert package.package_status == RepairPackageStatus.APPROVED_FOR_REVIEW
+    assert package.chosen_strategy == "AUTHENTIC_WEIGHTED_ADAPTATION"
+    assert "could not complete" in package.downstream_handoff_metadata["fallback_from_synthetic_reasons"][0]
+    assert live.response_for_package(package, log)["privacy_status"] == "PASS"
+
+
+def test_rejects_when_synthetic_and_authentic_candidates_both_fail(supplied):
+    payload, path = supplied
+    payload["data_context"]["minimum_utility_gain"] = 1.0
+    package, log = live.execute_live_repair(payload, path / "out", generator_selector=IndependentSampler("copies"))
     assert package.package_status == RepairPackageStatus.REJECTED
-    assert "could not complete" in package.rejection_reasons[0]
-    assert live.response_for_package(package, log)["privacy_status"] == "FAIL"
+    assert any(reason.startswith("Synthetic candidate:") for reason in package.rejection_reasons)
+    assert any(reason.startswith("Authentic fallback:") for reason in package.rejection_reasons)
+    assert package.candidate_dataset_path is None
+    result = live.response_for_package(package, log)
+    assert result["repair_strategy"] == "NO_REPAIR"
+    assert result["download_url"] is None
 
 
 def test_current_evaluation_overlap_rejected(supplied):

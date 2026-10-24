@@ -130,7 +130,7 @@ def info():
         **comp.details(),
         "source": comp.source, "loaded": comp.loaded, "error": comp.error,
         "generators": ["TVAE", "CTGAN", "TabDDPM"], "decision_modes": ["RULE_BASED"],
-        "engine_version": "2.0.0", "contract_version": "1.1",
+        "engine_version": "2.0.0", "contract_version": "1.2",
         "supported_tasks": ["tabular_binary_classification"],
         "model_requirements": "Fitted sklearn-compatible binary classifier or Pipeline; clone, fit, predict and classes_ required.",
         "dataset_requirements": "Explicit feature schema and authentic adaptation/evaluation labels. An unlabelled current batch may supply adaptation_dataset_uri plus independent evaluation_dataset_uri.",

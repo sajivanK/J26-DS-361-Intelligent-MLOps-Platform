@@ -1,10 +1,10 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "component": "C3",
   "component_name": "Adaptive Intelligent Synthetic Data Repair Engine",
   "owner": "Mathusan K (IT23174580)",
   "endpoint": "POST /repair",
-  "description": "Validated synthetic repair package produced by C3. Sent to C4 for release decision.",
+  "description": "Validated synthetic or authentic weighted repair package produced by C3. Sent to C4 for release decision.",
   "consumers": ["C4 (Kesigan M)"],
 
   "input_context": {
@@ -47,7 +47,7 @@
       "type": "string",
       "required": true,
       "example": "data/repairs/repair_adult_20261001_143200.csv",
-      "description": "Path to the validated synthetic repair dataset. C4 uses this to retrain the candidate model.",
+      "description": "Path to the validated synthetic rows or authentic labelled adaptation rows. C4 uses this artifact for candidate retraining.",
       "used_by": ["C4"]
     },
     "repair_package_status": {
@@ -55,7 +55,15 @@
       "required": true,
       "example": "APPROVED",
       "allowed_values": ["APPROVED", "REJECTED"],
-      "description": "Overall validation status. C3 only sends APPROVED packages to C4. REJECTED triggers re-generation internally.",
+      "description": "Overall validation status. APPROVED means the selected strategy passed C3 gates; REJECTED means no candidate was approved.",
+      "used_by": ["C4"]
+    },
+    "repair_strategy": {
+      "type": "string",
+      "required": false,
+      "example": "TARGETED_SYNTHETIC_REPAIR",
+      "allowed_values": ["TARGETED_SYNTHETIC_REPAIR", "AUTHENTIC_WEIGHTED_ADAPTATION", "NO_REPAIR"],
+      "description": "How C3 produced the candidate. Optional in v1.2 so v1.1 consumers remain compatible.",
       "used_by": ["C4"]
     },
     "generator": {
@@ -63,7 +71,7 @@
       "required": true,
       "example": "CTGAN",
       "allowed_values": ["CTGAN", "TVAE", "TabDDPM", "NONE"],
-      "description": "Generator actually executed. NONE means no generator ran; the package must be REJECTED.",
+      "description": "Generator actually executed. NONE is valid for an approved AUTHENTIC_WEIGHTED_ADAPTATION or for a rejected/no-repair result.",
       "used_by": ["C4"]
     },
     "n_synthetic_rows": {
@@ -84,9 +92,10 @@
     "fidelity_score": {
       "type": "float",
       "required": true,
+      "nullable": true,
       "example": 0.91,
       "range": "0.0 to 1.0",
-      "description": "Statistical fidelity of synthetic data vs real data distributions.",
+      "description": "Statistical fidelity of synthetic data vs real data distributions. Null when repair_strategy is AUTHENTIC_WEIGHTED_ADAPTATION because no synthetic data exists.",
       "used_by": ["C4"]
     },
     "utility_score": {
@@ -102,15 +111,16 @@
       "required": true,
       "example": "PASS",
       "allowed_values": ["PASS", "FAIL"],
-      "description": "Distance to Closest Record (DCR) privacy check result. C4 hard gate rejects FAIL packages.",
+      "description": "Distance to Closest Record (DCR) privacy result for synthetic repair. PASS with authentic adaptation means synthetic privacy screening is not applicable; C4 still rejects FAIL packages.",
       "used_by": ["C4"]
     },
     "target_coverage": {
       "type": "float",
       "required": true,
+      "nullable": true,
       "example": 0.93,
       "range": "0.0 to 1.0",
-      "description": "Fraction of synthetic rows falling within the affected_slice_rule from C2. High coverage means repair targets the right population.",
+      "description": "Fraction of synthetic rows falling within the affected_slice_rule from C2. Null for authentic-only repair.",
       "used_by": ["C4"]
     },
     "prescription_confidence": {
@@ -141,6 +151,7 @@
   "example_output": {
     "repair_dataset_uri": "data/repairs/repair_adult_20261001_143200.csv",
     "repair_package_status": "APPROVED",
+    "repair_strategy": "TARGETED_SYNTHETIC_REPAIR",
     "generator": "CTGAN",
     "n_synthetic_rows": 500,
     "augmentation_ratio": 0.30,
@@ -158,6 +169,8 @@
     "C4 hard_gate_status.privacy_check must read C3 privacy_status directly",
     "repair_version links to C4 upstream_evidence_summary.c3.repair_version for audit tracing",
     "data_context is NOT passed through C1 or C2. It is injected by the platform orchestrator from onboarding config.",
-    "During independent development, Kesigan generates repair data himself using CTGAN or TVAE and computes these scores directly"
+    "During independent development, Kesigan generates repair data himself using CTGAN or TVAE and computes these scores directly",
+    "Version 1.2 adds optional repair_strategy and permits null fidelity_score/target_coverage only for authentic weighted adaptation",
+    "For AUTHENTIC_WEIGHTED_ADAPTATION: generator=NONE, n_synthetic_rows=0, augmentation_ratio=0, privacy_status=PASS (not applicable to authentic data), and repair_dataset_uri points to the saved labelled adaptation rows"
   ]
 }
