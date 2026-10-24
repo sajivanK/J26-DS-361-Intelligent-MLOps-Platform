@@ -9,3 +9,6 @@ scikit-learn>=1.6,<2.0
 xgboost>=3.0,<4.0
 joblib>=1.4,<2.0
 PyYAML>=6.0,<7.0
+fastapi==0.143.0
+uvicorn==0.54.0
+lightgbm==4.7.0
