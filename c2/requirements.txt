@@ -1,0 +1,5 @@
+# C2 libraries. The shared ones (numpy, pandas, scikit-learn, scipy, xgboost, joblib) come from the
+# team's pinned versions, so install with C1's file as constraints (webapp README, step 4):
+#   pip install -r c2/requirements.txt -c c1/requirements.txt
+shap>=0.46.0
+openai>=1.40.0        # optional: business report writer; without it the checked template text is used

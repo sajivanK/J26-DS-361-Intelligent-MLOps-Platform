@@ -1,5 +1,6 @@
 """Drift Lab endpoints (platform test bench, owner: Sajivan K)."""
 from typing import List, Literal
+from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -8,7 +9,7 @@ from .. import contracts, runs
 from ..components import C1
 from ..lab import LAB, N_FEATURES, LabError
 from ..orchestrator import run_pipeline
-from ..settings import DATASETS
+from ..settings import DATASETS, REPO_ROOT, c3_data_context
 
 router = APIRouter(prefix="/api/lab", tags=["Drift Lab"])
 
@@ -30,7 +31,7 @@ class LabRun(BaseModel):
     magnitude: float = 0.55
     batch_size: int = 1500
     seed: int = 42
-    mode: Literal["c1", "pipeline"] = "c1"
+    mode: Literal["c1", "c1c2", "pipeline"] = "c1"   # c1c2: C1 then C2, stops before C3
     save_batch: bool = False          # also save the batch CSV (with labels) next to the run
 
 
@@ -58,7 +59,7 @@ def options(dataset: str = "uci"):
 
 @router.post("/run")
 def run(req: LabRun):
-    """Build a batch with a known drift, then run C1 only or the full pipeline on it (labels removed)."""
+    """Build a batch with a known drift, then run C1 only, C1 -> C2, or the full pipeline (labels removed)."""
     eng = _engine(req.dataset)
     try:
         batch, truth, injection, labelled = LAB.make_batch(eng, req.dataset, req.drift_type, req.features,
@@ -69,20 +70,27 @@ def run(req: LabRun):
         raise HTTPException(503, f"lab data not found: {e}")
 
     run_id = runs.new_run_id()
-    uri = f"drift_lab://{req.dataset}/{run_id}"
-    context = {"dataset": req.dataset, "model_id": DATASETS[req.dataset]["model_id"], "current_dataset_uri": uri}
+    directory = REPO_ROOT / "component3/data/integration_uploads"
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / f"lab_{run_id}.csv"
+    labelled.to_csv(path, index=False)
+    context = {**c3_data_context(DATASETS[req.dataset]["model_id"]),
+               "dataset": req.dataset, "dataset_id": req.dataset,
+               "model_id": DATASETS[req.dataset]["model_id"], "current_dataset_uri": str(path),
+               "label_status": "AVAILABLE"}
     out = {"run_id": run_id, "truth": truth, "injection": injection, "mode": req.mode}
     if req.mode == "c1":
         c1 = C1.run(batch, {"context": context})["c1"]
         out["c1"] = c1
         out["contract_errors"] = contracts.validate("c1", c1)
     else:
-        result = run_pipeline(batch, context)
+        result = run_pipeline(batch, context, stop_after="c2" if req.mode == "c1c2" else None)
         names = ", ".join(req.features) or "clean"
         result["origin"] = {"kind": "drift_lab", "rows": len(batch), "run_ref": run_id,
                             "label": f"Drift Lab: {req.drift_type.replace('marginal_', '')} ({names})",
                             "truth": truth}
-        runs.save_latest(result)
+        if req.mode == "pipeline":
+            runs.save_latest(result)
         out["pipeline"] = result
         out["c1"] = result["outputs"].get("c1")
 

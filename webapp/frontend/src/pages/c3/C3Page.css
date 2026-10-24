@@ -1,0 +1,318 @@
+/* Component 3 Synthetic Data Repair styles.
+   Strict design system compliance: only design tokens (var(--...)), no hardcoded colors.
+   All class names are prefixed with .c3- to prevent namespace collisions. */
+
+.c3-runbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.c3-runbar .field {
+  flex: 1 1 200px;
+}
+
+.c3-runbar .c3-btn-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Upstream C1 & C2 Evidence Banner */
+.c3-upstream-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 16px;
+}
+
+.c3-upstream-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c3-upstream-col:first-child {
+  border-right: 1px solid var(--line);
+  padding-right: 14px;
+}
+
+.c3-upstream-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.c3-slice-box {
+  background: var(--track);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--accent);
+  word-break: break-all;
+}
+
+/* 3-Column Hero Metric Banner */
+.c3-hero {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.c3-hero > div {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-right: 1px solid var(--line);
+  min-width: 0;
+}
+
+.c3-hero > div:last-child {
+  border-right: 0;
+}
+
+.c3-hero .c3-q {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.c3-hero .c3-a {
+  font-family: var(--mono);
+  font-size: 1.7rem;
+  line-height: 1.15;
+  color: var(--accent);
+}
+
+.c3-hero .c3-a.c3-sm {
+  font-size: 1.25rem;
+}
+
+.c3-hero .c3-s {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Quality Gate Validation Cards */
+.c3-gates-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.c3-gate-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.c3-gate-card.c3-pass {
+  border-left: 4px solid var(--ok-line);
+}
+
+.c3-gate-card.c3-fail {
+  border-left: 4px solid var(--warn-line);
+}
+
+.c3-gate-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.c3-gate-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.c3-gate-val {
+  font-family: var(--mono);
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+.c3-gate-meta {
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+/* Download and Action Box */
+.c3-download-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--tint);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius);
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.c3-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--accent);
+  color: var(--surface);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.c3-action-link:hover {
+  opacity: 0.92;
+}
+
+/* Generated Synthetic Data Preview Table */
+.c3-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.c3-preview-table th {
+  text-align: left;
+  padding: 8px 12px;
+  background: var(--track);
+  border-bottom: 2px solid var(--line);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.c3-preview-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+}
+
+.c3-preview-table td.c3-slice-match {
+  background: var(--tint);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Benchmarks and Prescription Grid */
+.c3-research-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.c3-benchmark-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.c3-benchmark-table th {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.c3-benchmark-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+}
+
+.c3-benchmark-table tr.c3-highlight {
+  background: var(--tint);
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .c3-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .c3-hero > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .c3-upstream-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .c3-upstream-col:first-child {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding-right: 0;
+    padding-bottom: 14px;
+  }
+  .c3-gates-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .c3-research-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .c3-gates-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Mode Segmented Controls */
+.segmented-control {
+  display: inline-flex;
+  background: var(--track);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 3px;
+  gap: 3px;
+}
+
+.segmented-btn {
+  background: transparent;
+  border: none;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.segmented-btn.active {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.c3-progress-step {
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  text-align: center;
+  color: var(--muted);
+}
+
+.c3-progress-step.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+  background: var(--tint);
+}

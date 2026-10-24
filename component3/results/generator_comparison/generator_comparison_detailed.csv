@@ -1,0 +1,64 @@
+generator,scenario,slice_rule,seed,epochs,training_rows,generated_rows,matching_rows,nonmatching_rows,coverage,training_seconds,sampling_seconds,observed_range_violations,missing_values,created_at_utc,readiness_source,validation_status,artifact_name
+ctgan,S01,age > 0.69,42,1,2159,100,98,2,0.98,22.5924,,,0,2026-10-13T14:09:55.290937+00:00,synthetic_experiment_decision,diagnostic_only,S01_ctgan_e1_n100_seed42.json
+ctgan,S01,age > 0.69,123,1,2159,100,99,1,0.99,11.1297,,,0,2026-10-13T14:30:27.852802+00:00,synthetic_experiment_decision,diagnostic_only,S01_ctgan_e1_n100_seed123.json
+ctgan,S01,age > 0.69,456,1,2159,100,98,2,0.98,10.2241,,,0,2026-10-13T14:30:42.745301+00:00,synthetic_experiment_decision,diagnostic_only,S01_ctgan_e1_n100_seed456.json
+ctgan,S02,capital_loss > -0.20,42,1,6000,100,100,0,1.0,27.5583,,,0,2026-10-13T14:10:35.841470+00:00,synthetic_experiment_decision,diagnostic_only,S02_ctgan_e1_n100_seed42.json
+ctgan,S02,capital_loss > -0.20,123,1,6000,100,100,0,1.0,13.5363,,,0,2026-10-13T14:31:01.292477+00:00,synthetic_experiment_decision,diagnostic_only,S02_ctgan_e1_n100_seed123.json
+ctgan,S02,capital_loss > -0.20,456,1,6000,100,100,0,1.0,14.1394,,,0,2026-10-13T14:31:20.112480+00:00,synthetic_experiment_decision,diagnostic_only,S02_ctgan_e1_n100_seed456.json
+ctgan,S03,marital_status == 2,42,1,1723,100,100,0,1.0,19.1499,,,0,2026-10-13T14:11:07.025223+00:00,synthetic_experiment_decision,diagnostic_only,S03_ctgan_e1_n100_seed42.json
+ctgan,S03,marital_status == 2,123,1,1723,100,100,0,1.0,12.7114,,,0,2026-10-13T14:31:37.581459+00:00,synthetic_experiment_decision,diagnostic_only,S03_ctgan_e1_n100_seed123.json
+ctgan,S03,marital_status == 2,456,1,1723,100,100,0,1.0,12.829,,,0,2026-10-13T14:31:55.154177+00:00,synthetic_experiment_decision,diagnostic_only,S03_ctgan_e1_n100_seed456.json
+ctgan,S04,race == 2,42,1,360,100,100,0,1.0,4.674,,,0,2026-10-13T14:05:37.235218+00:00,synthetic_experiment_decision,diagnostic_only,S04_ctgan_e1_n100_seed42.json
+ctgan,S04,race == 2,123,1,360,100,100,0,1.0,2.0375,,,0,2026-10-13T14:32:01.823572+00:00,synthetic_experiment_decision,diagnostic_only,S04_ctgan_e1_n100_seed123.json
+ctgan,S04,race == 2,456,1,360,100,100,0,1.0,1.9736,,,0,2026-10-13T14:32:07.130030+00:00,synthetic_experiment_decision,diagnostic_only,S04_ctgan_e1_n100_seed456.json
+ctgan,S05,age > 0.69 and education_num < -0.03,42,1,342,100,93,7,0.93,4.3994,,,0,2026-10-13T14:07:02.573806+00:00,synthetic_experiment_decision,diagnostic_only,S05_ctgan_e1_n100_seed42.json
+ctgan,S05,age > 0.69 and education_num < -0.03,123,1,342,100,89,11,0.89,1.8151,,,0,2026-10-13T14:28:55.284747+00:00,synthetic_experiment_decision,diagnostic_only,S05_ctgan_e1_n100_seed123.json
+ctgan,S05,age > 0.69 and education_num < -0.03,456,1,342,100,99,1,0.99,2.1626,,,0,2026-10-13T14:29:00.661313+00:00,synthetic_experiment_decision,diagnostic_only,S05_ctgan_e1_n100_seed456.json
+ctgan,S06,marital_status == 2 and relationship == 0,42,1,1674,100,100,0,1.0,19.8768,,,0,2026-10-13T14:11:35.460851+00:00,synthetic_experiment_decision,diagnostic_only,S06_ctgan_e1_n100_seed42.json
+ctgan,S06,marital_status == 2 and relationship == 0,123,1,1674,100,100,0,1.0,13.8798,,,0,2026-10-13T14:32:24.291186+00:00,synthetic_experiment_decision,diagnostic_only,S06_ctgan_e1_n100_seed123.json
+ctgan,S06,marital_status == 2 and relationship == 0,456,1,1674,100,100,0,1.0,14.0491,,,0,2026-10-13T14:32:43.188633+00:00,synthetic_experiment_decision,diagnostic_only,S06_ctgan_e1_n100_seed456.json
+ctgan,S07,age > 0.69 and marital_status == 2,42,1,1550,100,96,4,0.96,17.5773,,,0,2026-10-13T14:12:01.791899+00:00,synthetic_experiment_decision,diagnostic_only,S07_ctgan_e1_n100_seed42.json
+ctgan,S07,age > 0.69 and marital_status == 2,123,1,1550,100,100,0,1.0,14.0459,,,0,2026-10-13T14:33:02.050029+00:00,synthetic_experiment_decision,diagnostic_only,S07_ctgan_e1_n100_seed123.json
+ctgan,S07,age > 0.69 and marital_status == 2,456,1,1550,100,94,6,0.94,15.4644,,,0,2026-10-13T14:33:22.183138+00:00,synthetic_experiment_decision,diagnostic_only,S07_ctgan_e1_n100_seed456.json
+tabddpm,S01,age > 0.69,42,1,2159,100,100,0,1.0,5.5676,0.0889,0.0,0,2026-10-17T14:18:44.147226+00:00,synthetic_experiment_decision,diagnostic_only,S01_tabddpm_e1_t10_b128_n100_seed42.json
+tabddpm,S01,age > 0.69,123,1,2159,100,100,0,1.0,5.1515,0.1414,0.0,0,2026-10-17T14:19:00.207784+00:00,synthetic_experiment_decision,diagnostic_only,S01_tabddpm_e1_t10_b128_n100_seed123.json
+tabddpm,S01,age > 0.69,456,1,2159,100,100,0,1.0,4.735,0.1049,0.0,0,2026-10-17T14:19:16.357203+00:00,synthetic_experiment_decision,diagnostic_only,S01_tabddpm_e1_t10_b128_n100_seed456.json
+tabddpm,S02,capital_loss > -0.20,42,1,6000,100,100,0,1.0,5.3218,0.0713,0.0,0,2026-10-17T14:19:33.066250+00:00,synthetic_experiment_decision,diagnostic_only,S02_tabddpm_e1_t10_b128_n100_seed42.json
+tabddpm,S02,capital_loss > -0.20,123,1,6000,100,100,0,1.0,5.6582,0.1069,0.0,0,2026-10-17T14:19:49.601905+00:00,synthetic_experiment_decision,diagnostic_only,S02_tabddpm_e1_t10_b128_n100_seed123.json
+tabddpm,S02,capital_loss > -0.20,456,1,6000,100,100,0,1.0,5.6735,0.1083,0.0,0,2026-10-17T14:20:05.748849+00:00,synthetic_experiment_decision,diagnostic_only,S02_tabddpm_e1_t10_b128_n100_seed456.json
+tabddpm,S03,marital_status == 2,42,1,1723,100,100,0,1.0,4.62,0.1316,0.0,0,2026-10-17T14:20:21.539652+00:00,synthetic_experiment_decision,diagnostic_only,S03_tabddpm_e1_t10_b128_n100_seed42.json
+tabddpm,S03,marital_status == 2,123,1,1723,100,100,0,1.0,4.4477,0.1096,0.0,0,2026-10-17T14:20:36.670660+00:00,synthetic_experiment_decision,diagnostic_only,S03_tabddpm_e1_t10_b128_n100_seed123.json
+tabddpm,S03,marital_status == 2,456,1,1723,100,100,0,1.0,4.8588,0.0883,0.0,0,2026-10-17T14:20:51.723987+00:00,synthetic_experiment_decision,diagnostic_only,S03_tabddpm_e1_t10_b128_n100_seed456.json
+tabddpm,S04,race == 2,42,1,360,100,100,0,1.0,4.2174,0.0986,0.0,0,2026-10-17T14:21:06.313692+00:00,synthetic_experiment_decision,diagnostic_only,S04_tabddpm_e1_t10_b128_n100_seed42.json
+tabddpm,S04,race == 2,123,1,360,100,100,0,1.0,4.5433,0.0777,0.0,0,2026-10-17T14:21:21.199958+00:00,synthetic_experiment_decision,diagnostic_only,S04_tabddpm_e1_t10_b128_n100_seed123.json
+tabddpm,S04,race == 2,456,1,360,100,100,0,1.0,4.1479,0.0953,0.0,0,2026-10-17T14:21:36.116734+00:00,synthetic_experiment_decision,diagnostic_only,S04_tabddpm_e1_t10_b128_n100_seed456.json
+tabddpm,S05,age > 0.69 and education_num < -0.03,42,1,342,100,100,0,1.0,4.3475,0.0907,0.0,0,2026-10-17T14:21:50.699406+00:00,synthetic_experiment_decision,diagnostic_only,S05_tabddpm_e1_t10_b128_n100_seed42.json
+tabddpm,S05,age > 0.69 and education_num < -0.03,123,1,342,100,100,0,1.0,4.3439,0.0846,0.0,0,2026-10-17T14:22:05.961273+00:00,synthetic_experiment_decision,diagnostic_only,S05_tabddpm_e1_t10_b128_n100_seed123.json
+tabddpm,S05,age > 0.69 and education_num < -0.03,456,1,342,100,100,0,1.0,4.1173,0.0818,0.0,0,2026-10-17T14:22:20.220363+00:00,synthetic_experiment_decision,diagnostic_only,S05_tabddpm_e1_t10_b128_n100_seed456.json
+tabddpm,S06,marital_status == 2 and relationship == 0,42,1,1674,100,100,0,1.0,4.5424,0.1067,0.0,0,2026-10-17T14:22:34.909368+00:00,synthetic_experiment_decision,diagnostic_only,S06_tabddpm_e1_t10_b128_n100_seed42.json
+tabddpm,S06,marital_status == 2 and relationship == 0,123,1,1674,100,100,0,1.0,4.3826,0.0499,0.0,0,2026-10-17T14:22:49.537262+00:00,synthetic_experiment_decision,diagnostic_only,S06_tabddpm_e1_t10_b128_n100_seed123.json
+tabddpm,S06,marital_status == 2 and relationship == 0,456,1,1674,100,100,0,1.0,1.0999,0.025,0.0,0,2026-10-17T14:22:53.384031+00:00,synthetic_experiment_decision,diagnostic_only,S06_tabddpm_e1_t10_b128_n100_seed456.json
+tabddpm,S07,age > 0.69 and marital_status == 2,42,1,1550,100,100,0,1.0,1.1956,0.0291,0.0,0,2026-10-17T14:22:57.387552+00:00,synthetic_experiment_decision,diagnostic_only,S07_tabddpm_e1_t10_b128_n100_seed42.json
+tabddpm,S07,age > 0.69 and marital_status == 2,123,1,1550,100,100,0,1.0,1.2958,0.0498,0.0,0,2026-10-17T14:23:01.511898+00:00,synthetic_experiment_decision,diagnostic_only,S07_tabddpm_e1_t10_b128_n100_seed123.json
+tabddpm,S07,age > 0.69 and marital_status == 2,456,1,1550,100,100,0,1.0,1.1906,0.0496,0.0,0,2026-10-17T14:23:05.596054+00:00,synthetic_experiment_decision,diagnostic_only,S07_tabddpm_e1_t10_b128_n100_seed456.json
+tvae,S01,age > 0.69,42,1,2159,100,100,0,1.0,11.6257,,,0,2026-10-16T13:46:43.415232+00:00,synthetic_experiment_decision,diagnostic_only,S01_tvae_e1_n100_seed42.json
+tvae,S01,age > 0.69,123,1,2159,100,100,0,1.0,10.3732,,,0,2026-10-16T13:46:58.941583+00:00,synthetic_experiment_decision,diagnostic_only,S01_tvae_e1_n100_seed123.json
+tvae,S01,age > 0.69,456,1,2159,100,100,0,1.0,13.6585,,,0,2026-10-16T13:47:17.351118+00:00,synthetic_experiment_decision,diagnostic_only,S01_tvae_e1_n100_seed456.json
+tvae,S02,capital_loss > -0.20,42,1,6000,100,100,0,1.0,14.7778,,,0,2026-10-16T13:47:36.971037+00:00,synthetic_experiment_decision,diagnostic_only,S02_tvae_e1_n100_seed42.json
+tvae,S02,capital_loss > -0.20,123,1,6000,100,100,0,1.0,14.6762,,,0,2026-10-16T13:47:56.178218+00:00,synthetic_experiment_decision,diagnostic_only,S02_tvae_e1_n100_seed123.json
+tvae,S02,capital_loss > -0.20,456,1,6000,100,100,0,1.0,14.9777,,,0,2026-10-16T13:48:15.717911+00:00,synthetic_experiment_decision,diagnostic_only,S02_tvae_e1_n100_seed456.json
+tvae,S03,marital_status == 2,42,1,1723,100,100,0,1.0,14.2066,,,0,2026-10-16T13:48:34.800479+00:00,synthetic_experiment_decision,diagnostic_only,S03_tvae_e1_n100_seed42.json
+tvae,S03,marital_status == 2,123,1,1723,100,100,0,1.0,14.151,,,0,2026-10-16T13:48:53.700770+00:00,synthetic_experiment_decision,diagnostic_only,S03_tvae_e1_n100_seed123.json
+tvae,S03,marital_status == 2,456,1,1723,100,100,0,1.0,14.041,,,0,2026-10-16T13:49:12.279176+00:00,synthetic_experiment_decision,diagnostic_only,S03_tvae_e1_n100_seed456.json
+tvae,S04,race == 2,42,1,360,100,100,0,1.0,1.9587,,,0,2026-10-16T13:49:19.013966+00:00,synthetic_experiment_decision,diagnostic_only,S04_tvae_e1_n100_seed42.json
+tvae,S04,race == 2,123,1,360,100,100,0,1.0,1.9014,,,0,2026-10-16T13:49:24.053380+00:00,synthetic_experiment_decision,diagnostic_only,S04_tvae_e1_n100_seed123.json
+tvae,S04,race == 2,456,1,360,100,100,0,1.0,1.8893,,,0,2026-10-16T13:49:29.081441+00:00,synthetic_experiment_decision,diagnostic_only,S04_tvae_e1_n100_seed456.json
+tvae,S05,age > 0.69 and education_num < -0.03,42,1,342,100,100,0,1.0,1.9795,,,0,2026-10-16T13:49:34.286037+00:00,synthetic_experiment_decision,diagnostic_only,S05_tvae_e1_n100_seed42.json
+tvae,S05,age > 0.69 and education_num < -0.03,123,1,342,100,99,1,0.99,1.8419,,,0,2026-10-16T13:49:39.258687+00:00,synthetic_experiment_decision,diagnostic_only,S05_tvae_e1_n100_seed123.json
+tvae,S05,age > 0.69 and education_num < -0.03,456,1,342,100,100,0,1.0,1.8852,,,0,2026-10-16T13:49:44.335372+00:00,synthetic_experiment_decision,diagnostic_only,S05_tvae_e1_n100_seed456.json
+tvae,S06,marital_status == 2 and relationship == 0,42,1,1674,100,100,0,1.0,13.8693,,,0,2026-10-16T13:50:01.445088+00:00,synthetic_experiment_decision,diagnostic_only,S06_tvae_e1_n100_seed42.json
+tvae,S06,marital_status == 2 and relationship == 0,123,1,1674,100,100,0,1.0,13.929,,,0,2026-10-16T13:50:19.981775+00:00,synthetic_experiment_decision,diagnostic_only,S06_tvae_e1_n100_seed123.json
+tvae,S06,marital_status == 2 and relationship == 0,456,1,1674,100,100,0,1.0,13.7324,,,0,2026-10-16T13:50:38.226280+00:00,synthetic_experiment_decision,diagnostic_only,S06_tvae_e1_n100_seed456.json
+tvae,S07,age > 0.69 and marital_status == 2,42,1,1550,100,100,0,1.0,13.8728,,,0,2026-10-16T13:50:56.586525+00:00,synthetic_experiment_decision,diagnostic_only,S07_tvae_e1_n100_seed42.json
+tvae,S07,age > 0.69 and marital_status == 2,123,1,1550,100,100,0,1.0,16.0513,,,0,2026-10-16T13:51:17.284964+00:00,synthetic_experiment_decision,diagnostic_only,S07_tvae_e1_n100_seed123.json
+tvae,S07,age > 0.69 and marital_status == 2,456,1,1550,100,100,0,1.0,16.4035,,,0,2026-10-16T13:51:39.053363+00:00,synthetic_experiment_decision,diagnostic_only,S07_tvae_e1_n100_seed456.json

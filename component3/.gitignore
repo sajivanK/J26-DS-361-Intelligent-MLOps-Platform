@@ -1,0 +1,28 @@
+# Re-include audited Component 3 experiment research datasets and summaries
+!data/repair_experiments_clean.csv
+!data/repair_experiments_raw.csv
+!results/baselines/baseline_evaluation_summary.csv
+!results/drift/drift_simulation_summary.csv
+!results/generators/telco_churn_generator_pilot_summary.csv
+!results/generators/telco_churn_generator_improvement_summary.csv
+!results/augmentation/telco_churn_minority_augmentation_summary.csv
+!results/augmentation/telco_churn_validation_predictions_audit.csv
+!results/prescription_baselines_comparison.csv
+!results/expanded_prescription_training_dataset.csv
+!results/prescription_training_dataset.csv
+!results/expanded_multidataset_benchmark_results.csv
+!results/multidataset_benchmark_results.csv
+
+# Ignore local colab workspace, temporary checkpoints, and serialized models
+colab_workspace/
+models/
+results/checkpoints/
+results/repair_experiments/
+*.joblib
+*.tmp
+
+
+# Generated run outputs and scratch files
+results/live_runs/
+results/runs/
+scratch/

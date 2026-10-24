@@ -1,0 +1,17 @@
+{
+  "root_cause_feature": "race",
+  "root_cause_category": "marginal",
+  "affected_slice_rule": "race == 2",
+  "affected_features_ranked": [
+    "race"
+  ],
+  "affected_value_ranges": {
+    "race": [
+      2
+    ]
+  },
+  "slice_support": 0.06,
+  "diagnosis_stability": 0.7,
+  "drift_impact_score": 0.35,
+  "temporal_window": 3
+}

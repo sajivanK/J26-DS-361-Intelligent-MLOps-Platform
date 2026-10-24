@@ -1,0 +1,12 @@
+{
+  "notebook": "06_prescription_dataset_analysis.ipynb",
+  "executed_at_utc": "2026-10-20T12:56:13.986233+00:00",
+  "total_records": 160,
+  "clean_records": 159,
+  "censored_records": 1,
+  "num_datasets": 3,
+  "num_scenarios": 10,
+  "accepted_count": 11,
+  "acceptance_rate": 0.0688,
+  "status": "AUDITED_AND_VERIFIED"
+}

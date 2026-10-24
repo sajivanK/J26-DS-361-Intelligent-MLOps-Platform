@@ -5,6 +5,8 @@ J26-DS-361 | Intelligent MLOps Platform
 Each fake starts from the member's OWN contract example (shared/contracts/) and only adapts the
 fields that obviously depend on upstream results (e.g. C2's root-cause feature follows C1's
 affected_features). Fake values are placeholders: never report them as research results.
+Every fake carries "_source": "fake"; the orchestrator removes it and shows the step as fake for that
+run, even when a real component returned the example (e.g. C2 on a dataset it does not support).
 """
 from datetime import datetime, timezone
 
@@ -41,7 +43,7 @@ def fake_c2(upstream):
     to_c3["affected_value_ranges"] = {}
     to_c4.update(common)
     to_c4.update({"diagnosis_version": "c2-fake", "diagnosis_timestamp": _now()})
-    return {"c2_to_c3": to_c3, "c2_to_c4": to_c4}
+    return {"c2_to_c3": to_c3, "c2_to_c4": to_c4, "_source": "fake"}
 
 
 def fake_c3(upstream):
@@ -49,7 +51,7 @@ def fake_c3(upstream):
     run_id = upstream["context"].get("run_id", "run")
     out.update({"repair_dataset_uri": f"fake://repairs/{run_id}.csv",
                 "repair_version": "c3-fake", "repair_timestamp": _now()})
-    return {"c3": out}
+    return {"c3": out, "_source": "fake"}
 
 
 def fake_c4(upstream):
@@ -69,4 +71,4 @@ def fake_c4(upstream):
     out["hard_gate_status"]["repair_approved"] = c3.get("repair_package_status") == "APPROVED"
     out.update({"audit_id": f"fake-{upstream['context'].get('run_id', '')}", "decision_timestamp": _now()})
     out["reason"] = "FAKE C4 decision (rule of thumb on C1 severity). " + out.get("reason", "")
-    return {"c4": out}
+    return {"c4": out, "_source": "fake"}

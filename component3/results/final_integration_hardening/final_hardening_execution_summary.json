@@ -1,0 +1,101 @@
+{
+  "timestamp_utc": "2026-10-21T17:44:25Z",
+  "total_duration_seconds": 148.24,
+  "scenarios": [
+    {
+      "scenario": "scenario_1_real_tvae",
+      "description": "Authentic TVAE generator fitting and evaluation without candidate fallback",
+      "duration_seconds": 137.162,
+      "run_id": "RUN-3B84CF604F",
+      "package_id": "PKG-CB327D1B668C",
+      "package_status": "REJECTED",
+      "chosen_strategy": "TARGETED_SYNTHETIC_REPAIR",
+      "generator_executed": "TVAE",
+      "quantity_selected": 0,
+      "c4_flat_valid": true,
+      "c4_errors": [],
+      "c4_contract": {
+        "repair_dataset_uri": "NONE",
+        "repair_package_status": "REJECTED",
+        "generator": "TVAE",
+        "n_synthetic_rows": 0,
+        "augmentation_ratio": 0.0,
+        "fidelity_score": 0.0,
+        "utility_score": 0.0,
+        "privacy_status": "PASS",
+        "target_coverage": 0.0,
+        "prescription_confidence": 0.8,
+        "repair_version": "c3-5b511dd5",
+        "repair_timestamp": "2026-10-21T17:44:14.216940+00:00"
+      },
+      "dataset_verified": false,
+      "dataset_shape": null,
+      "model_verified": false,
+      "rejection_reasons": [
+        "Retraining evaluation rejected at K=25: ['Target adaptation performance gain (-0.0149) is below minimum practical utility margin (+0.0100) vs baseline.']",
+        "Candidate validation rejected at K=50: [\"Fidelity validation failed: ['Mean KS statistic (0.409) exceeds threshold (0.350)']\"]",
+        "Candidate validation rejected at K=100: [\"Fidelity validation failed: ['Mean KS statistic (0.401) exceeds threshold (0.350)']\"]",
+        "Retraining evaluation rejected at K=200: ['Target adaptation performance gain (+0.0024) is below minimum practical utility margin (+0.0100) vs baseline.']"
+      ],
+      "stage_durations": {
+        "validation_seconds": 12.495,
+        "prescription_seconds": 0.004,
+        "generation_planning_seconds": 123.716,
+        "total_pipeline_seconds": 136.229
+      }
+    },
+    {
+      "scenario": "scenario_2_no_drift",
+      "description": "Drift severity below threshold leading to safe abstention and honest zeroed C4 output",
+      "duration_seconds": 10.409,
+      "run_id": "RUN-70CA3DA22F",
+      "package_id": "PKG-37F8792E7F6E",
+      "package_status": "ABSTAINED_NO_REPAIR",
+      "chosen_strategy": "NO_REPAIR",
+      "quantity_selected": 0,
+      "c4_flat_valid": true,
+      "c4_contract": {
+        "repair_dataset_uri": "NONE",
+        "repair_package_status": "REJECTED",
+        "generator": "TVAE",
+        "n_synthetic_rows": 0,
+        "augmentation_ratio": 0.0,
+        "fidelity_score": 0.0,
+        "utility_score": 0.0,
+        "privacy_status": "PASS",
+        "target_coverage": 0.0,
+        "prescription_confidence": 0.4,
+        "repair_version": "c3-7cab8832",
+        "repair_timestamp": "2026-10-21T17:44:24.654457+00:00"
+      },
+      "rejection_reasons": [
+        "No significant drift detected (severity score < 0.10). Model repair is unnecessary."
+      ],
+      "stage_durations": {
+        "validation_seconds": 10.167,
+        "prescription_seconds": 0.0
+      }
+    },
+    {
+      "scenario": "scenario_3_dependency_blocking",
+      "description": "Missing teammate artifacts blocked immediately with DependencyResolutionError",
+      "blocked_correctly": true,
+      "exception_message": "Dependency resolution failure: Current drifted dataset not found at URI 'shared/uci_adult/data/current.csv' (resolved: D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\shared\\uci_adult\\data\\current.csv). Component 3 will not silently substitute another dataset. Component 3 will not silently substitute another dataset or artifact.",
+      "silent_fallback_prevented": true
+    },
+    {
+      "scenario": "scenario_4_c4_simulated_consumer",
+      "c4_contract_valid": true,
+      "validation_errors": [],
+      "resolved_csv_exists": true,
+      "consumer_loaded_rows": 100,
+      "consumer_loaded_cols": 21,
+      "target_column_present": true,
+      "sha256_verified": true
+    }
+  ],
+  "summary": {
+    "all_passed": true,
+    "scenario_count": 4
+  }
+}

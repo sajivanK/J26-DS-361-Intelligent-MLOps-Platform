@@ -1,0 +1,32 @@
+{
+  "scenario": "scenario_2_no_drift",
+  "description": "Drift severity below threshold leading to safe abstention and honest zeroed C4 output",
+  "duration_seconds": 10.409,
+  "run_id": "RUN-70CA3DA22F",
+  "package_id": "PKG-37F8792E7F6E",
+  "package_status": "ABSTAINED_NO_REPAIR",
+  "chosen_strategy": "NO_REPAIR",
+  "quantity_selected": 0,
+  "c4_flat_valid": true,
+  "c4_contract": {
+    "repair_dataset_uri": "NONE",
+    "repair_package_status": "REJECTED",
+    "generator": "TVAE",
+    "n_synthetic_rows": 0,
+    "augmentation_ratio": 0.0,
+    "fidelity_score": 0.0,
+    "utility_score": 0.0,
+    "privacy_status": "PASS",
+    "target_coverage": 0.0,
+    "prescription_confidence": 0.4,
+    "repair_version": "c3-7cab8832",
+    "repair_timestamp": "2026-10-21T17:44:24.654457+00:00"
+  },
+  "rejection_reasons": [
+    "No significant drift detected (severity score < 0.10). Model repair is unnecessary."
+  ],
+  "stage_durations": {
+    "validation_seconds": 10.167,
+    "prescription_seconds": 0.0
+  }
+}

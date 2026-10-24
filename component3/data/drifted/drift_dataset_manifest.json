@@ -1,0 +1,342 @@
+{
+  "manifest_version": "1.0.0",
+  "created_at_utc": "2026-10-12T08:11:01.331266+00:00",
+  "experiment_name": "sprint02_uci_adult_controlled_drift",
+  "dataset_name": "uci_adult",
+  "batch_size": 6000,
+  "seed": 42,
+  "target_column": "target",
+  "feature_types": {
+    "age": "continuous",
+    "education_num": "continuous",
+    "capital_gain": "continuous",
+    "capital_loss": "continuous",
+    "hours_per_week": "continuous",
+    "workclass": "categorical",
+    "marital_status": "categorical",
+    "occupation": "categorical",
+    "relationship": "categorical",
+    "race": "categorical",
+    "sex": "categorical",
+    "native_country": "categorical"
+  },
+  "configuration": {
+    "path": "component3/configs/drift_scenarios.json",
+    "sha256": "9a7dea7da4cdac0d7dbf9aed2c458e72339f79ee3cedc6609038b248064d79a4",
+    "size_bytes": 2395
+  },
+  "reference_dataset": {
+    "path": "shared/uci_adult/data/reference.csv",
+    "sha256": "84cbc88cbfac5567a3954445aa8b154d58644d6eef3b43c24eec9fd547474ad3",
+    "size_bytes": 3084323
+  },
+  "baseline_model": {
+    "path": "shared/uci_adult/models/base_model_adult.pkl",
+    "sha256": "63b7a2b0af7d73940db1111a57a5cf9179a4536dcce1916733bbc84891b2aa4e",
+    "size_bytes": 496531
+  },
+  "scenarios": [
+    {
+      "scenario_id": "S00",
+      "name": "no_drift_baseline",
+      "drift_type": "none",
+      "features": [],
+      "magnitude": 0.0,
+      "interaction_pairs": [],
+      "dataset": {
+        "path": "component3/data/drifted/S00.csv",
+        "sha256": "2db408ec120121958cca262e2bc3b5ced7886410b04b69d769bab5df6d46e7e2",
+        "size_bytes": 699578
+      },
+      "rows": 6000,
+      "columns": 13,
+      "feature_columns": [
+        "age",
+        "workclass",
+        "education_num",
+        "marital_status",
+        "occupation",
+        "relationship",
+        "race",
+        "sex",
+        "capital_gain",
+        "capital_loss",
+        "hours_per_week",
+        "native_country"
+      ],
+      "target_distribution": {
+        "0": 4530,
+        "1": 1470
+      }
+    },
+    {
+      "scenario_id": "S01",
+      "name": "high_importance_numerical",
+      "drift_type": "marginal_single",
+      "features": [
+        "age"
+      ],
+      "magnitude": 0.4,
+      "interaction_pairs": [],
+      "dataset": {
+        "path": "component3/data/drifted/S01.csv",
+        "sha256": "16fc5e561f1264bb2fcacf250241a492a490a74a7ab91903a11f70b22ec0cb03",
+        "size_bytes": 700714
+      },
+      "rows": 6000,
+      "columns": 13,
+      "feature_columns": [
+        "age",
+        "workclass",
+        "education_num",
+        "marital_status",
+        "occupation",
+        "relationship",
+        "race",
+        "sex",
+        "capital_gain",
+        "capital_loss",
+        "hours_per_week",
+        "native_country"
+      ],
+      "target_distribution": {
+        "0": 4530,
+        "1": 1470
+      }
+    },
+    {
+      "scenario_id": "S02",
+      "name": "low_importance_numerical",
+      "drift_type": "marginal_single",
+      "features": [
+        "capital_loss"
+      ],
+      "magnitude": 0.4,
+      "interaction_pairs": [],
+      "dataset": {
+        "path": "component3/data/drifted/S02.csv",
+        "sha256": "1bbdca7ea4e53fb0c6cb180c763192aa4eb322430b44d3b617321483aa1f9b1c",
+        "size_bytes": 697797
+      },
+      "rows": 6000,
+      "columns": 13,
+      "feature_columns": [
+        "age",
+        "workclass",
+        "education_num",
+        "marital_status",
+        "occupation",
+        "relationship",
+        "race",
+        "sex",
+        "capital_gain",
+        "capital_loss",
+        "hours_per_week",
+        "native_country"
+      ],
+      "target_distribution": {
+        "0": 4530,
+        "1": 1470
+      }
+    },
+    {
+      "scenario_id": "S03",
+      "name": "high_importance_categorical",
+      "drift_type": "marginal_single",
+      "features": [
+        "marital_status"
+      ],
+      "magnitude": 0.4,
+      "interaction_pairs": [],
+      "dataset": {
+        "path": "component3/data/drifted/S03.csv",
+        "sha256": "e3070868bc8181f30b1ccda3245f1d50405a3399546c10fa2f9bf9a79f578aad",
+        "size_bytes": 699578
+      },
+      "rows": 6000,
+      "columns": 13,
+      "feature_columns": [
+        "age",
+        "workclass",
+        "education_num",
+        "marital_status",
+        "occupation",
+        "relationship",
+        "race",
+        "sex",
+        "capital_gain",
+        "capital_loss",
+        "hours_per_week",
+        "native_country"
+      ],
+      "target_distribution": {
+        "0": 4530,
+        "1": 1470
+      }
+    },
+    {
+      "scenario_id": "S04",
+      "name": "low_importance_categorical",
+      "drift_type": "marginal_single",
+      "features": [
+        "race"
+      ],
+      "magnitude": 0.4,
+      "interaction_pairs": [],
+      "dataset": {
+        "path": "component3/data/drifted/S04.csv",
+        "sha256": "217429df1ae99c32d9da82821da6e1325f493e864d76836508ed8fa9fcb42a70",
+        "size_bytes": 699578
+      },
+      "rows": 6000,
+      "columns": 13,
+      "feature_columns": [
+        "age",
+        "workclass",
+        "education_num",
+        "marital_status",
+        "occupation",
+        "relationship",
+        "race",
+        "sex",
+        "capital_gain",
+        "capital_loss",
+        "hours_per_week",
+        "native_country"
+      ],
+      "target_distribution": {
+        "0": 4530,
+        "1": 1470
+      }
+    },
+    {
+      "scenario_id": "S05",
+      "name": "multiple_numerical_features",
+      "drift_type": "marginal_multi",
+      "features": [
+        "age",
+        "education_num"
+      ],
+      "magnitude": 0.6,
+      "interaction_pairs": [],
+      "dataset": {
+        "path": "component3/data/drifted/S05.csv",
+        "sha256": "b3604fb076ebffb8fbabbeb847923a4709180082b9da5cf0ffc16e7ad41366d6",
+        "size_bytes": 697963
+      },
+      "rows": 6000,
+      "columns": 13,
+      "feature_columns": [
+        "age",
+        "workclass",
+        "education_num",
+        "marital_status",
+        "occupation",
+        "relationship",
+        "race",
+        "sex",
+        "capital_gain",
+        "capital_loss",
+        "hours_per_week",
+        "native_country"
+      ],
+      "target_distribution": {
+        "0": 4530,
+        "1": 1470
+      }
+    },
+    {
+      "scenario_id": "S06",
+      "name": "feature_interaction",
+      "drift_type": "interaction",
+      "features": [
+        "marital_status",
+        "relationship"
+      ],
+      "magnitude": 0.6,
+      "interaction_pairs": [
+        [
+          "marital_status",
+          "relationship"
+        ]
+      ],
+      "dataset": {
+        "path": "component3/data/drifted/S06.csv",
+        "sha256": "72e7219474ac032987d6b2afa4e1a85964a8c80fe2a3d035043307252474166a",
+        "size_bytes": 699578
+      },
+      "rows": 6000,
+      "columns": 13,
+      "feature_columns": [
+        "age",
+        "workclass",
+        "education_num",
+        "marital_status",
+        "occupation",
+        "relationship",
+        "race",
+        "sex",
+        "capital_gain",
+        "capital_loss",
+        "hours_per_week",
+        "native_country"
+      ],
+      "target_distribution": {
+        "0": 4530,
+        "1": 1470
+      }
+    },
+    {
+      "scenario_id": "S07",
+      "name": "combined_feature_drift",
+      "drift_type": "combined",
+      "features": [
+        "age"
+      ],
+      "magnitude": 0.6,
+      "interaction_pairs": [
+        [
+          "marital_status",
+          "relationship"
+        ]
+      ],
+      "dataset": {
+        "path": "component3/data/drifted/S07.csv",
+        "sha256": "80d4176f9f33781ebea94888e5f9297fc941e6e0b61f1b6467c99bac6ac66020",
+        "size_bytes": 700229
+      },
+      "rows": 6000,
+      "columns": 13,
+      "feature_columns": [
+        "age",
+        "workclass",
+        "education_num",
+        "marital_status",
+        "occupation",
+        "relationship",
+        "race",
+        "sex",
+        "capital_gain",
+        "capital_loss",
+        "hours_per_week",
+        "native_country"
+      ],
+      "target_distribution": {
+        "0": 4530,
+        "1": 1470
+      }
+    }
+  ],
+  "experimental_results": [
+    {
+      "path": "component3/data/drifted/drift_performance_metrics.csv",
+      "sha256": "dc83d0a3bf185a25d9ce7b83affb172b5cd2c336f6eda1331704af2f0f89e3ac",
+      "size_bytes": 2065
+    },
+    {
+      "path": "component3/data/drifted/magnitude_sensitivity.csv",
+      "sha256": "5947964f7fa9eb783d23351ce13f9812cb52d9ba38e0229172f4fa392228878a",
+      "size_bytes": 618
+    }
+  ]
+}

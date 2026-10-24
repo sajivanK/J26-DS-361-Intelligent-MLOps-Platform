@@ -1,0 +1,212 @@
+{
+  "experiment": "sprint05_task05_s04_utility_evaluation",
+  "scenario": "S04",
+  "slice_rule": "race == 2",
+  "seed": 42,
+  "n_samples": 100,
+  "unauthorized_evaluation": {
+    "stage": "utility",
+    "status": "NOT_EVALUATED",
+    "metrics": {
+      "label_authorized": false,
+      "target_column": "target",
+      "evaluation_rows": 6513,
+      "baseline_metrics": null,
+      "real_only_retrained_metrics": null,
+      "augmented_retrained_metrics": null,
+      "deltas": {},
+      "utility_score": null
+    },
+    "reasons": [
+      "Supervised retraining is NOT_EVALUATED: synthetic target labels are untrusted or unauthorized"
+    ]
+  },
+  "authorized_oracle_evaluation": {
+    "stage": "utility",
+    "status": "FAIL",
+    "metrics": {
+      "label_authorized": true,
+      "target_column": "target",
+      "evaluation_rows": 6513,
+      "baseline_metrics": {
+        "overall": {
+          "accuracy": 0.8744,
+          "precision": 0.7782,
+          "recall": 0.669,
+          "f1": 0.7195,
+          "roc_auc": 0.9298,
+          "support": 6513,
+          "confusion_matrix": [
+            [
+              4646,
+              299
+            ],
+            [
+              519,
+              1049
+            ]
+          ]
+        },
+        "affected_slice": {
+          "accuracy": 0.9184,
+          "precision": 0.7826,
+          "recall": 0.5806,
+          "f1": 0.6667,
+          "roc_auc": 0.9526,
+          "support": 662,
+          "confusion_matrix": [
+            [
+              554,
+              15
+            ],
+            [
+              39,
+              54
+            ]
+          ]
+        },
+        "non_affected": {
+          "accuracy": 0.8694,
+          "precision": 0.778,
+          "recall": 0.6746,
+          "f1": 0.7226,
+          "roc_auc": 0.9267,
+          "support": 5851,
+          "confusion_matrix": [
+            [
+              4092,
+              284
+            ],
+            [
+              480,
+              995
+            ]
+          ]
+        }
+      },
+      "real_only_retrained_metrics": {
+        "overall": {
+          "accuracy": 0.8719,
+          "precision": 0.8008,
+          "recall": 0.6231,
+          "f1": 0.7009,
+          "roc_auc": 0.926,
+          "support": 6513,
+          "confusion_matrix": [
+            [
+              4702,
+              243
+            ],
+            [
+              591,
+              977
+            ]
+          ]
+        },
+        "affected_slice": {
+          "accuracy": 0.9184,
+          "precision": 0.8305,
+          "recall": 0.5269,
+          "f1": 0.6447,
+          "roc_auc": 0.9507,
+          "support": 662,
+          "confusion_matrix": [
+            [
+              559,
+              10
+            ],
+            [
+              44,
+              49
+            ]
+          ]
+        },
+        "non_affected": {
+          "accuracy": 0.8667,
+          "precision": 0.7993,
+          "recall": 0.6292,
+          "f1": 0.7041,
+          "roc_auc": 0.9227,
+          "support": 5851,
+          "confusion_matrix": [
+            [
+              4143,
+              233
+            ],
+            [
+              547,
+              928
+            ]
+          ]
+        }
+      },
+      "augmented_retrained_metrics": {
+        "overall": {
+          "accuracy": 0.8675,
+          "precision": 0.7892,
+          "recall": 0.6135,
+          "f1": 0.6903,
+          "roc_auc": 0.9242,
+          "support": 6513,
+          "confusion_matrix": [
+            [
+              4688,
+              257
+            ],
+            [
+              606,
+              962
+            ]
+          ]
+        },
+        "affected_slice": {
+          "accuracy": 0.9139,
+          "precision": 0.8,
+          "recall": 0.5161,
+          "f1": 0.6275,
+          "roc_auc": 0.9491,
+          "support": 662,
+          "confusion_matrix": [
+            [
+              557,
+              12
+            ],
+            [
+              45,
+              48
+            ]
+          ]
+        },
+        "non_affected": {
+          "accuracy": 0.8622,
+          "precision": 0.7886,
+          "recall": 0.6197,
+          "f1": 0.694,
+          "roc_auc": 0.921,
+          "support": 5851,
+          "confusion_matrix": [
+            [
+              4131,
+              245
+            ],
+            [
+              561,
+              914
+            ]
+          ]
+        }
+      },
+      "deltas": {
+        "delta_overall_f1": -0.0292,
+        "delta_overall_accuracy": -0.0069,
+        "delta_affected_slice_f1": -0.0392,
+        "delta_non_affected_f1": -0.0286
+      },
+      "utility_score": 0.8548
+    },
+    "reasons": [
+      "Affected slice F1 delta (-0.0392) is below minimum threshold (-0.0200)"
+    ]
+  },
+  "created_at_utc": "2026-10-18T08:53:06.306955+00:00"
+}

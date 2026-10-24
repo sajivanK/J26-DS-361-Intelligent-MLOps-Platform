@@ -1,0 +1,191 @@
+{
+  "schema_version": "1.0",
+  "component": "C1",
+  "component_name": "Drift Detection Engine",
+  "owner": "Sajivan K (IT23172296)",
+  "endpoint": "POST /detect",
+  "description": "Output produced by C1 after detecting drift in a production batch. Sent to C2 and C4.",
+  "consumers": ["C2 (Tharmika N)", "C4 (Kesigan M)"],
+
+  "fields": {
+    "evidence_version": {
+      "type": "string",
+      "required": true,
+      "example": "c1-001",
+      "description": "Version identifier for this C1 evidence payload. Used by C4 audit trail.",
+      "used_by": ["C2", "C4"]
+    },
+    "model_id": {
+      "type": "string",
+      "required": true,
+      "example": "adult-xgb-v1",
+      "description": "Identifier of the deployed champion model being monitored. Passed through from platform onboarding config.",
+      "used_by": ["C2", "C3", "C4"]
+    },
+    "reference_dataset_uri": {
+      "type": "string",
+      "required": true,
+      "example": "shared/uci_adult/data/reference.csv",
+      "description": "Path to the reference dataset used during onboarding. Passed through so C2 and C3 can access it.",
+      "used_by": ["C2", "C3"]
+    },
+    "current_dataset_uri": {
+      "type": "string",
+      "required": true,
+      "example": "data/production/batch_20261001.csv",
+      "description": "Path to the current production batch that triggered the drift alert.",
+      "used_by": ["C2", "C3"]
+    },
+    "drift_type": {
+      "type": "string",
+      "required": true,
+      "example": "marginal",
+      "allowed_values": ["marginal_single", "marginal_multi", "interaction", "combined", "none"],
+      "description": "Classified type of drift from detector fingerprints. Output of Novelty 3 (drift-type classifier).",
+      "used_by": ["C2", "C4"]
+    },
+    "drift_severity": {
+      "type": "string",
+      "required": true,
+      "example": "high",
+      "allowed_values": ["none", "low", "moderate", "high", "critical"],
+      "description": "Severity label derived from predicted_harm. none=<1pp, low=1-3pp, moderate=3-7pp, high=7-15pp, critical=>15pp.",
+      "used_by": ["C2", "C3", "C4"]
+    },
+    "predicted_harm": {
+      "type": "float",
+      "required": true,
+      "example": 0.11,
+      "unit": "proportion (0.0 to 1.0)",
+      "description": "Predicted model accuracy or AUC degradation without production labels. Output of Novelty 1 (GBR meta-learner). Expressed as proportion: 0.11 means 11 percentage point drop.",
+      "used_by": ["C2", "C4"]
+    },
+    "harm_interval": {
+      "type": "array[float, float]",
+      "required": true,
+      "example": [0.07, 0.15],
+      "unit": "proportion [lower, upper]",
+      "description": "95% conformal prediction bounds on predicted_harm [lower, upper]. Output of Novelty 2.",
+      "used_by": ["C4"]
+    },
+    "harm_metric": {
+      "type": "string",
+      "required": true,
+      "example": "accuracy_drop",
+      "allowed_values": ["accuracy_drop", "auc_drop"],
+      "description": "Metric used for predicted_harm and harm_interval. accuracy_drop for balanced datasets, auc_drop for imbalanced (<10% minority class). Selected automatically during onboarding.",
+      "used_by": ["C4"]
+    },
+    "affected_features": {
+      "type": "array[string]",
+      "required": true,
+      "example": ["hours_per_week", "age"],
+      "description": "Ranked list of features most affected by drift. Used by C2 to guide SHAP analysis.",
+      "used_by": ["C2"]
+    },
+    "detector_scores": {
+      "type": "object",
+      "required": true,
+      "description": "Raw scores from all 6 detectors.",
+      "used_by": ["C2"],
+      "fields": {
+        "ks": {
+          "type": "float",
+          "example": 0.29,
+          "description": "KS test mean statistic across features"
+        },
+        "chi2": {
+          "type": "float",
+          "example": 0.05,
+          "description": "Chi-squared score (normalized)"
+        },
+        "psi": {
+          "type": "float",
+          "example": 0.43,
+          "description": "Population Stability Index mean"
+        },
+        "mmd": {
+          "type": "float",
+          "example": 0.12,
+          "description": "Maximum Mean Discrepancy (RBF kernel)"
+        },
+        "lsdd": {
+          "type": "float",
+          "example": 0.09,
+          "description": "Least-Squares Density Difference"
+        },
+        "classifier_auc": {
+          "type": "float",
+          "example": 0.68,
+          "description": "XGBoost C2ST AUC (0.5=no drift, 1.0=perfect separation). C1 contribution."
+        }
+      }
+    },
+    "detectors_fired": {
+      "type": "integer",
+      "required": true,
+      "example": 5,
+      "description": "Count of detectors whose score exceeded their individual alarm threshold. Used by C2 to assess detection consensus.",
+      "used_by": ["C2"]
+    },
+    "confidence_stats": {
+      "type": "object",
+      "required": true,
+      "description": "Model confidence statistics from production batch predictions.",
+      "used_by": ["C2"],
+      "fields": {
+        "mean_confidence": {
+          "type": "float",
+          "example": 0.81,
+          "description": "Mean max softmax probability on production batch"
+        },
+        "confidence_std": {
+          "type": "float",
+          "example": 0.14,
+          "description": "Standard deviation of prediction probabilities"
+        },
+        "pct_low_confidence": {
+          "type": "float",
+          "example": 0.22,
+          "description": "Fraction of predictions below 0.6 threshold"
+        }
+      }
+    }
+  },
+
+  "example_output": {
+    "evidence_version": "c1-001",
+    "model_id": "adult-xgb-v1",
+    "reference_dataset_uri": "shared/uci_adult/data/reference.csv",
+    "current_dataset_uri": "data/production/batch_20261001.csv",
+    "drift_type": "marginal",
+    "drift_severity": "high",
+    "predicted_harm": 0.11,
+    "harm_interval": [0.07, 0.15],
+    "harm_metric": "accuracy_drop",
+    "affected_features": ["hours_per_week", "age"],
+    "detector_scores": {
+      "ks": 0.29,
+      "chi2": 0.05,
+      "psi": 0.43,
+      "mmd": 0.12,
+      "lsdd": 0.09,
+      "classifier_auc": 0.68
+    },
+    "detectors_fired": 5,
+    "confidence_stats": {
+      "mean_confidence": 0.81,
+      "confidence_std": 0.14,
+      "pct_low_confidence": 0.22
+    }
+  },
+
+  "notes": [
+    "predicted_harm is a proportion (0.0-1.0): multiply by 100 to get percentage points",
+    "harm_metric is selected during onboarding: accuracy_drop for balanced, auc_drop for imbalanced datasets",
+    "detectors_fired is computed as count of detectors with score above their individual threshold",
+    "drift_type none means no statistically significant drift detected",
+    "model_id, reference_dataset_uri, current_dataset_uri are passed through from platform onboarding config",
+    "All float values rounded to 4 decimal places"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "root_cause_category": "marginal",
+  "root_cause_feature": "capital_gain",
+  "affected_slice_rule": "capital_gain > 0.4888 and age > -0.7763",
+  "slice_support": 0.29,
+  "diagnosis_stability": 1.0,
+  "affected_features_ranked": [
+    "capital_gain",
+    "marital_status",
+    "education_num"
+  ],
+  "diagnosis_version": "c2-003-b0abf8",
+  "diagnosis_timestamp": "2026-10-23T10:41:09Z"
+}

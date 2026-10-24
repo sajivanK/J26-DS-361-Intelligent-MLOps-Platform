@@ -1,0 +1,41 @@
+{
+  "c1_v11_direct_contract_validation": {
+    "accepted": false,
+    "errors": [
+      "c1_evidence missing required string field: 'drift_type'.",
+      "c1_evidence missing required string field: 'drift_severity'."
+    ]
+  },
+  "negative_interval_with_legacy_fields": {
+    "accepted": false,
+    "errors": [
+      "'confidence_interval[0]' must be >= 0.0, got -0.01."
+    ]
+  },
+  "invalid_slice_readiness": {
+    "ready": true,
+    "reason": "All readiness gates passed"
+  },
+  "invalid_slice_generation": {
+    "training_rows": 1000,
+    "used_entire_reference": true
+  },
+  "uci_platform_forwarded_arguments": {
+    "argument_names": [
+      "custom_c1",
+      "custom_c2",
+      "epochs",
+      "run_id",
+      "scenario_key"
+    ],
+    "has_batch": false,
+    "has_supplied_model": false,
+    "has_current_dataset_uri": false
+  },
+  "artifact_presence": {
+    "shared/uci_adult/data/reference.csv": true,
+    "shared/uci_adult/models/base_model_adult.pkl": true,
+    "component3/data/raw/telco_churn.csv": true,
+    "component3/models/experimental/telco_rf_experimental_source.joblib": true
+  }
+}

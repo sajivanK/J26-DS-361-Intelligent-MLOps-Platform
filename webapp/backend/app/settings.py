@@ -6,6 +6,7 @@ Paths come from environment variables so the same code runs on every member's ma
 Models and data stay OUTSIDE the repo (the repo is public).
 """
 import os
+import json
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]           # <repo>/webapp/backend/app/settings.py
@@ -39,9 +40,28 @@ TARGET_COL = "target"
 # Latest pipeline run, kept so the Overview page can show it after a restart (outside the repo).
 RUNS_DIR = Path(os.environ.get("J26_RUNS_DIR", str(DATA_DIR / "platform_runs")))
 
-# C2 / C3 / C4: add your own paths here when your real code is plugged in, e.g.
-# C2_MODEL_DIR = os.environ.get("C2_MODEL_DIR", str(DATA_DIR / "c2"))
+# C2 (Tharmika): the engine's data and model files default to shared/uci_adult in the repo (from the
+# team Drive, git-ignored); another place can be set with C2_REFERENCE_CSV, C2_TEST_CSV, C2_MODEL_PKL
+# and C2_PREPROCESSOR_PKL (read by c2/src/config.py). The C2 run history and audit log stay outside
+# the repo, in the data folder.
+C2_RUNS_FILE = Path(os.environ.get("C2_RUNS_FILE", str(DATA_DIR / "c2" / "runs.jsonl")))
+C2_AUDIT_LOG = Path(os.environ.get("C2_AUDIT_LOG", str(DATA_DIR / "c2" / "diagnosis_log.jsonl")))
+
+# C3 (Mathusan): model storage and per-model onboarding context.
+C3_MODEL_DIR = Path(os.environ.get("C3_MODEL_DIR", str(DATA_DIR / "c3")))
 
 LABEL_COLUMNS = ("target",)        # labels never reach the monitoring components
 MAX_UPLOAD_MB = 50
+
+
+def c3_data_context(model_id):
+    """Optional onboarding JSON keyed by exact model ID; requests may supply it directly."""
+    path = os.environ.get("C3_CONTEXTS_FILE")
+    if not path:
+        return {}
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    value = data.get(model_id, {})
+    if not isinstance(value, dict):
+        raise ValueError("C3_CONTEXTS_FILE entries must be data_context objects.")
+    return dict(value)
 FRONTEND_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]   # Vite dev server

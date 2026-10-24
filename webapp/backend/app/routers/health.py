@@ -9,8 +9,10 @@ router = APIRouter(prefix="/api", tags=["platform"])
 
 @router.get("/health")
 def health():
+    from ..main import ROUTERS_MISSING          # member page APIs that could not be imported
     comps = [c.status() for c in PIPELINE]
-    return {"status": "ok" if all(c["loaded"] for c in comps) else "degraded", "components": comps}
+    ok = all(c["loaded"] for c in comps) and not ROUTERS_MISSING
+    return {"status": "ok" if ok else "degraded", "components": comps, "routers_missing": ROUTERS_MISSING}
 
 
 @router.get("/datasets")

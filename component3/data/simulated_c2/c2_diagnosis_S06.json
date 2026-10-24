@@ -1,0 +1,21 @@
+{
+  "root_cause_feature": "marital_status",
+  "root_cause_category": "interaction",
+  "affected_slice_rule": "marital_status == 2 and relationship == 0",
+  "affected_features_ranked": [
+    "marital_status",
+    "relationship"
+  ],
+  "affected_value_ranges": {
+    "marital_status": [
+      2
+    ],
+    "relationship": [
+      0
+    ]
+  },
+  "slice_support": 0.279,
+  "diagnosis_stability": 0.84,
+  "drift_impact_score": 0.68,
+  "temporal_window": 4
+}

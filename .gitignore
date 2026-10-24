@@ -1,4 +1,4 @@
-﻿shared/uci_adult/data/
+shared/uci_adult/data/
 shared/uci_adult/models/
 shared/ieee_cis/data/
 shared/ieee_cis/models/
@@ -7,10 +7,24 @@ shared/ieee_cis/models/
 __pycache__/
 *.pyc
 .DS_Store
-
 # Local development environments and artifacts
 .venv/
-.pytest_cache/
 mlruns/
 components/c4/artifacts/
 components/c4/data/
+
+# Environment and IDE settings
+.vscode/
+.idea/
+
+# Testing and coverage caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS specific files
+Thumbs.db
+desktop.ini
+
+# Local scratch files
+/scratch/

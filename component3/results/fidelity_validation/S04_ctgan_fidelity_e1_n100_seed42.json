@@ -1,0 +1,184 @@
+{
+  "experiment": "sprint05_task03_s04_fidelity_validation",
+  "scenario": "S04",
+  "dataset": "uci_adult",
+  "generator": "ctgan",
+  "slice_rule": "race == 2",
+  "seed": 42,
+  "epochs": 1,
+  "n_samples": 100,
+  "current_rows": 6000,
+  "affected_slice_rows": 360,
+  "generator_training_rows": 360,
+  "generated_rows": 100,
+  "training_seconds": 6.9253,
+  "sampling_seconds": 0.0818,
+  "readiness_source": "synthetic_experiment_decision",
+  "fidelity_validation": {
+    "stage": "fidelity",
+    "status": "FAIL",
+    "metrics": {
+      "synthetic_rows": 100,
+      "reference_rows": 360,
+      "continuous_metrics": {
+        "age": {
+          "ref_mean": -0.07965803567936305,
+          "syn_mean": -0.323978654427351,
+          "mean_abs_diff": 0.24432061874798797,
+          "ref_std": 0.9353239465761423,
+          "syn_std": 1.0897400266846613,
+          "std_abs_diff": 0.15441608010851904,
+          "ks_statistic": 0.17722222222222223,
+          "ks_pvalue": 0.012745616727845428,
+          "wasserstein_distance": 0.2770727052659573,
+          "normalized_wasserstein_distance": 0.2962318096101494,
+          "quantile_diffs": {
+            "q25_diff": 0.36780531231598634,
+            "q50_diff": 0.3789067212725071,
+            "q75_diff": 0.14012614122868738
+          },
+          "boundary_concentration": 0.07
+        },
+        "education_num": {
+          "ref_mean": 0.048737238431146815,
+          "syn_mean": 0.4322622755166426,
+          "mean_abs_diff": 0.3835250370854958,
+          "ref_std": 1.02297338880854,
+          "syn_std": 1.080371384374668,
+          "std_abs_diff": 0.057397995566128124,
+          "ks_statistic": 0.255,
+          "ks_pvalue": 5.765316554418473e-05,
+          "wasserstein_distance": 0.3904220451690783,
+          "normalized_wasserstein_distance": 0.3816541558561988,
+          "quantile_diffs": {
+            "q25_diff": 0.0687682770068826,
+            "q50_diff": 0.35091703917316336,
+            "q75_diff": 0.23258300885087624
+          },
+          "boundary_concentration": 0.02
+        },
+        "capital_gain": {
+          "ref_mean": -0.017176145304478502,
+          "syn_mean": 0.6532051347815794,
+          "mean_abs_diff": 0.6703812800860579,
+          "ref_std": 0.8138357494311942,
+          "syn_std": 5.077240302903122,
+          "std_abs_diff": 4.263404553471927,
+          "ks_statistic": 0.475,
+          "ks_pvalue": 1.4142722878036147e-16,
+          "wasserstein_distance": 3.0966105946569202,
+          "normalized_wasserstein_distance": 3.804957691796167,
+          "quantile_diffs": {
+            "q25_diff": 0.25208247499235015,
+            "q50_diff": 0.06947221660991984,
+            "q75_diff": 1.69781976222909
+          },
+          "boundary_concentration": 0.49
+        },
+        "capital_loss": {
+          "ref_mean": -0.07279894826705399,
+          "syn_mean": 2.6719284321499095,
+          "mean_abs_diff": 2.7447273804169634,
+          "ref_std": 0.783973996104281,
+          "syn_std": 2.9445861075041515,
+          "std_abs_diff": 2.1606121113998706,
+          "ks_statistic": 0.8766666666666667,
+          "ks_pvalue": 2.9408213245635133e-65,
+          "wasserstein_distance": 2.75211779201127,
+          "normalized_wasserstein_distance": 3.510470762661871,
+          "quantile_diffs": {
+            "q25_diff": 0.06808062043767998,
+            "q50_diff": 2.709975515312528,
+            "q75_diff": 5.8731560278742885
+          },
+          "boundary_concentration": 0.41
+        },
+        "hours_per_week": {
+          "ref_mean": -0.07025595704907561,
+          "syn_mean": 0.10414582172582425,
+          "mean_abs_diff": 0.17440177877489987,
+          "ref_std": 0.9981297077317456,
+          "syn_std": 1.388615004653032,
+          "std_abs_diff": 0.3904852969212863,
+          "ks_statistic": 0.24944444444444444,
+          "ks_pvalue": 9.060581773068294e-05,
+          "wasserstein_distance": 0.3356648958864952,
+          "normalized_wasserstein_distance": 0.336293863699634,
+          "quantile_diffs": {
+            "q25_diff": 0.3782920405004759,
+            "q50_diff": 0.03944428479379504,
+            "q75_diff": 0.1996527438803134
+          },
+          "boundary_concentration": 0.01
+        }
+      },
+      "categorical_metrics": {
+        "workclass": {
+          "total_variation_distance": 0.6316666666666666,
+          "js_divergence": 0.338349251739955,
+          "category_coverage": 1.0,
+          "unseen_categories": []
+        },
+        "marital_status": {
+          "total_variation_distance": 0.44333333333333336,
+          "js_divergence": 0.21354886306025272,
+          "category_coverage": 1.0,
+          "unseen_categories": []
+        },
+        "occupation": {
+          "total_variation_distance": 0.2594444444444445,
+          "js_divergence": 0.09507415285700946,
+          "category_coverage": 1.0,
+          "unseen_categories": []
+        },
+        "relationship": {
+          "total_variation_distance": 0.2711111111111111,
+          "js_divergence": 0.10606304983489342,
+          "category_coverage": 1.0,
+          "unseen_categories": []
+        },
+        "race": {
+          "total_variation_distance": 0.0,
+          "js_divergence": 0.0,
+          "category_coverage": 1.0,
+          "unseen_categories": []
+        },
+        "sex": {
+          "total_variation_distance": 0.13666666666666663,
+          "js_divergence": 0.01406847556160599,
+          "category_coverage": 1.0,
+          "unseen_categories": []
+        },
+        "native_country": {
+          "total_variation_distance": 0.8266666666666668,
+          "js_divergence": 0.5892542169492013,
+          "category_coverage": 1.0,
+          "unseen_categories": []
+        }
+      },
+      "correlation_difference": {
+        "mean_absolute_difference": 0.09306428253863348,
+        "max_absolute_difference": 0.30118821592301503,
+        "frobenius_norm": 0.6757528076071165
+      },
+      "diversity_metrics": {
+        "duplicate_count": 0,
+        "duplicate_ratio": 0.0,
+        "unique_record_ratio": 1.0
+      },
+      "continuous_metrics_summary": {
+        "mean_ks_statistic": 0.4066666666666666,
+        "mean_normalized_wasserstein": 1.665921656724804
+      },
+      "categorical_metrics_summary": {
+        "mean_js_divergence": 0.19376543000041685,
+        "mean_total_variation_distance": 0.366984126984127
+      },
+      "fidelity_score": 0.7688
+    },
+    "reasons": [
+      "Mean KS statistic (0.407) exceeds threshold (0.350)"
+    ]
+  },
+  "created_at_utc": "2026-10-18T08:46:54.613019+00:00"
+}
