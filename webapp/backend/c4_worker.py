@@ -72,3 +72,24 @@ class RevisedCaseRequest(BaseModel):
 @app.post("/api/c4/release/revised/evaluate")
 def revised_evaluate(request: RevisedCaseRequest):
     return invoke(service.revised_evaluate, request.case_id, request.method, request.family)
+
+@app.post("/api/c4/pipeline")
+def pipeline_evaluate(upstream: dict):
+    from app.components.c4_pipeline_service import (
+        PipelineInputError,
+        PipelineUnavailable,
+        evaluate_pipeline,
+    )
+    try:
+        return evaluate_pipeline(upstream)
+    except PipelineInputError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except PipelineUnavailable as exc:
+        log.exception("C4 live pipeline unavailable")
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        log.exception("C4 live pipeline failed")
+        raise HTTPException(
+            status_code=500,
+            detail="C4 live evaluation failed. Inspect the worker log.",
+        ) from exc
