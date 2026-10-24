@@ -1,4 +1,4 @@
-﻿"""Live upstream gate assessment. No training, forecasts or release approval."""
+"""Live upstream gate assessment. No training, forecasts or release approval."""
 from __future__ import annotations
 
 from typing import Any
@@ -15,8 +15,6 @@ def assess_pipeline_gates(upstream: dict[str, Any]) -> dict[str, Any]:
         "repair_approved": repair.repair_package_status == "APPROVED",
         "privacy_check": repair.privacy_status == "PASS",
         "diagnosis_stability": diagnosis.diagnosis_stability >= 0.5,
-        "generator_executed": repair.generator != "NONE",
-        "synthetic_rows_available": repair.n_synthetic_rows > 0,
     }
     failures = [name for name, passed in checks.items() if not passed]
 

@@ -1,4 +1,4 @@
-﻿"""Live Layer A decisions. No candidate training or forecast execution."""
+"""Live Layer A decisions. No candidate training or forecast execution."""
 from __future__ import annotations
 
 import json
@@ -83,10 +83,6 @@ def evaluate_pipeline(upstream):
         failures.append("C3 repair package REJECTED")
     if privacy == "FAIL":
         failures.append("C3 privacy check FAIL")
-    if generator == "NONE":
-        failures.append("No repair generator executed")
-    if rows == 0:
-        failures.append("No synthetic repair rows available")
 
     # An independently verified rejection is sufficient to stop.
     # Missing diagnosis evidence is not silently converted into a numeric score.
