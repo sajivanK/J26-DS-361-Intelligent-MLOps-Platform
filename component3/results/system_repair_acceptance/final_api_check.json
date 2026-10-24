@@ -1,0 +1,106 @@
+{
+  "health": {
+    "c1": {
+      "loaded": true,
+      "source": "real"
+    },
+    "c2": {
+      "loaded": true,
+      "source": "real"
+    },
+    "c3": {
+      "loaded": true,
+      "source": "real"
+    },
+    "c4": {
+      "loaded": true,
+      "source": "fake"
+    }
+  },
+  "models": {
+    "models": [
+      {
+        "model_id": "adult-xgb-v1",
+        "dataset_id": "uci",
+        "artifacts": {
+          "model_uri": {
+            "path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\c2\\base_model_adult.pkl",
+            "available": true
+          },
+          "reference_dataset_uri": {
+            "path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\uci\\reference.csv",
+            "available": true
+          }
+        },
+        "ready": true,
+        "algorithm": "XGBClassifier",
+        "monitoring_available": true,
+        "task": "tabular_binary_classification"
+      }
+    ],
+    "error": null
+  },
+  "latest_pipeline_run": "d2bd4c6e08a4",
+  "latest_c3_status": "REJECTED",
+  "saved_stage_statuses": [
+    [
+      "Input Validation",
+      "Completed"
+    ],
+    [
+      "Repair Readiness",
+      "Completed"
+    ],
+    [
+      "Slice Extraction",
+      "Completed"
+    ],
+    [
+      "Generator Prescription",
+      "Completed"
+    ],
+    [
+      "Repair Quantity Calculation",
+      "Completed"
+    ],
+    [
+      "Generator Training",
+      "Completed"
+    ],
+    [
+      "Synthetic Data Generation",
+      "Completed"
+    ],
+    [
+      "Structural Validation",
+      "Completed"
+    ],
+    [
+      "Target Coverage Validation",
+      "Completed"
+    ],
+    [
+      "Fidelity Validation",
+      "Failed"
+    ],
+    [
+      "Privacy Validation",
+      "Failed"
+    ],
+    [
+      "Utility Evaluation",
+      "Waiting"
+    ],
+    [
+      "Final Decision",
+      "Completed"
+    ],
+    [
+      "C4 Package Preparation",
+      "Completed"
+    ]
+  ],
+  "rejected_download_http_status": 409,
+  "repair_records": 45,
+  "frontend_http_status": 200
+}

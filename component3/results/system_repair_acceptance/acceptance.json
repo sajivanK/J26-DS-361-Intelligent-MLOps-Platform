@@ -1,0 +1,2222 @@
+{
+  "health": {
+    "status": "ok",
+    "components": [
+      {
+        "name": "c1",
+        "title": "C1 Drift Detection",
+        "owner": "Sajivan K",
+        "source": "real",
+        "loaded": true,
+        "error": null,
+        "load_sec": 45.5,
+        "produces": [
+          "c1"
+        ],
+        "engine_version": "1.2.3",
+        "engines": {
+          "uci": {
+            "loaded": true,
+            "path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\uci\\portable",
+            "load_sec": 0.7,
+            "warmup_sec": 35.1
+          },
+          "ieee": {
+            "loaded": true,
+            "path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\ieee\\c1_engine_ieeecis_v12.pkl",
+            "load_sec": 3.0,
+            "warmup_sec": 6.7
+          }
+        }
+      },
+      {
+        "name": "c2",
+        "title": "C2 Root Cause Diagnosis",
+        "owner": "Tharmika N",
+        "source": "real",
+        "loaded": true,
+        "error": null,
+        "load_sec": 12.6,
+        "produces": [
+          "c2_to_c3",
+          "c2_to_c4"
+        ],
+        "datasets": [
+          "uci"
+        ],
+        "warmup_sec": 5.4,
+        "runs_stored": 13,
+        "z_thresh": 4.645,
+        "plain_language_decoded": true,
+        "fake_runs_unsupported_dataset": 0,
+        "labels_used": false
+      },
+      {
+        "name": "c3",
+        "title": "C3 Synthetic Data Repair",
+        "owner": "Mathusan K",
+        "source": "real",
+        "loaded": true,
+        "error": null,
+        "load_sec": 0.5,
+        "produces": [
+          "c3"
+        ],
+        "fallback_runs": 0,
+        "last_reason": null,
+        "dependency_error": null,
+        "supported_generators": [
+          "TVAE",
+          "CTGAN",
+          "TabDDPM"
+        ],
+        "supported_tasks": [
+          "tabular_binary_classification"
+        ],
+        "decision_modes": [
+          "RULE_BASED"
+        ],
+        "version": "2.0.0",
+        "contract_version": "1.1"
+      },
+      {
+        "name": "c4",
+        "title": "C4 Release Controller",
+        "owner": "Kesigan M",
+        "source": "fake",
+        "loaded": true,
+        "error": null,
+        "load_sec": 0.0,
+        "produces": [
+          "c4"
+        ]
+      }
+    ]
+  },
+  "cases": [
+    {
+      "summary": {
+        "case": "clean",
+        "run_id": "a9dfaeca8c8c",
+        "pipeline_status": "no_action",
+        "sources": {
+          "c1": "real"
+        },
+        "c1_harm": 0.0037,
+        "c2": null,
+        "c3_status": null,
+        "generator": null,
+        "generated_rows": null,
+        "reason": null,
+        "contract_errors": []
+      },
+      "response": {
+        "run_id": "c9e348363c",
+        "truth": {
+          "harm_metric": "accuracy_drop",
+          "true_harm_pp": -0.3095,
+          "true_harm_paired_pp": 0.0,
+          "baseline": 0.8744,
+          "on_batch": 0.8775,
+          "same_rows_before": 0.8775,
+          "note": "fixed baseline (whole test set) minus the model on this batch; labels never reach the components"
+        },
+        "injection": {
+          "dataset": "uci",
+          "drift_type": "none",
+          "features": [],
+          "shifted": [],
+          "interaction_pairs": [],
+          "magnitude": 0.0,
+          "batch_size": 2000,
+          "seed": 42,
+          "inject_sec": 0.076
+        },
+        "mode": "pipeline",
+        "pipeline": {
+          "run_id": "a9dfaeca8c8c",
+          "status": "no_action",
+          "stopped_reason": "C1 did not establish meaningful harmful drift: no repair needed",
+          "runtime_sec": 1.355,
+          "context": {
+            "model_id": "adult-xgb-v1",
+            "model_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\c2\\base_model_adult.pkl",
+            "dataset_id": "uci",
+            "reference_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\uci\\reference.csv",
+            "target_column": "target",
+            "input_representation": "model_ready",
+            "feature_columns": [
+              "age",
+              "workclass",
+              "education_num",
+              "marital_status",
+              "occupation",
+              "relationship",
+              "race",
+              "sex",
+              "capital_gain",
+              "capital_loss",
+              "hours_per_week",
+              "native_country"
+            ],
+            "categorical_features": [
+              "workclass",
+              "marital_status",
+              "occupation",
+              "relationship",
+              "race",
+              "sex",
+              "native_country"
+            ],
+            "repair_metric": "accuracy",
+            "adaptation_budget_size": 200,
+            "generator_epochs": 20,
+            "augmentation_ratio": 0.3,
+            "max_synthetic_rows": 1000,
+            "minimum_utility_gain": 0.01,
+            "source_retention_tolerance": 0.05,
+            "fidelity_ks_max": 0.35,
+            "privacy_dcr_min": 0.05,
+            "max_near_duplicate_ratio": 0.0,
+            "control_utility_tolerance": 0.0,
+            "require_bootstrap_positive": true,
+            "min_diagnosis_stability": 0.5,
+            "dataset": "uci",
+            "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_c9e348363c.csv",
+            "batch_id": "lab_c9e348363c",
+            "label_status": "AVAILABLE",
+            "label_source": "drift_lab_ground_truth_available_to_c3_only",
+            "run_id": "a9dfaeca8c8c"
+          },
+          "steps": [
+            {
+              "component": "c1",
+              "title": "C1 Drift Detection",
+              "source": "real",
+              "status": "ok",
+              "runtime_sec": 1.352,
+              "outputs": [
+                "c1"
+              ],
+              "contract_ok": true,
+              "contract_errors": {}
+            }
+          ],
+          "outputs": {
+            "c1": {
+              "evidence_version": "c1-26e6ad7a",
+              "engine_version": "1.2.3",
+              "model_id": "adult-xgb-v1",
+              "reference_dataset_uri": "",
+              "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_c9e348363c.csv",
+              "batch_size": 2000,
+              "drift_detected": false,
+              "predicted_harm": 0.0037,
+              "harm_interval": [
+                -0.0129,
+                0.0202
+              ],
+              "harm_metric": "accuracy_drop",
+              "harm_severity": "none",
+              "marginal_extent": "none",
+              "interaction_suspected": 0.5388,
+              "affected_features": [],
+              "detector_scores": {
+                "ks_mean": 0.0108,
+                "ks_max": 0.0156,
+                "chi2_mean": 0.0028,
+                "chi2_max": 0.0151,
+                "psi_mean": 0.004,
+                "psi_max": 0.023,
+                "mmd": 0.0019,
+                "lsdd": 0.0012,
+                "clf_auc": 0.4797
+              },
+              "detectors_fired": 2,
+              "detectors_fired_list": [
+                "mmd",
+                "lsdd"
+              ],
+              "prediction_stats": {
+                "conf_mean": 0.8714,
+                "conf_std": 0.1519,
+                "conf_pct_lt_06": 0.0905,
+                "mean_pos_prob": 0.2422,
+                "pos_prob_std": 0.3075,
+                "pct_pos_prob_lt_06": 0.8335
+              },
+              "warnings": [],
+              "runtime_sec": 1.349
+            }
+          },
+          "component_sources": {
+            "c1": "real"
+          },
+          "origin": {
+            "kind": "drift_lab",
+            "rows": 2000,
+            "run_ref": "c9e348363c",
+            "label": "Drift Lab: none (clean)",
+            "truth": {
+              "harm_metric": "accuracy_drop",
+              "true_harm_pp": -0.3095,
+              "true_harm_paired_pp": 0.0,
+              "baseline": 0.8744,
+              "on_batch": 0.8775,
+              "same_rows_before": 0.8775,
+              "note": "fixed baseline (whole test set) minus the model on this batch; labels never reach the components"
+            }
+          }
+        },
+        "c1": {
+          "evidence_version": "c1-26e6ad7a",
+          "engine_version": "1.2.3",
+          "model_id": "adult-xgb-v1",
+          "reference_dataset_uri": "",
+          "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_c9e348363c.csv",
+          "batch_size": 2000,
+          "drift_detected": false,
+          "predicted_harm": 0.0037,
+          "harm_interval": [
+            -0.0129,
+            0.0202
+          ],
+          "harm_metric": "accuracy_drop",
+          "harm_severity": "none",
+          "marginal_extent": "none",
+          "interaction_suspected": 0.5388,
+          "affected_features": [],
+          "detector_scores": {
+            "ks_mean": 0.0108,
+            "ks_max": 0.0156,
+            "chi2_mean": 0.0028,
+            "chi2_max": 0.0151,
+            "psi_mean": 0.004,
+            "psi_max": 0.023,
+            "mmd": 0.0019,
+            "lsdd": 0.0012,
+            "clf_auc": 0.4797
+          },
+          "detectors_fired": 2,
+          "detectors_fired_list": [
+            "mmd",
+            "lsdd"
+          ],
+          "prediction_stats": {
+            "conf_mean": 0.8714,
+            "conf_std": 0.1519,
+            "conf_pct_lt_06": 0.0905,
+            "mean_pos_prob": 0.2422,
+            "pos_prob_std": 0.3075,
+            "pct_pos_prob_lt_06": 0.8335
+          },
+          "warnings": [],
+          "runtime_sec": 1.349
+        },
+        "summary": {
+          "run_id": "c9e348363c",
+          "saved_at": "2026-10-24T00:23:03.741+05:30",
+          "source": "drift_lab",
+          "mode": "pipeline",
+          "dataset": "uci",
+          "drift_type": "none",
+          "features": [],
+          "magnitude": 0.0,
+          "seed": 42,
+          "file": null,
+          "batch_size": 2000,
+          "truth_pp": -0.3095,
+          "c1_pp": 0.37,
+          "lo_pp": -1.29,
+          "hi_pp": 2.02,
+          "severity": "none",
+          "extent": "none",
+          "interaction": 0.5388,
+          "detectors_fired": 2,
+          "classic_alarm": false,
+          "inside": true,
+          "outcome": "correct quiet",
+          "pipeline_status": "no_action",
+          "c3_status": null,
+          "has_batch": false
+        }
+      }
+    },
+    {
+      "summary": {
+        "case": "harmful_multi",
+        "run_id": "3ca09fc3dabf",
+        "pipeline_status": "completed",
+        "sources": {
+          "c1": "real",
+          "c2": "real",
+          "c3": "real",
+          "c4": "fake"
+        },
+        "c1_harm": 0.0627,
+        "c2": {
+          "root_cause_feature": "age",
+          "root_cause_category": "marginal",
+          "affected_slice_rule": "age > -0.4428 and age <= 0.1249 and education_num > 1.818",
+          "affected_features_ranked": [
+            "age",
+            "education_num",
+            "hours_per_week"
+          ],
+          "affected_value_ranges": {
+            "age": [
+              -0.4427787794202843,
+              0.12486699110089045
+            ]
+          },
+          "slice_support": 0.05,
+          "diagnosis_stability": 1.0,
+          "drift_impact_score": 0.803,
+          "temporal_window": 1
+        },
+        "c3_status": "BLOCKED",
+        "generator": "NONE",
+        "generated_rows": null,
+        "reason": "C2 diagnosed model differs from C3's supplied model artifact.",
+        "contract_errors": []
+      },
+      "response": {
+        "run_id": "66dafe5cf9",
+        "truth": {
+          "harm_metric": "accuracy_drop",
+          "true_harm_pp": 1.8905,
+          "true_harm_paired_pp": 2.2,
+          "baseline": 0.8744,
+          "on_batch": 0.8555,
+          "same_rows_before": 0.8775,
+          "note": "fixed baseline (whole test set) minus the model on this batch; labels never reach the components"
+        },
+        "injection": {
+          "dataset": "uci",
+          "drift_type": "marginal_multi",
+          "features": [
+            "age",
+            "education_num"
+          ],
+          "shifted": [
+            "age",
+            "education_num"
+          ],
+          "interaction_pairs": [],
+          "magnitude": 0.8,
+          "batch_size": 2000,
+          "seed": 42,
+          "inject_sec": 0.048
+        },
+        "mode": "pipeline",
+        "pipeline": {
+          "run_id": "3ca09fc3dabf",
+          "status": "completed",
+          "stopped_reason": null,
+          "runtime_sec": 1.999,
+          "context": {
+            "model_id": "adult-xgb-v1",
+            "model_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\c2\\base_model_adult.pkl",
+            "dataset_id": "uci",
+            "reference_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\uci\\reference.csv",
+            "target_column": "target",
+            "input_representation": "model_ready",
+            "feature_columns": [
+              "age",
+              "workclass",
+              "education_num",
+              "marital_status",
+              "occupation",
+              "relationship",
+              "race",
+              "sex",
+              "capital_gain",
+              "capital_loss",
+              "hours_per_week",
+              "native_country"
+            ],
+            "categorical_features": [
+              "workclass",
+              "marital_status",
+              "occupation",
+              "relationship",
+              "race",
+              "sex",
+              "native_country"
+            ],
+            "repair_metric": "accuracy",
+            "adaptation_budget_size": 200,
+            "generator_epochs": 20,
+            "augmentation_ratio": 0.3,
+            "max_synthetic_rows": 1000,
+            "minimum_utility_gain": 0.01,
+            "source_retention_tolerance": 0.05,
+            "fidelity_ks_max": 0.35,
+            "privacy_dcr_min": 0.05,
+            "max_near_duplicate_ratio": 0.0,
+            "control_utility_tolerance": 0.0,
+            "require_bootstrap_positive": true,
+            "min_diagnosis_stability": 0.5,
+            "dataset": "uci",
+            "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_66dafe5cf9.csv",
+            "batch_id": "lab_66dafe5cf9",
+            "label_status": "AVAILABLE",
+            "label_source": "drift_lab_ground_truth_available_to_c3_only",
+            "run_id": "3ca09fc3dabf",
+            "drift_event_id": "c1-b0ba418c"
+          },
+          "steps": [
+            {
+              "component": "c1",
+              "title": "C1 Drift Detection",
+              "source": "real",
+              "status": "ok",
+              "runtime_sec": 0.954,
+              "outputs": [
+                "c1"
+              ],
+              "contract_ok": true,
+              "contract_errors": {}
+            },
+            {
+              "component": "c2",
+              "title": "C2 Root Cause Diagnosis",
+              "source": "real",
+              "status": "ok",
+              "runtime_sec": 0.811,
+              "outputs": [
+                "c2_to_c3",
+                "c2_to_c4"
+              ],
+              "contract_ok": true,
+              "contract_errors": {}
+            },
+            {
+              "component": "c3",
+              "title": "C3 Synthetic Data Repair",
+              "source": "real",
+              "status": "ok",
+              "runtime_sec": 0.221,
+              "outputs": [
+                "c3"
+              ],
+              "contract_ok": true,
+              "contract_errors": {}
+            },
+            {
+              "component": "c4",
+              "title": "C4 Release Controller",
+              "source": "fake",
+              "status": "ok",
+              "runtime_sec": 0.005,
+              "outputs": [
+                "c4"
+              ],
+              "contract_ok": true,
+              "contract_errors": {}
+            }
+          ],
+          "outputs": {
+            "c1": {
+              "evidence_version": "c1-b0ba418c",
+              "engine_version": "1.2.3",
+              "model_id": "adult-xgb-v1",
+              "reference_dataset_uri": "",
+              "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_66dafe5cf9.csv",
+              "batch_size": 2000,
+              "drift_detected": true,
+              "predicted_harm": 0.0627,
+              "harm_interval": [
+                0.0448,
+                0.0807
+              ],
+              "harm_metric": "accuracy_drop",
+              "harm_severity": "moderate",
+              "marginal_extent": "single",
+              "interaction_suspected": 0.0218,
+              "affected_features": [
+                "education_num",
+                "age"
+              ],
+              "detector_scores": {
+                "ks_mean": 0.176,
+                "ks_max": 0.5595,
+                "chi2_mean": 0.0028,
+                "chi2_max": 0.0151,
+                "psi_mean": 0.2922,
+                "psi_max": 1.8158,
+                "mmd": 0.0569,
+                "lsdd": 0.0115,
+                "clf_auc": 0.9853
+              },
+              "detectors_fired": 5,
+              "detectors_fired_list": [
+                "ks",
+                "psi",
+                "mmd",
+                "lsdd",
+                "classifier"
+              ],
+              "prediction_stats": {
+                "conf_mean": 0.8411,
+                "conf_std": 0.1607,
+                "conf_pct_lt_06": 0.125,
+                "mean_pos_prob": 0.3088,
+                "pos_prob_std": 0.325,
+                "pct_pos_prob_lt_06": 0.7765
+              },
+              "warnings": [],
+              "runtime_sec": 0.953
+            },
+            "c2_to_c3": {
+              "root_cause_feature": "age",
+              "root_cause_category": "marginal",
+              "affected_slice_rule": "age > -0.4428 and age <= 0.1249 and education_num > 1.818",
+              "affected_features_ranked": [
+                "age",
+                "education_num",
+                "hours_per_week"
+              ],
+              "affected_value_ranges": {
+                "age": [
+                  -0.4427787794202843,
+                  0.12486699110089045
+                ]
+              },
+              "slice_support": 0.05,
+              "diagnosis_stability": 1.0,
+              "drift_impact_score": 0.803,
+              "temporal_window": 1
+            },
+            "c2_to_c4": {
+              "root_cause_category": "marginal",
+              "root_cause_feature": "age",
+              "affected_slice_rule": "age > -0.4428 and age <= 0.1249 and education_num > 1.818",
+              "slice_support": 0.05,
+              "diagnosis_stability": 1.0,
+              "affected_features_ranked": [
+                "age",
+                "education_num",
+                "hours_per_week"
+              ],
+              "diagnosis_version": "c2-001-8a7e69",
+              "diagnosis_timestamp": "2026-10-23T18:53:05Z"
+            },
+            "c3": {
+              "repair_dataset_uri": "NONE",
+              "repair_package_status": "REJECTED",
+              "generator": "NONE",
+              "n_synthetic_rows": 0,
+              "augmentation_ratio": 0.0,
+              "fidelity_score": 0.0,
+              "utility_score": 0.0,
+              "privacy_status": "FAIL",
+              "target_coverage": 0.0,
+              "prescription_confidence": 0.0,
+              "repair_version": "c3-5357455f0c014d52850d61e6f863d320",
+              "repair_timestamp": "2026-10-23T18:53:05.883812+00:00",
+              "reason": "C2 diagnosed model differs from C3's supplied model artifact.",
+              "status": "BLOCKED",
+              "fallback": true,
+              "execution_status": "BLOCKED",
+              "model_id": "adult-xgb-v1",
+              "dataset_id": "uci",
+              "pipeline_run_id": "3ca09fc3dabf",
+              "batch_id": "lab_66dafe5cf9",
+              "run_id": "c3-5357455f0c014d52850d61e6f863d320",
+              "preview_rows": [],
+              "preview_columns": [],
+              "download_url": null,
+              "readiness_passed": false,
+              "upstream_evidence": {
+                "c1": {
+                  "evidence_version": "c1-b0ba418c",
+                  "engine_version": "1.2.3",
+                  "model_id": "adult-xgb-v1",
+                  "reference_dataset_uri": "",
+                  "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_66dafe5cf9.csv",
+                  "batch_size": 2000,
+                  "drift_detected": true,
+                  "predicted_harm": 0.0627,
+                  "harm_interval": [
+                    0.0448,
+                    0.0807
+                  ],
+                  "harm_metric": "accuracy_drop",
+                  "harm_severity": "moderate",
+                  "marginal_extent": "single",
+                  "interaction_suspected": 0.0218,
+                  "affected_features": [
+                    "education_num",
+                    "age"
+                  ],
+                  "detector_scores": {
+                    "ks_mean": 0.176,
+                    "ks_max": 0.5595,
+                    "chi2_mean": 0.0028,
+                    "chi2_max": 0.0151,
+                    "psi_mean": 0.2922,
+                    "psi_max": 1.8158,
+                    "mmd": 0.0569,
+                    "lsdd": 0.0115,
+                    "clf_auc": 0.9853
+                  },
+                  "detectors_fired": 5,
+                  "detectors_fired_list": [
+                    "ks",
+                    "psi",
+                    "mmd",
+                    "lsdd",
+                    "classifier"
+                  ],
+                  "prediction_stats": {
+                    "conf_mean": 0.8411,
+                    "conf_std": 0.1607,
+                    "conf_pct_lt_06": 0.125,
+                    "mean_pos_prob": 0.3088,
+                    "pos_prob_std": 0.325,
+                    "pct_pos_prob_lt_06": 0.7765
+                  },
+                  "warnings": [],
+                  "runtime_sec": 0.953
+                },
+                "c2": {
+                  "root_cause_feature": "age",
+                  "root_cause_category": "marginal",
+                  "affected_slice_rule": "age > -0.4428 and age <= 0.1249 and education_num > 1.818",
+                  "affected_features_ranked": [
+                    "age",
+                    "education_num",
+                    "hours_per_week"
+                  ],
+                  "affected_value_ranges": {
+                    "age": [
+                      -0.4427787794202843,
+                      0.12486699110089045
+                    ]
+                  },
+                  "slice_support": 0.05,
+                  "diagnosis_stability": 1.0,
+                  "drift_impact_score": 0.803,
+                  "temporal_window": 1
+                }
+              },
+              "provenance": {
+                "data_context": {
+                  "model_id": "adult-xgb-v1",
+                  "model_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\c2\\base_model_adult.pkl",
+                  "dataset_id": "uci",
+                  "reference_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\uci\\reference.csv",
+                  "target_column": "target",
+                  "input_representation": "model_ready",
+                  "feature_columns": [
+                    "age",
+                    "workclass",
+                    "education_num",
+                    "marital_status",
+                    "occupation",
+                    "relationship",
+                    "race",
+                    "sex",
+                    "capital_gain",
+                    "capital_loss",
+                    "hours_per_week",
+                    "native_country"
+                  ],
+                  "categorical_features": [
+                    "workclass",
+                    "marital_status",
+                    "occupation",
+                    "relationship",
+                    "race",
+                    "sex",
+                    "native_country"
+                  ],
+                  "repair_metric": "accuracy",
+                  "adaptation_budget_size": 200,
+                  "generator_epochs": 20,
+                  "augmentation_ratio": 0.3,
+                  "max_synthetic_rows": 1000,
+                  "minimum_utility_gain": 0.01,
+                  "source_retention_tolerance": 0.05,
+                  "fidelity_ks_max": 0.35,
+                  "privacy_dcr_min": 0.05,
+                  "max_near_duplicate_ratio": 0.0,
+                  "control_utility_tolerance": 0.0,
+                  "require_bootstrap_positive": true,
+                  "min_diagnosis_stability": 0.5,
+                  "dataset": "uci",
+                  "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_66dafe5cf9.csv",
+                  "batch_id": "lab_66dafe5cf9",
+                  "label_status": "AVAILABLE",
+                  "label_source": "drift_lab_ground_truth_available_to_c3_only",
+                  "run_id": "3ca09fc3dabf",
+                  "drift_event_id": "c1-b0ba418c"
+                },
+                "pipeline_run_id": "3ca09fc3dabf",
+                "batch_id": "lab_66dafe5cf9"
+              }
+            },
+            "c4": {
+              "decision": "HUMAN_REVIEW",
+              "champion_model_id": "champion-v12",
+              "candidate_model_id": "candidate-v14",
+              "joint_confidence_level": 0.95,
+              "future_safety_margins": {
+                "global_margin": 0.03,
+                "affected_slice_margin": 0.01,
+                "non_affected_margin": 0.02
+              },
+              "future_safety_intervals": {
+                "global_margin": [
+                  -0.01,
+                  0.07
+                ],
+                "affected_slice_margin": [
+                  -0.18,
+                  0.12
+                ],
+                "non_affected_margin": [
+                  0.0,
+                  0.05
+                ]
+              },
+              "hard_gate_status": {
+                "repair_approved": false,
+                "privacy_check": "PASS",
+                "schema_compatible": true,
+                "candidate_artifact_valid": true,
+                "rollback_ready": true,
+                "overall": "PASS"
+              },
+              "risk_control": {
+                "risk_control_target": 0.05,
+                "risk_context": "MEDIUM",
+                "policy_parameter": 0.12,
+                "policy_version": "c4-policy-v1"
+              },
+              "reason": "FAKE C4 decision (rule of thumb on C1 severity). The affected-slice uncertainty interval crosses the required future safety boundary, so automatic deployment cannot be justified.",
+              "required_action": "Human review before controlled staging deployment.",
+              "audit_id": "fake-3ca09fc3dabf",
+              "policy_version": "c4-policy-v1",
+              "forecast_model_version": "quantile-lightgbm-v3",
+              "conformal_config_version": "joint-conformal-v2",
+              "mlflow_run_id": "8b4e7d2c1a6f3e91",
+              "decision_timestamp": "2026-10-23T18:53:05Z",
+              "pre_release_evidence": {
+                "validation_global_f1_gain": 0.06,
+                "validation_affected_slice_recovery": 0.49,
+                "validation_non_affected_margin": 0.02
+              },
+              "upstream_evidence_summary": {
+                "c1": {
+                  "model_id": "adult-xgb-v1",
+                  "predicted_harm": 0.0627,
+                  "harm_interval": [
+                    0.0448,
+                    0.0807
+                  ],
+                  "harm_metric": "accuracy_drop",
+                  "drift_detected": true,
+                  "harm_severity": "moderate",
+                  "marginal_extent": "single",
+                  "interaction_suspected": 0.0218,
+                  "affected_features": [
+                    "education_num",
+                    "age"
+                  ],
+                  "evidence_version": "c1-b0ba418c"
+                },
+                "c2": {
+                  "root_cause_category": "marginal",
+                  "root_cause_feature": "age",
+                  "affected_slice_rule": "age > -0.4428 and age <= 0.1249 and education_num > 1.818",
+                  "slice_support": 0.05,
+                  "diagnosis_stability": 1.0,
+                  "affected_features_ranked": [
+                    "age",
+                    "education_num",
+                    "hours_per_week"
+                  ],
+                  "diagnosis_version": "c2-001-8a7e69"
+                },
+                "c3": {
+                  "repair_dataset_uri": "NONE",
+                  "repair_package_status": "REJECTED",
+                  "generator": "NONE",
+                  "augmentation_ratio": 0.0,
+                  "fidelity_score": 0.0,
+                  "utility_score": 0.0,
+                  "privacy_status": "FAIL",
+                  "repair_version": "c3-5357455f0c014d52850d61e6f863d320"
+                }
+              }
+            }
+          },
+          "component_sources": {
+            "c1": "real",
+            "c2": "real",
+            "c3": "real",
+            "c4": "fake"
+          },
+          "origin": {
+            "kind": "drift_lab",
+            "rows": 2000,
+            "run_ref": "66dafe5cf9",
+            "label": "Drift Lab: multi (age, education_num)",
+            "truth": {
+              "harm_metric": "accuracy_drop",
+              "true_harm_pp": 1.8905,
+              "true_harm_paired_pp": 2.2,
+              "baseline": 0.8744,
+              "on_batch": 0.8555,
+              "same_rows_before": 0.8775,
+              "note": "fixed baseline (whole test set) minus the model on this batch; labels never reach the components"
+            }
+          }
+        },
+        "c1": {
+          "evidence_version": "c1-b0ba418c",
+          "engine_version": "1.2.3",
+          "model_id": "adult-xgb-v1",
+          "reference_dataset_uri": "",
+          "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_66dafe5cf9.csv",
+          "batch_size": 2000,
+          "drift_detected": true,
+          "predicted_harm": 0.0627,
+          "harm_interval": [
+            0.0448,
+            0.0807
+          ],
+          "harm_metric": "accuracy_drop",
+          "harm_severity": "moderate",
+          "marginal_extent": "single",
+          "interaction_suspected": 0.0218,
+          "affected_features": [
+            "education_num",
+            "age"
+          ],
+          "detector_scores": {
+            "ks_mean": 0.176,
+            "ks_max": 0.5595,
+            "chi2_mean": 0.0028,
+            "chi2_max": 0.0151,
+            "psi_mean": 0.2922,
+            "psi_max": 1.8158,
+            "mmd": 0.0569,
+            "lsdd": 0.0115,
+            "clf_auc": 0.9853
+          },
+          "detectors_fired": 5,
+          "detectors_fired_list": [
+            "ks",
+            "psi",
+            "mmd",
+            "lsdd",
+            "classifier"
+          ],
+          "prediction_stats": {
+            "conf_mean": 0.8411,
+            "conf_std": 0.1607,
+            "conf_pct_lt_06": 0.125,
+            "mean_pos_prob": 0.3088,
+            "pos_prob_std": 0.325,
+            "pct_pos_prob_lt_06": 0.7765
+          },
+          "warnings": [],
+          "runtime_sec": 0.953
+        },
+        "summary": {
+          "run_id": "66dafe5cf9",
+          "saved_at": "2026-10-24T00:23:05.911+05:30",
+          "source": "drift_lab",
+          "mode": "pipeline",
+          "dataset": "uci",
+          "drift_type": "marginal_multi",
+          "features": [
+            "age",
+            "education_num"
+          ],
+          "magnitude": 0.8,
+          "seed": 42,
+          "file": null,
+          "batch_size": 2000,
+          "truth_pp": 1.8905,
+          "c1_pp": 6.2700000000000005,
+          "lo_pp": 4.4799999999999995,
+          "hi_pp": 8.07,
+          "severity": "moderate",
+          "extent": "single",
+          "interaction": 0.0218,
+          "detectors_fired": 5,
+          "classic_alarm": true,
+          "inside": false,
+          "outcome": "correct alert",
+          "pipeline_status": "completed",
+          "c3_status": "BLOCKED",
+          "has_batch": false
+        }
+      }
+    }
+  ],
+  "after_model_binding_fix": {
+    "summary": {
+      "pipeline_run_id": "d2bd4c6e08a4",
+      "runtime_sec": 3.265,
+      "status": "completed",
+      "sources": {
+        "c1": "real",
+        "c2": "real",
+        "c3": "real",
+        "c4": "fake"
+      },
+      "c1": {
+        "evidence_version": "c1-7ba04982",
+        "engine_version": "1.2.3",
+        "model_id": "adult-xgb-v1",
+        "reference_dataset_uri": "",
+        "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_fd5744b399.csv",
+        "batch_size": 2000,
+        "drift_detected": true,
+        "predicted_harm": 0.0627,
+        "harm_interval": [
+          0.0448,
+          0.0807
+        ],
+        "harm_metric": "accuracy_drop",
+        "harm_severity": "moderate",
+        "marginal_extent": "single",
+        "interaction_suspected": 0.0218,
+        "affected_features": [
+          "education_num",
+          "age"
+        ],
+        "detector_scores": {
+          "ks_mean": 0.176,
+          "ks_max": 0.5595,
+          "chi2_mean": 0.0028,
+          "chi2_max": 0.0151,
+          "psi_mean": 0.2922,
+          "psi_max": 1.8158,
+          "mmd": 0.0569,
+          "lsdd": 0.0115,
+          "clf_auc": 0.9853
+        },
+        "detectors_fired": 5,
+        "detectors_fired_list": [
+          "ks",
+          "psi",
+          "mmd",
+          "lsdd",
+          "classifier"
+        ],
+        "prediction_stats": {
+          "conf_mean": 0.8411,
+          "conf_std": 0.1607,
+          "conf_pct_lt_06": 0.125,
+          "mean_pos_prob": 0.3088,
+          "pos_prob_std": 0.325,
+          "pct_pos_prob_lt_06": 0.7765
+        },
+        "warnings": [],
+        "runtime_sec": 0.997
+      },
+      "c2": {
+        "root_cause_feature": "age",
+        "root_cause_category": "marginal",
+        "affected_slice_rule": "age > -0.4428 and age <= 0.4037 and education_num > 1.818",
+        "affected_features_ranked": [
+          "age",
+          "education_num",
+          "marital_status"
+        ],
+        "affected_value_ranges": {
+          "age": [
+            -0.4427787794202843,
+            0.40374084451436154
+          ]
+        },
+        "slice_support": 0.075,
+        "diagnosis_stability": 1.0,
+        "drift_impact_score": 0.8062,
+        "temporal_window": 1
+      },
+      "c3_status": "REJECTED",
+      "reason": "Mean KS statistic (0.414) exceeds threshold (0.350); 5th percentile DCR (0.0043) is below threshold (0.0500), indicating possible memorization; Near-duplicate ratio (31.58%) exceeds threshold (0.00%), indicating memorization of individual records",
+      "generator": "TVAE",
+      "generated_rows": 38,
+      "validation": {
+        "structure": {
+          "passed": true
+        },
+        "target_coverage": 1.0,
+        "fidelity_report": {
+          "stage": "fidelity",
+          "status": "FAIL",
+          "metrics": {
+            "synthetic_rows": 38,
+            "reference_rows": 124,
+            "continuous_metrics": {
+              "age": {
+                "ref_mean": -0.02594618254765456,
+                "syn_mean": -0.19353923907035178,
+                "mean_abs_diff": 0.16759305652269724,
+                "ref_std": 0.2507226935354257,
+                "syn_std": 0.15233235771161036,
+                "std_abs_diff": 0.09839033582381534,
+                "ks_statistic": 0.4792020373514431,
+                "ks_pvalue": 1.2862151925205224e-06,
+                "wasserstein_distance": 0.17823365967595275,
+                "normalized_wasserstein_distance": 0.7108796462046997,
+                "quantile_diffs": {
+                  "q25_diff": 0.006575360092026417,
+                  "q50_diff": 0.20199346852918199,
+                  "q75_diff": 0.3616696238079717
+                },
+                "boundary_concentration": 0.0
+              },
+              "education_num": {
+                "ref_mean": 1.9891502930920901,
+                "syn_mean": 1.9179963528267625,
+                "mean_abs_diff": 0.07115394026532762,
+                "ref_std": 0.1961994267451713,
+                "syn_std": 0.025190055100015825,
+                "std_abs_diff": 0.17100937164515548,
+                "ks_statistic": 0.31451612903225806,
+                "ks_pvalue": 0.004651029349095784,
+                "wasserstein_distance": 0.08572736992343381,
+                "normalized_wasserstein_distance": 0.43693996127103196,
+                "quantile_diffs": {
+                  "q25_diff": 0.018536990829167044,
+                  "q50_diff": 0.009888736820318433,
+                  "q75_diff": 0.030894605507871375
+                },
+                "boundary_concentration": 0.0
+              },
+              "capital_gain": {
+                "ref_mean": -0.038250504753478076,
+                "syn_mean": -0.1447362005846018,
+                "mean_abs_diff": 0.10648569583112372,
+                "ref_std": 0.3734753513954359,
+                "syn_std": 0.01320182763053467,
+                "std_abs_diff": 0.36027352376490124,
+                "ks_statistic": 0.47368421052631576,
+                "ks_pvalue": 1.7644429141220342e-06,
+                "wasserstein_distance": 0.11271876741126173,
+                "normalized_wasserstein_distance": 0.30181045948575874,
+                "quantile_diffs": {
+                  "q25_diff": 0.0052289732839402026,
+                  "q50_diff": 0.0012704065664152497,
+                  "q75_diff": 0.008446485505341106
+                },
+                "boundary_concentration": 0.47368421052631576
+              },
+              "capital_loss": {
+                "ref_mean": 0.007183699408416172,
+                "syn_mean": -0.21985367937864317,
+                "mean_abs_diff": 0.22703737878705935,
+                "ref_std": 1.0115860284854417,
+                "syn_std": 0.03897378784481109,
+                "std_abs_diff": 0.9726122406406306,
+                "ks_statistic": 0.5,
+                "ks_pvalue": 3.3760025200319895e-07,
+                "wasserstein_distance": 0.24810897707622712,
+                "normalized_wasserstein_distance": 0.24526730311578024,
+                "quantile_diffs": {
+                  "q25_diff": 0.030420060526000214,
+                  "q50_diff": 0.0013607516738374792,
+                  "q75_diff": 0.021209270006412817
+                },
+                "boundary_concentration": 0.5
+              },
+              "hours_per_week": {
+                "ref_mean": -0.032869044139457924,
+                "syn_mean": -0.03426179102597731,
+                "mean_abs_diff": 0.001392746886519386,
+                "ref_std": 0.7281783681681818,
+                "syn_std": 0.05598783830275682,
+                "std_abs_diff": 0.672190529865425,
+                "ks_statistic": 0.300509337860781,
+                "ks_pvalue": 0.007892206104887589,
+                "wasserstein_distance": 0.42226628557450696,
+                "normalized_wasserstein_distance": 0.5798940260155865,
+                "quantile_diffs": {
+                  "q25_diff": 0.031237383384726335,
+                  "q50_diff": 0.002125064721052429,
+                  "q75_diff": 0.36813418875246706
+                },
+                "boundary_concentration": 0.0
+              }
+            },
+            "categorical_metrics": {
+              "workclass": {
+                "total_variation_distance": 0.31451612903225806,
+                "js_divergence": 0.17855045747892206,
+                "category_coverage": 0.16666666666666666,
+                "unseen_categories": []
+              },
+              "marital_status": {
+                "total_variation_distance": 0.21986417657045837,
+                "js_divergence": 0.05170900015491493,
+                "category_coverage": 0.4,
+                "unseen_categories": []
+              },
+              "occupation": {
+                "total_variation_distance": 0.42741935483870963,
+                "js_divergence": 0.26530341162327226,
+                "category_coverage": 0.16666666666666666,
+                "unseen_categories": []
+              },
+              "relationship": {
+                "total_variation_distance": 0.39855687606112045,
+                "js_divergence": 0.22133235988197542,
+                "category_coverage": 0.3333333333333333,
+                "unseen_categories": []
+              },
+              "race": {
+                "total_variation_distance": 0.15322580645161288,
+                "js_divergence": 0.08120344503514217,
+                "category_coverage": 0.25,
+                "unseen_categories": []
+              },
+              "sex": {
+                "total_variation_distance": 0.3870967741935484,
+                "js_divergence": 0.2273854659465326,
+                "category_coverage": 0.5,
+                "unseen_categories": []
+              },
+              "native_country": {
+                "total_variation_distance": 0.11290322580645161,
+                "js_divergence": 0.058889381424066155,
+                "category_coverage": 0.08333333333333333,
+                "unseen_categories": []
+              },
+              "target": {
+                "total_variation_distance": 0.24193548387096775,
+                "js_divergence": 0.13301416025927618,
+                "category_coverage": 0.5,
+                "unseen_categories": []
+              }
+            },
+            "correlation_difference": {
+              "mean_absolute_difference": 0.15860489343929385,
+              "max_absolute_difference": 0.3884398865007864,
+              "frobenius_norm": 0.8392125175812414
+            },
+            "diversity_metrics": {
+              "duplicate_count": 0,
+              "duplicate_ratio": 0.0,
+              "unique_record_ratio": 1.0
+            },
+            "continuous_metrics_summary": {
+              "mean_ks_statistic": 0.4135823429541595,
+              "mean_normalized_wasserstein": 0.45495827921857135
+            },
+            "categorical_metrics_summary": {
+              "mean_js_divergence": 0.15217346022551273,
+              "mean_total_variation_distance": 0.2819397283531409
+            },
+            "fidelity_score": 0.785
+          },
+          "reasons": [
+            "Mean KS statistic (0.414) exceeds threshold (0.350)"
+          ]
+        },
+        "privacy_report": {
+          "stage": "privacy",
+          "status": "FAIL",
+          "metrics": {
+            "synthetic_rows": 38,
+            "reference_rows": 19609,
+            "exact_matches": {
+              "exact_match_count": 0,
+              "exact_match_ratio": 0.0,
+              "max_allowable_ratio": 0.0
+            },
+            "dcr_metrics": {
+              "dcr_min": 0.0037,
+              "dcr_p05": 0.0043,
+              "dcr_p50": 0.1032,
+              "dcr_mean": 0.1475,
+              "near_duplicate_count": 12,
+              "near_duplicate_ratio": 0.3158,
+              "min_dcr_p05_threshold": 0.05,
+              "max_near_duplicate_ratio": 0.0
+            },
+            "holdout_comparison": null
+          },
+          "reasons": [
+            "5th percentile DCR (0.0043) is below threshold (0.0500), indicating possible memorization",
+            "Near-duplicate ratio (31.58%) exceeds threshold (0.00%), indicating memorization of individual records"
+          ]
+        }
+      },
+      "utility": {},
+      "artifact_hashes": {
+        "reference_dataset": "84cbc88cbfac5567a3954445aa8b154d58644d6eef3b43c24eec9fd547474ad3",
+        "current_dataset": "2e0db726a41c20d7a090aadbe6d08378fadaed515fa38230edf7f69e7dfe85a3",
+        "model": "02c1f225867bb001f143305625e671fee56698974a2dc509472bfe2c2f75cfc9"
+      },
+      "contract_errors": []
+    },
+    "response": {
+      "run_id": "fd5744b399",
+      "truth": {
+        "harm_metric": "accuracy_drop",
+        "true_harm_pp": 1.8905,
+        "true_harm_paired_pp": 2.2,
+        "baseline": 0.8744,
+        "on_batch": 0.8555,
+        "same_rows_before": 0.8775,
+        "note": "fixed baseline (whole test set) minus the model on this batch; labels never reach the components"
+      },
+      "injection": {
+        "dataset": "uci",
+        "drift_type": "marginal_multi",
+        "features": [
+          "age",
+          "education_num"
+        ],
+        "shifted": [
+          "age",
+          "education_num"
+        ],
+        "interaction_pairs": [],
+        "magnitude": 0.8,
+        "batch_size": 2000,
+        "seed": 42,
+        "inject_sec": 0.045
+      },
+      "mode": "pipeline",
+      "pipeline": {
+        "run_id": "d2bd4c6e08a4",
+        "status": "completed",
+        "stopped_reason": null,
+        "runtime_sec": 3.265,
+        "context": {
+          "model_id": "adult-xgb-v1",
+          "model_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\c2\\base_model_adult.pkl",
+          "dataset_id": "uci",
+          "reference_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\uci\\reference.csv",
+          "target_column": "target",
+          "input_representation": "model_ready",
+          "feature_columns": [
+            "age",
+            "workclass",
+            "education_num",
+            "marital_status",
+            "occupation",
+            "relationship",
+            "race",
+            "sex",
+            "capital_gain",
+            "capital_loss",
+            "hours_per_week",
+            "native_country"
+          ],
+          "categorical_features": [
+            "workclass",
+            "marital_status",
+            "occupation",
+            "relationship",
+            "race",
+            "sex",
+            "native_country"
+          ],
+          "repair_metric": "accuracy",
+          "adaptation_budget_size": 200,
+          "generator_epochs": 20,
+          "augmentation_ratio": 0.3,
+          "max_synthetic_rows": 1000,
+          "minimum_utility_gain": 0.01,
+          "source_retention_tolerance": 0.05,
+          "fidelity_ks_max": 0.35,
+          "privacy_dcr_min": 0.05,
+          "max_near_duplicate_ratio": 0.0,
+          "control_utility_tolerance": 0.0,
+          "require_bootstrap_positive": true,
+          "min_diagnosis_stability": 0.5,
+          "dataset": "uci",
+          "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_fd5744b399.csv",
+          "batch_id": "lab_fd5744b399",
+          "label_status": "AVAILABLE",
+          "label_source": "drift_lab_ground_truth_available_to_c3_only",
+          "run_id": "d2bd4c6e08a4",
+          "drift_event_id": "c1-7ba04982"
+        },
+        "steps": [
+          {
+            "component": "c1",
+            "title": "C1 Drift Detection",
+            "source": "real",
+            "status": "ok",
+            "runtime_sec": 0.999,
+            "outputs": [
+              "c1"
+            ],
+            "contract_ok": true,
+            "contract_errors": {}
+          },
+          {
+            "component": "c2",
+            "title": "C2 Root Cause Diagnosis",
+            "source": "real",
+            "status": "ok",
+            "runtime_sec": 0.825,
+            "outputs": [
+              "c2_to_c3",
+              "c2_to_c4"
+            ],
+            "contract_ok": true,
+            "contract_errors": {}
+          },
+          {
+            "component": "c3",
+            "title": "C3 Synthetic Data Repair",
+            "source": "real",
+            "status": "ok",
+            "runtime_sec": 1.435,
+            "outputs": [
+              "c3"
+            ],
+            "contract_ok": true,
+            "contract_errors": {}
+          },
+          {
+            "component": "c4",
+            "title": "C4 Release Controller",
+            "source": "fake",
+            "status": "ok",
+            "runtime_sec": 0.002,
+            "outputs": [
+              "c4"
+            ],
+            "contract_ok": true,
+            "contract_errors": {}
+          }
+        ],
+        "outputs": {
+          "c1": {
+            "evidence_version": "c1-7ba04982",
+            "engine_version": "1.2.3",
+            "model_id": "adult-xgb-v1",
+            "reference_dataset_uri": "",
+            "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_fd5744b399.csv",
+            "batch_size": 2000,
+            "drift_detected": true,
+            "predicted_harm": 0.0627,
+            "harm_interval": [
+              0.0448,
+              0.0807
+            ],
+            "harm_metric": "accuracy_drop",
+            "harm_severity": "moderate",
+            "marginal_extent": "single",
+            "interaction_suspected": 0.0218,
+            "affected_features": [
+              "education_num",
+              "age"
+            ],
+            "detector_scores": {
+              "ks_mean": 0.176,
+              "ks_max": 0.5595,
+              "chi2_mean": 0.0028,
+              "chi2_max": 0.0151,
+              "psi_mean": 0.2922,
+              "psi_max": 1.8158,
+              "mmd": 0.0569,
+              "lsdd": 0.0115,
+              "clf_auc": 0.9853
+            },
+            "detectors_fired": 5,
+            "detectors_fired_list": [
+              "ks",
+              "psi",
+              "mmd",
+              "lsdd",
+              "classifier"
+            ],
+            "prediction_stats": {
+              "conf_mean": 0.8411,
+              "conf_std": 0.1607,
+              "conf_pct_lt_06": 0.125,
+              "mean_pos_prob": 0.3088,
+              "pos_prob_std": 0.325,
+              "pct_pos_prob_lt_06": 0.7765
+            },
+            "warnings": [],
+            "runtime_sec": 0.997
+          },
+          "c2_to_c3": {
+            "root_cause_feature": "age",
+            "root_cause_category": "marginal",
+            "affected_slice_rule": "age > -0.4428 and age <= 0.4037 and education_num > 1.818",
+            "affected_features_ranked": [
+              "age",
+              "education_num",
+              "marital_status"
+            ],
+            "affected_value_ranges": {
+              "age": [
+                -0.4427787794202843,
+                0.40374084451436154
+              ]
+            },
+            "slice_support": 0.075,
+            "diagnosis_stability": 1.0,
+            "drift_impact_score": 0.8062,
+            "temporal_window": 1
+          },
+          "c2_to_c4": {
+            "root_cause_category": "marginal",
+            "root_cause_feature": "age",
+            "affected_slice_rule": "age > -0.4428 and age <= 0.4037 and education_num > 1.818",
+            "slice_support": 0.075,
+            "diagnosis_stability": 1.0,
+            "affected_features_ranked": [
+              "age",
+              "education_num",
+              "marital_status"
+            ],
+            "diagnosis_version": "c2-001-0148e3",
+            "diagnosis_timestamp": "2026-10-23T18:55:47Z"
+          },
+          "c3": {
+            "repair_dataset_uri": "NONE",
+            "repair_package_status": "REJECTED",
+            "generator": "TVAE",
+            "n_synthetic_rows": 0,
+            "augmentation_ratio": 0.0,
+            "fidelity_score": 0.785,
+            "utility_score": 0.0,
+            "privacy_status": "FAIL",
+            "target_coverage": 1.0,
+            "prescription_confidence": 1.0,
+            "repair_version": "c3-e910af88",
+            "repair_timestamp": "2026-10-23T18:55:47.226005+00:00",
+            "run_id": "c3-94718a4777964d4cb5a10982ad8cdf56",
+            "package_id": "PKG-381614934AA6",
+            "reason": "Mean KS statistic (0.414) exceeds threshold (0.350); 5th percentile DCR (0.0043) is below threshold (0.0500), indicating possible memorization; Near-duplicate ratio (31.58%) exceeds threshold (0.00%), indicating memorization of individual records",
+            "execution_status": "REJECTED",
+            "validation_report": {
+              "structure": {
+                "passed": true
+              },
+              "target_coverage": 1.0,
+              "fidelity_report": {
+                "stage": "fidelity",
+                "status": "FAIL",
+                "metrics": {
+                  "synthetic_rows": 38,
+                  "reference_rows": 124,
+                  "continuous_metrics": {
+                    "age": {
+                      "ref_mean": -0.02594618254765456,
+                      "syn_mean": -0.19353923907035178,
+                      "mean_abs_diff": 0.16759305652269724,
+                      "ref_std": 0.2507226935354257,
+                      "syn_std": 0.15233235771161036,
+                      "std_abs_diff": 0.09839033582381534,
+                      "ks_statistic": 0.4792020373514431,
+                      "ks_pvalue": 1.2862151925205224e-06,
+                      "wasserstein_distance": 0.17823365967595275,
+                      "normalized_wasserstein_distance": 0.7108796462046997,
+                      "quantile_diffs": {
+                        "q25_diff": 0.006575360092026417,
+                        "q50_diff": 0.20199346852918199,
+                        "q75_diff": 0.3616696238079717
+                      },
+                      "boundary_concentration": 0.0
+                    },
+                    "education_num": {
+                      "ref_mean": 1.9891502930920901,
+                      "syn_mean": 1.9179963528267625,
+                      "mean_abs_diff": 0.07115394026532762,
+                      "ref_std": 0.1961994267451713,
+                      "syn_std": 0.025190055100015825,
+                      "std_abs_diff": 0.17100937164515548,
+                      "ks_statistic": 0.31451612903225806,
+                      "ks_pvalue": 0.004651029349095784,
+                      "wasserstein_distance": 0.08572736992343381,
+                      "normalized_wasserstein_distance": 0.43693996127103196,
+                      "quantile_diffs": {
+                        "q25_diff": 0.018536990829167044,
+                        "q50_diff": 0.009888736820318433,
+                        "q75_diff": 0.030894605507871375
+                      },
+                      "boundary_concentration": 0.0
+                    },
+                    "capital_gain": {
+                      "ref_mean": -0.038250504753478076,
+                      "syn_mean": -0.1447362005846018,
+                      "mean_abs_diff": 0.10648569583112372,
+                      "ref_std": 0.3734753513954359,
+                      "syn_std": 0.01320182763053467,
+                      "std_abs_diff": 0.36027352376490124,
+                      "ks_statistic": 0.47368421052631576,
+                      "ks_pvalue": 1.7644429141220342e-06,
+                      "wasserstein_distance": 0.11271876741126173,
+                      "normalized_wasserstein_distance": 0.30181045948575874,
+                      "quantile_diffs": {
+                        "q25_diff": 0.0052289732839402026,
+                        "q50_diff": 0.0012704065664152497,
+                        "q75_diff": 0.008446485505341106
+                      },
+                      "boundary_concentration": 0.47368421052631576
+                    },
+                    "capital_loss": {
+                      "ref_mean": 0.007183699408416172,
+                      "syn_mean": -0.21985367937864317,
+                      "mean_abs_diff": 0.22703737878705935,
+                      "ref_std": 1.0115860284854417,
+                      "syn_std": 0.03897378784481109,
+                      "std_abs_diff": 0.9726122406406306,
+                      "ks_statistic": 0.5,
+                      "ks_pvalue": 3.3760025200319895e-07,
+                      "wasserstein_distance": 0.24810897707622712,
+                      "normalized_wasserstein_distance": 0.24526730311578024,
+                      "quantile_diffs": {
+                        "q25_diff": 0.030420060526000214,
+                        "q50_diff": 0.0013607516738374792,
+                        "q75_diff": 0.021209270006412817
+                      },
+                      "boundary_concentration": 0.5
+                    },
+                    "hours_per_week": {
+                      "ref_mean": -0.032869044139457924,
+                      "syn_mean": -0.03426179102597731,
+                      "mean_abs_diff": 0.001392746886519386,
+                      "ref_std": 0.7281783681681818,
+                      "syn_std": 0.05598783830275682,
+                      "std_abs_diff": 0.672190529865425,
+                      "ks_statistic": 0.300509337860781,
+                      "ks_pvalue": 0.007892206104887589,
+                      "wasserstein_distance": 0.42226628557450696,
+                      "normalized_wasserstein_distance": 0.5798940260155865,
+                      "quantile_diffs": {
+                        "q25_diff": 0.031237383384726335,
+                        "q50_diff": 0.002125064721052429,
+                        "q75_diff": 0.36813418875246706
+                      },
+                      "boundary_concentration": 0.0
+                    }
+                  },
+                  "categorical_metrics": {
+                    "workclass": {
+                      "total_variation_distance": 0.31451612903225806,
+                      "js_divergence": 0.17855045747892206,
+                      "category_coverage": 0.16666666666666666,
+                      "unseen_categories": []
+                    },
+                    "marital_status": {
+                      "total_variation_distance": 0.21986417657045837,
+                      "js_divergence": 0.05170900015491493,
+                      "category_coverage": 0.4,
+                      "unseen_categories": []
+                    },
+                    "occupation": {
+                      "total_variation_distance": 0.42741935483870963,
+                      "js_divergence": 0.26530341162327226,
+                      "category_coverage": 0.16666666666666666,
+                      "unseen_categories": []
+                    },
+                    "relationship": {
+                      "total_variation_distance": 0.39855687606112045,
+                      "js_divergence": 0.22133235988197542,
+                      "category_coverage": 0.3333333333333333,
+                      "unseen_categories": []
+                    },
+                    "race": {
+                      "total_variation_distance": 0.15322580645161288,
+                      "js_divergence": 0.08120344503514217,
+                      "category_coverage": 0.25,
+                      "unseen_categories": []
+                    },
+                    "sex": {
+                      "total_variation_distance": 0.3870967741935484,
+                      "js_divergence": 0.2273854659465326,
+                      "category_coverage": 0.5,
+                      "unseen_categories": []
+                    },
+                    "native_country": {
+                      "total_variation_distance": 0.11290322580645161,
+                      "js_divergence": 0.058889381424066155,
+                      "category_coverage": 0.08333333333333333,
+                      "unseen_categories": []
+                    },
+                    "target": {
+                      "total_variation_distance": 0.24193548387096775,
+                      "js_divergence": 0.13301416025927618,
+                      "category_coverage": 0.5,
+                      "unseen_categories": []
+                    }
+                  },
+                  "correlation_difference": {
+                    "mean_absolute_difference": 0.15860489343929385,
+                    "max_absolute_difference": 0.3884398865007864,
+                    "frobenius_norm": 0.8392125175812414
+                  },
+                  "diversity_metrics": {
+                    "duplicate_count": 0,
+                    "duplicate_ratio": 0.0,
+                    "unique_record_ratio": 1.0
+                  },
+                  "continuous_metrics_summary": {
+                    "mean_ks_statistic": 0.4135823429541595,
+                    "mean_normalized_wasserstein": 0.45495827921857135
+                  },
+                  "categorical_metrics_summary": {
+                    "mean_js_divergence": 0.15217346022551273,
+                    "mean_total_variation_distance": 0.2819397283531409
+                  },
+                  "fidelity_score": 0.785
+                },
+                "reasons": [
+                  "Mean KS statistic (0.414) exceeds threshold (0.350)"
+                ]
+              },
+              "privacy_report": {
+                "stage": "privacy",
+                "status": "FAIL",
+                "metrics": {
+                  "synthetic_rows": 38,
+                  "reference_rows": 19609,
+                  "exact_matches": {
+                    "exact_match_count": 0,
+                    "exact_match_ratio": 0.0,
+                    "max_allowable_ratio": 0.0
+                  },
+                  "dcr_metrics": {
+                    "dcr_min": 0.0037,
+                    "dcr_p05": 0.0043,
+                    "dcr_p50": 0.1032,
+                    "dcr_mean": 0.1475,
+                    "near_duplicate_count": 12,
+                    "near_duplicate_ratio": 0.3158,
+                    "min_dcr_p05_threshold": 0.05,
+                    "max_near_duplicate_ratio": 0.0
+                  },
+                  "holdout_comparison": null
+                },
+                "reasons": [
+                  "5th percentile DCR (0.0043) is below threshold (0.0500), indicating possible memorization",
+                  "Near-duplicate ratio (31.58%) exceeds threshold (0.00%), indicating memorization of individual records"
+                ]
+              }
+            },
+            "readiness_passed": true,
+            "readiness_reason": "Mean KS statistic (0.414) exceeds threshold (0.350); 5th percentile DCR (0.0043) is below threshold (0.0500), indicating possible memorization; Near-duplicate ratio (31.58%) exceeds threshold (0.00%), indicating memorization of individual records",
+            "preview_rows": [],
+            "preview_columns": [],
+            "download_url": null,
+            "upstream_evidence": {
+              "c1": {
+                "evidence_version": "c1-7ba04982",
+                "engine_version": "1.2.3",
+                "model_id": "adult-xgb-v1",
+                "reference_dataset_uri": "",
+                "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_fd5744b399.csv",
+                "batch_size": 2000,
+                "drift_detected": true,
+                "predicted_harm": 0.0627,
+                "harm_interval": [
+                  0.0448,
+                  0.0807
+                ],
+                "harm_metric": "accuracy_drop",
+                "harm_severity": "moderate",
+                "marginal_extent": "single",
+                "interaction_suspected": 0.0218,
+                "affected_features": [
+                  "education_num",
+                  "age"
+                ],
+                "detector_scores": {
+                  "ks_mean": 0.176,
+                  "ks_max": 0.5595,
+                  "chi2_mean": 0.0028,
+                  "chi2_max": 0.0151,
+                  "psi_mean": 0.2922,
+                  "psi_max": 1.8158,
+                  "mmd": 0.0569,
+                  "lsdd": 0.0115,
+                  "clf_auc": 0.9853
+                },
+                "detectors_fired": 5,
+                "detectors_fired_list": [
+                  "ks",
+                  "psi",
+                  "mmd",
+                  "lsdd",
+                  "classifier"
+                ],
+                "prediction_stats": {
+                  "conf_mean": 0.8411,
+                  "conf_std": 0.1607,
+                  "conf_pct_lt_06": 0.125,
+                  "mean_pos_prob": 0.3088,
+                  "pos_prob_std": 0.325,
+                  "pct_pos_prob_lt_06": 0.7765
+                },
+                "warnings": [],
+                "runtime_sec": 0.997
+              },
+              "c2": {
+                "root_cause_feature": "age",
+                "root_cause_category": "marginal",
+                "affected_slice_rule": "age > -0.4428 and age <= 0.4037 and education_num > 1.818",
+                "affected_features_ranked": [
+                  "age",
+                  "education_num",
+                  "marital_status"
+                ],
+                "affected_value_ranges": {
+                  "age": [
+                    -0.4427787794202843,
+                    0.40374084451436154
+                  ]
+                },
+                "slice_support": 0.075,
+                "diagnosis_stability": 1.0,
+                "drift_impact_score": 0.8062,
+                "temporal_window": 1
+              }
+            },
+            "provenance": {
+              "mode": "integrated",
+              "artifact_sha256": {
+                "reference_dataset": "84cbc88cbfac5567a3954445aa8b154d58644d6eef3b43c24eec9fd547474ad3",
+                "current_dataset": "2e0db726a41c20d7a090aadbe6d08378fadaed515fa38230edf7f69e7dfe85a3",
+                "model": "02c1f225867bb001f143305625e671fee56698974a2dc509472bfe2c2f75cfc9"
+              },
+              "artifact_paths": {
+                "reference_dataset": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\uci\\reference.csv",
+                "current_dataset": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_fd5744b399.csv",
+                "model": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\c2\\base_model_adult.pkl"
+              },
+              "original_c1": {
+                "evidence_version": "c1-7ba04982",
+                "engine_version": "1.2.3",
+                "model_id": "adult-xgb-v1",
+                "reference_dataset_uri": "",
+                "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_fd5744b399.csv",
+                "batch_size": 2000,
+                "drift_detected": true,
+                "predicted_harm": 0.0627,
+                "harm_interval": [
+                  0.0448,
+                  0.0807
+                ],
+                "harm_metric": "accuracy_drop",
+                "harm_severity": "moderate",
+                "marginal_extent": "single",
+                "interaction_suspected": 0.0218,
+                "affected_features": [
+                  "education_num",
+                  "age"
+                ],
+                "detector_scores": {
+                  "ks_mean": 0.176,
+                  "ks_max": 0.5595,
+                  "chi2_mean": 0.0028,
+                  "chi2_max": 0.0151,
+                  "psi_mean": 0.2922,
+                  "psi_max": 1.8158,
+                  "mmd": 0.0569,
+                  "lsdd": 0.0115,
+                  "clf_auc": 0.9853
+                },
+                "detectors_fired": 5,
+                "detectors_fired_list": [
+                  "ks",
+                  "psi",
+                  "mmd",
+                  "lsdd",
+                  "classifier"
+                ],
+                "prediction_stats": {
+                  "conf_mean": 0.8411,
+                  "conf_std": 0.1607,
+                  "conf_pct_lt_06": 0.125,
+                  "mean_pos_prob": 0.3088,
+                  "pos_prob_std": 0.325,
+                  "pct_pos_prob_lt_06": 0.7765
+                },
+                "warnings": [],
+                "runtime_sec": 0.997
+              },
+              "original_c2": {
+                "root_cause_feature": "age",
+                "root_cause_category": "marginal",
+                "affected_slice_rule": "age > -0.4428 and age <= 0.4037 and education_num > 1.818",
+                "affected_features_ranked": [
+                  "age",
+                  "education_num",
+                  "marital_status"
+                ],
+                "affected_value_ranges": {
+                  "age": [
+                    -0.4427787794202843,
+                    0.40374084451436154
+                  ]
+                },
+                "slice_support": 0.075,
+                "diagnosis_stability": 1.0,
+                "drift_impact_score": 0.8062,
+                "temporal_window": 1
+              },
+              "decision_mode": "RULE_BASED",
+              "seed": 42,
+              "pipeline_run_id": "d2bd4c6e08a4",
+              "batch_id": "lab_fd5744b399",
+              "drift_event_id": "c1-7ba04982",
+              "data_context": {
+                "model_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\c2\\base_model_adult.pkl",
+                "input_representation": "model_ready",
+                "feature_columns": [
+                  "age",
+                  "workclass",
+                  "education_num",
+                  "marital_status",
+                  "occupation",
+                  "relationship",
+                  "race",
+                  "sex",
+                  "capital_gain",
+                  "capital_loss",
+                  "hours_per_week",
+                  "native_country"
+                ],
+                "categorical_features": [
+                  "workclass",
+                  "marital_status",
+                  "occupation",
+                  "relationship",
+                  "race",
+                  "sex",
+                  "native_country"
+                ],
+                "repair_metric": "accuracy",
+                "generator_epochs": 20,
+                "augmentation_ratio": 0.3,
+                "max_synthetic_rows": 1000,
+                "minimum_utility_gain": 0.01,
+                "fidelity_ks_max": 0.35,
+                "privacy_dcr_min": 0.05,
+                "max_near_duplicate_ratio": 0.0,
+                "control_utility_tolerance": 0.0,
+                "require_bootstrap_positive": true,
+                "min_diagnosis_stability": 0.5,
+                "dataset": "uci",
+                "batch_id": "lab_fd5744b399",
+                "label_source": "drift_lab_ground_truth_available_to_c3_only",
+                "run_id": "d2bd4c6e08a4",
+                "drift_event_id": "c1-7ba04982",
+                "model_id": "adult-xgb-v1",
+                "dataset_id": "uci",
+                "target_column": "target",
+                "label_status": "AVAILABLE",
+                "preprocessing_uri": null,
+                "adaptation_budget_size": 200,
+                "source_retention_tolerance": 0.05,
+                "positive_label": 1
+              },
+              "model_class": "xgboost.sklearn.XGBClassifier",
+              "quality_thresholds": {
+                "fidelity_ks_max": 0.35,
+                "privacy_dcr_min": 0.05,
+                "minimum_utility_gain": 0.01,
+                "target_coverage_min": 0.8,
+                "max_near_duplicate_ratio": 0.0,
+                "source_retention_tolerance": 0.05
+              },
+              "generator_configuration": {
+                "epochs": 20,
+                "requested_rows": 38,
+                "selection_mode": "automatic"
+              },
+              "observed_slice_support": 0.075,
+              "metric": "accuracy",
+              "prescription_confidence": 1.0,
+              "prescription_policy": "Rule based: categorical root cause selects CTGAN; combined diagnosis selects TabDDPM; otherwise TVAE. An explicit generator may be requested.",
+              "requested_augmentation_ratio": 0.3,
+              "label_policy": "Budgeted current adaptation labels plus independent labelled evaluation; full current labels are optional when both sample artifacts are supplied.",
+              "labelled_current_adaptation_rows_used": 124,
+              "labelled_target_evaluation_rows_used": 500,
+              "feature_columns": [
+                "age",
+                "workclass",
+                "education_num",
+                "marital_status",
+                "occupation",
+                "relationship",
+                "race",
+                "sex",
+                "capital_gain",
+                "capital_loss",
+                "hours_per_week",
+                "native_country"
+              ],
+              "categorical_features": [
+                "workclass",
+                "marital_status",
+                "occupation",
+                "relationship",
+                "race",
+                "sex",
+                "native_country"
+              ],
+              "partition_rows": {
+                "source_train": 19485,
+                "source_eval": 6563,
+                "adaptation": 124,
+                "evaluation": 500,
+                "generator_training_slice": 124,
+                "reference_current_overlap_excluded": 0
+              },
+              "partition_seeds": {
+                "source": 42,
+                "current": 43,
+                "adaptation_budget": 44
+              },
+              "evaluation_provenance": {
+                "target": "derived current holdout",
+                "source": "derived reference holdout",
+                "original_model_training_overlap": "Must be checked by the model/data owner; C3 checks candidate-training overlap."
+              },
+              "evaluation_policy": "single candidate; independent rows; no evaluation-driven generator search",
+              "generated_rows": 38
+            },
+            "model_id": "adult-xgb-v1",
+            "dataset_id": "uci",
+            "pipeline_run_id": "d2bd4c6e08a4",
+            "batch_id": "lab_fd5744b399",
+            "utility_metrics": {},
+            "source_retention_metrics": {},
+            "execution_log": {
+              "run_id": "c3-94718a4777964d4cb5a10982ad8cdf56",
+              "request_id": "REQ-82601b6912934702be66f122e910af88",
+              "current_state": "REJECTED",
+              "transitions": [
+                {
+                  "from_state": "VALIDATING",
+                  "to_state": "GENERATING",
+                  "timestamp_utc": "2026-10-23T18:55:47.428377+00:00",
+                  "detail": "Training TVAE on actual current diagnosed slice"
+                },
+                {
+                  "from_state": "GENERATING",
+                  "to_state": "REJECTED",
+                  "timestamp_utc": "2026-10-23T18:55:48.427926+00:00",
+                  "detail": "Mean KS statistic (0.414) exceeds threshold (0.350); 5th percentile DCR (0.0043) is below threshold (0.0500), indicating possible memorization; Near-duplicate ratio (31.58%) exceeds threshold (0.00%), indicating memorization of individual records"
+                }
+              ],
+              "stage_durations": {
+                "total_pipeline_seconds": 1.202
+              },
+              "error_message": null,
+              "package_path": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_repairs\\c3-94718a4777964d4cb5a10982ad8cdf56\\pkg-381614934aa6_manifest.json"
+            }
+          },
+          "c4": {
+            "decision": "HUMAN_REVIEW",
+            "champion_model_id": "champion-v12",
+            "candidate_model_id": "candidate-v14",
+            "joint_confidence_level": 0.95,
+            "future_safety_margins": {
+              "global_margin": 0.03,
+              "affected_slice_margin": 0.01,
+              "non_affected_margin": 0.02
+            },
+            "future_safety_intervals": {
+              "global_margin": [
+                -0.01,
+                0.07
+              ],
+              "affected_slice_margin": [
+                -0.18,
+                0.12
+              ],
+              "non_affected_margin": [
+                0.0,
+                0.05
+              ]
+            },
+            "hard_gate_status": {
+              "repair_approved": false,
+              "privacy_check": "PASS",
+              "schema_compatible": true,
+              "candidate_artifact_valid": true,
+              "rollback_ready": true,
+              "overall": "PASS"
+            },
+            "risk_control": {
+              "risk_control_target": 0.05,
+              "risk_context": "MEDIUM",
+              "policy_parameter": 0.12,
+              "policy_version": "c4-policy-v1"
+            },
+            "reason": "FAKE C4 decision (rule of thumb on C1 severity). The affected-slice uncertainty interval crosses the required future safety boundary, so automatic deployment cannot be justified.",
+            "required_action": "Human review before controlled staging deployment.",
+            "audit_id": "fake-d2bd4c6e08a4",
+            "policy_version": "c4-policy-v1",
+            "forecast_model_version": "quantile-lightgbm-v3",
+            "conformal_config_version": "joint-conformal-v2",
+            "mlflow_run_id": "8b4e7d2c1a6f3e91",
+            "decision_timestamp": "2026-10-23T18:55:48Z",
+            "pre_release_evidence": {
+              "validation_global_f1_gain": 0.06,
+              "validation_affected_slice_recovery": 0.49,
+              "validation_non_affected_margin": 0.02
+            },
+            "upstream_evidence_summary": {
+              "c1": {
+                "model_id": "adult-xgb-v1",
+                "predicted_harm": 0.0627,
+                "harm_interval": [
+                  0.0448,
+                  0.0807
+                ],
+                "harm_metric": "accuracy_drop",
+                "drift_detected": true,
+                "harm_severity": "moderate",
+                "marginal_extent": "single",
+                "interaction_suspected": 0.0218,
+                "affected_features": [
+                  "education_num",
+                  "age"
+                ],
+                "evidence_version": "c1-7ba04982"
+              },
+              "c2": {
+                "root_cause_category": "marginal",
+                "root_cause_feature": "age",
+                "affected_slice_rule": "age > -0.4428 and age <= 0.4037 and education_num > 1.818",
+                "slice_support": 0.075,
+                "diagnosis_stability": 1.0,
+                "affected_features_ranked": [
+                  "age",
+                  "education_num",
+                  "marital_status"
+                ],
+                "diagnosis_version": "c2-001-0148e3"
+              },
+              "c3": {
+                "repair_dataset_uri": "NONE",
+                "repair_package_status": "REJECTED",
+                "generator": "TVAE",
+                "augmentation_ratio": 0.0,
+                "fidelity_score": 0.785,
+                "utility_score": 0.0,
+                "privacy_status": "FAIL",
+                "repair_version": "c3-e910af88"
+              }
+            }
+          }
+        },
+        "component_sources": {
+          "c1": "real",
+          "c2": "real",
+          "c3": "real",
+          "c4": "fake"
+        },
+        "origin": {
+          "kind": "drift_lab",
+          "rows": 2000,
+          "run_ref": "fd5744b399",
+          "label": "Drift Lab: multi (age, education_num)",
+          "truth": {
+            "harm_metric": "accuracy_drop",
+            "true_harm_pp": 1.8905,
+            "true_harm_paired_pp": 2.2,
+            "baseline": 0.8744,
+            "on_batch": 0.8555,
+            "same_rows_before": 0.8775,
+            "note": "fixed baseline (whole test set) minus the model on this batch; labels never reach the components"
+          }
+        }
+      },
+      "c1": {
+        "evidence_version": "c1-7ba04982",
+        "engine_version": "1.2.3",
+        "model_id": "adult-xgb-v1",
+        "reference_dataset_uri": "",
+        "current_dataset_uri": "D:\\SLIIT_Research\\J26-DS-361-Intelligent-MLOps-Platform\\data\\platform_runs\\c3_batches\\lab_fd5744b399.csv",
+        "batch_size": 2000,
+        "drift_detected": true,
+        "predicted_harm": 0.0627,
+        "harm_interval": [
+          0.0448,
+          0.0807
+        ],
+        "harm_metric": "accuracy_drop",
+        "harm_severity": "moderate",
+        "marginal_extent": "single",
+        "interaction_suspected": 0.0218,
+        "affected_features": [
+          "education_num",
+          "age"
+        ],
+        "detector_scores": {
+          "ks_mean": 0.176,
+          "ks_max": 0.5595,
+          "chi2_mean": 0.0028,
+          "chi2_max": 0.0151,
+          "psi_mean": 0.2922,
+          "psi_max": 1.8158,
+          "mmd": 0.0569,
+          "lsdd": 0.0115,
+          "clf_auc": 0.9853
+        },
+        "detectors_fired": 5,
+        "detectors_fired_list": [
+          "ks",
+          "psi",
+          "mmd",
+          "lsdd",
+          "classifier"
+        ],
+        "prediction_stats": {
+          "conf_mean": 0.8411,
+          "conf_std": 0.1607,
+          "conf_pct_lt_06": 0.125,
+          "mean_pos_prob": 0.3088,
+          "pos_prob_std": 0.325,
+          "pct_pos_prob_lt_06": 0.7765
+        },
+        "warnings": [],
+        "runtime_sec": 0.997
+      },
+      "summary": {
+        "run_id": "fd5744b399",
+        "saved_at": "2026-10-24T00:25:48.461+05:30",
+        "source": "drift_lab",
+        "mode": "pipeline",
+        "dataset": "uci",
+        "drift_type": "marginal_multi",
+        "features": [
+          "age",
+          "education_num"
+        ],
+        "magnitude": 0.8,
+        "seed": 42,
+        "file": null,
+        "batch_size": 2000,
+        "truth_pp": 1.8905,
+        "c1_pp": 6.2700000000000005,
+        "lo_pp": 4.4799999999999995,
+        "hi_pp": 8.07,
+        "severity": "moderate",
+        "extent": "single",
+        "interaction": 0.0218,
+        "detectors_fired": 5,
+        "classic_alarm": true,
+        "inside": false,
+        "outcome": "correct alert",
+        "pipeline_status": "completed",
+        "c3_status": "REJECTED",
+        "has_batch": false
+      }
+    }
+  }
+}
