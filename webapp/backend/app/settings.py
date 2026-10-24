@@ -63,6 +63,10 @@ C3_MODEL_DIR = Path(os.environ.get("C3_MODEL_DIR", str(DATA_DIR / "c3")))
 from component3.src.integration_storage import upload_root, contexts_file
 C3_UPLOAD_DIR = upload_root()
 
+# C4 (Kesigan): the pipeline step calls his worker, which runs in his own Python environment.
+C4_WORKER_URL = os.environ.get("C4_WORKER_URL", "http://127.0.0.1:8004").rstrip("/")
+C4_TIMEOUT_SEC = float(os.environ.get("C4_TIMEOUT_SEC", "300"))
+
 LABEL_COLUMNS = ("target",)        # labels never reach the monitoring components
 MAX_UPLOAD_MB = 50
 

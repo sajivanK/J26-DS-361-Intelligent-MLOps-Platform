@@ -74,6 +74,10 @@ def validate(name, obj):
                 errors.append(f"{name}.{field}: missing (required)")
             continue
         value = obj[field]
+        if value is None:                         # v1.1: only fields marked "nullable" may be null
+            if not spec.get("nullable"):
+                errors.append(f"{name}.{field}: null is not allowed")
+            continue
         if not _type_ok(value, spec.get("type")):
             errors.append(f"{name}.{field}: expected {spec.get('type')}, got {type(value).__name__}")
             continue
