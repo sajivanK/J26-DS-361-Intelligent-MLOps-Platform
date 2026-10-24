@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "specification_version": "adult-n1-training-v1",
+  "source_scope": "controlled_simulated_upstream",
+  "training_snapshot_version": "forecast-training-all32-audit-v1",
+  "training_snapshot_metadata_sha256": "43dd85d45a94b7209a86481378b6eba5e48a61d4bde43a170a7e380adb065e30",
+  "raw_quantiles": [0.05, 0.5, 0.95],
+  "feature_rule": "drop_exact_constants_using_fit_partition_only",
+  "linear_scaling": "weighted_standard_scaler_fit_partition_only",
+  "training_weighting": "equal_total_weight_per_nonempty_replication_group",
+  "validation": "five_fold_GroupKFold_with_all_preprocessing_refitted_inside_each_fold",
+  "hyperparameter_search": false,
+  "prediction_postprocessing": "retain_raw_quantiles_then_sort_and_clip_to_minus1_plus1",
+  "n2_calibrated": false,
+  "parameters": {
+    "n_estimators": 100,
+    "num_leaves": 7,
+    "max_depth": 3,
+    "min_child_samples": 10,
+    "learning_rate": 0.05,
+    "reg_lambda": 1.0,
+    "linear_alpha": 0.001,
+    "random_state": 42,
+    "n_jobs": 1,
+    "cv_splits": 5
+  },
+  "rationale": "A fixed small-tree model and regularized standardized linear baseline for a small grouped scenario dataset. Constant filtering and scaling never use internal validation, conformal, policy or outer-test data. No performance-dependent parameter search is performed.",
+  "limitations": [
+    "Grouped validation is internal forecasting evaluation, not final outer-test evaluation.",
+    "Shared source rows mean replication group count does not prove population independence.",
+    "Training is conditional on admission under the exploratory simulation screen.",
+    "No raw-quantile coverage guarantee or release authorization follows from N1 fitting."
+  ]
+}

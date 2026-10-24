@@ -7,7 +7,11 @@ shared/ieee_cis/models/
 __pycache__/
 *.pyc
 .DS_Store
+# Local development environments and artifacts
 .venv/
+mlruns/
+components/c4/artifacts/
+components/c4/data/
 
 # Environment and IDE settings
 .vscode/

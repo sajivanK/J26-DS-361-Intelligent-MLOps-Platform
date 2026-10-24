@@ -1,0 +1,265 @@
+# Proposed Adult-only PP1 benchmark.
+# This file records draft choices, not completed experiments.
+
+benchmark_schema_version: "0.1"
+benchmark_version: "adult-pp1-draft-v1"
+status: draft
+execution_enabled: false
+
+dataset: uci_adult
+champion_version: v1
+
+storage:
+  dataset_root_env: C4_DATA_ROOT
+  artifacts_relative_directory: c4_artifacts/scenarios/adult
+
+ownership:
+  c4:
+    - validate_upstream_evidence
+    - validate_external_repair_package
+    - train_and_version_candidate
+    - evaluate_pre_release_performance
+    - forecast_and_calibrate_future_safety
+    - make_release_decision
+  c3:
+    - generate_synthetic_repair_data
+    - measure_repair_quality
+    - validate_privacy
+    - approve_and_version_repair_package
+  offline_benchmark:
+    - generate_controlled_scenarios
+    - maintain_true_slice_ground_truth
+    - evaluate_sealed_future_outcomes
+
+data_roles:
+  split_seed: 42
+  repair_fraction: 0.4
+  release_validation_fraction: 0.3
+  sealed_future_fraction: 0.3
+  exclude_reference_overlap: true
+  deduplicate_eligible_test: true
+  preserve_source_row_ids: true
+  split_manifest_version: v1
+  split_manifest_sha256: "4a2ee4ced6b50aca9b5ec88bd039125ef7ceda9bdbdbe848afe56df6adf8ef0d"
+  expected_rows:
+    reference: 26048
+    eligible_holdout: 5412
+    repair: 2164
+    release_validation: 1624
+    sealed_future: 1624
+
+# Threshold derived from processed reference data.
+# Membership is computed before perturbation and retained afterward.
+true_slice:
+  name: age_lower_reference_half
+  feature: age
+  operator: le
+  reference_quantile: 0.5
+  derive_from: reference
+  membership_basis: clean_before_injection
+  preserve_membership_after_injection: true
+  resolved_threshold: -0.1165165384831897
+  reference_members: 13308
+  reference_support: 0.5109029484029484
+  rule_feature_space: processed
+  rationale: >
+    Use a reference-derived age slice without selecting its threshold
+    from release-validation or sealed-future performance. Tied ages
+    mean the inclusive median rule covers slightly more than half
+    of the reference rows.
+
+# Injection strengths are not measured harm severity.
+injection_strengths:
+  low: 0.2
+  medium: 0.5
+  high: 0.8
+
+drift_conditions:
+  - name: marginal_multi
+    mechanism: marginal_multi
+    features:
+      - education_num
+      - hours_per_week
+    interaction_pairs: []
+
+  - name: interaction
+    mechanism: interaction
+    features: []
+    interaction_pairs:
+      - [marital_status, relationship]
+
+  - name: combined
+    mechanism: combined
+    features:
+      - education_num
+      - hours_per_week
+    interaction_pairs:
+      - [marital_status, relationship]
+
+injection_protocol:
+  status: proposed
+  scope: true_slice_only
+  champion_training_population: reference
+  perturbation_statistics_population: clean_true_slice_of_current_role
+  source_role: explicitly_selected_role
+  paired_harm_comparison: true
+  preserve_nonaffected_rows: true
+  preserve_source_row_ids: true
+  apply_preprocessor_again: false
+  measure_harm_separately_from_strength: true
+  interaction_interpretation: >
+    Permutation is an experimental perturbation. It is not assumed
+    to change only the named pair's dependence.
+
+seed_families:
+  - 42
+  - 123
+  - 2026
+  - 3407
+
+# These are controlled diagnosis conditions, not measured quality scores.
+diagnosis_conditions:
+  - name: exact_slice
+    intended_quality: high
+    diagnosed_slice: same_as_true_slice
+
+  - name: broadened_slice
+    intended_quality: low
+    diagnosed_slice:
+      name: age_lower_reference_three_quarters
+      feature: age
+      operator: le
+      reference_quantile: 0.75
+      derive_from: reference
+      resolved_threshold: 0.6898904841861665
+      reference_members: 19951
+      reference_support: 0.7659321253071253
+      rule_feature_space: processed
+
+diagnosis_protocol:
+  decision_time_slice_basis: c2_diagnosed_slice
+  benchmark_ground_truth_slice_basis: true_injected_slice
+  membership_basis: clean_before_injection
+  preserve_membership_after_injection: true
+  raw_rule_translation: unresolved
+  additional_c2_evidence_generation: unresolved
+  fabricate_diagnosis_confidence_or_stability: false
+
+# Proposed conditions to coordinate with C3.
+# C4 does not implement TVAE or claim these packages already exist.
+repair_conditions:
+  - name: targeted_repair
+    intended_quality: high
+    source_role: repair
+    generator: TVAE
+    fit_population: diagnosed_slice
+    package_rows: 500
+    label_flip_fraction: 0.0
+
+  - name: label_corrupted_repair
+    intended_quality: low
+    source_role: repair
+    generator: TVAE
+    fit_population: diagnosed_slice
+    package_rows: 500
+    label_flip_fraction: 0.2
+
+repair_protocol:
+  status: proposed
+  generation_owner: C3
+  c4_input: externally_supplied_repair_package
+  generator_hyperparameters:
+    library: ctgan
+    library_version: "0.12.1"
+    generator: TVAE
+    epochs: 100
+    batch_size: 256
+    embedding_dim: 128
+    compress_dims: [128, 128]
+    decompress_dims: [128, 128]
+    l2scale: 0.00001
+    loss_factor: 2
+    enable_gpu: false
+    seed: 42
+    n_rows: 500
+  internal_validation_split:
+    source_role: repair
+    validation_fraction: 0.2
+    split_seed: 42
+    stratify_by: target
+    split_before_diagnosed_slice_filtering: true
+  fidelity_definition: unresolved
+  utility_definition: unresolved
+  privacy_distance_and_threshold: unresolved
+  prescription_confidence_definition: unresolved
+
+  reuse_base_package_across_repair_conditions: true
+  corruption_changes_target_only: true
+  retain_uncorrupted_package_and_corruption_mask: true
+  changed_package_requires_new_version_and_revalidation: true
+  reuse_original_quality_scores_after_corruption: false
+
+  allow_release_validation_for_generator_selection: false
+  allow_sealed_future_for_generation_or_scoring: false
+  fabricate_upstream_scores: false
+  bypass_approval_or_privacy_gate: false
+
+candidate_training:
+  strategy: fresh_fit_reference_plus_approved_repair
+  configuration_source: verified_champion_metadata
+  use_release_validation_for_training: false
+  use_sealed_future_for_training: false
+  training_budget_comparison: unresolved
+
+scenario_grouping:
+  provisional_group_key_fields:
+    - dataset
+    - seed_family
+  keep_related_variants_together: true
+  split_assignment: unresolved
+  independent_replications: unresolved
+  note: >
+    Four seed families do not make 144 independent observations.
+    Replication, calibration sample size and grouped evaluation
+    must be resolved before statistical claims are made.
+
+future_protocol:
+  freeze_pre_release_evidence_before_future_evaluation: true
+  future_outcomes_are_research_targets_only: true
+  expose_future_to_controller: false
+  tune_scenario_definitions_on_future: false
+  future_slice_target_definition: unresolved
+
+evidence:
+  retain_resolved_configuration: true
+  retain_configuration_sha256: true
+  retain_git_revision: true
+  retain_dataset_and_champion_checksums: true
+  retain_partition_and_membership_manifest: true
+  retain_measured_repair_metrics: true
+  retain_pre_release_evidence: true
+  retain_future_targets_separately: true
+  retain_failures_and_execution_logs: true
+
+design:
+  proposed_factorial_combinations: 144
+  no_drift_controls: unresolved
+  rationale: >
+    Compare marginal perturbation, interaction permutation and their
+    combination at three injection strengths. Vary diagnosis and
+    repair conditions while retaining a reference-derived true slice.
+    All settings remain draft until operational definitions and
+    validation requirements are settled.
+  unresolved:
+    - Shared injector mechanisms and severity boundary verification
+    - C1 evidence-generation procedure and units
+    - C2 evidence generation beyond slice identification
+    - Raw-to-processed C2 rule translation where required
+    - C3 agreement on repair generation and degradation procedures
+    - C3 generator settings and internal validation protocol
+    - Repair scoring definitions and privacy threshold
+    - C3 contract timestamp and signed utility-margin alignment
+    - Comparable candidate training budgets
+    - No-drift control specifications
+    - Independent replication and scenario-fold allocation
+    - Future slice-target definition under imperfect diagnosis

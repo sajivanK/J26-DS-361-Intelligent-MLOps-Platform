@@ -1,0 +1,231 @@
+{
+  "purpose": "predefined_synthetic_controller_acceptance_fixtures",
+  "research_observations": false,
+  "empirical_auto_deployment_evidence": false,
+  "note": "Synthetic forecasters and test policies exercise the actual N1-N4 inference path; measured controller policy remains review-only.",
+  "evidence_features": {
+    "c1_harm_width": 0.01,
+    "c2_diagnosis_stability": 0.9,
+    "c3_fidelity_score": 0.9,
+    "c3_utility_score": 0.01
+  },
+  "fixtures": [
+    {
+      "fixture_id": "auto-deploy-positive-control",
+      "expected_decision": "AUTO_DEPLOY",
+      "quantiles": {
+        "future_global_margin": [
+          0.015,
+          0.022,
+          0.03
+        ],
+        "future_slice_margin": [
+          0.012,
+          0.02,
+          0.027
+        ],
+        "future_nonaffected_margin": [
+          -0.005,
+          0.005,
+          0.018
+        ]
+      },
+      "calibration_groups": 37,
+      "adjustment": 0.001,
+      "policy_source": "synthetic_test_policy",
+      "policy": {
+        "policy_id": "fixture-global",
+        "kind": "global",
+        "buffer": 0.005
+      },
+      "unsupported_contexts": []
+    },
+    {
+      "fixture_id": "uncertain-review",
+      "expected_decision": "HUMAN_REVIEW",
+      "quantiles": {
+        "future_global_margin": [
+          -0.01,
+          0.0,
+          0.01
+        ],
+        "future_slice_margin": [
+          0.012,
+          0.02,
+          0.027
+        ],
+        "future_nonaffected_margin": [
+          -0.005,
+          0.005,
+          0.018
+        ]
+      },
+      "calibration_groups": 37,
+      "adjustment": 0.001,
+      "policy_source": "synthetic_test_policy",
+      "policy": {
+        "policy_id": "fixture-global",
+        "kind": "global",
+        "buffer": 0.005
+      },
+      "unsupported_contexts": []
+    },
+    {
+      "fixture_id": "unsafe-escalation",
+      "expected_decision": "ESCALATE",
+      "quantiles": {
+        "future_global_margin": [
+          -0.04,
+          -0.035,
+          -0.03
+        ],
+        "future_slice_margin": [
+          0.012,
+          0.02,
+          0.027
+        ],
+        "future_nonaffected_margin": [
+          -0.005,
+          0.005,
+          0.018
+        ]
+      },
+      "calibration_groups": 37,
+      "adjustment": 0.001,
+      "policy_source": "synthetic_test_policy",
+      "policy": {
+        "policy_id": "fixture-global",
+        "kind": "global",
+        "buffer": 0.005
+      },
+      "unsupported_contexts": []
+    },
+    {
+      "fixture_id": "hard-gate-failure",
+      "expected_decision": "ESCALATE",
+      "quantiles": {
+        "future_global_margin": [
+          0.015,
+          0.022,
+          0.03
+        ],
+        "future_slice_margin": [
+          0.012,
+          0.02,
+          0.027
+        ],
+        "future_nonaffected_margin": [
+          -0.005,
+          0.005,
+          0.018
+        ]
+      },
+      "calibration_groups": 37,
+      "adjustment": 0.001,
+      "policy_source": "synthetic_test_policy",
+      "policy": {
+        "policy_id": "fixture-global",
+        "kind": "global",
+        "buffer": 0.005
+      },
+      "unsupported_contexts": [],
+      "failed_gate": "rollback_ready"
+    },
+    {
+      "fixture_id": "n2-insufficient-support",
+      "expected_decision": "HUMAN_REVIEW",
+      "quantiles": {
+        "future_global_margin": [
+          0.015,
+          0.022,
+          0.03
+        ],
+        "future_slice_margin": [
+          0.012,
+          0.02,
+          0.027
+        ],
+        "future_nonaffected_margin": [
+          -0.005,
+          0.005,
+          0.018
+        ]
+      },
+      "calibration_groups": 17,
+      "adjustment": null,
+      "policy_source": "synthetic_test_policy",
+      "policy": {
+        "policy_id": "fixture-global",
+        "kind": "global",
+        "buffer": 0.005
+      },
+      "unsupported_contexts": []
+    },
+    {
+      "fixture_id": "measured-review-only-policy",
+      "expected_decision": "HUMAN_REVIEW",
+      "quantiles": {
+        "future_global_margin": [
+          0.015,
+          0.022,
+          0.03
+        ],
+        "future_slice_margin": [
+          0.012,
+          0.02,
+          0.027
+        ],
+        "future_nonaffected_margin": [
+          -0.005,
+          0.005,
+          0.018
+        ]
+      },
+      "calibration_groups": 37,
+      "adjustment": 0.001,
+      "policy_source": "measured_fallback",
+      "policy": {
+        "policy_id": "fixture-global",
+        "kind": "global",
+        "buffer": 0.005
+      },
+      "unsupported_contexts": []
+    },
+    {
+      "fixture_id": "sparse-adaptive-context",
+      "expected_decision": "HUMAN_REVIEW",
+      "quantiles": {
+        "future_global_margin": [
+          0.015,
+          0.022,
+          0.03
+        ],
+        "future_slice_margin": [
+          0.012,
+          0.02,
+          0.027
+        ],
+        "future_nonaffected_margin": [
+          -0.005,
+          0.005,
+          0.018
+        ]
+      },
+      "calibration_groups": 37,
+      "adjustment": 0.001,
+      "policy_source": "synthetic_test_policy",
+      "policy": {
+        "policy_id": "fixture-adaptive",
+        "kind": "adaptive",
+        "buffers": {
+          "LOW": 0.005,
+          "MEDIUM": 0.005,
+          "HIGH": 0.005
+        }
+      },
+      "unsupported_contexts": [
+        "LOW"
+      ]
+    }
+  ]
+}

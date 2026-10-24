@@ -20,6 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .components import PIPELINE
 from .routers import alerts, c1, health, lab, pipeline, runs
+from .routers import c4 as c4_page
 from .settings import FRONTEND_ORIGINS
 
 
@@ -37,7 +38,7 @@ app.add_middleware(CORSMiddleware, allow_origins=FRONTEND_ORIGINS, allow_methods
 app.include_router(health.router)
 app.include_router(c1.router)
 
-MEMBER_ROUTERS = ("c2", "c3")      # add "c4" here when C4's page API is merged
+MEMBER_ROUTERS = ("c2", "c3")  # C4 is registered explicitly below
 ROUTERS_MISSING = {}
 for _name in MEMBER_ROUTERS:
     try:
@@ -50,4 +51,9 @@ for _name in MEMBER_ROUTERS:
 app.include_router(pipeline.router)
 app.include_router(lab.router)
 app.include_router(runs.router)
+app.include_router(c4_page.router)
 app.include_router(alerts.router)
+
+# Persistent C4 recorded-assessment workspace.
+from .routers import c4_workspace
+app.include_router(c4_workspace.router)

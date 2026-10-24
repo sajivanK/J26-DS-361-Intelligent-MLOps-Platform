@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "extension_version": "calibration-support-extension-v2",
+  "base_protocol_version": "adult-simulation-pp1-v2",
+  "split_role": "conformal_extension",
+  "seed_namespaces": [42, 123, 2026, 3407],
+  "replication_indices": [20, 21, 22, 23, 24],
+  "expected_groups": 20,
+  "expected_cases_per_group": 37,
+  "alpha": 0.05,
+  "rationale": "Separately versioned support extension introduced after the original 20 assigned groups yielded 17 nonempty groups and required fallback.",
+  "combination_rule": "Pool all original nonempty group-max scores and all extension nonempty group-max scores, each group once; same fixed N1 methods, target definitions and score rule; no selection by score, width or deployment rate.",
+  "execution_rule": "Attempt all 20 predefined groups; preserve blocked groups and failures; no early stopping at support threshold, replacement seeds or outcome-driven admission changes.",
+  "original_result_policy": "Preserve original N2 and N3 artifacts unchanged; new combined calibration must have a new version.",
+  "excluded_roles": ["forecast_train", "policy_calibration", "outer_test"],
+  "exchangeability_note": "Fresh RNG streams on shared fixed source rows do not establish exchangeability or independent population samples; nominal coverage remains assumption-dependent.",
+  "full_execution_enabled": false,
+  "production_release_authorized": false
+}
