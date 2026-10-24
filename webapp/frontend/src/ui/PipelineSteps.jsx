@@ -12,7 +12,12 @@ export function stepSummary(component, outputs) {
   }
   if (component === "c2" && o.c2_to_c3) return { text: `${o.c2_to_c3.root_cause_category}: ${o.c2_to_c3.root_cause_feature}` };
   if (component === "c3" && o.c3) return { text: `${o.c3.execution_status || o.c3.status || o.c3.repair_package_status} · ${o.c3.generator} · ${o.c3.n_synthetic_rows} rows`, sub: o.c3.reason };
-  if (component === "c4" && o.c4) return { text: o.c4.decision };
+  if (component === "c4" && o.c4) {
+    const ev = o.c4.evaluation_status;          // C4 contract v1.1
+    const sub = ev === "UPSTREAM_GATE_FAILED" ? "not evaluated: an upstream gate failed"
+      : ev === "FORECAST_UNAVAILABLE" ? "candidate evaluated; live forecast not available" : null;
+    return { text: o.c4.decision, sub };
+  }
   return null;
 }
 
