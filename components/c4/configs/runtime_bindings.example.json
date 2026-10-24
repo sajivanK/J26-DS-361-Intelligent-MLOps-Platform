@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "bindings": {
+    "dataset": "uci",
+    "champion_model_id": null,
+    "champion_model": {"path": null, "sha256": null},
+    "champion_metadata": {"path": null, "sha256": null},
+    "preprocessing": {"path": null, "sha256": null},
+    "reference": {"path": null, "sha256": null},
+    "release_validation": {"path": null, "sha256": null},
+    "repair": {"path": null, "sha256": null},
+    "lineage": {"path": null, "sha256": null},
+    "feature_columns": ["age", "workclass", "education_num", "marital_status", "occupation", "relationship", "race", "sex", "capital_gain", "capital_loss", "hours_per_week", "native_country"],
+    "target_column": "target",
+    "rule_feature_space": null
+  }
+}

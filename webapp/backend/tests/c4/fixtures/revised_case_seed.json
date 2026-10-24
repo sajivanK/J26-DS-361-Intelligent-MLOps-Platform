@@ -1,0 +1,890 @@
+{
+  "note": "Test fixture derived from the selected pre-future case; not new empirical evidence.",
+  "scenario": {
+    "c1_mock_seed": 3998237936,
+    "c2_bootstrap_seed": 1320114549,
+    "corruption_seed": 3391317420,
+    "diagnosed_rule": {
+      "feature": "age",
+      "name": "broadened_slice",
+      "operator": "le",
+      "reference_quantile": 0.75,
+      "resolved_threshold": 0.6898904841861665
+    },
+    "diagnosis_condition": "broadened_slice",
+    "drift_seeds": {
+      "release_validation": 2668762626,
+      "repair": 2682161287,
+      "sealed_future": 1836763082
+    },
+    "features": [],
+    "generator_seed": 1789074858,
+    "group_id": "adult-ns51001-r004",
+    "interaction_pairs": [
+      [
+        "marital_status",
+        "relationship"
+      ]
+    ],
+    "is_no_drift_control": false,
+    "label_flip_fraction": 0.2,
+    "magnitude": 0.2,
+    "mechanism": "interaction",
+    "repair_condition": "label_corrupted_repair",
+    "scenario_id": "adult-ns51001-r004-interaction-low-broadened_slice-label_corrupted_repair",
+    "shared_base_package_id": "adult-ns51001-r004:interaction:low:broadened_slice",
+    "split_role": "outer_test"
+  },
+  "upstream": {
+    "c1_evidence": {
+      "affected_features": [],
+      "batch_size": 1624,
+      "current_dataset_uri": "/external/simulation-artifact",
+      "detector_scores": {
+        "chi2_max": 0.05,
+        "chi2_mean": 0.02,
+        "clf_auc": 0.55,
+        "ks_max": 0.0,
+        "ks_mean": 0.0,
+        "lsdd": 0.001,
+        "mmd": 0.03,
+        "psi_max": 0.04,
+        "psi_mean": 0.01
+      },
+      "detectors_fired": 2,
+      "detectors_fired_list": [
+        "mmd",
+        "classifier"
+      ],
+      "drift_detected": false,
+      "engine_version": "fake-1.1",
+      "evidence_version": "c1-ee5044f0",
+      "harm_interval": [
+        -0.0173,
+        0.0259
+      ],
+      "harm_metric": "accuracy_drop",
+      "harm_severity": "none",
+      "interaction_suspected": 0.85,
+      "marginal_extent": "none",
+      "model_id": "adult-xgb-v1",
+      "predicted_harm": 0.0043,
+      "prediction_stats": {
+        "conf_mean": 0.87,
+        "conf_pct_lt_06": 0.08,
+        "conf_std": 0.15,
+        "mean_pos_prob": 0.24,
+        "pct_pos_prob_lt_06": 0.83,
+        "pos_prob_std": 0.3
+      },
+      "reference_dataset_uri": "/external/simulation-artifact",
+      "runtime_sec": 0.0,
+      "warnings": []
+    },
+    "c2_diagnosis": {
+      "affected_features_ranked": [
+        "marital_status",
+        "relationship"
+      ],
+      "affected_slice_rule": "age <= 0.6898904841861665",
+      "diagnosis_stability": 0.9900188205771643,
+      "diagnosis_version": "bmk-d4f7cd9ac9ab0084-sim-c2",
+      "root_cause_category": "interaction",
+      "root_cause_feature": "marital_status",
+      "slice_support": 0.7456896551724138
+    },
+    "c3_repair_package": {
+      "augmentation_ratio": 0.019195331695331695,
+      "fidelity_score": 0.6906923076923076,
+      "generator": "TVAE",
+      "n_synthetic_rows": 500,
+      "prescription_confidence": 0.8754968580145884,
+      "privacy_status": "PASS",
+      "repair_dataset_uri": "/external/simulation-artifact",
+      "repair_package_status": "APPROVED",
+      "repair_version": "bmk-d4f7cd9ac9ab0084-repair-v1",
+      "target_coverage": 0.966,
+      "utility_score": 0.003076923076923088
+    }
+  },
+  "evidence": {
+    "c2_diagnosis": {
+      "affected_features_ranked": [
+        "marital_status",
+        "relationship"
+      ],
+      "affected_slice_rule": "age <= 0.6898904841861665",
+      "diagnosis_stability": 0.9900188205771643,
+      "diagnosis_version": "bmk-d4f7cd9ac9ab0084-sim-c2",
+      "root_cause_category": "interaction",
+      "root_cause_feature": "marital_status",
+      "slice_support": 0.7456896551724138
+    },
+    "candidate_model_sha256": "ce495066a365e51df6e6ad6c3298d660fc6fb4716cbe04802ceca29e55bb8249",
+    "candidate_version": "bmk-d4f7cd9ac9ab0084-simulation-candidate-v1",
+    "champion_model_sha256": "eefacc57b2b9bce9032d3e52698eed34c58dfe0e26a7fd07ab23030e683bbb24",
+    "champion_version": "v1",
+    "clean_release_contents_verified": true,
+    "clean_release_validation_csv_sha256": "e9794724c6454dec1fa9a37a1a10e21ad8d191ea338aac79472b9ba4f92d3b53",
+    "created_at_utc": "2026-10-20T14:12:01.687148+00:00",
+    "diagnosed_membership_csv_sha256": "edc088e07b34184ac612eae3fa65ccb7ffbd6751142a10ec594cc5c799989151",
+    "diagnosis_rule_feature_space": "processed",
+    "evaluation_partition": "release_validation",
+    "evidence_schema_version": "1.0",
+    "git_revision": "5191134bd56766db3a8775997d3203af926ec0d4",
+    "membership_basis": "clean_release_before_perturbation",
+    "provenance_note": "Source checksums, release row IDs and clean release contents were verified. C2 membership was computed before perturbation. The scenario harness must establish that the evaluated transformations preserve source-row identity.",
+    "release_membership_verified": true,
+    "release_validation_csv_sha256": "20d0e16d2c5bccd0535bcdd8a5a70115fcadcb2e613851affc49ef5b19af5aa9",
+    "repair_csv_sha256": "05bb9de6df73f3e2d617ee30b10817693a7896350fd244b5015bb739312cc3cf",
+    "repair_version": "bmk-d4f7cd9ac9ab0084-repair-v1",
+    "report": {
+      "comparisons": {
+        "affected_slice": {
+          "candidate": {
+            "accuracy": 0.8645747316267548,
+            "auc": 0.9256674119140914,
+            "macro_f1": 0.7927218228423047
+          },
+          "candidate_minus_champion": {
+            "accuracy": 0.0008257638315442017,
+            "auc": -0.0017293894943483101,
+            "macro_f1": -0.000271131365745525
+          },
+          "champion": {
+            "accuracy": 0.8637489677952106,
+            "auc": 0.9273968014084397,
+            "macro_f1": 0.7929929542080503
+          },
+          "rows": 1211,
+          "target_counts": {
+            "0": 937,
+            "1": 274
+          }
+        },
+        "global": {
+          "candidate": {
+            "accuracy": 0.8571428571428571,
+            "auc": 0.9173145593247849,
+            "macro_f1": 0.7996422182468694
+          },
+          "candidate_minus_champion": {
+            "accuracy": 0.0030788177339901024,
+            "auc": -0.0023920629767895107,
+            "macro_f1": 0.0030061495860222998
+          },
+          "champion": {
+            "accuracy": 0.854064039408867,
+            "auc": 0.9197066223015744,
+            "macro_f1": 0.7966360686608471
+          },
+          "rows": 1624,
+          "target_counts": {
+            "0": 1220,
+            "1": 404
+          }
+        },
+        "non_affected": {
+          "candidate": {
+            "accuracy": 0.8353510895883777,
+            "auc": 0.8930415873878772,
+            "macro_f1": 0.8075383771929825
+          },
+          "candidate_minus_champion": {
+            "accuracy": 0.009685230024213065,
+            "auc": -0.004131557488447846,
+            "macro_f1": 0.010453542604053623
+          },
+          "champion": {
+            "accuracy": 0.8256658595641646,
+            "auc": 0.897173144876325,
+            "macro_f1": 0.7970848345889289
+          },
+          "rows": 413,
+          "target_counts": {
+            "0": 283,
+            "1": 130
+          }
+        }
+      },
+      "evaluation_role": "release_validation",
+      "evidence_schema_version": "1.0",
+      "margin_units": "fraction",
+      "primary_margin_metric": "accuracy"
+    },
+    "scenario_id": "adult-ns51001-r004-interaction-low-broadened_slice-label_corrupted_repair",
+    "slice_basis": "c2_diagnosed_slice",
+    "split_manifest_sha256": "4a2ee4ced6b50aca9b5ec88bd039125ef7ceda9bdbdbe848afe56df6adf8ef0d",
+    "split_manifest_version": "v1"
+  },
+  "forecasts": {
+    "hybrid_ridge_lightgbm_lightgbm": {
+      "calibrated": {
+        "future_global_margin__lower": -0.01153857427172723,
+        "future_global_margin__median": -0.0029902453613992784,
+        "future_global_margin__upper": 0.005370881532102194,
+        "future_nonaffected_margin__lower": -0.013911060567372274,
+        "future_nonaffected_margin__median": -0.0036976609499989803,
+        "future_nonaffected_margin__upper": 0.003727676211335935,
+        "future_slice_margin__lower": -0.01295573833606585,
+        "future_slice_margin__median": -0.0021319474141702397,
+        "future_slice_margin__upper": 0.006472467778183264
+      },
+      "processed": {
+        "future_global_margin__lower": -0.004599461130763463,
+        "future_global_margin__median": -0.0029902453613992784,
+        "future_global_margin__upper": -0.0015682316088615738,
+        "future_nonaffected_margin__lower": -0.006971947426408507,
+        "future_nonaffected_margin__median": -0.0036976609499989803,
+        "future_nonaffected_margin__upper": -0.003211436929627833,
+        "future_slice_margin__lower": -0.0060166251951020815,
+        "future_slice_margin__median": -0.0021319474141702397,
+        "future_slice_margin__upper": -0.00046664536278050384
+      },
+      "raw": {
+        "future_global_margin__lower": -0.004599461130763463,
+        "future_global_margin__median": -0.0029902453613992784,
+        "future_global_margin__upper": -0.0015682316088615738,
+        "future_nonaffected_margin__lower": -0.006971947426408507,
+        "future_nonaffected_margin__median": -0.0036976609499989803,
+        "future_nonaffected_margin__upper": -0.003211436929627833,
+        "future_slice_margin__lower": -0.0060166251951020815,
+        "future_slice_margin__median": -0.0021319474141702397,
+        "future_slice_margin__upper": -0.00046664536278050384
+      }
+    },
+    "same_external_training_constant_quantiles": {
+      "calibrated": {
+        "future_global_margin__lower": -0.013342137175006034,
+        "future_global_margin__median": -0.004418947205209706,
+        "future_global_margin__upper": 0.005046920491542201,
+        "future_nonaffected_margin__lower": -0.01425185042568632,
+        "future_nonaffected_margin__median": -0.004893964110929853,
+        "future_nonaffected_margin__upper": 0.005205431917603864,
+        "future_slice_margin__lower": -0.013482781026640675,
+        "future_slice_margin__median": -0.0035737491877842753,
+        "future_slice_margin__upper": 0.00649772579597141
+      },
+      "processed": {
+        "future_global_margin__lower": -0.00635708194433677,
+        "future_global_margin__median": -0.004418947205209706,
+        "future_global_margin__upper": -0.001938134739127064,
+        "future_nonaffected_margin__lower": -0.007266795195017055,
+        "future_nonaffected_margin__median": -0.004893964110929853,
+        "future_nonaffected_margin__upper": -0.0017796233130654012,
+        "future_slice_margin__lower": -0.00649772579597141,
+        "future_slice_margin__median": -0.0035737491877842753,
+        "future_slice_margin__upper": -0.0004873294346978557
+      },
+      "raw": {
+        "future_global_margin__lower": -0.00635708194433677,
+        "future_global_margin__median": -0.004418947205209706,
+        "future_global_margin__upper": -0.001938134739127064,
+        "future_nonaffected_margin__lower": -0.007266795195017055,
+        "future_nonaffected_margin__median": -0.004893964110929853,
+        "future_nonaffected_margin__upper": -0.0017796233130654012,
+        "future_slice_margin__lower": -0.00649772579597141,
+        "future_slice_margin__median": -0.0035737491877842753,
+        "future_slice_margin__upper": -0.0004873294346978557
+      }
+    },
+    "same_external_training_lightgbm": {
+      "calibrated": {
+        "future_global_margin__lower": -0.012859391985375794,
+        "future_global_margin__median": -0.002842512360547034,
+        "future_global_margin__upper": 0.005389774687826482,
+        "future_nonaffected_margin__lower": -0.013911060567372274,
+        "future_nonaffected_margin__median": -0.0036976609499989803,
+        "future_nonaffected_margin__upper": 0.003727676211335935,
+        "future_slice_margin__lower": -0.01295573833606585,
+        "future_slice_margin__median": -0.0021319474141702397,
+        "future_slice_margin__upper": 0.006472467778183264
+      },
+      "processed": {
+        "future_global_margin__lower": -0.005920278844412027,
+        "future_global_margin__median": -0.002842512360547034,
+        "future_global_margin__upper": -0.0015493384531372857,
+        "future_nonaffected_margin__lower": -0.006971947426408507,
+        "future_nonaffected_margin__median": -0.0036976609499989803,
+        "future_nonaffected_margin__upper": -0.003211436929627833,
+        "future_slice_margin__lower": -0.0060166251951020815,
+        "future_slice_margin__median": -0.0021319474141702397,
+        "future_slice_margin__upper": -0.00046664536278050384
+      },
+      "raw": {
+        "future_global_margin__lower": -0.005920278844412027,
+        "future_global_margin__median": -0.002842512360547034,
+        "future_global_margin__upper": -0.0015493384531372857,
+        "future_nonaffected_margin__lower": -0.006971947426408507,
+        "future_nonaffected_margin__median": -0.0036976609499989803,
+        "future_nonaffected_margin__upper": -0.003211436929627833,
+        "future_slice_margin__lower": -0.0060166251951020815,
+        "future_slice_margin__median": -0.0021319474141702397,
+        "future_slice_margin__upper": -0.00046664536278050384
+      }
+    },
+    "same_external_training_linear": {
+      "calibrated": {
+        "future_global_margin__lower": -0.008062435657540749,
+        "future_global_margin__median": -0.002895201161528545,
+        "future_global_margin__upper": 0.001218601687765696,
+        "future_nonaffected_margin__lower": -0.007871172757964832,
+        "future_nonaffected_margin__median": -0.0032825171163547917,
+        "future_nonaffected_margin__upper": 0.0026286551610080824,
+        "future_slice_margin__lower": -0.00753930835214719,
+        "future_slice_margin__median": -0.002493783539806312,
+        "future_slice_margin__upper": 0.001902153335631756
+      },
+      "processed": {
+        "future_global_margin__lower": -0.004159243295476596,
+        "future_global_margin__median": -0.002895201161528545,
+        "future_global_margin__upper": -0.0026845906742984566,
+        "future_nonaffected_margin__lower": -0.003967980395900679,
+        "future_nonaffected_margin__median": -0.0032825171163547917,
+        "future_nonaffected_margin__upper": -0.0012745372010560703,
+        "future_slice_margin__lower": -0.0036361159900830374,
+        "future_slice_margin__median": -0.002493783539806312,
+        "future_slice_margin__upper": -0.0020010390264323967
+      },
+      "raw": {
+        "future_global_margin__lower": -0.004159243295476596,
+        "future_global_margin__median": -0.0026845906742984566,
+        "future_global_margin__upper": -0.002895201161528545,
+        "future_nonaffected_margin__lower": -0.003967980395900679,
+        "future_nonaffected_margin__median": -0.0032825171163547917,
+        "future_nonaffected_margin__upper": -0.0012745372010560703,
+        "future_slice_margin__lower": -0.0036361159900830374,
+        "future_slice_margin__median": -0.0020010390264323967,
+        "future_slice_margin__upper": -0.002493783539806312
+      }
+    }
+  },
+  "signals": {
+    "evidence_context": {
+      "context": "MEDIUM",
+      "quality": 0.6766412025866227,
+      "quality_is_calibrated_probability": false
+    },
+    "future_targets_used": false,
+    "hard_gates": {
+      "diagnosis_stability": true,
+      "privacy_check": true,
+      "repair_approved": true,
+      "rollback_ready": true,
+      "schema_compatible": true
+    },
+    "methods": {
+      "hybrid_ridge_lightgbm_lightgbm": {
+        "N3": {
+          "auto_deploy_supported": true,
+          "dimensions": {
+            "future_global_margin": {
+              "boundary": 0.0,
+              "lower": -0.01153857427172723,
+              "population": "global",
+              "status": "UNCERTAIN",
+              "upper": 0.005370881532102194
+            },
+            "future_nonaffected_margin": {
+              "boundary": -0.02,
+              "lower": -0.013911060567372274,
+              "population": "true_slice_complement",
+              "status": "SAFE",
+              "upper": 0.003727676211335935
+            },
+            "future_slice_margin": {
+              "boundary": 0.0,
+              "lower": -0.01295573833606585,
+              "population": "true_injected_slice",
+              "status": "UNCERTAIN",
+              "upper": 0.006472467778183264
+            }
+          },
+          "release_authorized": false,
+          "release_signal": "HUMAN_REVIEW"
+        },
+        "policies": {
+          "adaptive": {
+            "result": {
+              "decision": "HUMAN_REVIEW",
+              "n3": {
+                "auto_deploy_supported": true,
+                "dimensions": {
+                  "future_global_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.01153857427172723,
+                    "population": "global",
+                    "status": "UNCERTAIN",
+                    "upper": 0.005370881532102194
+                  },
+                  "future_nonaffected_margin": {
+                    "boundary": -0.02,
+                    "lower": -0.013911060567372274,
+                    "population": "true_slice_complement",
+                    "status": "SAFE",
+                    "upper": 0.003727676211335935
+                  },
+                  "future_slice_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.01295573833606585,
+                    "population": "true_injected_slice",
+                    "status": "UNCERTAIN",
+                    "upper": 0.006472467778183264
+                  }
+                },
+                "release_authorized": false,
+                "release_signal": "HUMAN_REVIEW"
+              },
+              "reason": "N2_unsupported_or_N3_uncertain",
+              "release_authorized": false
+            },
+            "selected_policy": {
+              "kind": "review_only",
+              "policy_id": "unsupported-review-only"
+            },
+            "selection_status": "UNSUPPORTED_SELECTION_REVIEW_ONLY"
+          },
+          "global": {
+            "result": {
+              "decision": "HUMAN_REVIEW",
+              "n3": {
+                "auto_deploy_supported": true,
+                "dimensions": {
+                  "future_global_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.01153857427172723,
+                    "population": "global",
+                    "status": "UNCERTAIN",
+                    "upper": 0.005370881532102194
+                  },
+                  "future_nonaffected_margin": {
+                    "boundary": -0.02,
+                    "lower": -0.013911060567372274,
+                    "population": "true_slice_complement",
+                    "status": "SAFE",
+                    "upper": 0.003727676211335935
+                  },
+                  "future_slice_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.01295573833606585,
+                    "population": "true_injected_slice",
+                    "status": "UNCERTAIN",
+                    "upper": 0.006472467778183264
+                  }
+                },
+                "release_authorized": false,
+                "release_signal": "HUMAN_REVIEW"
+              },
+              "reason": "N2_unsupported_or_N3_uncertain",
+              "release_authorized": false
+            },
+            "selected_policy": {
+              "kind": "review_only",
+              "policy_id": "unsupported-review-only"
+            },
+            "selection_status": "UNSUPPORTED_SELECTION_REVIEW_ONLY"
+          }
+        }
+      },
+      "same_external_training_constant_quantiles": {
+        "N3": {
+          "auto_deploy_supported": true,
+          "dimensions": {
+            "future_global_margin": {
+              "boundary": 0.0,
+              "lower": -0.013342137175006034,
+              "population": "global",
+              "status": "UNCERTAIN",
+              "upper": 0.005046920491542201
+            },
+            "future_nonaffected_margin": {
+              "boundary": -0.02,
+              "lower": -0.01425185042568632,
+              "population": "true_slice_complement",
+              "status": "SAFE",
+              "upper": 0.005205431917603864
+            },
+            "future_slice_margin": {
+              "boundary": 0.0,
+              "lower": -0.013482781026640675,
+              "population": "true_injected_slice",
+              "status": "UNCERTAIN",
+              "upper": 0.00649772579597141
+            }
+          },
+          "release_authorized": false,
+          "release_signal": "HUMAN_REVIEW"
+        },
+        "policies": {
+          "adaptive": {
+            "result": {
+              "decision": "HUMAN_REVIEW",
+              "n3": {
+                "auto_deploy_supported": true,
+                "dimensions": {
+                  "future_global_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.013342137175006034,
+                    "population": "global",
+                    "status": "UNCERTAIN",
+                    "upper": 0.005046920491542201
+                  },
+                  "future_nonaffected_margin": {
+                    "boundary": -0.02,
+                    "lower": -0.01425185042568632,
+                    "population": "true_slice_complement",
+                    "status": "SAFE",
+                    "upper": 0.005205431917603864
+                  },
+                  "future_slice_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.013482781026640675,
+                    "population": "true_injected_slice",
+                    "status": "UNCERTAIN",
+                    "upper": 0.00649772579597141
+                  }
+                },
+                "release_authorized": false,
+                "release_signal": "HUMAN_REVIEW"
+              },
+              "reason": "N2_unsupported_or_N3_uncertain",
+              "release_authorized": false
+            },
+            "selected_policy": {
+              "kind": "review_only",
+              "policy_id": "unsupported-review-only"
+            },
+            "selection_status": "UNSUPPORTED_SELECTION_REVIEW_ONLY"
+          },
+          "global": {
+            "result": {
+              "decision": "HUMAN_REVIEW",
+              "n3": {
+                "auto_deploy_supported": true,
+                "dimensions": {
+                  "future_global_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.013342137175006034,
+                    "population": "global",
+                    "status": "UNCERTAIN",
+                    "upper": 0.005046920491542201
+                  },
+                  "future_nonaffected_margin": {
+                    "boundary": -0.02,
+                    "lower": -0.01425185042568632,
+                    "population": "true_slice_complement",
+                    "status": "SAFE",
+                    "upper": 0.005205431917603864
+                  },
+                  "future_slice_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.013482781026640675,
+                    "population": "true_injected_slice",
+                    "status": "UNCERTAIN",
+                    "upper": 0.00649772579597141
+                  }
+                },
+                "release_authorized": false,
+                "release_signal": "HUMAN_REVIEW"
+              },
+              "reason": "N2_unsupported_or_N3_uncertain",
+              "release_authorized": false
+            },
+            "selected_policy": {
+              "kind": "review_only",
+              "policy_id": "unsupported-review-only"
+            },
+            "selection_status": "UNSUPPORTED_SELECTION_REVIEW_ONLY"
+          }
+        }
+      },
+      "same_external_training_lightgbm": {
+        "N3": {
+          "auto_deploy_supported": true,
+          "dimensions": {
+            "future_global_margin": {
+              "boundary": 0.0,
+              "lower": -0.012859391985375794,
+              "population": "global",
+              "status": "UNCERTAIN",
+              "upper": 0.005389774687826482
+            },
+            "future_nonaffected_margin": {
+              "boundary": -0.02,
+              "lower": -0.013911060567372274,
+              "population": "true_slice_complement",
+              "status": "SAFE",
+              "upper": 0.003727676211335935
+            },
+            "future_slice_margin": {
+              "boundary": 0.0,
+              "lower": -0.01295573833606585,
+              "population": "true_injected_slice",
+              "status": "UNCERTAIN",
+              "upper": 0.006472467778183264
+            }
+          },
+          "release_authorized": false,
+          "release_signal": "HUMAN_REVIEW"
+        },
+        "policies": {
+          "adaptive": {
+            "result": {
+              "decision": "HUMAN_REVIEW",
+              "n3": {
+                "auto_deploy_supported": true,
+                "dimensions": {
+                  "future_global_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.012859391985375794,
+                    "population": "global",
+                    "status": "UNCERTAIN",
+                    "upper": 0.005389774687826482
+                  },
+                  "future_nonaffected_margin": {
+                    "boundary": -0.02,
+                    "lower": -0.013911060567372274,
+                    "population": "true_slice_complement",
+                    "status": "SAFE",
+                    "upper": 0.003727676211335935
+                  },
+                  "future_slice_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.01295573833606585,
+                    "population": "true_injected_slice",
+                    "status": "UNCERTAIN",
+                    "upper": 0.006472467778183264
+                  }
+                },
+                "release_authorized": false,
+                "release_signal": "HUMAN_REVIEW"
+              },
+              "reason": "N2_unsupported_or_N3_uncertain",
+              "release_authorized": false
+            },
+            "selected_policy": {
+              "kind": "review_only",
+              "policy_id": "unsupported-review-only"
+            },
+            "selection_status": "UNSUPPORTED_SELECTION_REVIEW_ONLY"
+          },
+          "global": {
+            "result": {
+              "decision": "HUMAN_REVIEW",
+              "n3": {
+                "auto_deploy_supported": true,
+                "dimensions": {
+                  "future_global_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.012859391985375794,
+                    "population": "global",
+                    "status": "UNCERTAIN",
+                    "upper": 0.005389774687826482
+                  },
+                  "future_nonaffected_margin": {
+                    "boundary": -0.02,
+                    "lower": -0.013911060567372274,
+                    "population": "true_slice_complement",
+                    "status": "SAFE",
+                    "upper": 0.003727676211335935
+                  },
+                  "future_slice_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.01295573833606585,
+                    "population": "true_injected_slice",
+                    "status": "UNCERTAIN",
+                    "upper": 0.006472467778183264
+                  }
+                },
+                "release_authorized": false,
+                "release_signal": "HUMAN_REVIEW"
+              },
+              "reason": "N2_unsupported_or_N3_uncertain",
+              "release_authorized": false
+            },
+            "selected_policy": {
+              "kind": "review_only",
+              "policy_id": "unsupported-review-only"
+            },
+            "selection_status": "UNSUPPORTED_SELECTION_REVIEW_ONLY"
+          }
+        }
+      },
+      "same_external_training_linear": {
+        "N3": {
+          "auto_deploy_supported": true,
+          "dimensions": {
+            "future_global_margin": {
+              "boundary": 0.0,
+              "lower": -0.008062435657540749,
+              "population": "global",
+              "status": "UNCERTAIN",
+              "upper": 0.001218601687765696
+            },
+            "future_nonaffected_margin": {
+              "boundary": -0.02,
+              "lower": -0.007871172757964832,
+              "population": "true_slice_complement",
+              "status": "SAFE",
+              "upper": 0.0026286551610080824
+            },
+            "future_slice_margin": {
+              "boundary": 0.0,
+              "lower": -0.00753930835214719,
+              "population": "true_injected_slice",
+              "status": "UNCERTAIN",
+              "upper": 0.001902153335631756
+            }
+          },
+          "release_authorized": false,
+          "release_signal": "HUMAN_REVIEW"
+        },
+        "policies": {
+          "adaptive": {
+            "result": {
+              "decision": "HUMAN_REVIEW",
+              "n3": {
+                "auto_deploy_supported": true,
+                "dimensions": {
+                  "future_global_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.008062435657540749,
+                    "population": "global",
+                    "status": "UNCERTAIN",
+                    "upper": 0.001218601687765696
+                  },
+                  "future_nonaffected_margin": {
+                    "boundary": -0.02,
+                    "lower": -0.007871172757964832,
+                    "population": "true_slice_complement",
+                    "status": "SAFE",
+                    "upper": 0.0026286551610080824
+                  },
+                  "future_slice_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.00753930835214719,
+                    "population": "true_injected_slice",
+                    "status": "UNCERTAIN",
+                    "upper": 0.001902153335631756
+                  }
+                },
+                "release_authorized": false,
+                "release_signal": "HUMAN_REVIEW"
+              },
+              "reason": "N2_unsupported_or_N3_uncertain",
+              "release_authorized": false
+            },
+            "selected_policy": {
+              "kind": "review_only",
+              "policy_id": "unsupported-review-only"
+            },
+            "selection_status": "UNSUPPORTED_SELECTION_REVIEW_ONLY"
+          },
+          "global": {
+            "result": {
+              "decision": "HUMAN_REVIEW",
+              "n3": {
+                "auto_deploy_supported": true,
+                "dimensions": {
+                  "future_global_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.008062435657540749,
+                    "population": "global",
+                    "status": "UNCERTAIN",
+                    "upper": 0.001218601687765696
+                  },
+                  "future_nonaffected_margin": {
+                    "boundary": -0.02,
+                    "lower": -0.007871172757964832,
+                    "population": "true_slice_complement",
+                    "status": "SAFE",
+                    "upper": 0.0026286551610080824
+                  },
+                  "future_slice_margin": {
+                    "boundary": 0.0,
+                    "lower": -0.00753930835214719,
+                    "population": "true_injected_slice",
+                    "status": "UNCERTAIN",
+                    "upper": 0.001902153335631756
+                  }
+                },
+                "release_authorized": false,
+                "release_signal": "HUMAN_REVIEW"
+              },
+              "reason": "N2_unsupported_or_N3_uncertain",
+              "release_authorized": false
+            },
+            "selected_policy": {
+              "kind": "review_only",
+              "policy_id": "unsupported-review-only"
+            },
+            "selection_status": "UNSUPPORTED_SELECTION_REVIEW_ONLY"
+          }
+        }
+      }
+    },
+    "production_release_authorized": false
+  },
+  "calibrations": {
+    "hybrid_ridge_lightgbm_lightgbm": {
+      "adjustment": 0.006939113140963768,
+      "alpha": 0.05,
+      "auto_deploy_supported": true,
+      "calibration_unit": "replication_group_max_over_admitted_variants_and_three_targets",
+      "fallback": false,
+      "informative_intervals": true,
+      "nonempty_groups": 20,
+      "rank": 20,
+      "target_columns": [
+        "future_global_margin",
+        "future_slice_margin",
+        "future_nonaffected_margin"
+      ]
+    },
+    "same_external_training_constant_quantiles": {
+      "adjustment": 0.006985055230669265,
+      "alpha": 0.05,
+      "auto_deploy_supported": true,
+      "calibration_unit": "replication_group_max_over_admitted_variants_and_three_targets",
+      "fallback": false,
+      "informative_intervals": true,
+      "nonempty_groups": 20,
+      "rank": 20,
+      "target_columns": [
+        "future_global_margin",
+        "future_slice_margin",
+        "future_nonaffected_margin"
+      ]
+    },
+    "same_external_training_lightgbm": {
+      "adjustment": 0.006939113140963768,
+      "alpha": 0.05,
+      "auto_deploy_supported": true,
+      "calibration_unit": "replication_group_max_over_admitted_variants_and_three_targets",
+      "fallback": false,
+      "informative_intervals": true,
+      "nonempty_groups": 20,
+      "rank": 20,
+      "target_columns": [
+        "future_global_margin",
+        "future_slice_margin",
+        "future_nonaffected_margin"
+      ]
+    },
+    "same_external_training_linear": {
+      "adjustment": 0.0039031923620641527,
+      "alpha": 0.05,
+      "auto_deploy_supported": true,
+      "calibration_unit": "replication_group_max_over_admitted_variants_and_three_targets",
+      "fallback": false,
+      "informative_intervals": true,
+      "nonempty_groups": 20,
+      "rank": 20,
+      "target_columns": [
+        "future_global_margin",
+        "future_slice_margin",
+        "future_nonaffected_margin"
+      ]
+    }
+  }
+}

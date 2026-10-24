@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "policy_specification_version": "policy-spec-v1",
+  "scope": "controlled_simulated_upstream_adult_benchmark",
+  "design_stage": "specified_before_policy_future_outcomes",
+  "methods": ["lightgbm", "linear"],
+  "primary_method": "lightgbm",
+  "calibration_fold": "policy_calibration",
+  "assigned_groups": 12,
+  "planned_cases": 444,
+  "safety_boundaries": {"future_global_margin": 0.0, "future_slice_margin": 0.0, "future_nonaffected_margin": -0.02},
+  "population_basis": "global, true injected slice, true slice complement; not diagnosed-slice guarantees",
+  "evidence_quality": {
+    "weights": {"diagnosis_stability": 0.35, "harm_interval_quality": 0.25, "fidelity": 0.25, "utility_quality": 0.15},
+    "harm_interval_quality": "max(0, 1 - 10 * harm_interval_width_fraction)",
+    "utility_quality": "clip(signed_utility_fraction + 0.1, 0, 1)",
+    "contexts": {"LOW": "quality >= 0.75", "MEDIUM": "0.50 <= quality < 0.75", "HIGH": "quality < 0.50"},
+    "origin": "Guide v1.1 evidence-quality formula; heuristic, not calibrated failure probability"
+  },
+  "additional_buffer_grid_fraction": [0.0, 0.001, 0.0025, 0.005],
+  "global_candidates": "four scalar buffers",
+  "adaptive_candidates": "twenty tuples with LOW buffer <= MEDIUM buffer <= HIGH buffer",
+  "operational_rule": "AUTO_DEPLOY signal requires all hard gates PASS, supported N2, N3 all SAFE and min_target(lower - unchanged_boundary) >= context buffer; otherwise preserve N3 ESCALATE or HUMAN_REVIEW",
+  "guide_difference": "Guide example parameters 0.08/0.12/0.18 were not applied by its decision function. This specification introduces an explicit additional accuracy-margin buffer; grid is an investigator-defined design choice, not a fitted or guide-derived quantity.",
+  "selection": {
+    "role": "policy_calibration_only",
+    "minimum_auto_deploy_groups": 3,
+    "empirical_conditional_unsafe_ceiling": 0.05,
+    "unsafe_definition": "at least one observed primary margin strictly below its unchanged safety boundary",
+    "conditional_unsafe_statistic": "mean over groups with AUTO_DEPLOY of unsafe AUTO_DEPLOY count divided by AUTO_DEPLOY count in that group",
+    "automation_statistic": "mean over nonempty admitted groups of AUTO_DEPLOY count divided by admitted scenario count",
+    "objective": "maximize group-averaged automation among eligible candidates; tie-break by lower empirical unsafe rate, then lexicographically larger buffer tuple",
+    "adaptive_context_support": "contexts represented by fewer than 3 admitted policy groups must always HUMAN_REVIEW; N3 or gate ESCALATE still takes precedence",
+    "no_eligible_candidate": "save unsupported-selection status and use review-only policy for N3-safe/uncertain cases; retain mandatory escalation",
+    "zero_deployment_conditional_unsafe_rate": "undefined, never zero",
+    "risk_claim": "empirical screening criterion only, not a finite-sample 95% bound on conditional deployment risk",
+    "design_choices": "buffer grid, minimum support and empirical risk ceiling fixed here before policy outcomes; no claim these are optimal"
+  },
+  "production_release_authorized": false,
+  "outer_test_access_authorized": false,
+  "change_rules_after_policy_outcomes": false
+}

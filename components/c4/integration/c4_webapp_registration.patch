@@ -1,0 +1,48 @@
+--- a/webapp/backend/app/main.py
++++ b/webapp/backend/app/main.py
+@@ -13,6 +13,7 @@
+ 
+ from .components import PIPELINE
+ from .routers import c1, health, lab, pipeline
++from .routers import c4 as c4_page
+ from .settings import FRONTEND_ORIGINS
+ 
+ 
+@@ -30,3 +31,4 @@
+ app.include_router(c1.router)
+ app.include_router(pipeline.router)
+ app.include_router(lab.router)
++app.include_router(c4_page.router)
+--- a/webapp/frontend/src/pages.js
++++ b/webapp/frontend/src/pages.js
+@@ -1,6 +1,7 @@
+ // The page registry: the sidebar and the routes are both built from these two lists.
+ // To add your component page: create it under src/pages/, import it here and put it in PAGE_BY_STEP.
+ import C1Page from "./pages/c1/C1Page.jsx";
++import C4Page from "./pages/c4/C4Page.jsx";
+ import DriftLab from "./pages/DriftLab.jsx";
+ import Overview from "./pages/Overview.jsx";
+ import { STEPS } from "./steps.js";
+@@ -15,7 +16,7 @@
+   c1: C1Page,
+   // c2: C2Page,   (Tharmika)
+   // c3: C3Page,   (Mathusan)
+-  // c4: C4Page,   (Kesigan)
++  c4: C4Page,
+ };
+ 
+ export const PIPELINE_PAGES = STEPS.map((s) => ({ ...s, page: PAGE_BY_STEP[s.component] || null }));
+--- a/webapp/frontend/src/api.js
++++ b/webapp/frontend/src/api.js
+@@ -41,3 +41,11 @@
+   c1Detect: (dataset, file) => postForm("/api/c1/detect", { dataset, file }),
+   // C2, C3, C4: add your own calls here, e.g.  c2Diagnose: (...) => postForm("/api/c2/diagnose", {...}),
+ };
++
++// C4 recorded pilot endpoints. Live pipeline adapter remains separate.
++export const c4Api = {
++  info: () => get("/api/c4/info"),
++  results: () => get("/api/c4/research-results"),
++  evaluate: (payload) => postJson("/api/c4/release/evaluate", payload),
++  fixtures: () => postJson("/api/c4/acceptance/verify", {}),
++};

@@ -85,3 +85,13 @@ export const api = {
   c2Reset: () => postJson("/api/c2/reset", {}),
   // C4: add your own calls here
 };
+
+// C4 recorded pilot endpoints. Live pipeline adapter remains separate.
+export const c4Api = {
+  info: () => get("/api/c4/info"),
+  results: () => get("/api/c4/research-results"),
+  revisedEvaluate: (payload) => postJson("/api/c4/release/revised/evaluate", payload),
+  hybridResults: () => get("/api/c4/research-results/hybrid"),
+  evaluate: (payload) => postJson("/api/c4/release/evaluate", payload),
+  fixtures: () => postJson("/api/c4/acceptance/verify", {}),
+};

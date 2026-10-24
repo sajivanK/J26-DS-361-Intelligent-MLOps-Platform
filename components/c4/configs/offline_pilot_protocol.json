@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0",
+  "protocol_version": "adult-prospective-pilot-v1",
+  "purpose": "controlled_offline_simulation_pilot",
+  "freeze_scope": "one_new_fitted_generator_trial",
+  "full_benchmark_execution_enabled": false,
+  "production_c3_approval_export_enabled": false,
+  "champion_version": "v1",
+  "split_manifest_version": "v1",
+  "preview_id": "development-001",
+  "preparation_version": "exact_slice-v1",
+  "generator_attempt": {
+    "artifact_version": "pilot-independent-tvae-v1",
+    "ctgan_version": "0.12.1",
+    "epochs": 100,
+    "batch_size": 256,
+    "n_rows": 500,
+    "seed": 123,
+    "sampling": "single_unstratified_sample",
+    "maximum_attempts": 1,
+    "adaptive_retries_allowed": false,
+    "generator_fit_source": "verified_generator_fit_csv",
+    "new_fit_required": true,
+    "post_sampling_stratification": false
+  },
+  "privacy_screen": {
+    "scope": "simulation_screen_not_formal_privacy_guarantee",
+    "metric": "equal_weight_mixed_distance_fit_ranges_clipped",
+    "features": "input_features_only",
+    "scale_population": "generator_fit_only",
+    "quantile": 0.05,
+    "maximum_exact_feature_match_rows": 0,
+    "minimum_synthetic_to_heldout_tail_ratio": 1.0,
+    "baseline": "diagnosed_internal_validation_to_same_generator_fit",
+    "zero_baseline_action": "INDETERMINATE_AND_STOP",
+    "failed_screen_action": "STOP_AND_RETAIN_FAILED_TRIAL",
+    "passed_screen_action": "ELIGIBLE_FOR_SCOPED_SIMULATION_VALIDATION_ONLY",
+    "rationale": "Retain the previously proposed no-copy and held-out-relative lower-tail rule before seeing the new fitted trial. This heuristic is a screening convention, not an established privacy guarantee. Do not tune it to admit this package."
+  },
+  "measured_scores": {
+    "fidelity": "mean_1_minus_KS_continuous_and_1_minus_TV_categorical_vs_diagnosed_internal_validation",
+    "utility": "diagnosed_internal_validation_probe_accuracy_minus_champion_accuracy_fraction",
+    "target_coverage": "synthetic_fraction_satisfying_processed_diagnosed_rule",
+    "target_TV": "binary_label_TV_synthetic_vs_generator_fit",
+    "simulated_prescription_confidence": "mean_fidelity_target_coverage_and_1_minus_target_TV",
+    "confidence_origin": "offline_composite_proxy_not_actual_C3_prescription",
+    "negative_utility_allowed": true
+  },
+  "upstream_evidence": {
+    "c1": "labelled_shared_answer_key_mock",
+    "fake_C1_performance_or_interval_coverage_claims": false,
+    "c2": "exact_slice_controlled_simulation",
+    "diagnosed_rule": {"feature": "age", "operator": "le", "value": -0.1165165384831897},
+    "diagnosis_stability_definition": "mean_Jaccard_bootstrap_reference_median_masks_vs_frozen_diagnosed_mask_on_clean_repair_role",
+    "diagnosis_bootstrap_replicates": 100,
+    "diagnosis_bootstrap_seed": 123,
+    "actual_C2_performance_claims": false,
+    "fixture_confidence_relabelled_as_measured": false
+  },
+  "candidate_and_future": {
+    "candidate_training": "reference_plus_simulation_screen_accepted_repair_only",
+    "configuration_source": "verified_champion_metadata",
+    "pre_release_populations": ["global", "C2_diagnosed_slice", "diagnosed_slice_complement"],
+    "freeze_complete_pre_release_evidence_before_future": true,
+    "future_target_sign": "candidate_accuracy_minus_champion_accuracy",
+    "future_primary_populations": ["global", "true_injected_slice", "true_slice_complement"],
+    "exact_diagnosis_matches_true_slice_in_this_pilot": true,
+    "use_release_validation_for_training_or_generator_selection": false,
+    "use_future_for_training_calibration_policy_or_selection": false,
+    "open_future_for_failed_or_indeterminate_trial": false,
+    "automatic_deployment_allowed": false
+  },
+  "limitations": [
+    "Different seed and a new fit, but the same preparation data: not an independent dataset replication.",
+    "Earlier results informed this design; this remains development work, not untouched confirmatory evaluation.",
+    "The screening rule is frozen for this new pilot only; earlier draft assessments remain unchanged.",
+    "A simulation screen pass does not authorize production C3 privacy approval.",
+    "Full scenario grouping, independent calibration units, and no-drift controls remain unresolved.",
+    "One trial cannot establish N1-N4 validity or 95 percent simultaneous coverage."
+  ]
+}
