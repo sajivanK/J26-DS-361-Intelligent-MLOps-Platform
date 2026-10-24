@@ -99,6 +99,7 @@ def report_evidence(record, history, plain=None):
         "harm_line_points": MALIGNANT_PP,
         "estimated_accuracy_loss_points": None if est is None else round(est, 1),
         "trend": [{"run": r["run"], "decisions_changed_percent": decision_points(r),
+                   "decisions_changed_rows": int((r.get("localization") or {}).get("rows_at_risk") or 0),
                    "estimated_accuracy_loss_points":
                    None if harm_points(r) is None else round(harm_points(r), 1),
                    "detection_step_predicted_points":

@@ -9,7 +9,14 @@ C2 endpoints (owner: Tharmika N): the C2 Root Cause Diagnosis page.
     GET  /api/c2/runs/{n}/report    business report (FR7), written by the configured language model
                                     and claim-checked, template fallback; ?refresh=true rewrites it
     GET  /api/c2/runs/{n}/report.md the report as a Markdown download
-    POST /api/c2/reset              start a new monitoring period (empty history, fresh warm-up)
+    GET  /api/c2/monitor            Monitoring tab: every batch C1 checked with C2's temporal SHAP
+                                    pass (catches up on saved runs first), KPIs, watchlist, z matrix
+    POST /api/c2/monitor/check      run the temporal SHAP check now on every saved C1 run not yet monitored
+    POST /api/c2/monitor/check-latest  {rows}: C1 (when loaded) and the temporal SHAP check on the newest
+                                    rows C1 has checked (500, 1000, 2000 or 5000)
+    POST /api/c2/monitor/{b}/diagnose  full diagnosis of monitored batch b (reuses its monitor pass)
+    POST /api/c2/reset              start a new monitoring period (empty history and monitoring log,
+                                    fresh warm-up)
 
 The page builds its batches with C2's own scenario builder (the shared injector on test.csv rows),
 so it works even when the C1 engine files are not on this machine. Neither C1 nor C2 sees the
@@ -28,6 +35,7 @@ from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 
 from .. import contracts
+from .. import runs as platform_runs
 from ..components import BY_NAME, C1
 from ..components.c2_results import RECORDED
 from ..lab import N_FEATURES
@@ -177,6 +185,112 @@ def run_report_md(n: int):
     report = run_report(n)
     return PlainTextResponse(report_markdown(report, _record(n)), media_type="text/markdown",
                              headers={"Content-Disposition": f'attachment; filename="c2-report-run-{n}.md"'})
+
+
+# ── monitoring: every batch ───────────────────────────────────────────────────
+def _monitor_view(c2, limit=30):
+    log = c2.monitor_log
+    out = log.summary(last=max(5, min(limit, 60)))
+    out.update({"batches": log.rows()[:200], "window": c2.engine.monitor.window,
+                "persist_k": c2.engine.monitor.persist_k, "c1_loaded": C1.loaded,
+                "z_line": round(float(c2.engine.monitor.z_thresh), 3), "last_check": c2.last_check,
+                "warmup_batches": len(c2.engine.monitor.history) - len(log.records)})
+    return out
+
+
+@router.get("/monitor")
+def monitor(limit: int = 30):
+    """Every batch C1 checked and what C2's temporal SHAP monitor saw (newest first)."""
+    c2 = _c2()
+    try:
+        c2.catch_up()
+    except Exception as e:  # noqa: BLE001  show what is there; say why the rest is missing
+        print(f"[c2] monitor catch-up failed: {e}", flush=True)
+    return _monitor_view(c2, limit)
+
+
+@router.post("/monitor/check")
+def monitor_check(limit: int = 30):
+    """Run the temporal SHAP check now: every saved C1 run (Drift Lab, C1 page, pipeline) that
+    C2 has not monitored yet, oldest first."""
+    c2 = _c2()
+    try:
+        c2.catch_up(limit=1000)
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(500, f"monitoring check failed: {type(e).__name__}: {e}")
+    return _monitor_view(c2, limit)
+
+
+class LatestRows(BaseModel):
+    rows: Literal[500, 1000, 2000, 5000] = 1000
+
+
+@router.post("/monitor/check-latest")
+def monitor_check_latest(req: LatestRows):
+    """Manual check of the newest rows C1 has checked (pooled from the most recent saved C1 runs):
+    C1's verdict when its engine is loaded, then C2's temporal SHAP pass."""
+    c2 = _c2()
+    try:
+        rec, already = c2.check_latest(req.rows)
+    except ValueError as e:
+        raise HTTPException(409, str(e))
+    view = _monitor_view(c2)
+    view.update({"checked": {k: v for k, v in rec.items() if k != "shap"}, "already": already})
+    return view
+
+
+@router.post("/monitor/{batch}/diagnose")
+def monitor_diagnose(batch: int):
+    """Full diagnosis of a monitored batch. The batch is rebuilt from its saved run (Drift Lab
+    recipe and seed, or the saved CSV); its monitoring pass is reused, so it is not counted twice."""
+    c2 = _c2()
+    try:
+        mrec = c2.monitor_log.get(batch)
+    except KeyError as e:
+        raise HTTPException(404, str(e.args[0]))
+    if mrec.get("c2_run"):
+        return {"run": c2.history.get(mrec["c2_run"]), "already": True, "contract_errors": {}}
+    if mrec.get("batch_file"):                    # a manual check: the batch kept with the log
+        import pandas as pd
+        from pathlib import Path
+        if not Path(mrec["batch_file"]).is_file():
+            raise HTTPException(409, "the CSV of this manual check is no longer there")
+        df = pd.read_csv(mrec["batch_file"])
+        c1 = mrec.get("c1_output")
+        result, run = c2.diagnose(df, c1, source=f"Monitoring · batch #{batch} · {mrec.get('source', '')}",
+                                  truth=None, injection=None, c1_source="real" if c1 else None)
+        errors = {k: contracts.validate(k, result[f"to_{k[-2:]}"]) for k in ("c2_to_c3", "c2_to_c4")}
+        return {"run": run, "already": False, "contract_errors": errors}
+    rec = platform_runs.get_run(mrec["run_ref"]) if mrec.get("run_ref") else None
+    if rec is None:
+        raise HTTPException(409, "this batch did not come from a saved run, so it cannot be rebuilt")
+    df = c2.batch_for_run(rec)
+    if df is None:
+        raise HTTPException(409, "the batch of this run was not kept, so C2 cannot diagnose it")
+    truth = None
+    if rec.get("truth") and rec.get("injection"):
+        inj, t = rec["injection"], rec["truth"]
+        causes = list(inj.get("shifted") or [])
+        for pair in inj.get("interaction_pairs") or []:
+            causes += [f for f in pair if f not in causes]
+        truth = {"true_harm_pp": round(float(t.get("true_harm_paired_pp", t.get("true_harm_pp", 0.0))), 2),
+                 "true_causes": causes, "main_cause": t.get("main_cause"), "harm_metric": t.get("harm_metric"),
+                 "note": "Drift Lab answer key; never shown to C2"}
+    result, run = c2.diagnose(df, rec.get("c1"), source=f"Monitoring · batch #{batch}", truth=truth,
+                              injection=rec.get("injection"), c1_source="real" if rec.get("c1") else None,
+                              run_ref=rec["run_id"])
+    errors = {k: contracts.validate(k, result[f"to_{k[-2:]}"]) for k in ("c2_to_c3", "c2_to_c4")}
+
+    def change(r):                      # same shape the platform's drift alerts use
+        r["c2"] = {"c2_to_c3": result["to_c3"], "c2_to_c4": result["to_c4"]}
+        r["c2_review"] = {"status": "diagnosed", "at": platform_runs.now_iso(), "c2_run": run.get("run"),
+                          "root": result["to_c3"]["root_cause_feature"],
+                          "category": result["to_c3"]["root_cause_category"], "contract_errors": errors}
+    try:
+        platform_runs.update_run(rec["run_id"], change)
+    except Exception as e:  # noqa: BLE001  the diagnosis itself is stored either way
+        print(f"[c2] could not save the diagnosis with run {rec['run_id']}: {e}", flush=True)
+    return {"run": run, "already": False, "contract_errors": errors}
 
 
 @router.post("/reset")

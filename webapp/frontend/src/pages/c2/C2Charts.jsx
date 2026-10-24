@@ -1,164 +1,156 @@
-// Charts for the C2 page and report, drawn as plain SVG (no chart library), colours from tokens.css.
-// Hover any mark for its exact value (SVG <title>). Series colours follow the feature, not its rank.
-import { clock, pct, STATE } from "./c2format.js";
+// Charts for the C2 page and report, v2 design (Tharmika N). Colours from tokens.css (--c2-*).
+// Every chart has a text alternative (aria-label) and its numbers written next to the marks.
+import { STATE, sg } from "./c2format.js";
 
-const SERIES = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
+const STEP = (max) => (max <= 1.2 ? 0.25 : max <= 3 ? 0.5 : max <= 6 ? 1 : 2);
+const gridBg = (p) => `repeating-linear-gradient(90deg, transparent 0, transparent calc(${p}% - 1px), var(--c2-line-soft) calc(${p}% - 1px), var(--c2-line-soft) ${p}%)`;
+const ticks = (max) => { const s = STEP(max), out = []; for (let v = 0; v <= max + 1e-9; v += s) out.push(+v.toFixed(2)); return out; };
 
-// ── What the model relies on: mean |SHAP| per feature, normal vs this run (dumbbell) ──────────────
+// ── What the model relies on: normal (grey) vs this run (orange more / blue less) ─────────────────
 export function RelianceChart({ rec }) {
   const ts = rec.temporal_shap, ref = ts.mean_abs_shap_ref, now = ts.mean_abs_shap_now;
-  const root = rec.state === "clean" ? null : rec.to_c3.root_cause_feature;
-  const feats = Object.keys(ref).sort((a, b) => Math.max(now[b], ref[b]) - Math.max(now[a], ref[a])).slice(0, 8);
-  const max = Math.max(...feats.map((f) => Math.max(now[f], ref[f]))) * 1.1;
-  const W = 520, pl = 118, pr = 54, rh = 28, H = feats.length * rh + 30;
-  const x = (v) => pl + ((W - pl - pr) * v) / max;
-  const step = max > 1.5 ? 0.5 : max > 0.6 ? 0.2 : 0.1;
-  const ticks = [];
-  for (let v = 0; v <= max + 1e-9; v += step) ticks.push(v);
+  const feats = Object.keys(now).sort((a, b) => Math.max(now[b], ref[b]) - Math.max(now[a], ref[a])).slice(0, 8);
+  const top = Math.max(...feats.map((f) => Math.max(now[f], ref[f])), 0.1);
+  const tk = ticks(top * 1.1), max = tk[tk.length - 1] < top ? top * 1.1 : tk[tk.length - 1] + STEP(top) * 0.4;
+  const P = (v) => (v / max) * 100;
+  const root = rec.to_c3.root_cause_feature;
   return (
-    <div className="scroll-x">
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 420 }} role="img" aria-label="Mean absolute SHAP per feature, normal versus this run">
-        {ticks.map((v) => (<g key={v}><line x1={x(v)} x2={x(v)} y1={4} y2={H - 22} stroke="var(--line)" />
-          <text x={x(v)} y={H - 6} textAnchor="middle" fill="var(--muted)">{v.toFixed(step < 0.2 ? 1 : 2)}</text></g>))}
-        {feats.map((f, i) => {
-          const y = 16 + i * rh, a = ref[f], b = now[f], up = b > a * 1.1, down = b < a * 0.9;
-          const col = up ? "var(--chart-2)" : down ? "var(--chart-1)" : "var(--muted)";
-          return (
-            <g key={f}>
-              <title>{`${f}: normal ${a.toFixed(3)}, this run ${b.toFixed(3)} (×${(b / a).toFixed(2)})`}</title>
-              <rect x={0} y={y - 12} width={W} height={24} fill="transparent" />
-              <text x={pl - 10} y={y + 4} textAnchor="end" fill={f === root ? "var(--fg)" : "var(--muted)"} fontWeight={f === root ? 600 : 400}>{f}</text>
-              <line x1={x(a)} x2={x(b)} y1={y} y2={y} stroke={col} strokeWidth="3" opacity=".5" strokeLinecap="round" />
-              <circle cx={x(a)} cy={y} r="5" fill="var(--muted)" opacity=".45" />
-              <circle cx={x(b)} cy={y} r="6.5" fill={col} stroke="var(--surface)" strokeWidth="2" />
-              {(up || down) && <text x={Math.max(x(a), x(b)) + 10} y={y + 4} fill="var(--fg)" fontSize="10.5">×{(b / a).toFixed(1)}</text>}
-            </g>);
-        })}
-      </svg>
+    <div className="c2-chartpanel" role="img" aria-label={`Mean absolute SHAP per feature, normal versus this run. ${feats.map((f) => `${f}: ${ref[f].toFixed(2)} normal, ${now[f].toFixed(2)} now`).join("; ")}`}>
+      {feats.map((f) => {
+        const a = ref[f], b = now[f], r = a ? b / a : 1, up = r > 1.05, down = r < 0.95;
+        const c = up ? "var(--c2-orange)" : down ? "var(--c2-blue)" : "var(--c2-ink-3)";
+        const lo = Math.min(P(a), P(b)), hi = Math.max(P(a), P(b));
+        return (
+          <div key={f} className="c2-crow" style={{ height: 44 }}>
+            <span className="l" style={f === root ? { fontWeight: 700, color: "var(--fg)" } : null} title={f}>{f}</span>
+            <div className="p" style={{ height: 44, background: gridBg((STEP(top) / max) * 100) }}>
+              <span style={{ position: "absolute", top: "50%", height: 3, marginTop: -1.5, borderRadius: 2, left: `${lo}%`, width: `${hi - lo}%`, background: c, opacity: 0.45 }} />
+              <span style={{ position: "absolute", top: "50%", left: `${P(a)}%`, width: 13, height: 13, margin: "-6.5px 0 0 -6.5px", borderRadius: "50%", background: "var(--c2-dot)" }} />
+              <span style={{ position: "absolute", top: "50%", left: `${P(b)}%`, width: 20, height: 20, margin: "-10px 0 0 -10px", borderRadius: "50%", background: c }} />
+              <span style={{ position: "absolute", top: "50%", transform: "translateY(-50%)", ...(hi > 62 ? { right: `calc(${100 - lo}% + 18px)` } : { left: `calc(${hi}% + 18px)` }), fontWeight: 600, fontSize: ".93rem", color: c, whiteSpace: "nowrap" }}>
+                {up || down ? `×${r.toFixed(1)}` : "no change"}</span>
+            </div>
+          </div>);
+      })}
+      <div className="c2-crow" style={{ paddingTop: 8 }}><span />
+        <div className="c2-axis">{tk.map((v) => <span key={v} style={{ left: `${P(v)}%` }}>{v.toFixed(STEP(top) < 0.5 ? 2 : 1)}</span>)}</div></div>
+      <div className="c2-axisname">Mean |SHAP| value</div>
     </div>
   );
 }
 
-// ── Why this feature: Drift Impact Score split into its weighted evidence (stacked bars) ──────────
-export const SIGNALS = [["E", "explanation change", "var(--chart-1)"], ["D", "data drift", "var(--chart-2)"],
-  ["DI", "decision change", "var(--chart-3)"], ["PS", "prediction shift", "var(--chart-5)"]];
+// ── Why this feature: Drift Impact Score split into its weighted evidence ──────────────────────────
+export const SIGNALS = [["E", "Explanation change", "How the model explains the feature", "var(--c2-blue)", "var(--c2-blue-bg)"],
+  ["D", "Data drift", "Distribution change in the data", "var(--c2-orange)", "var(--c2-orange-bg)"],
+  ["DI", "Decision change", "How decisions shifted", "var(--c2-green)", "var(--c2-green-bg)"],
+  ["PS", "Prediction shift", "Change in predicted probabilities", "var(--c2-pink)", "var(--c2-red-bg)"]];
 
 export function EvidenceChart({ rec }) {
   const dis = rec.evidence.drift_impact_scores, sig = rec.evidence.signals, w = rec.evidence.weights;
-  const feats = Object.keys(dis).slice(0, 6);
-  const W = 520, pl = 118, pr = 48, rh = 30, H = feats.length * rh + 28;
-  const x = (v) => (W - pl - pr) * v;
+  const feats = Object.keys(dis).slice(0, 7), root = rec.to_c3.root_cause_feature;
   return (
-    <div className="scroll-x">
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 420 }} role="img" aria-label="Drift Impact Score per feature, split by evidence">
-        {[0, 0.25, 0.5, 0.75, 1].map((v) => (<g key={v}><line x1={pl + x(v)} x2={pl + x(v)} y1={4} y2={H - 22} stroke="var(--line)" />
-          <text x={pl + x(v)} y={H - 6} textAnchor="middle" fill="var(--muted)">{v}</text></g>))}
-        {feats.map((f, i) => {
-          const y = 8 + i * rh;
-          let cur = pl;
-          return (
-            <g key={f}>
-              <text x={pl - 10} y={y + 13} textAnchor="end" fill={i === 0 ? "var(--fg)" : "var(--muted)"} fontWeight={i === 0 ? 600 : 400}>{f}</text>
-              {SIGNALS.map(([k, name, col], j) => {
-                const v = (w[j] || 0) * (sig[f]?.[k] || 0), width = x(v), x0 = cur;
-                cur += width;
-                return width > 0.5 ? (
-                  <rect key={k} x={x0} y={y} width={Math.max(width - 2, 0.5)} height="18" rx="3" fill={col}>
-                    <title>{`${f} · ${name}: ${(sig[f][k] || 0).toFixed(2)} × weight ${w[j]} = ${v.toFixed(3)}`}</title>
-                  </rect>) : null;
-              })}
-              <text x={cur + 6} y={y + 13} fill="var(--fg)" fontSize="10.5">{dis[f].toFixed(2)}</text>
-            </g>);
-        })}
-      </svg>
+    <div role="img" aria-label={`Drift Impact Score per feature: ${feats.map((f) => `${f} ${dis[f].toFixed(2)}`).join(", ")}`} style={{ padding: "4px 18px 0 0" }}>
+      {feats.map((f) => {
+        const parts = SIGNALS.map(([k, , , col], j) => ({ k, col, v: (w[j] || 0) * (sig[f]?.[k] || 0) })).filter((p) => p.v > 0.002);
+        const tot = dis[f];
+        return (
+          <div key={f} className="c2-crow" style={{ height: 50 }}>
+            <span className="l" style={f === root ? { fontWeight: 700, color: "var(--fg)" } : null} title={f}>{f}</span>
+            <div className="p c2-grid-x4" style={{ height: 50, display: "flex", alignItems: "center" }}>
+              <span style={{ display: "flex", flex: "none", height: 34, gap: 2, width: `${Math.min(tot, 1) * 100}%` }}>
+                {parts.map((p, i) => (
+                  <span key={p.k} title={`${f} · ${SIGNALS.find((s) => s[0] === p.k)[1]}: ${p.v.toFixed(3)}`}
+                    style={{ height: 34, flex: `${Math.round(p.v * 1000)} 1 0`, background: p.col, borderRadius: i === 0 ? (parts.length === 1 ? 3 : "3px 0 0 3px") : i === parts.length - 1 ? "0 3px 3px 0" : 0 }} />))}
+              </span>
+              <b style={{ marginLeft: 12 }}>{tot.toFixed(2)}</b>
+            </div>
+          </div>);
+      })}
+      <div className="c2-crow" style={{ paddingTop: 8 }}><span />
+        <div className="c2-axis">{[0, 0.25, 0.5, 0.75, 1].map((v) => <span key={v} style={{ left: `${v * 100}%`, transform: v === 1 ? "translateX(-70%)" : undefined }}>{v === 1 ? "1.0" : v}</span>)}</div></div>
+      <div className="c2-axisname">Drift Impact Score</div>
     </div>
   );
 }
 
-// ── Temporal SHAP across stored runs: z per feature (log scale), alarm line ────────────────────────
+// ── Temporal SHAP: z per feature across stored runs (log or linear scale) ──────────────────────────
+export const LINE_COLS = ["var(--c2-blue)", "var(--c2-orange)", "var(--c2-green)", "var(--c2-amber)", "var(--c2-pink)"];
+
 export function temporalWindow(matrix, last = 12) {
-  const n = matrix.runs.length, s = Math.max(0, n - last);
-  const z = Object.fromEntries(Object.entries(matrix.z).map(([f, v]) => [f, v.slice(s)]));
-  return { runs: matrix.runs.slice(s), times: matrix.times.slice(s), z, thresh: matrix.z_thresh };
+  const n = matrix.runs.length, from = Math.max(0, n - last);
+  const z = Object.fromEntries(Object.entries(matrix.z).map(([f, v]) => [f, v.slice(from)]));
+  return { runs: matrix.runs.slice(from), times: (matrix.times || []).slice(from), z, thresh: matrix.z_thresh };
 }
 
 export function topFeatures(win, k = 5) {
-  // fixed identity for the window: strongest recent evidence (last 3 runs) first
-  const score = (v) => v.slice(-3).reduce((a, b) => a + Math.max(b || 0, 0), 0);
-  return Object.entries(win.z).sort((a, b) => score(b[1]) - score(a[1])).slice(0, k).map((x) => x[0]);
+  return Object.entries(win.z).map(([f, v]) => [f, Math.max(...v.map((x) => x ?? 0))]).sort((a, b) => b[1] - a[1]).slice(0, k).map((x) => x[0]);
 }
 
-export function TemporalChart({ win, selected, onSelect }) {
-  const top = topFeatures(win), n = Math.max(win.runs.length, 6), feats = Object.keys(win.z);
-  const W = 780, H = 250, pl = 46, pr = 128, pt = 14, pb = 40;
-  const lo = Math.log10(0.5), hi = Math.log10(Math.max(200, ...feats.flatMap((f) => win.z[f])) * 1.2);
-  const x = (i) => pl + ((i + 0.5) * (W - pl - pr)) / n;
-  const y = (v) => pt + (H - pt - pb) * (1 - (Math.log10(Math.max(v || 0, 0.5)) - lo) / (hi - lo));
-  const last = win.runs.length - 1;
-  const labels = top.map((f, k) => ({ t: f, y: y(win.z[f][last]), c: SERIES[k] }))
-    .concat([{ t: `alarm ${win.thresh.toFixed(2)}`, y: y(win.thresh), c: null }]).sort((a, b) => a.y - b.y);
-  for (let i = 1; i < labels.length; i++) labels[i].y = Math.max(labels[i].y, labels[i - 1].y + 13);
+export function TemporalChart({ win, feats, selected, onSelect, scale = "log", hidden = {} }) {
+  const W = 900, H = 360, x0 = 110, x1 = 860, y0 = 34, y1 = 296;
+  const n = win.runs.length;
+  const X = (i) => (n === 1 ? (x0 + x1) / 2 : x0 + 40 + (i * (x1 - x0 - 80)) / (n - 1));
+  const all = feats.flatMap((f) => win.z[f]).filter((v) => v != null);
+  const zmax = Math.max(win.thresh * 1.5, ...all, 1);
+  const lo = 0.1, hiL = Math.pow(10, Math.ceil(Math.log10(zmax)));
+  const Y = scale === "log"
+    ? (v) => y1 - ((Math.log10(Math.max(v, lo)) - Math.log10(lo)) / (Math.log10(hiL) - Math.log10(lo))) * (y1 - y0)
+    : (v) => y1 - (Math.max(v, 0) / (zmax * 1.08)) * (y1 - y0);
+  const grid = scale === "log" ? [0.1, 1, 10, 100, 1000].filter((v) => v <= hiL) : [0, 0.25, 0.5, 0.75, 1].map((t) => +(t * zmax).toFixed(0));
+  const si = win.runs.indexOf(selected);
+  const tipF = si >= 0 ? feats.filter((f) => !hidden[f]).reduce((best, f) => ((win.z[f][si] ?? -1) > (win.z[best]?.[si] ?? -1) ? f : best), feats[0]) : null;
+  const tv = tipF ? win.z[tipF][si] : null;
   return (
-    <div className="scroll-x">
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 560 }} role="img" aria-label="Explanation change z per feature across stored runs">
-        {[1, 10, 100, 1000].filter((v) => Math.log10(v) <= hi).map((v) => (<g key={v}>
-          <line x1={pl} x2={W - pr} y1={y(v)} y2={y(v)} stroke="var(--line)" />
-          <text x={pl - 6} y={y(v) + 4} textAnchor="end" fill="var(--muted)">{v}</text></g>))}
-        {win.runs.map((r, i) => (
-          <g key={r} className="c2-hit" onClick={() => onSelect(r)}>
-            <title>{`Show run #${r}`}</title>
-            <rect x={x(i) - 22} y={pt} width="44" height={H - pt - pb + 30} rx="6" fill={r === selected ? "var(--tint)" : "transparent"} />
-            <text x={x(i)} y={H - 22} textAnchor="middle" fill={r === selected ? "var(--fg)" : "var(--muted)"} fontWeight={r === selected ? 600 : 400}>#{r}</text>
-            <text x={x(i)} y={H - 8} textAnchor="middle" fill="var(--muted)" fontSize="9.5">{clock(win.times[i])}</text>
-          </g>))}
-        <line x1={pl} x2={W - pr} y1={y(win.thresh)} y2={y(win.thresh)} stroke="var(--warn-line)" strokeWidth="1.5" strokeDasharray="5 3" />
-        {feats.filter((f) => !top.includes(f)).map((f) => (
-          <polyline key={f} points={win.z[f].map((v, i) => `${x(i)},${y(v)}`).join(" ")} fill="none" stroke="var(--muted)" strokeWidth="1" opacity=".25" />))}
-        {[...top].reverse().map((f) => {
-          const col = SERIES[top.indexOf(f)];
-          return (<g key={f}>
-            <polyline points={win.z[f].map((v, i) => `${x(i)},${y(v)}`).join(" ")} fill="none" stroke={col} strokeWidth="2" strokeLinejoin="round" />
-            {win.z[f].map((v, i) => (<circle key={i} cx={x(i)} cy={y(v)} r="4.5" fill={col} stroke="var(--surface)" strokeWidth="2">
-              <title>{`run #${win.runs[i]} · ${f}: z ${v.toFixed(2)}`}</title></circle>))}
-          </g>);
-        })}
-        {labels.map((l) => (<g key={l.t}>
-          {l.c && <circle cx={W - pr + 6} cy={l.y} r="3.5" fill={l.c} />}
-          <text x={W - pr + 14} y={l.y + 4} fill={l.c ? "var(--fg)" : "var(--warn-fg)"} fontSize="10.5">{l.t}</text></g>))}
-      </svg>
-    </div>
+    <svg viewBox={`0 0 ${W} ${H}`} className="c2-svgchart" role="img"
+      aria-label={`z per feature across runs ${win.runs.join(", ")}, ${scale} scale, alarm line ${win.thresh?.toFixed(2)}`}>
+      {si >= 0 && <rect x={X(si) - 30} y={y0} width={60} height={y1 - y0} fill="var(--c2-blue-bg)" />}
+      {win.runs.map((r, i) => <line key={r} x1={X(i)} x2={X(i)} y1={y0} y2={y1} stroke="var(--c2-line-soft)" />)}
+      {grid.map((v) => (<g key={v}><line x1={x0} x2={x1 + 10} y1={Y(v)} y2={Y(v)} stroke="var(--c2-line)" />
+        <text x={x0 - 12} y={Y(v) + 5} textAnchor="end" fontSize="15" fill="var(--c2-ink-3)">{v}</text></g>))}
+      {si >= 0 && <line x1={X(si)} x2={X(si)} y1={y0} y2={y1} stroke="var(--c2-blue)" strokeOpacity=".5" strokeDasharray="4 4" />}
+      <line x1={x0} x2={x1 + 10} y1={Y(win.thresh)} y2={Y(win.thresh)} stroke="var(--c2-alarm-line)" strokeWidth="2" strokeDasharray="7 5" />
+      {feats.map((f, j) => hidden[f] ? null : (
+        <g key={f}>
+          <polyline fill="none" stroke={LINE_COLS[j]} strokeWidth="2.5" strokeLinejoin="round"
+            points={win.z[f].map((v, i) => `${X(i)},${Y(v ?? 0)}`).join(" ")} />
+          {win.z[f].map((v, i) => (<circle key={i} cx={X(i)} cy={Y(v ?? 0)} r={f === tipF && i === si ? 7 : 5} fill={LINE_COLS[j]}
+            stroke={f === tipF && i === si ? "var(--c2-blue-tile)" : "var(--surface)"} strokeWidth={f === tipF && i === si ? 4 : 2}>
+            <title>{`${f} · run #${win.runs[i]} · z ${sg(v)}`}</title></circle>))}
+        </g>))}
+      <g>
+        <rect x={x1 - 100} y={Y(win.thresh) + 8} width="100" height="26" rx="5" fill="var(--c2-amber-bg)" stroke="var(--c2-alarm-line)" />
+        <text x={x1 - 50} y={Y(win.thresh) + 26} textAnchor="middle" fontSize="14" fill="var(--c2-amber-fg)">Alarm: {win.thresh?.toFixed(2)}</text>
+      </g>
+      {tipF && tv != null && (() => {
+        const tx = X(si) > x0 + 200 ? X(si) - 166 : X(si) + 20, ty = Math.min(Math.max(Y(tv) - 26, y0), y1 - 52);
+        return (<g>
+          <rect x={tx} y={ty} width="146" height="52" rx="8" fill="var(--surface)" stroke="var(--c2-blue-line)" />
+          <text x={tx + 14} y={ty + 21} fontSize="14" fontWeight="600" fill="var(--c2-blue)">{tipF}</text>
+          <text x={tx + 14} y={ty + 42} fontSize="14" fill="var(--fg)"><tspan fontWeight="700">{sg(tv)}</tspan> (z = {sg(tv)})</text>
+        </g>);
+      })()}
+      {win.runs.map((r, i) => (<g key={r} onClick={() => onSelect?.(r)} style={{ cursor: onSelect ? "pointer" : "default" }}>
+        <rect x={X(i) - 30} y={y1 + 4} width="60" height="30" fill="transparent" />
+        <text x={X(i)} y={y1 + 24} textAnchor="middle" fontSize="15" fontWeight={r === selected ? 700 : 400} fill={r === selected ? "var(--fg)" : "var(--c2-ink-2)"}>#{r}</text></g>))}
+      <text x={(x0 + x1) / 2} y={H - 6} textAnchor="middle" fontSize="14" fill="var(--c2-ink-3)">Run (chronological order)</text>
+      <text x="30" y={(y0 + y1) / 2} textAnchor="middle" fontSize="14" fill="var(--c2-ink-3)" transform={`rotate(-90 30 ${(y0 + y1) / 2})`}>Explanation change (z)</text>
+    </svg>
   );
 }
 
-export function TemporalLegend({ win }) {
-  const top = topFeatures(win);
-  return (
-    <div className="chart-legend">
-      {top.map((f, k) => <span key={f}><i style={{ background: SERIES[k] }} />{f}</span>)}
-      <span><i style={{ background: "var(--muted)", opacity: 0.3 }} />other features</span>
-      <span><i style={{ background: "var(--warn-line)" }} />alarm line</span>
-    </div>
-  );
-}
+const heatClass = (v) => (v == null ? "h0" : v < 1 ? "h0" : v < 2 ? "h1" : v < 4 ? "h2" : v < 10 ? "h3" : v < 50 ? "h4" : "h5");
 
-const shade = (v) => (v < 1 ? 0 : v < 2 ? 1 : v < 4 ? 2 : v < 10 ? 3 : v < 50 ? 4 : 5);
-
-export function ZHeatmap({ win, order, selected, onSelect }) {
+export function ZHeatmap({ win, order, selected, onSelect, root }) {
   return (
     <div className="scroll-x">
-      <table className="tbl c2-heat">
-        <thead><tr><th>feature</th>{win.runs.map((r) => (
-          <th key={r} className={r === selected ? "on" : ""}><button type="button" className="c2-colbtn" onClick={() => onSelect(r)}>#{r}</button></th>))}</tr></thead>
-        <tbody>
-          {order.map((f) => (
-            <tr key={f}><td className="f">{f}</td>
-              {win.z[f].map((v, i) => {
-                const k = shade(v);
-                return (<td key={i} className={`cell ${v > win.thresh ? "hot" : ""} ${win.runs[i] === selected ? "sel" : ""}`}
-                  style={{ background: `var(--seq-${k})`, color: k >= 4 ? "var(--surface)" : "var(--fg)" }}
-                  title={`run #${win.runs[i]} · ${f}: z ${v.toFixed(2)}`}>{v < 0 ? "−" : ""}{Math.abs(v).toFixed(1)}</td>);
-              })}
-            </tr>))}
+      <table className="c2-heat" style={{ minWidth: 560 }}>
+        <thead><tr><th className="f">Feature</th>{win.runs.map((r) => (
+          <th key={r} scope="col" style={r === selected ? { color: "var(--fg)" } : null}>
+            {onSelect ? <button type="button" className="c2-link" onClick={() => onSelect(r)} style={{ color: "inherit", fontWeight: r === selected ? 700 : 600 }}>#{r}</button> : `#${r}`}</th>))}</tr></thead>
+        <tbody>{order.map((f) => (
+          <tr key={f} className={f === root ? "sel" : ""}><td className="f">{f}</td>
+            {win.z[f].map((v, i) => (<td key={i} className={`v ${heatClass(v)} ${v != null && v > win.thresh ? "on" : ""}`}
+              title={`${f} · run #${win.runs[i]} · z ${sg(v)}`}>{sg(v)}</td>))}</tr>))}
         </tbody>
       </table>
     </div>
@@ -167,108 +159,110 @@ export function ZHeatmap({ win, order, selected, onSelect }) {
 
 export function HeatKey({ thresh }) {
   return (
-    <div className="c2-heatkey">z per feature and run:
-      {["under 1", "1 to 2", "2 to 4", "4 to 10", "10 to 50", "50 and more"].map((t, k) => (
-        <span key={t}><span className="sw" style={{ background: `var(--seq-${k})` }} />{t}</span>))}
-      <span>· amber outline: above the alarm line ({thresh.toFixed(2)})</span>
+    <div className="c2-heatkey"><span>z per feature and run:</span>
+      {[["h0", "under 1"], ["h1", "1 to 2"], ["h2", "2 to 4"], ["h3", "4 to 10"], ["h4", "10 to 50"], ["h5", "50 and more"]].map(([c, l]) => (
+        <span key={c}><i className={c} />{l}</span>))}
+      <span><i className="on" />Above alarm line ({thresh?.toFixed(2)})</span>
     </div>
   );
 }
 
-// ── Who is affected: share of the group in training data vs this batch ─────────────────────────────
-export function ShareBars({ training, batch }) {
-  const W = 520, H = 92, pl = 118, pr = 60, m = Math.max(batch, training || 0, 0.05) * 1.05;
-  const sc = (v) => ((W - pl - pr) * v) / m;
-  const rows = [["training data", training, "var(--muted)", 0.45], ["this batch", batch, "var(--chart-2)", 1]];
+// ── Range that caused it: where the drifted range sits on the feature's training values ─────────────
+export function RangeBar({ lo, hi, refShare }) {
+  // Quantile scale: the share of training data inside the range fixes where the boundary sits.
+  const s = refShare == null ? 0.5 : Math.min(Math.max(refShare, 0.02), 0.98);
+  const from = lo != null && hi == null ? 1 - s : 0, to = hi != null && lo == null ? s : 1;
+  const mark = lo != null ? from : to;
+  const val = lo != null ? lo : hi;
   return (
-    <div className="scroll-x">
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 380, maxWidth: 640 }} role="img" aria-label="Share of the affected group in training data and in this batch">
-        {rows.map(([l, v, c, o], i) => {
-          const y = 10 + i * 38, w = Math.max(sc(v || 0), 2);
-          return (<g key={l}>
-            <text x={pl - 10} y={y + 15} textAnchor="end" fill="var(--muted)">{l}</text>
-            <rect x={pl} y={y} width={w} height="22" rx="4" fill={c} opacity={o}><title>{`${l}: ${pct(v, 1)}`}</title></rect>
-            <text x={pl + w + 8} y={y + 15} fill="var(--fg)">{v == null ? "–" : pct(v, 1)}</text>
-          </g>);
-        })}
-      </svg>
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div className="c2-rangebar" role="img" aria-label={`Drifted range: ${lo != null ? `above ${val}` : `up to ${val}`}, about ${Math.round(s * 100)}% of training values`}>
+        <span className="fill" style={{ left: `${from * 100}%`, right: `${(1 - to) * 100}%` }} />
+        <span className="mark" style={{ left: `${mark * 100}%` }} />
+      </div>
+      <div style={{ position: "relative", height: 18, fontSize: ".8rem", color: "var(--c2-ink-3)" }}>
+        <span style={{ position: "absolute", left: 0 }}>lowest</span>
+        <b style={{ position: "absolute", left: `${mark * 100}%`, transform: "translateX(-50%)", color: "var(--fg)" }}>{typeof val === "number" ? +val.toFixed(4) : val}</b>
+        <span style={{ position: "absolute", right: 0 }}>highest</span>
+      </div>
     </div>
   );
 }
 
-// ── Recorded results (Why trust it) ────────────────────────────────────────────────────────────────
-export function ProofBars({ chart }) {
-  const max = Math.max(...chart.rows.map((r) => r[1]), chart.ref || 0, 1) * 1.08;
-  const W = 460, rowH = 26, pad = 150, H = chart.rows.length * rowH + 10;
-  const sc = (v) => ((W - pad - 46) * v) / max;
+export function Donut({ share, label = "of batch" }) {
+  const r = 48, c = 2 * Math.PI * r, on = Math.max(0, Math.min(1, share)) * c;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: 560 }} role="img" aria-label={chart.label}>
-      {chart.rows.map(([l, v], i) => {
-        const y = 4 + i * rowH, me = l.startsWith("C2");
-        return (<g key={l}>
-          <text x={pad - 8} y={y + 14} textAnchor="end" fill={me ? "var(--fg)" : "var(--muted)"}>{l}</text>
-          <rect x={pad} y={y + 3} width={Math.max(sc(v), 2)} height="16" rx="4" fill={me ? "var(--accent-2)" : "var(--chart-1)"} opacity={me ? 1 : 0.35} />
-          <text x={pad + Math.max(sc(v), 2) + 6} y={y + 15} fill="var(--fg)">{v.toFixed(1)}</text>
-        </g>);
-      })}
-      {chart.ref != null && <line x1={pad + sc(chart.ref)} x2={pad + sc(chart.ref)} y1="0" y2={H} stroke="var(--truth)" strokeWidth="1.5" strokeDasharray="5 3" />}
+    <svg viewBox="0 0 120 120" width="112" height="112" role="img" aria-label={`${Math.round(share * 100)}% ${label}`} style={{ flex: "none" }}>
+      <circle cx="60" cy="60" r={r} fill="none" stroke="var(--track)" strokeWidth="14" />
+      <circle cx="60" cy="60" r={r} fill="none" stroke="var(--c2-green)" strokeWidth="14" strokeLinecap="round" strokeDasharray={`${on} ${c}`} transform="rotate(-90 60 60)" />
+      <text x="60" y="62" textAnchor="middle" fontSize="22" fontWeight="700" fill="var(--fg)">{Math.round(share * 100)}%</text>
+      <text x="60" y="80" textAnchor="middle" fontSize="11" fill="var(--c2-ink-3)">{label}</text>
     </svg>
   );
 }
 
-// ── Report: share of decisions changed per run (bars), C1's predicted drop (diamond) ───────────────
-const STATE_COL = { clean: "var(--chart-3)", harmless: "var(--chart-3)", suspected: "var(--chart-4)", confirmed: "var(--chart-2)" };
-
-export function TrendBars({ trend, current }) {
-  const W = 640, H = 210, pl = 40, pr = 12, pt = 16, pb = 36, n = Math.max(trend.length, 6);
-  const vals = trend.flatMap((t) => [t.decisions_changed_percent, t.detection_step_predicted_points]).filter((v) => v != null);
-  const max = Math.max(4, ...vals) * 1.18;
-  const x = (i) => pl + ((i + 0.5) * (W - pl - pr)) / n, bw = Math.min(46, (W - pl - pr) / n - 16);
-  const y = (v) => pt + (H - pt - pb) * (1 - Math.max(v, 0) / max);
-  const step = max > 20 ? 5 : max > 10 ? 4 : 2, grid = [];
-  for (let v = 0; v <= max; v += step) grid.push(v);
+export function Sparkline({ values, line, color }) {
+  const v = values.map((x) => Math.max(x ?? 0, 0.1)), mx = Math.max(20, ...v);
+  const Y = (z) => 22 - ((Math.log10(z) + 1) / (Math.log10(mx) + 1)) * 20;
+  const pts = v.map((z, i) => `${(i * 100) / Math.max(v.length - 1, 1)},${Y(z).toFixed(1)}`).join(" ");
   return (
-    <div className="scroll-x">
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 440, maxWidth: 760 }} role="img" aria-label="Share of decisions changed per run">
-        {grid.map((v) => (<g key={v}><line x1={pl} x2={W - pr} y1={y(v)} y2={y(v)} stroke="var(--line)" />
-          <text x={pl - 6} y={y(v) + 4} textAnchor="end" fill="var(--muted)">{v}</text></g>))}
-        <line x1={pl} x2={W - pr} y1={y(2)} y2={y(2)} stroke="var(--truth)" strokeWidth="1.5" strokeDasharray="5 3" />
-        <text x={pl + 4} y={y(2) - 5} fill="var(--warn-fg)" fontSize="10">harmful above 2%</text>
-        {trend.map((t, i) => {
-          const v = t.decisions_changed_percent || 0, c1 = t.detection_step_predicted_points, on = t.run === current;
-          return (<g key={t.run}>
-            {on && <rect x={x(i) - bw / 2 - 6} y={pt - 6} width={bw + 12} height={H - pt - pb + 34} rx="6" fill="var(--tint)" />}
-            <rect x={x(i) - bw / 2} y={y(v)} width={bw} height={Math.max(y(0) - y(v), 2)} rx="4" fill={STATE_COL[t.state]}>
-              <title>{`run #${t.run}: ${v.toFixed(1)}% of decisions changed · ${STATE[t.state].label}`}</title></rect>
-            <text x={x(i)} y={y(v) - 6} textAnchor="middle" fill="var(--fg)" fontSize="10.5">{v.toFixed(1)}</text>
-            {c1 != null && (<path d={`M${x(i) + bw / 2 + 6},${y(c1) - 5} l5,5 l-5,5 l-5,-5 z`} fill="var(--fg)" opacity=".75">
-              <title>{`run #${t.run}: C1 predicted ${c1.toFixed(1)} pp`}</title></path>)}
-            <text x={x(i)} y={H - 16} textAnchor="middle" fill={on ? "var(--fg)" : "var(--muted)"} fontWeight={on ? 600 : 400}>#{t.run}</text>
-          </g>);
-        })}
-      </svg>
+    <svg viewBox="0 0 100 24" width="100" height="24" aria-hidden="true">
+      <line x1="0" x2="100" y1={Y(line)} y2={Y(line)} stroke="var(--c2-alarm-line)" strokeDasharray="3 2" strokeOpacity=".7" />
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="2" />
+    </svg>
+  );
+}
+
+// ── Recorded benchmark bars (Why trust it) ─────────────────────────────────────────────────────────
+export function ProofBars({ chart }) {
+  const max = Math.max(chart.ref || 0, ...chart.rows.map((r) => r[1])) * 1.1 || 1;
+  return (
+    <div className="c2-pbars">
+      {chart.rows.map(([name, v]) => {
+        const me = name.startsWith("C2");
+        return (<div key={name} style={{ display: "contents" }}>
+          <span className={`l ${me ? "me" : ""}`}>{name}</span>
+          <span className="b"><span style={{ width: `${Math.max((v / max) * 100, 0.6)}%`, background: me ? "var(--accent)" : "var(--c2-blue-tile)" }} />
+            <span className="c2-mono" style={{ fontSize: ".8rem" }}>{v.toFixed(1)}</span></span>
+        </div>);
+      })}
+      {chart.ref != null && <><span className="l c2-muted">best possible</span><span className="b c2-muted" style={{ fontSize: ".8rem" }}>oracle {chart.ref.toFixed(1)}</span></>}
     </div>
   );
 }
 
-export function FactorBars({ factors, root }) {
-  const rows = factors.filter((f) => f.decisions_changed_percent > 0.05);
-  if (!rows.length) return <p className="small muted">No single factor changes a measurable share of decisions.</p>;
-  const max = Math.max(...rows.map((f) => f.decisions_changed_percent), 1) * 1.1, W = 620, pl = 230, pr = 64, rh = 30, H = rows.length * rh + 8;
+// ── Report: share of decisions changed per run, C1's predicted drop as a diamond ───────────────────
+export function RunBars({ trend, current, mode = "pct" }) {
+  const rows = mode === "rows" && trend.every((t) => t.decisions_changed_rows != null);
+  const val = (t) => (rows ? t.decisions_changed_rows : t.decisions_changed_percent);
+  const W = 640, H = 300, x0 = 70, x1 = 630, y0 = 20, y1 = 260;
+  const vals = trend.flatMap((t) => (rows ? [val(t)] : [val(t), t.detection_step_predicted_points])).filter((v) => v != null);
+  const top = Math.max(5, ...vals) * 1.15, raw = top / 5, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 5, 10].map((m) => m * mag).find((s) => s >= raw) || raw;
+  const Y = (v) => y1 - (Math.max(v, 0) / top) * (y1 - y0);
+  const n = Math.max(trend.length, 5), slot = (x1 - x0) / n, bw = Math.min(62, slot * 0.55);
+  const X = (i) => x0 + slot * (i + 0.5) - 10;
+  const COL = { clean: "var(--c2-green)", harmless: "var(--c2-green)", suspected: "var(--c2-yellow)", confirmed: "var(--c2-orange)" };
+  const grid = []; for (let v = 0; v <= top; v += step) grid.push(v);
   return (
-    <div className="scroll-x">
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 420, maxWidth: 760 }} role="img" aria-label="Decisions each factor changes">
-        {rows.map((f, i) => {
-          const y = 4 + i * rh, w = Math.max(((W - pl - pr) * f.decisions_changed_percent) / max, 2);
-          const me = f.factor === root;        // orange marks the root cause only, never just the biggest bar
-          return (<g key={f.factor}>
-            <text x={pl - 10} y={y + 15} textAnchor="end" fill={me ? "var(--fg)" : "var(--muted)"} fontWeight={me ? 600 : 400}>{f.factor}{me ? " (root cause)" : ""}</text>
-            <rect x={pl} y={y + 3} width={w} height="18" rx="4" fill={me ? "var(--chart-2)" : "var(--chart-1)"} opacity={me ? 1 : 0.4} />
-            <text x={pl + w + 8} y={y + 16} fill="var(--fg)">{f.decisions_changed_percent.toFixed(1)}%</text>
-          </g>);
-        })}
-      </svg>
-    </div>
+    <svg viewBox={`0 0 ${W} ${H + 24}`} className="c2-svgchart" role="img"
+      aria-label={`Decisions changed per run: ${trend.map((t) => `run ${t.run} ${rows ? val(t) : `${sg(val(t))}%`}`).join(", ")}`}>
+      {trend.map((t, i) => t.run === current && <rect key="sel" x={X(i) - bw / 2 - 12} y={y0 - 12} width={bw + 46} height={y1 - y0 + 50} rx="8" fill="var(--c2-blue-bg)" />)}
+      {grid.map((v) => (<g key={v}><line x1={x0} x2={x1} y1={Y(v)} y2={Y(v)} stroke="var(--c2-line-soft)" />
+        <text x={x0 - 10} y={Y(v) + 5} textAnchor="end" fontSize="14" fill="var(--c2-ink-3)">{+v.toFixed(1)}</text></g>))}
+      <line x1={x0} x2={x0} y1={y0} y2={y1} stroke="var(--c2-line)" />
+      <text x="22" y={(y0 + y1) / 2} textAnchor="middle" fontSize="13" fill="var(--c2-ink-3)" transform={`rotate(-90 22 ${(y0 + y1) / 2})`}>{rows ? "Decisions changed (rows)" : "Decisions changed (%)"}</text>
+      {!rows && <><line x1={x0} x2={x1} y1={Y(2)} y2={Y(2)} stroke="var(--c2-alarm-line)" strokeWidth="1.8" strokeDasharray="6 4" />
+      <text x={x1} y={Y(2) - 7} textAnchor="end" fontSize="12.5" fill="var(--c2-amber-fg)">Harmful above 2%</text></>}
+      {trend.map((t, i) => {
+        const v = val(t) || 0, c1 = rows ? null : t.detection_step_predicted_points, h = Math.max(y1 - Y(v), 2);
+        return (<g key={t.run}>
+          <rect x={X(i) - bw / 2} y={y1 - h} width={bw} height={h} rx="5" fill={COL[t.state]}><title>{`run #${t.run}: ${rows ? `${v} decisions` : `${sg(v)}% of decisions`} · ${STATE[t.state].label}`}</title></rect>
+          <text x={X(i)} y={y1 - h - 8} textAnchor="middle" fontSize="14" fontWeight="700" fill="var(--fg)">{rows ? v.toLocaleString() : sg(v)}</text>
+          {c1 != null && <path d={`M${X(i) + bw / 2 + 14},${Y(c1) - 6} l6,6 l-6,6 l-6,-6 z`} fill="var(--c2-diamond)"><title>{`run #${t.run}: C1 predicted ${sg(c1)} pp accuracy drop`}</title></path>}
+          <text x={X(i)} y={y1 + 24} textAnchor="middle" fontSize="14" fontWeight={t.run === current ? 700 : 400} fill="var(--c2-ink-2)">#{t.run}</text>
+        </g>);
+      })}
+    </svg>
   );
 }
-

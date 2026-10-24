@@ -83,6 +83,10 @@ export const api = {
   c2Report: (n, refresh = false) => get(`/api/c2/runs/${encodeURIComponent(n)}/report${refresh ? "?refresh=true" : ""}`),
   c2ReportMdUrl: (n) => `/api/c2/runs/${encodeURIComponent(n)}/report.md`,
   c2Reset: () => postJson("/api/c2/reset", {}),
+  c2Monitor: () => get("/api/c2/monitor"),
+  c2MonitorCheck: () => postJson("/api/c2/monitor/check", {}),
+  c2MonitorCheckLatest: (rows) => postJson("/api/c2/monitor/check-latest", { rows }),
+  c2MonitorDiagnose: (batch) => postJson(`/api/c2/monitor/${encodeURIComponent(batch)}/diagnose`, {}),
   // C4: add your own calls here
 };
 

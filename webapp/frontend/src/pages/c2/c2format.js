@@ -17,6 +17,8 @@ export const nice = (f) => NICE[f] || String(f).replace(/_/g, " ");
 
 export const sg = (v, d = 1) => (v == null ? "–" : (v < 0 ? "−" : "") + Math.abs(v).toFixed(d));
 export const pct = (v, d = 0) => (v == null ? "–" : `${(v * 100).toFixed(d)}%`);
+// A batch source for display: a file path is shortened to its file name.
+export const shortSource = (src) => String(src || "").replace(/(?:[A-Za-z]:)?[\\/]?(?:[^\s\\/·]+[\\/])+([^\s\\/·]+)/g, "$1");
 export const time = (iso) => (iso ? new Date(iso).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "");
 export const clock = (iso) => (iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "");
 

@@ -29,6 +29,18 @@
   --chart-1: #2A78D6; --chart-2: #EB6834; --chart-3: #1BAF7A; --chart-4: #EDA100; --chart-5: #E87BA4;
   --seq-0: #F3F7FD; --seq-1: #D6E6FA; --seq-2: #A9C9F2; --seq-3: #6FA3E6; --seq-4: #3B78D0; --seq-5: #1E4F9A;
 
+  /* C2 page and report, v2 design (Tharmika; PENDING team approval). Tinted cards: a soft
+     background, a light border, a stronger icon tile and a strong text colour per hue. */
+  --c2-blue: #2F7BEA;   --c2-blue-bg: #F3F7FD;   --c2-blue-line: #DCE7F7;   --c2-blue-tile: #DCE9FA;   --c2-blue-fg: #1E4F9A;
+  --c2-orange: #F97316; --c2-orange-bg: #FFF7EE; --c2-orange-line: #F8E3CF; --c2-orange-tile: #FDE3CC; --c2-orange-fg: #9A3412; --c2-orange-strong: #EA580C;
+  --c2-amber: #F59E0B;  --c2-amber-bg: #FFF7E8;  --c2-amber-line: #FBE3B8;  --c2-amber-tile: #FDEBC8;  --c2-amber-fg: #92400E;
+  --c2-green: #10A36A;  --c2-green-bg: #F1FAF6;  --c2-green-line: #D7EFE5;  --c2-green-tile: #D3F0DE;  --c2-green-fg: #166534; --c2-green-deep: #0F5F57;
+  --c2-red: #DC2626;    --c2-red-bg: #FDF0F0;    --c2-red-line: #F2C4C4;    --c2-red-tile: #FAD4D4;    --c2-red-fg: #B91C1C;
+  --c2-purple: #6D28D9; --c2-purple-bg: #F8F6FF; --c2-purple-line: #E4DEFA; --c2-purple-tile: #EDE9FE; --c2-purple-fg: #5B21B6;
+  --c2-pink: #EC4899;   --c2-yellow: #FBB118;    --c2-alarm-line: #F5B000;  --c2-diamond: #334E7A;
+  --c2-panel: #F7F9FC;  --c2-line: #E6E9EF;      --c2-line-soft: #EEF1F5;   --c2-ink-2: #374151;       --c2-ink-3: #4B5563; --c2-dot: #9CA3AF;
+  --c2-heat-0: #EEF3FB; --c2-heat-1: #CFE0F8; --c2-heat-2: #A8C8F2; --c2-heat-3: #4C8DEB; --c2-heat-4: #1F5FD1; --c2-heat-5: #12409E;
+
   /* real / fake component badges */
   --real-fg: #0F766E; --real-bg: #E6F6F4; --real-line: #0F766E;
   --fake-fg: #4B3F9E; --fake-bg: #F1F0FB; --fake-line: #C9C3F0;
