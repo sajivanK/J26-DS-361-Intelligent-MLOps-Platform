@@ -12,7 +12,7 @@
 .btnrow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .btnrow .btn { padding: 0 8px; }
 .frow2 { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.frow2 .lbl { width: 70px; font-size: .78rem; color: var(--muted); }
+.frow2 .lbl { width: 120px; font-size: .78rem; color: var(--muted); }
 .score { display: flex; flex-wrap: wrap; gap: 22px; }
 .score .s { display: flex; flex-direction: column; }
 .score .s b { font-family: var(--mono); font-size: 1.25rem; }

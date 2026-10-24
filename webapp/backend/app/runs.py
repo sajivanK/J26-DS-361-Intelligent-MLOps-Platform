@@ -13,6 +13,11 @@ Outcome of a run (does C1's repair decision agree with the truth?), at the 1 pp 
     correct alert   C1 says repair, truth >= 1 pp       false alert   C1 says repair, truth < 1 pp
     missed harm     C1 says no repair, truth >= 1 pp    correct quiet C1 says no repair, truth < 1 pp
     no truth        uploaded batch, no labels
+
+Drift alerts for C2 (v0.3): a run is a drift alert when C1 says harm_severity is not "none". It is
+"waiting" until C2 has diagnosed that batch (in the pipeline, or with Diagnose on the C2 page) or
+someone dismisses it. Only runs saved from v0.3 on take part (older runs carry no alert state).
+C2's answer is graded against the Drift Lab answer key (truth.main_cause) when there is one.
 """
 import csv
 import io
@@ -53,6 +58,43 @@ def outcome(truth_pp, severity):
     return "missed harm" if harmful else "correct quiet"
 
 
+def c2_result(rec):
+    """C2's diagnosis of this run, if any: from the pipeline (real C2 only) or from Diagnose later."""
+    review = rec.get("c2_review") or {}
+    if review.get("status") == "diagnosed":
+        return {"root": review.get("root"), "category": review.get("category"), "source": "real"}
+    pipe = rec.get("pipeline") or {}
+    step = next((s for s in pipe.get("steps", []) if s.get("component") == "c2"), None)
+    out = (pipe.get("outputs") or {}).get("c2_to_c3")
+    if step and out and step.get("source") == "real" and step.get("status") == "ok":
+        return {"root": out.get("root_cause_feature"), "category": out.get("root_cause_category"), "source": "real"}
+    return None
+
+
+def c2_grade(rec, c2):
+    """True / False against the answer key, None when there is nothing to grade."""
+    truth, inj = rec.get("truth") or {}, rec.get("injection") or {}
+    if not c2 or not inj:
+        return None
+    if inj.get("drift_type") == "interaction":
+        pair = (inj.get("interaction_pairs") or [[]])[0]
+        return c2["category"] in ("interaction", "combined") and c2["root"] in pair
+    main = truth.get("main_cause")
+    return None if main is None else c2["root"] == main
+
+
+def alert_state(rec, c2=None):
+    if not rec.get("alerts_v"):
+        return None
+    from .orchestrator import repair_gate      # same rule as the pipeline (late import: no cycle)
+    if not repair_gate(rec.get("c1") or {}):
+        return None
+    review = (rec.get("c2_review") or {}).get("status")
+    if review in ("diagnosed", "dismissed"):
+        return review
+    return "diagnosed" if (c2 or c2_result(rec)) else "waiting"
+
+
 def summarise(rec):
     c1 = rec.get("c1") or {}
     inj = rec.get("injection") or {}
@@ -74,6 +116,11 @@ def summarise(rec):
         "outcome": outcome(truth, sev), "pipeline_status": (rec.get("pipeline") or {}).get("status"),
         "c3_status": ((rec.get("pipeline") or {}).get("outputs", {}).get("c3") or {}).get("execution_status"),
         "has_batch": bool(rec.get("batch_csv")),
+        "true_cause": (rec.get("truth") or {}).get("main_cause"),
+        "c2_root": (c2 := c2_result(rec)) and c2["root"],
+        "c2_category": c2 and c2["category"],
+        "c2_ok": c2_grade(rec, c2),
+        "alert": alert_state(rec, c2),
     }
 
 
@@ -96,6 +143,7 @@ def save_run(rec, batch_with_labels=None):
     """Save one run record (dict with run_id, source, mode, dataset, ...). Returns the summary."""
     rec.setdefault("run_id", new_run_id())
     rec.setdefault("saved_at", now_iso())
+    rec.setdefault("alerts_v", 1)
     with _lock:
         _load_index()
         try:
@@ -132,7 +180,17 @@ def batch_path(run_id):
 
 EXPORT_COLUMNS = ["run_id", "saved_at", "source", "mode", "dataset", "drift_type", "features", "magnitude",
                   "seed", "file", "batch_size", "truth_pp", "c1_pp", "lo_pp", "hi_pp", "inside", "severity",
-                  "outcome", "extent", "interaction", "detectors_fired", "classic_alarm"]
+                  "outcome", "extent", "interaction", "detectors_fired", "classic_alarm",
+                  "true_cause", "c2_root", "c2_category", "c2_ok", "alert"]
+
+
+def update_run(run_id, change):
+    """Apply change(rec) to a saved run and save it again. Returns the new summary, or None."""
+    rec = get_run(run_id)
+    if rec is None:
+        return None
+    change(rec)
+    return save_run(rec)
 
 
 def export_csv():

@@ -9,6 +9,13 @@ How a lab batch is made (the same recipe as the C1 fresh test, c1/scripts/retest
        UCI  accuracy drop in pp,  IEEE-CIS  AUC drop in pp   (the metric C1 predicts)
      The paired harm (same rows before vs after injection) is returned too.
 The labels stay here: the components only ever receive the batch without the target column.
+
+Answer key for diagnosis (v0.3): when one or more features are shifted, the lab also measures, WITH the
+labels, how much of the metric each shifted feature costs: put that feature back to its reference
+distribution (C2's restore operator, c2/src/restore.py, so C2 is graded with its own definition) and
+measure how much accuracy (UCI) or AUC (IEEE) comes back, in pp. The shifted feature that gives back
+the most, if at least MAIN_CAUSE_MIN_PP, is the true main cause. A drifted feature that gives back
+nothing is harmless drift. Interaction drift has no single-feature cause (the pair is the cause).
 """
 import json
 import sys
@@ -28,6 +35,7 @@ DRIFT_TYPES = ("none", "marginal_single", "marginal_multi", "interaction", "comb
 # how many features each drift type takes: (min, max)
 N_FEATURES = {"none": (0, 0), "marginal_single": (1, 1), "marginal_multi": (2, 5),
               "interaction": (2, 2), "combined": (3, 3)}
+MAIN_CAUSE_MIN_PP = 0.5        # a shifted feature must give back at least this much to be "the" cause
 
 
 class LabError(ValueError):
@@ -137,7 +145,38 @@ class DriftLab:
                                            [list(p) for p in (kw["interaction_pairs"] or [])]),
                      "magnitude": mag, "batch_size": len(X), "seed": int(seed),
                      "inject_sec": round(time.time() - t0, 3)}
+        truth.update(self.feature_harm(engine, drifted, injection, types, metric))
         return X, truth, injection, drifted
+
+    # ── which shifted feature really causes the harm (answer key for C2) ─────────
+    def feature_harm(self, engine, drifted, injection, types, metric):
+        shifted = injection["shifted"]
+        if injection["drift_type"] == "interaction":
+            return {"feature_harm_pp": {}, "main_cause": None,
+                    "cause_note": "interaction drift: the pair is the cause, no single feature"}
+        if not shifted:
+            return {"feature_harm_pp": {}, "main_cause": None, "cause_note": "no drift injected"}
+        try:
+            sys.path.insert(0, str(REPO_ROOT))
+            from c2.src.restore import restore
+        except ImportError as e:
+            return {"feature_harm_pp": {}, "main_cause": None, "cause_note": f"restore operator not available: {e}"}
+        y = drifted[TARGET_COL].values
+        X = drifted.drop(columns=[TARGET_COL])
+        model, ref = engine.base_model, engine.profile.ref
+
+        def score(df):
+            if metric == "auc_drop":
+                return roc_auc_score(y, model.predict_proba(df[engine.features])[:, 1]) * 100
+            return float((model.predict(df[engine.features]) == y).mean()) * 100
+
+        base = score(X)
+        gain = {f: round(score(restore(X, f, ref, types, seed=0)) - base, 3) for f in shifted}
+        top = max(gain, key=gain.get)
+        main = top if gain[top] >= MAIN_CAUSE_MIN_PP else None
+        note = (f"undoing {top} gives back {gain[top]:.2f} pp" if main else
+                f"no shifted feature gives back {MAIN_CAUSE_MIN_PP} pp or more: harmless drift")
+        return {"feature_harm_pp": gain, "main_cause": main, "cause_note": note}
 
 
 LAB = DriftLab()

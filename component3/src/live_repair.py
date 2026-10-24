@@ -295,7 +295,7 @@ def _execute_live_repair(payload, output_directory=None, *, generator_selector=N
         (out_dir / "result.json").write_text(json.dumps(response_for_package(result, log), default=str), encoding="utf-8")
         return result, log
 
-    if c1_raw.get("drift_detected") is False or c1.drift_severity.lower() == "none" or c1.predicted_harm_proportion < 0.01:
+    if c1.drift_severity.lower() == "none" or c1.predicted_harm_proportion < 0.01:
         return finish(["No meaningful predicted harm; no repair attempted."],
                       package_status=RepairPackageStatus.ABSTAINED_NO_REPAIR)
     if not dc.has_authentic_labels:

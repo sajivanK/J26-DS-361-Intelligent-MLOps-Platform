@@ -31,7 +31,7 @@ class LabRun(BaseModel):
     magnitude: float = 0.55
     batch_size: int = 1500
     seed: int = 42
-    mode: Literal["c1", "pipeline"] = "c1"
+    mode: Literal["c1", "c1c2", "pipeline"] = "c1"   # c1c2: C1 then C2, stops before C3
     save_batch: bool = False          # also save the batch CSV (with labels) next to the run
 
 
@@ -59,7 +59,7 @@ def options(dataset: str = "uci"):
 
 @router.post("/run")
 def run(req: LabRun):
-    """Build a batch with a known drift, then run C1 only or the full pipeline on it (labels removed)."""
+    """Build a batch with a known drift, then run C1 only, C1 -> C2, or the full pipeline (labels removed)."""
     eng = _engine(req.dataset)
     try:
         batch, truth, injection, labelled = LAB.make_batch(eng, req.dataset, req.drift_type, req.features,
@@ -84,12 +84,13 @@ def run(req: LabRun):
         out["c1"] = c1
         out["contract_errors"] = contracts.validate("c1", c1)
     else:
-        result = run_pipeline(batch, context)
+        result = run_pipeline(batch, context, stop_after="c2" if req.mode == "c1c2" else None)
         names = ", ".join(req.features) or "clean"
         result["origin"] = {"kind": "drift_lab", "rows": len(batch), "run_ref": run_id,
                             "label": f"Drift Lab: {req.drift_type.replace('marginal_', '')} ({names})",
                             "truth": truth}
-        runs.save_latest(result)
+        if req.mode == "pipeline":
+            runs.save_latest(result)
         out["pipeline"] = result
         out["c1"] = result["outputs"].get("c1")
 

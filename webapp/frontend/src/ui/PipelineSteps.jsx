@@ -16,7 +16,11 @@ export function stepSummary(component, outputs) {
   return null;
 }
 
+const SKIPPED = { no_action: "not needed: no meaningful harmful drift", stopped: "not run: C1 → C2 only" };
+
 // The four step cards for one pipeline run (the response of /api/pipeline/run).
+// The badge shows what the component did IN THIS RUN: "fake" when it used its contract example
+// (not loaded, an error, or a dataset it does not support), with the reason underneath.
 export default function PipelineSteps({ run }) {
   const byName = Object.fromEntries((run.steps || []).map((s) => [s.component, s]));
   return (
@@ -27,11 +31,12 @@ export default function PipelineSteps({ run }) {
           return (
             <div key={s.component} className="st skip">
               <span className="eyebrow">C{s.n}</span><b>{s.title}</b>
-              <span className="small muted">{run.status === "no_action" ? "not needed: no meaningful harmful drift" : "not run"}</span>
+              <span className="small muted">{SKIPPED[run.status] || "not run"}</span>
             </div>
           );
         }
-        const sum = st.status === "ok" ? stepSummary(s.component, run.outputs) : null;
+        const done = st.status === "ok" || st.status === "fallback";
+        const sum = done ? stepSummary(s.component, run.outputs) : null;
         return (
           <div key={s.component} className="st">
             <div className="top"><span className="eyebrow">C{s.n}</span><SourceBadge source={st.source} /></div>
@@ -40,7 +45,8 @@ export default function PipelineSteps({ run }) {
               ? <span className="small" style={{ color: "var(--bad-fg)" }}>{st.error}</span>
               : <span className="small mono">{st.status === "running" ? "Running…" : sum?.text}</span>}
             {sum?.sub && <span className="small muted">{sum.sub}</span>}
-            {st.status === "ok" && (st.contract_ok
+            {st.note && <span className="small" style={{ color: "var(--warn-fg)" }}>{st.note}</span>}
+            {done && (st.contract_ok
               ? <span className="badge ok">contract ok</span>
               : <span className="badge off" title={JSON.stringify(st.contract_errors)}>contract errors</span>)}
             {st.runtime_sec != null && <span className="small muted mono">{st.runtime_sec} s</span>}

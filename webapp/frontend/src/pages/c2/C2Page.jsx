@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { api } from "../../api.js";
 import { useAction, useApi } from "../../hooks.js";
 import { useSession } from "../../session.jsx";
+import DriftAlerts from "../../ui/DriftAlerts.jsx";   // platform: drift alerts waiting for C2 (v0.3)
 import { Empty, ErrorBox, JsonBox, PageHeader } from "../../ui/parts.jsx";
 import {
   EvidenceChart, HeatKey, ProofBars, RelianceChart, SIGNALS, ShareBars, TemporalChart, TemporalLegend,
@@ -14,8 +15,6 @@ import {
 } from "./C2Charts.jsx";
 import { answer, baselines, c1PredOf, clock, decOf, harmOf, pct, runsAgreeing, sg, STATE, time } from "./c2format.js";
 import "./C2Page.css";
-
-const DEFAULT_FORM = { drift_type: "marginal_single", features: ["capital_gain"], magnitude: 0.6, batch_size: 1000 };
 
 export function StatePill({ state }) {
   const s = STATE[state] || STATE.clean;
@@ -30,18 +29,8 @@ export default function C2Page() {
   const latest = runs[0]?.run ?? null;
   const n = sel ?? latest;
   const rec = useApi(() => (n ? api.c2Run(n) : Promise.resolve(null)), [n, latest]);
-  const [form, setForm] = useSession("c2:form", DEFAULT_FORM);
-  const [doRun, run] = useAction(api.c2RunNew);
   const [doReset, reset] = useAction(api.c2Reset);
-  const [note, setNote] = useState(null);
 
-  async function runNext() {
-    const out = await doRun(form);
-    if (!out) return;
-    setNote(out.c1_note);
-    setSel(null);
-    hist.reload();
-  }
   async function newPeriod() {
     if (!window.confirm("Start a new monitoring period? This clears the C2 run history and warms the engine up again.")) return;
     if (await doReset()) { setSel(null); hist.reload(); }
@@ -54,14 +43,14 @@ export default function C2Page() {
         subtitle="A drift alarm says something changed. C2 finds the feature whose change actually hurts the model, and the group of records it hurts."
         chip={info.data ? `engine 1.0 · contract v1.1 · ${info.data.runs_stored ?? runs.length} runs stored` : "contract v1.1"} />
 
-      <RunBar info={info.data} form={form} setForm={setForm} busy={run.busy || reset.busy} onRun={runNext} onReset={newPeriod} />
-      <ErrorBox error={info.error || hist.error || run.error || reset.error} />
-      {note && <div className="warnline">{note}</div>}
+      <DriftAlerts onDiagnosed={() => { setSel(null); hist.reload(); }} />
+      <SourceBar busy={reset.busy} ready={!!info.data} onReset={newPeriod} />
+      <ErrorBox error={info.error || hist.error || reset.error} />
 
       <section className="stack" style={{ gap: 12 }} aria-live="polite">
         {rec.data ? <Answer rec={rec.data} latest={latest} />
           : hist.loading || rec.loading ? <p className="muted">Loading…</p>
-            : <Empty>No diagnosis stored yet. Pick a drift above and press <b>Run diagnosis</b> two or three times: C2 compares every run with the runs before it, so a cause is confirmed only when it persists.</Empty>}
+            : <Empty>No diagnosis stored yet. Create test batches in the <Link to="/lab">Drift Lab</Link> (<b>Run C1 → C2</b>, or <b>Run C1 only</b> and then <b>Diagnose</b> the alert above), two or three times: C2 compares every run with the runs before it, so a cause is confirmed only when it persists.</Empty>}
       </section>
 
       {rec.data && (<>
@@ -101,49 +90,13 @@ export default function C2Page() {
   );
 }
 
-function RunBar({ info, form, setForm, busy, onRun, onReset }) {
-  const types = info?.drift_types || [];
-  const t = types.find((x) => x.id === form.drift_type) || { min: 1, max: 1, help: "" };
-  const feats = info?.features?.all || [];
-  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-  const toggle = (f) => setForm((s) => {
-    const on = s.features.includes(f);
-    let next = on ? s.features.filter((x) => x !== f) : [...s.features, f];
-    if (t.max === 1) next = on ? [] : [f];
-    return { ...s, features: next.slice(-t.max) };
-  });
-  const ok = form.features.length >= t.min && form.features.length <= t.max;
+// v0.3: the drift simulator moved out of this page. Test batches come from the Drift Lab
+// (Run C1 -> C2, or Run C1 only + Diagnose an alert). The /api/c2/run route stays for research use.
+function SourceBar({ busy, ready, onReset }) {
   return (
-    <section className="card stack" aria-label="Simulate drift and run a diagnosis">
-      <div className="c2-setup-head">
-        <span className="eyebrow">Test setup · simulate drift</span>
-        <span className="small muted">Each run builds a new test batch from unseen data and breaks the feature you pick. C2 is <b>not told</b> what you picked: it analyses all 12 features and must find the cause itself.</span>
-      </div>
-      <div className="c2-runbar">
-        <div className="field"><label htmlFor="c2type">Type of drift to simulate</label>
-          <select id="c2type" value={form.drift_type} onChange={(e) => setForm((f) => ({ ...f, drift_type: e.target.value, features: e.target.value === "none" ? [] : f.features }))}>
-            {types.map((x) => <option key={x.id} value={x.id}>{x.id === "none" ? "none (clean batch)" : x.id.replace("_", " ")}</option>)}
-          </select></div>
-        <div className="field"><label htmlFor="c2mag">Strength: {form.magnitude.toFixed(2)}</label>
-          <input id="c2mag" type="range" min="0.05" max="1" step="0.05" value={form.magnitude} disabled={form.drift_type === "none"}
-            onChange={(e) => set("magnitude", +e.target.value)} /></div>
-        <div className="field"><label htmlFor="c2bs">Batch size</label>
-          <select id="c2bs" value={form.batch_size} onChange={(e) => set("batch_size", +e.target.value)}>
-            {(info?.batch_sizes || [1000]).map((b) => <option key={b} value={b}>{b.toLocaleString()} rows</option>)}
-          </select></div>
-        <div className="c2-actions">
-          <button className={`btn primary ${busy ? "busy" : ""}`} type="button" disabled={busy || !info || !ok} onClick={onRun}>{busy ? "Diagnosing…" : "Run diagnosis"}</button>
-          <button className="btn" type="button" disabled={busy || !info} onClick={onReset}>New period</button>
-        </div>
-      </div>
-      {form.drift_type !== "none" && (
-        <div className="stack tight">
-          <span className="small muted"><b>Feature{t.max > 1 ? "s" : ""} to break (C2 is not told):</b> {t.help} {ok ? "" : <b>Pick {t.min === t.max ? t.min : `${t.min} to ${t.max}`}.</b>}</span>
-          <div className="row" role="group" aria-label="Features to break (hidden from C2)">
-            {feats.map((f) => (<button key={f} type="button" className="pbtn" aria-pressed={form.features.includes(f)} onClick={() => toggle(f)}>
-              {f}{info.features.high.includes(f) ? " ·hi" : ""}</button>))}
-          </div>
-        </div>)}
+    <section className="card c2-sourcebar" aria-label="Where C2's batches come from">
+      <span className="small muted">C2 diagnoses batches that C1 flagged. Create test batches in the <Link to="/lab"><b>Drift Lab</b></Link>: <b>Run C1 → C2</b>, or <b>Run C1 only</b> and press <b>Diagnose</b> on the alert above.</span>
+      <button className="btn" type="button" disabled={busy || !ready} onClick={onReset}>{busy ? "Clearing…" : "New period"}</button>
     </section>
   );
 }
