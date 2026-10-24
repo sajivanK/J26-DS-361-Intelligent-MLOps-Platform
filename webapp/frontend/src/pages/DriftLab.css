@@ -22,3 +22,35 @@
 .lab-save input { margin-top: 3px; }
 .lab-runref { gap: 10px; }
 .lab-histlink { display: inline-flex; align-items: center; text-decoration: none; color: inherit; }
+
+/* v0.4 polish */
+.lab-grid { grid-template-columns: 350px minmax(0, 1fr); gap: 20px; }
+.lab-grid .settings { padding: 20px; gap: 16px; }
+.lab-h { display: flex; align-items: center; gap: 10px; }
+.fchip { min-height: 34px; padding: 0 12px; font-size: .78rem; border-color: #DDE3EA; }
+.fchip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #FFFFFF; }
+.btnrow .btn.full { grid-column: 1 / -1; min-height: 48px; font-size: 15px; }
+.help { background: #F6F8FA; border-radius: 10px; }
+.lab-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.lab-tile { padding: 14px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.lab-tile .lt-h { display: flex; align-items: center; gap: 8px; font-size: .78rem; color: inherit; opacity: .9; }
+.card.lab-tile .lt-h { color: #475467; }
+.lab-tile .lt-v { font-size: 1.55rem; line-height: 1.1; }
+.lab-tile .lt-v small { font-size: .8rem; font-weight: 600; }
+.lab-tile .lt-t { font-size: 1.02rem; font-weight: 800; overflow-wrap: anywhere; }
+.lab-tile .lt-s { font-size: .74rem; opacity: .9; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card.lab-tile .lt-s { color: var(--muted); }
+.lab-tile .spark { margin-top: auto; }
+.lab-feat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.lab-feat > div { display: flex; flex-direction: column; gap: 6px; }
+.lab-feat .lbl { font-size: .78rem; color: var(--muted); }
+.tagf.harm { background: var(--t-amber-bg); color: var(--t-amber-fg); }
+.score { gap: 0; }
+.score .s { padding: 0 16px; border-left: 1px solid #EEF1F4; }
+.score .s:first-child { padding-left: 0; border-left: 0; }
+.score .s b { font-family: var(--sans); font-weight: 800; font-size: 1.5rem; letter-spacing: -.02em; color: var(--heading); }
+.score .pairs { justify-content: flex-end; gap: 4px; }
+.pbars { display: flex; align-items: flex-end; gap: 6px; height: 46px; }
+.pbars .pb { display: flex; gap: 2px; align-items: flex-end; height: 100%; }
+.pbars i { width: 7px; border-radius: 2px; display: block; }
+@media (max-width: 700px) { .lab-strip, .lab-feat { grid-template-columns: minmax(0, 1fr); } }

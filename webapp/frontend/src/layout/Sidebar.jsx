@@ -14,23 +14,25 @@ export default function Sidebar() {
   return (
     <nav className="side" aria-label="Platform">
       <div className="brand">
-        <Icon name="pulse" size={22} className="" style={{ color: "var(--side-accent)" }} />
+        <Icon name="pulse" size={30} className="" strokeWidth={2.2} style={{ color: "var(--side-accent)" }} />
         <div><b>Intelligent MLOps</b><small>J26-DS-361</small></div>
       </div>
 
       <div className="navgrp">Platform</div>
       {PLATFORM_PAGES.map((p) => (
         <NavLink key={p.path} to={p.path} end={p.path === "/"} className={navClass}>
-          <span className="lft"><Icon name={p.icon} /><span className="txt">{p.label}{p.sub && <small>{p.sub}</small>}</span></span>
+          <span className="lft"><Icon name={p.icon} size={20} /><span className="txt">{p.label}{p.sub && <small>{p.sub}</small>}</span></span>
+          <Icon name="chevron" size={16} className="chev" />
         </NavLink>
       ))}
 
+      <div className="navsep" />
       <div className="navgrp">Pipeline</div>
       {PIPELINE_PAGES.map((p) => {
         const st = componentState(health, p.component);
         return (
           <NavLink key={p.path} to={p.path} className={navClass}>
-            <span className="lft"><Icon name={p.icon} /><span className="txt">{p.label}<small>C{p.n} {p.title}</small></span></span>
+            <span className="lft"><Icon name={p.icon} size={20} /><span className="txt">{p.label}<small>C{p.n} {p.title}</small></span></span>
             {p.component === "c2" && alertsWaiting > 0
               ? <span className="alertbadge" title={`${alertsWaiting} drift alert${alertsWaiting === 1 ? "" : "s"} waiting for diagnosis`}>
                   <Icon name="warn" size={12} className="" strokeWidth={2.6} /><span className="mono">{alertsWaiting}</span></span>

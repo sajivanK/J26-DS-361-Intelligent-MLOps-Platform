@@ -115,6 +115,7 @@ def summarise(rec):
         "inside": None if truth is None or lo is None else bool(lo <= truth <= hi),
         "outcome": outcome(truth, sev), "pipeline_status": (rec.get("pipeline") or {}).get("status"),
         "c3_status": ((rec.get("pipeline") or {}).get("outputs", {}).get("c3") or {}).get("execution_status"),
+        "pipeline_runtime": (rec.get("pipeline") or {}).get("runtime_sec"),   # v0.4: Overview run-time chart
         "has_batch": bool(rec.get("batch_csv")),
         "true_cause": (rec.get("truth") or {}).get("main_cause"),
         "c2_root": (c2 := c2_result(rec)) and c2["root"],

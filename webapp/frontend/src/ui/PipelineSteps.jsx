@@ -1,6 +1,8 @@
 import { STEPS } from "../steps.js";
 import { c1View, sg } from "./c1format.js";
+import { Icon } from "../layout/icons.jsx";
 import { SourceBadge } from "./parts.jsx";
+import { stepTile } from "./runTiles.jsx";
 
 // One-line summary of each component's output, used by the Drift Lab and the Overview.
 // When you change your component's output, update its line here.
@@ -21,42 +23,35 @@ export function stepSummary(component, outputs) {
   return null;
 }
 
-const SKIPPED = { no_action: "not needed: no meaningful harmful drift", stopped: "not run: C1 → C2 only" };
-
-// The four step cards for one pipeline run (the response of /api/pipeline/run).
+// The four step cards for one pipeline run (v0.4: tinted by result, joined by arrows).
 // The badge shows what the component did IN THIS RUN: "fake" when it used its contract example
 // (not loaded, an error, or a dataset it does not support), with the reason underneath.
-export default function PipelineSteps({ run }) {
-  const byName = Object.fromEntries((run.steps || []).map((s) => [s.component, s]));
+// grade: { c2_ok, true_cause } from the run summary; charts: optional { c1, c2, c3, c4 } nodes.
+export default function PipelineSteps({ run, grade = {}, charts = {} }) {
   return (
-    <div className="steps4">
-      {STEPS.map((s) => {
-        const st = byName[s.component];
-        if (!st) {
-          return (
-            <div key={s.component} className="st skip">
-              <span className="eyebrow">C{s.n}</span><b>{s.title}</b>
-              <span className="small muted">{SKIPPED[run.status] || "not run"}</span>
+    <div className="flow4">
+      {STEPS.map((s, i) => {
+        const t = stepTile(s.component, run, grade);
+        const st = (run.steps || []).find((x) => x.component === s.component);
+        const done = st && (st.status === "ok" || st.status === "fallback");
+        return [
+          i > 0 && <span key={"a" + i} className="flow-arrow" aria-hidden="true"><Icon name="arrow" size={16} className="" strokeWidth={2.4} /></span>,
+          <div key={s.component} className={`ttile tone-${t.tone} ${t.skipped ? "skipped" : ""} ${t.source === "fake" ? "dashed" : ""}`}>
+            <div className="row" style={{ justifyContent: "space-between", flexWrap: "nowrap" }}>
+              <span className="row" style={{ gap: 8, flexWrap: "nowrap" }}><Icon name={t.icon} size={17} className="" strokeWidth={2.4} style={{ color: "var(--ti)" }} />
+                <span className="eyebrow" style={{ color: "inherit" }}>C{s.n} · {s.label}</span></span>
+              {t.source && <SourceBadge source={t.source} />}
             </div>
-          );
-        }
-        const done = st.status === "ok" || st.status === "fallback";
-        const sum = done ? stepSummary(s.component, run.outputs) : null;
-        return (
-          <div key={s.component} className="st">
-            <div className="top"><span className="eyebrow">C{s.n}</span><SourceBadge source={st.source} /></div>
-            <b>{s.title}</b>
-            {st.status === "error"
-              ? <span className="small" style={{ color: "var(--bad-fg)" }}>{st.error}</span>
-              : <span className="small mono">{st.status === "running" ? "Running…" : sum?.text}</span>}
-            {sum?.sub && <span className="small muted">{sum.sub}</span>}
-            {st.note && <span className="small" style={{ color: "var(--warn-fg)" }}>{st.note}</span>}
-            {done && (st.contract_ok
-              ? <span className="badge ok">contract ok</span>
-              : <span className="badge off" title={JSON.stringify(st.contract_errors)}>contract errors</span>)}
-            {st.runtime_sec != null && <span className="small muted mono">{st.runtime_sec} s</span>}
-          </div>
-        );
+            <span className={`tt ${t.mono ? "mono" : ""}`}>{t.title}</span>
+            {t.text && <span className="ts">{t.text}</span>}
+            {t.note && t.source === "fake" && t.text !== t.note && <span className="ts">{t.note}</span>}
+            {charts[s.component] && <div style={{ marginTop: "auto" }}>{charts[s.component]}</div>}
+            {st && (
+              <span className="mono ts" style={{ marginTop: charts[s.component] ? 0 : "auto", opacity: .85 }}>
+                {done ? (st.contract_ok ? "contract ok" : <span title={JSON.stringify(st.contract_errors)}>contract errors</span>) : st.status}
+                {st.runtime_sec != null ? ` · ${st.runtime_sec} s` : ""}</span>)}
+          </div>,
+        ];
       })}
     </div>
   );

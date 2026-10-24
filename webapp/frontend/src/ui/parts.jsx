@@ -1,23 +1,35 @@
 // Small shared building blocks. Use these on your page so every page looks the same.
+import { Icon } from "../layout/icons.jsx";
 
-export function PageHeader({ eyebrow, title, subtitle, chip }) {
+export function PageHeader({ eyebrow, title, subtitle, chip, icon, right }) {
   return (
     <div className="head">
-      <div className="titles">
+      <div className="titles" style={icon ? { flexDirection: "row", gap: 16, alignItems: "center" } : undefined}>
+        {icon && <span className="ic tone-teal" style={{ width: 54, height: 54, borderRadius: 16 }}><Icon name={icon} size={28} className="" /></span>}
+        <div className="titles">
         {eyebrow && <span className="eyebrow">{eyebrow}</span>}
         <h1>{title}</h1>
-        {subtitle && <p className="muted" style={{ maxWidth: "72ch" }}>{subtitle}</p>}
+        {subtitle && <p className="muted" style={{ maxWidth: "72ch", fontSize: ".95rem" }}>{subtitle}</p>}
+        </div>
       </div>
-      {chip && <span className="chip">{chip}</span>}
+      {(chip || right) && (
+        <div className="stack" style={{ alignItems: "flex-end", gap: 10 }}>
+          {chip && <span className="chip mono">{chip}</span>}
+          {right}
+        </div>)}
     </div>
   );
 }
 
-export function Verdict({ title, text, tone = "ok", aside }) {
+export function Verdict({ title, text, tone = "ok", aside, extra }) {
+  const warn = tone === "warn";
   return (
-    <div className={`verdict ${tone === "warn" ? "warn" : ""}`} role="status">
-      <b>{title}</b><span>{text}</span>
+    <div className={`verdict ${warn ? "warn" : ""}`} role="status">
+      <span className="vic"><Icon name={warn ? "warn" : "checkCircle"} size={22} className=""
+        style={{ color: warn ? "var(--t-amber-ic)" : "var(--t-green-ic)" }} /></span>
+      <span className="vtx"><b>{title}</b><span>{text}</span></span>
       {aside && <span className="small mono aside">{aside}</span>}
+      {extra}
     </div>
   );
 }
