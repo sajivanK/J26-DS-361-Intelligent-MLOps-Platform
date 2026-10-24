@@ -102,19 +102,36 @@ class C2Diagnosis(StrictContractModel):
 class C3RepairPackage(StrictContractModel):
     repair_dataset_uri: str = Field(min_length=1)
     repair_package_status: Literal["APPROVED", "REJECTED"]
+    repair_strategy: Literal[
+        "TARGETED_SYNTHETIC_REPAIR",
+        "AUTHENTIC_WEIGHTED_ADAPTATION",
+        "NO_REPAIR",
+    ] | None = None
     generator: Literal["CTGAN", "TVAE", "TabDDPM", "NONE"]
     n_synthetic_rows: int = Field(ge=0)
     augmentation_ratio: float = Field(ge=0.0, le=1.0)
-    fidelity_score: float = Field(ge=0.0, le=1.0)
+    fidelity_score: float | None = Field(ge=0.0, le=1.0)
 
     # The guide calculates utility as candidate accuracy minus champion
     # accuracy, so this margin may be negative.
     utility_score: float = Field(ge=-1.0, le=1.0)
 
     privacy_status: Literal["PASS", "FAIL"]
-    target_coverage: float = Field(ge=0.0, le=1.0)
+    target_coverage: float | None = Field(ge=0.0, le=1.0)
     prescription_confidence: float = Field(ge=0.0, le=1.0)
     repair_version: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_strategy_measurements(self) -> Self:
+        authentic = self.repair_strategy == "AUTHENTIC_WEIGHTED_ADAPTATION"
+        if not authentic and (
+            self.fidelity_score is None or self.target_coverage is None
+        ):
+            raise ValueError(
+                "Null fidelity_score/target_coverage require "
+                "AUTHENTIC_WEIGHTED_ADAPTATION."
+            )
+        return self
 
 
 class UpstreamInput(StrictContractModel):

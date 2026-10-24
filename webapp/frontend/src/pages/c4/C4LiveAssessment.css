@@ -1,0 +1,168 @@
+.c4live {
+  display: grid;
+  gap: 18px;
+}
+
+.c4live .c4-card {
+  min-width: 0;
+}
+
+.c4live-intro {
+  background: linear-gradient(125deg, #edf7ff, #f1fbf8) !important;
+  border-color: #c9dfea !important;
+}
+
+.c4live-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 15px;
+}
+
+.c4live-services span {
+  padding: 7px 11px;
+  border: 1px solid #d8e0eb;
+  border-radius: 8px;
+  background: #f1f4f8;
+  color: #526075;
+  font-size: 12px;
+}
+
+.c4live-services .is-ready {
+  background: #e7f7f2;
+  border-color: #b7dfd0;
+  color: #126b57;
+}
+
+.c4live-select {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 13px;
+}
+
+.c4live-select select {
+  width: 100%;
+  min-height: 43px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+}
+
+.c4live-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 24px;
+  margin: 18px 0 0;
+}
+
+.c4live-fields div {
+  min-width: 0;
+}
+
+.c4live-fields dt {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.c4live-fields dd {
+  margin: 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.c4live-verdict {
+  padding: 23px;
+  border: 1px solid #edce85;
+  border-left: 5px solid #d39420;
+  border-radius: 12px;
+  background: #fff8e8;
+  color: #68480f;
+}
+
+.c4live-verdict.is-escalate {
+  background: #fff0ed;
+  border-color: #efc3bb;
+  border-left-color: #cf5946;
+  color: #803e32;
+}
+
+.c4live-upstream {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.c4live-upstream .c4live-fields {
+  grid-template-columns: 1fr;
+}
+
+.c4live-blue {
+  background: #eff6ff !important;
+  border-color: #cbdff7 !important;
+}
+
+.c4live-purple {
+  background: #f5f1ff !important;
+  border-color: #ddd2f7 !important;
+}
+
+.c4live-teal {
+  background: #edf9f5 !important;
+  border-color: #c5e6da !important;
+}
+
+.c4live-gains {
+  display: grid;
+  gap: 13px;
+  margin-top: 20px;
+}
+
+.c4live-gain-row {
+  display: grid;
+  grid-template-columns: 130px minmax(100px, 1fr) 105px;
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.c4live-gain-row svg {
+  display: block;
+  width: 100%;
+  height: 40px;
+}
+
+.c4live-gain-row strong {
+  text-align: right;
+  font-family: var(--mono);
+}
+
+.c4live-future {
+  background: #f4f7fc !important;
+  border-color: #d8e1ef !important;
+}
+
+@media (max-width: 1000px) {
+  .c4live-upstream {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .c4live-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .c4live-gain-row {
+    grid-template-columns: 1fr 95px;
+    gap: 5px;
+  }
+
+  .c4live-gain-row > span {
+    grid-column: 1 / -1;
+  }
+}
