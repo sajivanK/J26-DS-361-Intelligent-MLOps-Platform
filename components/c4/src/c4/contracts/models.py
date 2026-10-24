@@ -102,7 +102,7 @@ class C2Diagnosis(StrictContractModel):
 class C3RepairPackage(StrictContractModel):
     repair_dataset_uri: str = Field(min_length=1)
     repair_package_status: Literal["APPROVED", "REJECTED"]
-    generator: Literal["CTGAN", "TVAE", "TabDDPM"]
+    generator: Literal["CTGAN", "TVAE", "TabDDPM", "NONE"]
     n_synthetic_rows: int = Field(ge=0)
     augmentation_ratio: float = Field(ge=0.0, le=1.0)
     fidelity_score: float = Field(ge=0.0, le=1.0)
