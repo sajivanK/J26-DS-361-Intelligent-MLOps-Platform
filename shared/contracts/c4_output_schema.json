@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "component": "C4",
   "component_name": "Conformal Risk-Controlled Model Release Controller",
   "owner": "Kesigan M (IT23210974)",
@@ -20,6 +20,13 @@
         "ESCALATE": "A mandatory hard gate fails, or at least one complete future-safety interval lies below a mandatory safety boundary. Also triggered if C2 diagnosis_stability < 0.5."
       }
     },
+    "evaluation_status": {
+      "type": "string",
+      "required": true,
+      "example": "EVALUATED",
+      "allowed_values": ["EVALUATED", "FORECAST_UNAVAILABLE", "UPSTREAM_GATE_FAILED"],
+      "description": "v1.1. What C4 actually evaluated for this decision. EVALUATED: hard gates checked, candidate evaluated, forecasts and conformal intervals computed. FORECAST_UNAVAILABLE: hard gates passed and the candidate was evaluated, but live forecasting did not run; decision must be HUMAN_REVIEW or ESCALATE. UPSTREAM_GATE_FAILED: an upstream gate failed (C3 REJECTED, privacy FAIL, generator NONE or diagnosis_stability < 0.5), so candidate evaluation and forecasting did not run; decision must be ESCALATE."
+    },
     "champion_model_id": {
       "type": "string",
       "required": true,
@@ -30,7 +37,8 @@
       "type": "string",
       "required": true,
       "example": "candidate-v13",
-      "description": "Identifier of the repaired and retrained candidate model evaluated by C4."
+      "description": "Identifier of the repaired and retrained candidate model evaluated by C4. v1.1: null when not created or executed (evaluation_status is not EVALUATED).",
+      "nullable": true
     },
     "joint_confidence_level": {
       "type": "float",
@@ -42,66 +50,75 @@
     "future_safety_margins": {
       "type": "object",
       "required": true,
-      "description": "Forecasted signed future-safety margins. Values >= 0 indicate safety requirement satisfied. Negative values indicate violation.",
+      "description": "Forecasted signed future-safety margins. Values >= 0 indicate safety requirement satisfied. Negative values indicate violation. v1.1: every value inside may be null when not measured (see evaluation_status); never fill with zeros or example values.",
       "fields": {
         "global_margin": {
           "type": "float",
           "example": 0.03,
-          "description": "Forecasted future global candidate-versus-champion safety margin."
+          "description": "Forecasted future global candidate-versus-champion safety margin.",
+          "nullable": true
         },
         "affected_slice_margin": {
           "type": "float",
           "example": 0.01,
-          "description": "Forecasted future affected-slice recovery margin. Slice defined by C2 affected_slice_rule."
+          "description": "Forecasted future affected-slice recovery margin. Slice defined by C2 affected_slice_rule.",
+          "nullable": true
         },
         "non_affected_margin": {
           "type": "float",
           "example": 0.02,
-          "description": "Forecasted future non-affected-population safety margin."
+          "description": "Forecasted future non-affected-population safety margin.",
+          "nullable": true
         }
       }
     },
     "future_safety_intervals": {
       "type": "object",
       "required": true,
-      "description": "Joint conformal uncertainty intervals for the three mandatory future-safety margins at joint_confidence_level coverage.",
+      "description": "Joint conformal uncertainty intervals for the three mandatory future-safety margins at joint_confidence_level coverage. v1.1: every value inside may be null when not measured (see evaluation_status); never fill with zeros or example values.",
       "fields": {
         "global_margin": {
           "type": "array[float, float]",
           "example": [-0.01, 0.07],
-          "description": "Lower and upper conformal bounds for global safety margin."
+          "description": "Lower and upper conformal bounds for global safety margin.",
+          "nullable": true
         },
         "affected_slice_margin": {
           "type": "array[float, float]",
           "example": [-0.18, 0.12],
-          "description": "Lower and upper conformal bounds for affected-slice recovery margin."
+          "description": "Lower and upper conformal bounds for affected-slice recovery margin.",
+          "nullable": true
         },
         "non_affected_margin": {
           "type": "array[float, float]",
-          "example": [0.00, 0.05],
-          "description": "Lower and upper conformal bounds for non-affected safety margin."
+          "example": [0.0, 0.05],
+          "description": "Lower and upper conformal bounds for non-affected safety margin.",
+          "nullable": true
         }
       }
     },
     "pre_release_evidence": {
       "type": "object",
       "required": true,
-      "description": "C4-generated validation evidence measured before the release decision.",
+      "description": "C4-generated validation evidence measured before the release decision. v1.1: every value inside may be null when not measured (see evaluation_status); never fill with zeros or example values.",
       "fields": {
         "validation_global_f1_gain": {
           "type": "float",
           "example": 0.06,
-          "description": "Observed candidate-versus-champion global F1 difference on release-validation data."
+          "description": "Observed candidate-versus-champion global F1 difference on release-validation data.",
+          "nullable": true
         },
         "validation_affected_slice_recovery": {
           "type": "float",
           "example": 0.49,
-          "description": "Observed affected-slice recovery on release-validation data."
+          "description": "Observed affected-slice recovery on release-validation data.",
+          "nullable": true
         },
         "validation_non_affected_margin": {
           "type": "float",
           "example": 0.02,
-          "description": "Observed candidate-versus-champion non-affected validation margin."
+          "description": "Observed candidate-versus-champion non-affected validation margin.",
+          "nullable": true
         }
       }
     },
@@ -113,41 +130,122 @@
         "c1": {
           "type": "object",
           "fields": {
-            "model_id": {"type": "string", "example": "adult-xgb-v1"},
-            "predicted_harm": {"type": "float", "example": 0.11},
-            "harm_interval": {"type": "array[float, float]", "example": [0.07, 0.15]},
-            "harm_metric": {"type": "string", "example": "accuracy_drop", "allowed_values": ["accuracy_drop", "auc_drop"]},
-            "drift_detected": {"type": "boolean", "example": true},
-            "harm_severity": {"type": "string", "example": "moderate", "allowed_values": ["none", "low", "moderate", "high", "critical"]},
-            "marginal_extent": {"type": "string", "example": "multi", "allowed_values": ["none", "single", "multi"]},
-            "interaction_suspected": {"type": "float", "example": 0.0012},
-            "affected_features": {"type": "array[string]", "example": ["hours_per_week", "age"]},
-            "evidence_version": {"type": "string", "example": "c1-001"}
+            "model_id": {
+              "type": "string",
+              "example": "adult-xgb-v1"
+            },
+            "predicted_harm": {
+              "type": "float",
+              "example": 0.11
+            },
+            "harm_interval": {
+              "type": "array[float, float]",
+              "example": [0.07, 0.15]
+            },
+            "harm_metric": {
+              "type": "string",
+              "example": "accuracy_drop",
+              "allowed_values": ["accuracy_drop", "auc_drop"]
+            },
+            "drift_detected": {
+              "type": "boolean",
+              "example": true
+            },
+            "harm_severity": {
+              "type": "string",
+              "example": "moderate",
+              "allowed_values": ["none", "low", "moderate", "high", "critical"]
+            },
+            "marginal_extent": {
+              "type": "string",
+              "example": "multi",
+              "allowed_values": ["none", "single", "multi"]
+            },
+            "interaction_suspected": {
+              "type": "float",
+              "example": 0.0012
+            },
+            "affected_features": {
+              "type": "array[string]",
+              "example": ["hours_per_week", "age"]
+            },
+            "evidence_version": {
+              "type": "string",
+              "example": "c1-001"
+            }
           }
         },
         "c2": {
           "type": "object",
           "fields": {
-            "root_cause_category": {"type": "string", "example": "marginal"},
-            "root_cause_feature": {"type": "string", "example": "hours_per_week"},
-            "affected_slice_rule": {"type": "string", "example": "age > 45 and hours_per_week < 25"},
-            "slice_support": {"type": "float", "example": 0.18},
-            "diagnosis_stability": {"type": "float", "example": 0.84},
-            "affected_features_ranked": {"type": "array[string]", "example": ["hours_per_week", "age", "occupation"]},
-            "diagnosis_version": {"type": "string", "example": "c2-001"}
+            "root_cause_category": {
+              "type": "string",
+              "example": "marginal"
+            },
+            "root_cause_feature": {
+              "type": "string",
+              "example": "hours_per_week"
+            },
+            "affected_slice_rule": {
+              "type": "string",
+              "example": "age > 45 and hours_per_week < 25"
+            },
+            "slice_support": {
+              "type": "float",
+              "example": 0.18
+            },
+            "diagnosis_stability": {
+              "type": "float",
+              "example": 0.84
+            },
+            "affected_features_ranked": {
+              "type": "array[string]",
+              "example": ["hours_per_week", "age", "occupation"]
+            },
+            "diagnosis_version": {
+              "type": "string",
+              "example": "c2-001"
+            }
           }
         },
         "c3": {
           "type": "object",
           "fields": {
-            "repair_dataset_uri": {"type": "string", "example": "data/repairs/repair_adult_20261001_143200.csv"},
-            "repair_package_status": {"type": "string", "example": "APPROVED", "allowed_values": ["APPROVED", "REJECTED"]},
-            "generator": {"type": "string", "example": "CTGAN", "allowed_values": ["CTGAN", "TVAE", "TabDDPM"]},
-            "augmentation_ratio": {"type": "float", "example": 0.30},
-            "fidelity_score": {"type": "float", "example": 0.91},
-            "utility_score": {"type": "float", "example": 0.87},
-            "privacy_status": {"type": "string", "example": "PASS", "allowed_values": ["PASS", "FAIL"]},
-            "repair_version": {"type": "string", "example": "c3-001"}
+            "repair_dataset_uri": {
+              "type": "string",
+              "example": "data/repairs/repair_adult_20261001_143200.csv"
+            },
+            "repair_package_status": {
+              "type": "string",
+              "example": "APPROVED",
+              "allowed_values": ["APPROVED", "REJECTED"]
+            },
+            "generator": {
+              "type": "string",
+              "example": "CTGAN",
+              "allowed_values": ["CTGAN", "TVAE", "TabDDPM"]
+            },
+            "augmentation_ratio": {
+              "type": "float",
+              "example": 0.3
+            },
+            "fidelity_score": {
+              "type": "float",
+              "example": 0.91
+            },
+            "utility_score": {
+              "type": "float",
+              "example": 0.87
+            },
+            "privacy_status": {
+              "type": "string",
+              "example": "PASS",
+              "allowed_values": ["PASS", "FAIL"]
+            },
+            "repair_version": {
+              "type": "string",
+              "example": "c3-001"
+            }
           }
         }
       }
@@ -155,7 +253,7 @@
     "hard_gate_status": {
       "type": "object",
       "required": true,
-      "description": "Deterministic mandatory release gates. All must PASS before AUTO_DEPLOY is possible.",
+      "description": "Deterministic mandatory release gates. All must PASS before AUTO_DEPLOY is possible. v1.1: runtime gates not checked stay null; overall is FAIL when an upstream gate fails.",
       "fields": {
         "repair_approved": {
           "type": "boolean",
@@ -171,17 +269,20 @@
         "schema_compatible": {
           "type": "boolean",
           "example": true,
-          "description": "Candidate model input schema matches production schema"
+          "description": "Candidate model input schema matches production schema",
+          "nullable": true
         },
         "candidate_artifact_valid": {
           "type": "boolean",
           "example": true,
-          "description": "Candidate model artifact is loadable and produces valid outputs"
+          "description": "Candidate model artifact is loadable and produces valid outputs",
+          "nullable": true
         },
         "rollback_ready": {
           "type": "boolean",
           "example": true,
-          "description": "Champion model rollback artifact is available if deployment fails"
+          "description": "Champion model rollback artifact is available if deployment fails",
+          "nullable": true
         },
         "overall": {
           "type": "string",
@@ -246,19 +347,22 @@
       "type": "string",
       "required": true,
       "example": "quantile-lightgbm-v3",
-      "description": "Version of the Quantile LightGBM future-safety forecasting model."
+      "description": "Version of the Quantile LightGBM future-safety forecasting model. v1.1: null when not created or executed (evaluation_status is not EVALUATED).",
+      "nullable": true
     },
     "conformal_config_version": {
       "type": "string",
       "required": true,
       "example": "joint-conformal-v2",
-      "description": "Version of the joint conformal calibration configuration."
+      "description": "Version of the joint conformal calibration configuration. v1.1: null when not created or executed (evaluation_status is not EVALUATED).",
+      "nullable": true
     },
     "mlflow_run_id": {
       "type": "string",
       "required": true,
       "example": "7f3a2b1c9d8e4f5a",
-      "description": "MLflow run ID linking the decision to the candidate model experiment."
+      "description": "MLflow run ID linking the decision to the candidate model experiment. v1.1: null when not created or executed (evaluation_status is not EVALUATED).",
+      "nullable": true
     },
     "decision_timestamp": {
       "type": "string",
@@ -272,6 +376,7 @@
   "example_outputs": {
     "auto_deploy": {
       "decision": "AUTO_DEPLOY",
+      "evaluation_status": "EVALUATED",
       "champion_model_id": "champion-v12",
       "candidate_model_id": "candidate-v13",
       "joint_confidence_level": 0.95,
@@ -281,7 +386,7 @@
         "non_affected_margin": 0.04
       },
       "future_safety_intervals": {
-        "global_margin": [0.02, 0.10],
+        "global_margin": [0.02, 0.1],
         "affected_slice_margin": [0.04, 0.18],
         "non_affected_margin": [0.01, 0.07]
       },
@@ -310,6 +415,7 @@
     },
     "human_review": {
       "decision": "HUMAN_REVIEW",
+      "evaluation_status": "EVALUATED",
       "champion_model_id": "champion-v12",
       "candidate_model_id": "candidate-v14",
       "joint_confidence_level": 0.95,
@@ -321,7 +427,7 @@
       "future_safety_intervals": {
         "global_margin": [-0.01, 0.07],
         "affected_slice_margin": [-0.18, 0.12],
-        "non_affected_margin": [0.00, 0.05]
+        "non_affected_margin": [0.0, 0.05]
       },
       "hard_gate_status": {
         "repair_approved": true,
@@ -348,6 +454,7 @@
     },
     "escalate": {
       "decision": "ESCALATE",
+      "evaluation_status": "EVALUATED",
       "champion_model_id": "champion-v12",
       "candidate_model_id": "candidate-v15",
       "joint_confidence_level": 0.95,
@@ -383,19 +490,85 @@
       "conformal_config_version": "joint-conformal-v2",
       "mlflow_run_id": "9c5f8a3d2b7e4f12",
       "decision_timestamp": "2026-10-01T17:40:00Z"
+    },
+    "upstream_gate_failed": {
+      "decision": "ESCALATE",
+      "evaluation_status": "UPSTREAM_GATE_FAILED",
+      "champion_model_id": "champion-v12",
+      "candidate_model_id": null,
+      "joint_confidence_level": 0.95,
+      "future_safety_margins": {
+        "global_margin": null,
+        "affected_slice_margin": null,
+        "non_affected_margin": null
+      },
+      "future_safety_intervals": {
+        "global_margin": null,
+        "affected_slice_margin": null,
+        "non_affected_margin": null
+      },
+      "pre_release_evidence": {
+        "validation_global_f1_gain": null,
+        "validation_affected_slice_recovery": null,
+        "validation_non_affected_margin": null
+      },
+      "upstream_evidence_summary": {
+        "c1": {
+          "model_id": "adult-xgb-v1",
+          "predicted_harm": 0.11,
+          "harm_interval": [0.07, 0.15],
+          "harm_metric": "accuracy_drop",
+          "drift_detected": true,
+          "harm_severity": "moderate",
+          "marginal_extent": "multi",
+          "interaction_suspected": 0.0012,
+          "affected_features": ["hours_per_week", "age"],
+          "evidence_version": "c1-001"
+        },
+        "c2": {
+          "root_cause_category": "marginal",
+          "root_cause_feature": "hours_per_week",
+          "affected_slice_rule": "age > 45 and hours_per_week < 25",
+          "slice_support": 0.18,
+          "diagnosis_stability": 0.84,
+          "affected_features_ranked": ["hours_per_week", "age", "occupation"],
+          "diagnosis_version": "c2-001"
+        },
+        "c3": {
+          "repair_dataset_uri": "data/repairs/repair_adult_20261001_143200.csv",
+          "repair_package_status": "REJECTED",
+          "generator": "CTGAN",
+          "augmentation_ratio": 0.3,
+          "fidelity_score": 0.91,
+          "utility_score": 0.87,
+          "privacy_status": "PASS",
+          "repair_version": "c3-001"
+        }
+      },
+      "hard_gate_status": {
+        "repair_approved": false,
+        "privacy_check": "PASS",
+        "schema_compatible": null,
+        "candidate_artifact_valid": null,
+        "rollback_ready": null,
+        "overall": "FAIL"
+      },
+      "risk_control": {
+        "risk_control_target": 0.05,
+        "risk_context": "HIGH",
+        "policy_parameter": 0.18,
+        "policy_version": "c4-policy-v1"
+      },
+      "reason": "C3 repair package REJECTED: no candidate to release. Candidate evaluation and forecasting were not run.",
+      "required_action": "Keep the champion. Review the C3 rejection reasons; collect labelled rows or adjust the repair before retrying.",
+      "audit_id": "release-decision-2026-005",
+      "policy_version": "c4-policy-v1",
+      "forecast_model_version": null,
+      "conformal_config_version": null,
+      "mlflow_run_id": null,
+      "decision_timestamp": "2026-10-01T17:40:00Z"
     }
   },
 
-  "notes": [
-    "Future safety margins are signed values and are NOT restricted to 0.0-1.0 range",
-    "A future safety margin >= 0 indicates satisfaction of its corresponding future requirement",
-    "AUTO_DEPLOY requires all hard gates PASS and all lower interval bounds satisfy calibrated release requirements",
-    "HUMAN_REVIEW is deliberate abstention when uncertainty crosses one or more release boundaries",
-    "ESCALATE when hard gate FAIL, or complete safety interval below boundary, or diagnosis_stability < 0.5",
-    "upstream_evidence_summary.c2.affected_features_ranked matches C2 output field name affected_features_ranked",
-    "C4 does not use a hand-weighted composite risk score as its primary decision mechanism",
-    "Evidence-adaptive risk context and policy parameters must be calibrated using development data only",
-    "AUTO_DEPLOY authorizes controlled staging rollout, not direct production replacement",
-    "Every decision must be traceable to champion model, candidate model, all upstream evidence, and policy version"
-  ]
+  "notes": ["Future safety margins are signed values and are NOT restricted to 0.0-1.0 range", "A future safety margin >= 0 indicates satisfaction of its corresponding future requirement", "AUTO_DEPLOY requires all hard gates PASS and all lower interval bounds satisfy calibrated release requirements", "HUMAN_REVIEW is deliberate abstention when uncertainty crosses one or more release boundaries", "ESCALATE when hard gate FAIL, or complete safety interval below boundary, or diagnosis_stability < 0.5", "upstream_evidence_summary.c2.affected_features_ranked matches C2 output field name affected_features_ranked", "C4 does not use a hand-weighted composite risk score as its primary decision mechanism", "Evidence-adaptive risk context and policy parameters must be calibrated using development data only", "AUTO_DEPLOY authorizes controlled staging rollout, not direct production replacement", "Every decision must be traceable to champion model, candidate model, all upstream evidence, and policy version", "v1.1 (24 Oct 2026, proposed by Kesigan, agreed by Sajivan): nullable unavailable measurements with an explicit evaluation_status, instead of zero or example forecasts. Fields marked nullable may be null; all others must always be filled. The platform validator checks top-level fields and nullability; values inside nested objects are checked by C4 itself."]
 }

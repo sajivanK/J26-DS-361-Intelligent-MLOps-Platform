@@ -157,3 +157,18 @@ Wednesday:        C2 + C3 connection and test
 Thursday:         C2 + C4 and C3 + C4 connections
 Friday:           Full pipeline C1 -> C2 -> C3 -> C4 demo
 ```
+
+---
+
+## C4 Contract v1.1 (24 October 2026)
+
+Proposed by Kesigan, agreed by Sajivan. Consumer: the platform (and the C4 page).
+
+| Change | Why |
+|---|---|
+| New required field `evaluation_status`: `EVALUATED`, `FORECAST_UNAVAILABLE`, `UPSTREAM_GATE_FAILED` | Says what C4 actually evaluated. When C3 rejects, privacy fails, the generator is `NONE` or diagnosis_stability < 0.5, C4 does not train a candidate or forecast, and the decision is ESCALATE |
+| `candidate_model_id`, `forecast_model_version`, `conformal_config_version`, `mlflow_run_id` may be `null` | Null when not created or executed, instead of placeholder ids |
+| Values inside `future_safety_margins`, `future_safety_intervals`, `pre_release_evidence` may be `null` | Unmeasured values are null, never zeros or example forecasts |
+| `hard_gate_status.schema_compatible`, `candidate_artifact_valid`, `rollback_ready` may be `null` | Runtime gates that were not checked stay null; `overall` is `FAIL` when an upstream gate failed |
+
+The platform validator (`webapp/backend/app/contracts.py`) now accepts `null` only for fields marked `"nullable": true`. It checks top-level fields; values inside nested objects are checked by C4 itself. Example: `example_outputs.upstream_gate_failed` in `c4_output_schema.json`.
