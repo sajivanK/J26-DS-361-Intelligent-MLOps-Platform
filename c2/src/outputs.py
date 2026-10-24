@@ -177,11 +177,21 @@ class C2DiagnosisEngine:
         problems = validate_output(c1_output, C1_SCHEMA, allow_extra=True)
         return ("malformed" if problems else "ok"), problems
 
-    def diagnose(self, cur_df, c1_output=None, c1_trusted=True):
+    def observe(self, cur_df):
+        """Monitoring only (every batch): one temporal SHAP cycle, no diagnosis. Light: one
+        SHAP pass on the monitoring sample. Returns the temporal result (z per feature,
+        alarm, persistent features), which diagnose() can reuse for the same batch."""
+        if self.scorer.base is None:
+            raise RuntimeError("call warmup(clean_batches) before observe()")
+        return self.monitor.update(self._unlabelled(cur_df))
+
+    def diagnose(self, cur_df, c1_output=None, c1_trusted=True, shap_result=None):
         """
         One monitoring cycle on a production batch (no labels). c1_trusted=False marks
         C1 output that is not a real prediction (the team's fake C1 copies the answer
         key): its hints are still checked and used, its predicted harm is not.
+        shap_result: the batch was already observed by the monitor; reuse that temporal
+        result so the batch is not counted twice.
         """
         if self.scorer.base is None:
             raise RuntimeError("call warmup(clean_batches) before diagnose()")
@@ -192,7 +202,7 @@ class C2DiagnosisEngine:
         c1_used = c1_output if c1_status == "ok" else {}
         warnings_ = ([f"C1 input {c1_status}: diagnosing from C2 evidence only"]
                      + c1_problems if c1_status != "ok" else [])
-        shap_r = self.monitor.update(cur_df)
+        shap_r = shap_result if shap_result is not None else self.monitor.update(cur_df)
         dis = self.scorer.score(cur_df, shap_r, c1_used if c1_trusted else None)
         ranked = list(dis["drift_impact_scores"])
         root = ranked[0]
