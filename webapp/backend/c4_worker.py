@@ -93,3 +93,30 @@ def pipeline_evaluate(upstream: dict):
             status_code=500,
             detail="C4 live evaluation failed. Inspect the worker log.",
         ) from exc
+
+@app.post("/api/c4/sandbox/evaluate")
+def sandbox_evaluate(upstream: dict):
+    from app.components.c4_pipeline_service import (
+        PipelineInputError, PipelineUnavailable,
+    )
+    from app.components.c4_sandbox_service import evaluate_sandbox
+
+    try:
+        return evaluate_sandbox(upstream)
+    except PipelineInputError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    except (PipelineUnavailable, FileNotFoundError) as exc:
+        log.exception("C4 sandbox prerequisites unavailable")
+        raise HTTPException(
+            503, "Sandbox prerequisites unavailable. Inspect worker logs."
+        ) from exc
+    except ValueError as exc:
+        log.exception("C4 sandbox input or artifact validation failed")
+        raise HTTPException(
+            422, "Sandbox validation failed. Inspect worker logs."
+        ) from exc
+    except Exception as exc:
+        log.exception("C4 sandbox evaluation failed")
+        raise HTTPException(
+            500, "Sandbox evaluation failed. Inspect worker logs."
+        ) from exc

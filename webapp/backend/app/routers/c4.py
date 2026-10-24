@@ -60,3 +60,7 @@ class RevisedCaseRequest(BaseModel):
 @router.post("/release/revised/evaluate")
 def revised_evaluate(request: RevisedCaseRequest):
     return call(service.revised_evaluate, request.case_id, request.method, request.family)
+
+@router.post("/sandbox/evaluate")
+def sandbox_evaluate(upstream: dict):
+    return call(service._request, "/api/c4/sandbox/evaluate", upstream)

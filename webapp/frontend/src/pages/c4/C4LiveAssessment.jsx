@@ -1,3 +1,4 @@
+import C4SandboxPanel from "./C4SandboxPanel.jsx";
 import {useEffect, useRef, useState} from "react";
 import {Link} from "react-router-dom";
 import "./C4LiveAssessment.css";
@@ -208,13 +209,14 @@ export default function C4LiveAssessment({health}) {
 
   return (
     <div className="c4live">
+
       <section className="c4-card c4live-intro">
         <div className="c4-between">
           <div>
-            <h2>Integrated Adult assessments</h2>
+            <h2>Upstream availability and pipeline runs</h2>
             <p>
               Actual C1 → C2 → C3 → C4 results saved by the platform.
-              Opening a run does not retrain or reevaluate its candidate.
+              Select a run, then click Evaluate C4 for a fresh experimental assessment.
             </p>
           </div>
           <Link className="btn primary" to="/lab">Run a new pipeline</Link>
@@ -279,6 +281,8 @@ export default function C4LiveAssessment({health}) {
         )}
       </section>
 
+      <C4SandboxPanel record={record} />
+
       {record && (
         <section className="c4-card">
           <div className="c4-between">
@@ -307,10 +311,7 @@ export default function C4LiveAssessment({health}) {
               </span>
             ))}
           </div>
-          <p className="small muted">
-            Real component execution on a Drift Lab batch. The batch contains
-            injected drift; this is not evidence of a production deployment.
-          </p>
+
         </section>
       )}
 
@@ -329,6 +330,15 @@ export default function C4LiveAssessment({health}) {
 
       {record && genuineC4 && (
         <>
+          <details
+            key={`original-assessment-${selected}`}
+            className="c4-card"
+          >
+            <summary>Original saved pipeline assessment</summary>
+            <p className="small muted">
+              Historical pipeline result. The fresh experimental assessment
+              above is computed separately when you click Evaluate C4.
+            </p>
           <section className={`c4live-verdict ${decisionClass}`}>
             <div className="c4-between">
               <h2>{result.decision.replaceAll("_", " ")}</h2>
@@ -338,6 +348,7 @@ export default function C4LiveAssessment({health}) {
             <p>{result.reason}</p>
             <p><strong>Required action:</strong> {result.required_action}</p>
           </section>
+          </details>
 
           <section className="c4-card">
             <h2>Candidate and assessment identity</h2>
@@ -413,6 +424,11 @@ export default function C4LiveAssessment({health}) {
             </p>
           </section>
 
+          <details
+            key={`original-forecast-${selected}`}
+            className="c4-card"
+          >
+            <summary>Original pipeline forecasting status</summary>
           <section className="c4-card c4live-future">
             <h2>Future forecasting status</h2>
             <p>
@@ -431,6 +447,7 @@ export default function C4LiveAssessment({health}) {
               or zero performance change. No deployment is executed by this viewer.
             </p>
           </section>
+          </details>
         </>
       )}
     </div>
