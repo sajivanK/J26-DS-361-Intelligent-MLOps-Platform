@@ -1,3 +1,4 @@
+import C4LiveAssessment from "./C4LiveAssessment.jsx";
 import {useState,useRef} from "react";
 import {Link} from "react-router-dom";
 import {api,c4Api} from "../../api.js";
@@ -120,24 +121,7 @@ function History({history,onOpen,onClose,busy}){
  </section>;
 }
 function Integration({health}){
- const components=Array.isArray(health.data?.components)?health.data.components:[];
- return <>
-  <section className="c4-card">
-   <div className="c4-between"><h2>Pipeline readiness</h2><button className="btn" type="button" disabled={health.loading} onClick={health.reload}>Refresh status</button></div>
-   <ErrorBox error={c4ErrorMessage(health.error)}/>
-   <p className="small muted">Backend-reported availability. Loaded does not establish a successful end-to-end run.</p>
-   <div className="c4-stage-grid">{["c1","c2","c3","c4"].map(name=>{
-    const c=components.find(x=>x.name===name),ready=c?.loaded===true&&c?.source==="real";
-    return <article key={name}><div className="c4-between"><h3>{name.toUpperCase()}</h3><span className={`c4-status ${ready?"c4-safe":"c4-uncertain"}`}>{!c?"UNKNOWN":ready?"REAL · LOADED":c.loaded?"PLACEHOLDER":"UNAVAILABLE"}</span></div><p>{c?.title||"Waiting for status"}</p>{c?.datasets&&<p className="small muted">Datasets: {value(c.datasets)}</p>}{(c?.error||c?.engine_error)&&<p className="small c4-wrap">{value(c.error||c.engine_error)}</p>}</article>;
-   })}</div>
-  </section>
-  <section className="c4-card"><h2>Repair packages awaiting C4</h2>
-   <div className="c4-note"><strong>Live C4 handoff is not connected in this UI.</strong><p>No package queue or new-case endpoint is assumed. Recorded replay never substitutes for live evaluation.</p></div>
-   <p className="muted">Inspect existing upstream runs. Live evaluation requires the implemented C3 package adapter, model/data bindings and supported controller execution.</p>
-   <div className="c4-actions"><Link className="btn" to="/runs">Open run history</Link><Link className="btn" to="/c3">Open C3 repair</Link><button className="btn primary" type="button" disabled>Evaluate live package · unavailable</button></div>
-   <p className="small muted">The separate C4 page/worker and shared pipeline placeholder have different availability. Production deployment is not connected.</p>
-  </section>
- </>;
+ return <C4LiveAssessment health={health}/>;
 }
 function Assessment({payload:p}){
  const [section,setSection]=useState("overview");
