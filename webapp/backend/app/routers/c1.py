@@ -3,6 +3,7 @@ from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile
 
 from .. import contracts, runs
 from ..components import C1
+from ..components.c1_research import research
 from ..uploads import read_batch
 
 router = APIRouter(prefix="/api/c1", tags=["C1 Drift Detection"])
@@ -16,6 +17,17 @@ def engine_info(dataset: str = "uci"):
     except KeyError as e:
         raise HTTPException(404, str(e))
     except RuntimeError as e:
+        raise HTTPException(503, str(e))
+
+
+@router.get("/research")
+def research_evidence(dataset: str = "uci"):
+    """Research evidence for the C1 page: N1 / N2 / N3 and the fresh test, read from c1/results/*.json."""
+    try:
+        return research(dataset)
+    except KeyError as e:
+        raise HTTPException(404, str(e))
+    except FileNotFoundError as e:
         raise HTTPException(503, str(e))
 
 
