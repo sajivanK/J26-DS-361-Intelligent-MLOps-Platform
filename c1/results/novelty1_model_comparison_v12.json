@@ -1,0 +1,250 @@
+{
+  "protocol": {
+    "repeats": 10,
+    "folds": 5,
+    "cv": "StratifiedGroupKFold by drift_type, one group per condition",
+    "inputs": [
+      "ks_mean",
+      "ks_max",
+      "chi2_mean",
+      "chi2_max",
+      "psi_mean",
+      "psi_max",
+      "mmd",
+      "lsdd",
+      "clf_auc",
+      "conf_mean",
+      "conf_std",
+      "conf_pct_lt_06",
+      "mean_pos_prob",
+      "pos_prob_std",
+      "pct_pos_prob_lt_06",
+      "batch_size"
+    ],
+    "tuned": false,
+    "models": {
+      "GBR (N1)": "n_estimators 200, max_depth 4, lr 0.05, subsample 0.8, min_samples_leaf 5",
+      "Ridge": "StandardScaler + Ridge(alpha 1.0)",
+      "RandomForest": "n_estimators 300, min_samples_leaf 5",
+      "LightGBM": "n_estimators 200, lr 0.05, num_leaves 15, min_child_samples 20, subsample 0.8"
+    }
+  },
+  "benchmarks": {
+    "uci": "benchmark_uci_adult_v12.csv",
+    "ieee": "benchmark_ieee_cis_v12.csv"
+  },
+  "results": {
+    "uci": {
+      "fixed": [
+        {
+          "model": "GBR (N1)",
+          "MAE": 0.903,
+          "sd": 0.01,
+          "RMSE": 1.347,
+          "R2": 0.927,
+          "minus GBR": 0.0,
+          "GBR better (of 10)": NaN,
+          "fit time (s, all folds)": 194.5
+        },
+        {
+          "model": "RandomForest",
+          "MAE": 0.951,
+          "sd": 0.011,
+          "RMSE": 1.709,
+          "R2": 0.882,
+          "minus GBR": 0.048,
+          "GBR better (of 10)": 10.0,
+          "fit time (s, all folds)": 86.4
+        },
+        {
+          "model": "LightGBM",
+          "MAE": 1.096,
+          "sd": 0.019,
+          "RMSE": 2.142,
+          "R2": 0.814,
+          "minus GBR": 0.193,
+          "GBR better (of 10)": 10.0,
+          "fit time (s, all folds)": 8.0
+        },
+        {
+          "model": "Ridge",
+          "MAE": 1.173,
+          "sd": 0.006,
+          "RMSE": 1.695,
+          "R2": 0.884,
+          "minus GBR": 0.269,
+          "GBR better (of 10)": 10.0,
+          "fit time (s, all folds)": 0.3
+        },
+        {
+          "model": "constant",
+          "MAE": 2.138,
+          "sd": 0.004,
+          "RMSE": 4.988,
+          "R2": -0.003,
+          "minus GBR": 1.235,
+          "GBR better (of 10)": 10.0,
+          "fit time (s, all folds)": NaN
+        }
+      ],
+      "paired": [
+        {
+          "model": "GBR (N1)",
+          "MAE": 0.657,
+          "sd": 0.01,
+          "RMSE": 1.115,
+          "R2": 0.948,
+          "minus GBR": 0.0,
+          "GBR better (of 10)": NaN,
+          "fit time (s, all folds)": 194.5
+        },
+        {
+          "model": "RandomForest",
+          "MAE": 0.691,
+          "sd": 0.015,
+          "RMSE": 1.543,
+          "R2": 0.901,
+          "minus GBR": 0.034,
+          "GBR better (of 10)": 10.0,
+          "fit time (s, all folds)": 86.4
+        },
+        {
+          "model": "LightGBM",
+          "MAE": 0.847,
+          "sd": 0.022,
+          "RMSE": 2.002,
+          "R2": 0.833,
+          "minus GBR": 0.19,
+          "GBR better (of 10)": 10.0,
+          "fit time (s, all folds)": 8.0
+        },
+        {
+          "model": "Ridge",
+          "MAE": 0.959,
+          "sd": 0.006,
+          "RMSE": 1.488,
+          "R2": 0.908,
+          "minus GBR": 0.303,
+          "GBR better (of 10)": 10.0,
+          "fit time (s, all folds)": 0.3
+        },
+        {
+          "model": "constant",
+          "MAE": 2.052,
+          "sd": 0.004,
+          "RMSE": 4.909,
+          "R2": -0.003,
+          "minus GBR": 1.395,
+          "GBR better (of 10)": 10.0,
+          "fit time (s, all folds)": NaN
+        }
+      ]
+    },
+    "ieee": {
+      "fixed": [
+        {
+          "model": "Ridge",
+          "MAE": 0.982,
+          "sd": 0.003,
+          "RMSE": 1.292,
+          "R2": 0.595,
+          "minus GBR": -0.028,
+          "GBR better (of 10)": 0.0,
+          "fit time (s, all folds)": 0.3
+        },
+        {
+          "model": "RandomForest",
+          "MAE": 1.0,
+          "sd": 0.007,
+          "RMSE": 1.333,
+          "R2": 0.569,
+          "minus GBR": -0.011,
+          "GBR better (of 10)": 1.0,
+          "fit time (s, all folds)": 84.1
+        },
+        {
+          "model": "GBR (N1)",
+          "MAE": 1.01,
+          "sd": 0.008,
+          "RMSE": 1.346,
+          "R2": 0.561,
+          "minus GBR": 0.0,
+          "GBR better (of 10)": NaN,
+          "fit time (s, all folds)": 195.3
+        },
+        {
+          "model": "LightGBM",
+          "MAE": 1.019,
+          "sd": 0.009,
+          "RMSE": 1.352,
+          "R2": 0.557,
+          "minus GBR": 0.009,
+          "GBR better (of 10)": 8.0,
+          "fit time (s, all folds)": 7.7
+        },
+        {
+          "model": "constant",
+          "MAE": 1.369,
+          "sd": 0.001,
+          "RMSE": 2.033,
+          "R2": -0.002,
+          "minus GBR": 0.359,
+          "GBR better (of 10)": 10.0,
+          "fit time (s, all folds)": NaN
+        }
+      ],
+      "paired": [
+        {
+          "model": "GBR (N1)",
+          "MAE": 0.354,
+          "sd": 0.004,
+          "RMSE": 0.684,
+          "R2": 0.837,
+          "minus GBR": 0.0,
+          "GBR better (of 10)": NaN,
+          "fit time (s, all folds)": 195.3
+        },
+        {
+          "model": "RandomForest",
+          "MAE": 0.359,
+          "sd": 0.005,
+          "RMSE": 0.701,
+          "R2": 0.829,
+          "minus GBR": 0.006,
+          "GBR better (of 10)": 8.0,
+          "fit time (s, all folds)": 84.1
+        },
+        {
+          "model": "LightGBM",
+          "MAE": 0.365,
+          "sd": 0.006,
+          "RMSE": 0.697,
+          "R2": 0.831,
+          "minus GBR": 0.012,
+          "GBR better (of 10)": 9.0,
+          "fit time (s, all folds)": 7.7
+        },
+        {
+          "model": "Ridge",
+          "MAE": 0.496,
+          "sd": 0.005,
+          "RMSE": 0.751,
+          "R2": 0.804,
+          "minus GBR": 0.142,
+          "GBR better (of 10)": 10.0,
+          "fit time (s, all folds)": 0.3
+        },
+        {
+          "model": "constant",
+          "MAE": 1.008,
+          "sd": 0.001,
+          "RMSE": 1.698,
+          "R2": -0.002,
+          "minus GBR": 0.655,
+          "GBR better (of 10)": 10.0,
+          "fit time (s, all folds)": NaN
+        }
+      ]
+    }
+  }
+}
