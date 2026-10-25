@@ -53,6 +53,7 @@ export const api = {
   // C1
   c1EngineInfo: (dataset) => get(`/api/c1/engine-info?dataset=${encodeURIComponent(dataset)}`),
   c1Detect: (dataset, file) => postForm("/api/c1/detect", { dataset, file }),
+  c1Research: (dataset) => get(`/api/c1/research?dataset=${encodeURIComponent(dataset)}`),
   // C3 (Mathusan K)
   c3Info: () => get("/api/c3/info"),
   c3Runs: () => get("/api/c3/runs"),

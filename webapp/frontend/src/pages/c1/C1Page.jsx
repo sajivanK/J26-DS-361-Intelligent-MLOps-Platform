@@ -9,12 +9,14 @@ import { Icon } from "../../layout/icons.jsx";
 import { Empty, ErrorBox, FeatureTags, KV, PageHeader, Verdict } from "../../ui/parts.jsx";
 import { IconChip, Spark } from "../../ui/viz.jsx";
 import { ConfusionMatrix, CoverageBars, ErrorBars, HistoryChart } from "./C1Charts.jsx";
+import C1Research from "./C1Research.jsx";
 import "./C1Page.css";
 
 const pct = (v) => `${(v * 100).toFixed(1).replace(/\.0$/, "")}%`;
 
 export default function C1Page() {
   const [ds, setDs] = useState("uci");
+  const [tab, setTab] = useSession("c1:tab", "live");
   const [file, setFile] = useState(null);
   const fileRef = useRef(null);
   const [runs, setRuns] = useSession(`c1:${ds}`, []);
@@ -43,12 +45,14 @@ export default function C1Page() {
         <option value="uci">UCI Adult (income, XGBoost)</option>
         <option value="ieee">IEEE-CIS Fraud (LightGBM)</option>
       </select>
-      <label className="btn c1-up" title="CSV with the model's features; a target column is removed">
-        <Icon name="upload" size={17} className="" />{file ? file.name.slice(0, 22) : "Upload CSV"}
-        <input ref={fileRef} type="file" accept=".csv,text/csv" className="sr" onChange={(e) => setFile(e.target.files[0] || null)} />
-      </label>
-      <button className={`btn primary ${busy ? "busy" : ""}`} type="button" disabled={!file || busy} onClick={run}>
-        <Icon name="play" size={13} className="" />{busy ? "Detecting…" : "Run C1"}</button>
+      <>
+        <label className="btn c1-up" title="CSV with the model's features; a target column is removed">
+          <Icon name="upload" size={17} className="" />{file ? file.name.slice(0, 22) : "Upload CSV"}
+          <input ref={fileRef} type="file" accept=".csv,text/csv" className="sr" onChange={(e) => setFile(e.target.files[0] || null)} />
+        </label>
+        <button className={`btn primary ${busy ? "busy" : ""}`} type="button" disabled={!file || busy} onClick={run}>
+          <Icon name="play" size={13} className="" />{busy ? "Detecting…" : "Run C1"}</button>
+      </>
     </div>
   );
 
@@ -56,7 +60,14 @@ export default function C1Page() {
     <>
       <PageHeader eyebrow={`C1 Drift Detection › Sajivan K › ${dsLabel}`} title="C1 Drift Detection"
         subtitle="Most drift alarms are harmless. C1 tells you which ones are not, without labels."
-        chip={info.data ? `engine ${info.data.engine_version} · contract v1.1` : "contract v1.1"} right={controls} />
+        chip={info.data ? `engine ${info.data.engine_version} · contract v1.1` : "contract v1.1"} right={<div className="c1-right">
+          <div className="c1-tabs" role="tablist" aria-label="C1 views">
+            <button type="button" role="tab" aria-selected={tab === "live"} onClick={() => setTab("live")}>Live detection</button>
+            <button type="button" role="tab" aria-selected={tab === "research"} onClick={() => setTab("research")}>Research evidence</button>
+          </div>
+          {tab === "live" && controls}
+        </div>} />
+      {tab === "research" ? <C1Research ds={ds} setDs={setDs} /> : (<>
       <ErrorBox error={error} />
 
       <section className="stack" style={{ gap: 14 }} aria-live="polite">
@@ -78,6 +89,7 @@ export default function C1Page() {
       {info.error && <ErrorBox error={info.error} />}
       {info.data?.recorded && <Proof ds={ds} rec={info.data.recorded} cur={cur} />}
       {info.data && <ModelEngine info={info.data} out={cur?.out} />}
+      </>)}
     </>
   );
 }
