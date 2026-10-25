@@ -1,19 +1,85 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../api.js";
 import { ErrorBox } from "../../ui/parts.jsx";
 import "./C3Page.css";
 
-const STAGES = ["Input Validation", "Repair Readiness", "Slice Extraction", "Generator Prescription", "Repair Quantity Calculation", "Generator Training", "Synthetic Data Generation", "Structural Validation", "Target Coverage Validation", "Fidelity Validation", "Privacy Validation", "Utility Evaluation", "Final Decision", "C4 Package Preparation"];
-const fmt = (v, digits = 3) => typeof v === "number" && Number.isFinite(v) ? v.toFixed(digits) : "—";
-const text = (v) => v === undefined || v === null || v === "" ? "—" : typeof v === "object" ? JSON.stringify(v) : String(v);
-const pp = (v) => typeof v === "number" ? `${v >= 0 ? "+" : ""}${(v * 100).toFixed(2)} pp` : "—";
+const STAGES = [
+  ["Input validation", "Check the C1, C2 and data contract"],
+  ["Repair readiness", "Confirm labels, stability and model access"],
+  ["Slice extraction", "Separate adaptation and evaluation rows"],
+  ["Strategy selection", "Choose the repair generator"],
+  ["Repair quantity", "Calculate the requested repair size"],
+  ["Generator training", "Train on the diagnosed slice"],
+  ["Candidate generation", "Create the bounded candidate pool"],
+  ["Structure check", "Verify schema and valid values"],
+  ["Target coverage", "Check the diagnosed slice coverage"],
+  ["Fidelity check", "Compare real and generated distributions"],
+  ["Privacy check", "Reject copies and close records"],
+  ["Utility evaluation", "Compare candidate, baseline and control"],
+  ["Final decision", "Approve, reject, block or abstain"],
+  ["C4 handoff", "Prepare the reviewed repair package"],
+];
+
+const fmt = (value, digits = 3) => typeof value === "number" && Number.isFinite(value) ? value.toFixed(digits) : "-";
+const pp = (value) => typeof value === "number" && Number.isFinite(value) ? `${value >= 0 ? "+" : ""}${(value * 100).toFixed(2)} pp` : "-";
+const shortId = (value) => value ? String(value).replace(/^c3-/, "").slice(0, 12) : "-";
+const words = (value) => value ? String(value).replaceAll("_", " ") : "Not available";
+const list = (value) => Array.isArray(value) ? value.join(", ") : value || "-";
+const clock = (value) => value ? new Date(value).toLocaleString() : "-";
+
 function Badge({ value }) {
-  const good = ["PASS", "Completed", "APPROVED", "APPROVED_FOR_REVIEW"].includes(value);
-  return <span className={`c3-badge-pill ${good ? "green" : "amber"}`}>{value || "NOT EVALUATED"}</span>;
+  const normalized = String(value || "NOT STARTED").toUpperCase();
+  const tone = ["PASS", "COMPLETED", "APPROVED", "APPROVED_FOR_REVIEW", "READY"].includes(normalized) ? "green"
+    : ["FAILED", "FAIL", "REJECTED", "BLOCKED", "BACKEND ERROR", "MISSING ARTIFACTS"].includes(normalized) ? "red"
+      : ["RUNNING", "GENERATING", "EVALUATING"].includes(normalized) ? "blue" : "amber";
+  return <span className={`c3-badge-pill ${tone}`}>{words(value || "Not started")}</span>;
 }
-function Fields({ values }) {
-  return <dl className="c3-facts">{values.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{text(value)}</dd></div>)}</dl>;
+
+function Facts({ values, compact = false }) {
+  const visible = values.filter(([, value]) => value !== undefined && value !== null && value !== "");
+  return <dl className={`c3-facts${compact ? " compact" : ""}`}>{visible.map(([label, value]) => (
+    <div key={label}><dt>{label}</dt><dd>{Array.isArray(value) ? list(value) : String(value)}</dd></div>
+  ))}</dl>;
+}
+
+function stageFacts(index, detail, { c2, context, output, validation, utility, config, c4Source }) {
+  const info = detail && typeof detail === "object" ? detail : {};
+  const measuredUtility = info.utility || info;
+  const fidelity = validation?.fidelity_report;
+  const privacy = validation?.privacy_report;
+  const rows = {
+    0: [["Contract", "Validated"]],
+    1: [["Labels", context?.label_status], ["Stability", fmt(c2?.diagnosis_stability)]],
+    2: [["Affected", info.affected_rows], ["Adaptation", info.adaptation_rows], ["Evaluation", info.evaluation_rows]],
+    3: [["Generator", info.generator || output?.generator], ["Selection", info.selection || config?.selection_mode]],
+    4: [["Requested", info.requested_rows], ["Ratio", info.augmentation_ratio], ["Maximum", info.max_rows]],
+    5: [["Generator", info.executed_generator || info.generator], ["Training rows", info.training_rows], ["Fit time", info.fit_duration_seconds != null ? `${fmt(info.fit_duration_seconds, 1)}s` : null]],
+    6: [["Generated", info.num_produced_samples || info.generated_rows || output?.provenance?.generated_rows]],
+    7: [["Schema", validation?.structure?.passed === true ? "Valid" : validation?.structure?.passed === false ? "Invalid" : null]],
+    8: [["Coverage", fmt(info.coverage ?? validation?.target_coverage)], ["Minimum", fmt(info.minimum)]],
+    9: [["Result", fidelity?.status], ["Mean KS", fmt(fidelity?.metrics?.continuous_metrics_summary?.mean_ks_statistic)]],
+    10: [["Result", privacy?.status], ["DCR p05", fmt(privacy?.metrics?.dcr_metrics?.dcr_p05)], ["Exact copies", privacy?.metrics?.exact_matches?.exact_match_count]],
+    11: [["Gain", pp(measuredUtility.utility_gain ?? utility?.utility_gain)], ["Candidate", fmt(measuredUtility.candidate_score ?? utility?.candidate_score)], ["Baseline", fmt(measuredUtility.baseline_score ?? utility?.baseline_score)]],
+    12: [["Decision", typeof detail === "string" ? words(detail) : words(output?.execution_status || output?.repair_package_status)]],
+    13: [["Package", output?.repair_package_status], ["C4 adapter", c4Source]],
+  };
+  return (rows[index] || []).filter(([, value]) => value !== undefined && value !== null && value !== "-");
+}
+
+function StageCard({ index, event, contextData }) {
+  const [name, description] = STAGES[index];
+  const status = event?.status || "Waiting";
+  const facts = stageFacts(index, event?.detail, contextData);
+  return <article className={`c3-stage-card ${String(status).toLowerCase()}`}>
+    <div className="c3-stage-top">
+      <span className="c3-stage-number">{index + 1}</span>
+      <div className="c3-stage-heading"><h4>{name}</h4><p>{description}</p></div>
+      <Badge value={status} />
+    </div>
+    {facts.length > 0 && <div className="c3-stage-metrics">{facts.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}</div>}
+    {status === "Running" && <div className="c3-stage-live"><span /> Processing current stage</div>}
+  </article>;
 }
 
 export default function C3Page() {
@@ -24,13 +90,15 @@ export default function C3Page() {
   const [payload, setPayload] = useState("");
   const [standalone, setStandalone] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
   useEffect(() => {
     let alive = true, timer;
     const refresh = async () => {
       try {
         const [pipeline, repairs, info, registry] = await Promise.all([api.latestRun(), api.c3Runs(), api.c3Info(), api.c3Models()]);
-        if (alive) { setData({ pipeline, repairs, info, registry }); setError(null); setChecked(new Date().toISOString()); }
-      } catch (e) { if (alive) setError(e.message); }
+        if (alive) { setData({ pipeline, repairs, info, registry }); setError(null); setChecked(new Date()); }
+      } catch (requestError) { if (alive) setError(requestError.message); }
       if (alive) timer = setTimeout(refresh, 3000);
     };
     refresh();
@@ -38,12 +106,11 @@ export default function C3Page() {
   }, []);
 
   const pipe = data.pipeline;
-  const selected = selection ? data.repairs.find(r => r.run_id === selection) : null;
-  const active = pipe?.run_id ? data.repairs.find(r => r.progress?.pipeline_run_id === pipe.run_id || r.result?.pipeline_run_id === pipe.run_id) : null;
+  const selected = selection ? data.repairs.find((repair) => repair.run_id === selection) : null;
+  const active = pipe?.run_id ? data.repairs.find((repair) => repair.progress?.pipeline_run_id === pipe.run_id || repair.result?.pipeline_run_id === pipe.run_id) : null;
   const record = selected || (!selection ? active : null);
-  // Always bind evidence, output and preview to one run. A newer clean run has no older C3 output.
   const output = selection ? selected?.result : standalone || pipe?.outputs?.c3 || record?.result;
-  const progress = selection ? selected?.progress : standalone ? data.repairs.find(r => r.run_id === standalone.run_id)?.progress : record?.progress;
+  const progress = selection ? selected?.progress : standalone ? data.repairs.find((repair) => repair.run_id === standalone.run_id)?.progress : record?.progress;
   const provenance = output?.provenance || {};
   const context = output ? provenance.data_context || (selection ? {} : pipe?.context) || {} : pipe?.context || {};
   const c1 = output?.upstream_evidence?.c1 || (!selection && !standalone ? pipe?.outputs?.c1 : null);
@@ -56,54 +123,116 @@ export default function C3Page() {
   const config = provenance.generator_configuration || {};
   const approved = output?.repair_package_status === "APPROVED";
   const authentic = output?.repair_strategy === "AUTHENTIC_WEIGHTED_ADAPTATION";
-  const status = output?.execution_status || output?.status || output?.repair_package_status || progress?.status || (!selection ? pipe?.status : null) || "NO RUNS AVAILABLE";
-  const columns = output?.preview_columns || [];
-  const rows = output?.preview_rows || [];
+  const status = output?.execution_status || output?.status || output?.repair_package_status || progress?.status || (!selection ? pipe?.status : null) || "Not started";
   const c4Source = !selection && !standalone ? pipe?.component_sources?.c4 : data.info?.upstream_sources?.c4;
-  const sourceNote = !selection && !standalone ? `C1: ${pipe?.component_sources?.c1 || "not run"}; C2: ${pipe?.component_sources?.c2 || "not run"}` : "Evidence saved with this repair";
+  const events = progress?.stages || [];
+  const lastStarted = events.reduce((last, event, index) => event?.status && event.status !== "Waiting" ? index : last, -1);
+  const visibleStageCount = output ? STAGES.length : Math.min(STAGES.length, Math.max(1, lastStarted + 2));
+  const completedStages = events.filter((event) => event?.status === "Completed").length;
+  const progressPercent = output ? 100 : Math.round((completedStages / STAGES.length) * 100);
+  const reasons = (output?.reason || progress?.reason || "").split(";").map((reason) => reason.trim()).filter(Boolean);
+  const stageContext = useMemo(() => ({ c2, context, output, validation, utility, config, c4Source }), [c2, context, output, validation, utility, config, c4Source]);
 
-  async function runStandalone(e) {
-    e.preventDefault(); setBusy(true); setError(null);
+  async function runStandalone(event) {
+    event.preventDefault(); setBusy(true); setError(null);
     try { const result = await api.c3IntegratedRepair(JSON.parse(payload)); setStandalone(result); setSelection(""); }
-    catch (e) { setError(e.message); }
+    catch (requestError) { setError(requestError.message); }
     finally { setBusy(false); }
   }
 
   return <div className="c3-dashboard">
-    <div className="c3-header-row"><div className="c3-header-titles"><h1>C3 Adaptive Data Repair</h1><p>Validated synthetic or authentic adaptation for the exact monitored model, batch and diagnosed slice.</p></div><Badge value={error ? "BACKEND ERROR" : status} /></div>
+    <header className="c3-hero">
+      <div><span className="c3-eyebrow">Component 3 / Repair engine</span><h1>Adaptive Data Repair</h1><p>Follow the repair decision from diagnosed drift to a validated C4 handoff.</p></div>
+      <div className="c3-hero-status"><span>Current decision</span><Badge value={error ? "BACKEND ERROR" : status} /></div>
+    </header>
+
     {error && <ErrorBox error={error} />}
-    <div className="c3-header-meta">
-      <label>View run <select aria-label="Repair run" value={selection} onChange={e => { setSelection(e.target.value); setStandalone(null); }}><option value="">Latest pipeline</option>{data.repairs.map(r => <option key={r.run_id} value={r.run_id}>{r.run_id} · {r.progress?.status || r.result?.execution_status}</option>)}</select></label>
-      <Link className="btn" to="/lab">Open Drift Lab</Link>
-      <button className="btn" onClick={() => { setSelection(""); setStandalone(null); }}>Follow latest pipeline</button>
-      <span className="small muted">Backend checked: {checked || "Connecting…"}</span>
-    </div>
-    <div className="c3-card"><Fields values={[["Model", output?.model_id || context.model_id || progress?.model_id], ["Dataset", output?.dataset_id || context.dataset_id || progress?.dataset_id], ["Batch", output?.batch_id || context.batch_id || progress?.batch_id], ["Pipeline run", output?.pipeline_run_id || progress?.pipeline_run_id || (!selection ? pipe?.run_id : null)], ["Repair run", output?.run_id || progress?.run_id], ["Result timestamp", output?.repair_timestamp || progress?.updated_at]]} /></div>
-    {!pipe && !output && !progress && <div className="empty">No runs available. Run the full pipeline in Drift Lab or supply a standalone contract below.</div>}
-    {pipe?.stopped_reason && !selection && !standalone && <div className="c3-card">Pipeline: {pipe.stopped_reason}</div>}
+
+    <section className="c3-toolbar" aria-label="Repair run controls">
+      <label><span>Repair run</span><select aria-label="Repair run" value={selection} onChange={(event) => { setSelection(event.target.value); setStandalone(null); }}><option value="">Latest pipeline</option>{data.repairs.map((repair) => <option key={repair.run_id} value={repair.run_id}>{shortId(repair.run_id)} / {words(repair.progress?.status || repair.result?.execution_status)}</option>)}</select></label>
+      <div className="c3-toolbar-actions"><Link className="btn" to="/lab">Open Drift Lab</Link><button className="btn" onClick={() => { setSelection(""); setStandalone(null); }}>Follow latest</button></div>
+      <span className="c3-sync"><i /> Updated {checked ? checked.toLocaleTimeString() : "connecting"}</span>
+    </section>
+
+    <section className="c3-context-strip">
+      <div><span>Model</span><strong>{output?.model_id || context.model_id || progress?.model_id || "-"}</strong></div>
+      <div><span>Dataset</span><strong>{output?.dataset_id || context.dataset_id || progress?.dataset_id || "-"}</strong></div>
+      <div><span>Batch</span><strong>{output?.batch_id || context.batch_id || progress?.batch_id || "-"}</strong></div>
+      <div><span>Repair run</span><strong>{shortId(output?.run_id || progress?.run_id)}</strong></div>
+      <div><span>Finished</span><strong>{clock(output?.repair_timestamp || progress?.updated_at)}</strong></div>
+    </section>
+
+    {!pipe && !output && !progress && <div className="c3-empty-state"><h3>No repair run yet</h3><p>Run the full pipeline in Drift Lab to begin.</p></div>}
+    {pipe?.stopped_reason && !selection && !standalone && <div className="c3-notice">Pipeline stopped: {pipe.stopped_reason}</div>}
+
     <div className="c3-upstream-grid">
-      <section className="c3-card"><h3>C1 drift evidence</h3><p className="small muted">{sourceNote}</p><Fields values={[["Evidence ID", c1?.evidence_version], ["Drift detected", c1?.drift_detected], ["Predicted harm", pp(c1?.predicted_harm)], ["Severity", c1?.harm_severity], ["Affected features", c1?.affected_features], ["Interaction signal", c1?.interaction_suspected], ["Harm interval", c1?.harm_interval], ["Execution seconds", c1?.runtime_sec]]} /><details><summary>Detector results</summary><pre>{JSON.stringify(c1?.detector_scores || {}, null, 2)}</pre></details></section>
-      <section className="c3-card"><h3>C2 diagnosis</h3><Fields values={[["Root cause", c2?.root_cause_feature], ["Category", c2?.root_cause_category], ["Exact slice rule", c2?.affected_slice_rule], ["Slice support", c2?.slice_support], ["Observed support", provenance.observed_slice_support], ["Stability", c2?.diagnosis_stability], ["Ranked features", c2?.affected_features_ranked], ["Drift impact", c2?.drift_impact_score]]} /></section>
+      <section className="c3-card c3-evidence-card">
+        <div className="c3-section-heading"><div><span className="c3-section-kicker">Upstream evidence</span><h3>C1 drift detection</h3></div><Badge value={c1 ? "Completed" : "Waiting"} /></div>
+        <div className="c3-primary-stat"><span>Predicted harm</span><strong>{pp(c1?.predicted_harm)}</strong><small>{words(c1?.harm_severity)}</small></div>
+        <Facts compact values={[["Affected features", list(c1?.affected_features)], ["Interaction signal", fmt(c1?.interaction_suspected)], ["Harm interval", c1?.harm_interval ? `${pp(c1.harm_interval[0])} to ${pp(c1.harm_interval[1])}` : "-"], ["Runtime", c1?.runtime_sec != null ? `${fmt(c1.runtime_sec, 2)}s` : "-"]]} />
+      </section>
+      <section className="c3-card c3-evidence-card">
+        <div className="c3-section-heading"><div><span className="c3-section-kicker">Repair diagnosis</span><h3>C2 affected slice</h3></div><Badge value={c2 ? "Completed" : "Waiting"} /></div>
+        <div className="c3-primary-stat"><span>Root cause</span><strong>{c2?.root_cause_feature || "-"}</strong><small>{words(c2?.root_cause_category)}</small></div>
+        <div className="c3-rule">{c2?.affected_slice_rule || "No slice rule available"}</div>
+        <Facts compact values={[["Slice support", fmt(c2?.slice_support)], ["Stability", fmt(c2?.diagnosis_stability)], ["Drift impact", fmt(c2?.drift_impact_score)], ["Ranked features", list(c2?.affected_features_ranked)]]} />
+      </section>
     </div>
-    <section className="c3-card"><h3>Actual execution stages</h3><p className="small muted">Stages update from backend events. Waiting means the stage has not executed. Training loss and epoch progress appear only when the generator reports them.</p><ol className="c3-stage-list">{STAGES.map((name, i) => {
-      const event = progress?.stages?.[i];
-      return <li key={name}><span>{name}</span><Badge value={event?.status || "Waiting"} />{event?.detail != null && <details><summary>Measured details</summary><pre>{JSON.stringify(event.detail, null, 2)}</pre></details>}</li>;
-    })}</ol></section>
-    <div className="c3-upstream-grid">
-      <section className="c3-card"><h3>Generator and repair quantity</h3><Fields values={[["Approved repair strategy", output?.repair_strategy], ["Executed generator", output?.generator], ["Selection", config.selection_mode], ["Policy", provenance.prescription_policy], ["Prescription confidence", output ? provenance.prescription_confidence : null], ["Epochs", config.epochs], ["Training batch size", config.batch_size], ["Numeric features generated as discrete values", config.discrete_numeric_features], ["Training slice rows", provenance.partition_rows?.generator_training_slice], ["Requested ratio", provenance.requested_augmentation_ratio], ["Requested rows", config.requested_rows], ["Generated pool rows", provenance.generated_rows], ["Candidate rows after privacy screening", provenance.candidate_rows], ["Discarded too-close rows", provenance.privacy_sampling?.discarded_too_close_rows], ["Approved synthetic rows", output?.n_synthetic_rows]]} /><p className="small muted">Labels: {context.label_status || "not specified"}. Authentic adaptation labels and independent evaluation labels are required. Drift Lab labels are withheld from C1/C2.</p><details><summary>Partitions, provenance and artifact hashes</summary><pre>{JSON.stringify(provenance, null, 2)}</pre></details></section>
-      <section className="c3-card"><h3>Validation scorecard</h3><div className="c3-preview-scroll"><table className="c3-table"><thead><tr><th>Gate</th><th>Measured</th><th>Required</th><th>Result</th></tr></thead><tbody>
-        <tr><td>Structure</td><td>{validation.structure ? "Schema checked" : "—"}</td><td>Exact schema, finite values, valid categories</td><td><Badge value={validation.structure ? validation.structure.passed ? "PASS" : "FAIL" : null} /></td></tr>
-        <tr><td>Slice coverage</td><td>{fmt(validation.target_coverage)}</td><td>{text(thresholds.target_coverage_min)}</td><td><Badge value={validation.target_coverage == null ? null : validation.target_coverage >= thresholds.target_coverage_min ? "PASS" : "FAIL"} /></td></tr>
-        <tr><td>Fidelity (mean KS)</td><td>{authentic ? "Not applicable (real data)" : fmt(fidelity?.metrics?.continuous_metrics_summary?.mean_ks_statistic)}</td><td>≤ {text(thresholds.fidelity_ks_max)}</td><td><Badge value={authentic ? "NOT APPLICABLE" : fidelity?.status} /></td></tr>
-        <tr><td>Privacy (DCR p05)</td><td>{authentic ? "Not applicable (real data)" : fmt(privacy?.metrics?.dcr_metrics?.dcr_p05)}</td><td>≥ {text(thresholds.privacy_dcr_min)}; no exact copies</td><td><Badge value={authentic ? "PASS" : privacy?.status} /></td></tr>
-        <tr><td>Utility ({utility.metric || "not evaluated"})</td><td>{pp(utility.utility_gain)}</td><td>≥ {text(thresholds.minimum_utility_gain)} gain, bootstrap and retention checks</td><td><Badge value={validation.utility == null ? null : validation.utility.passed ? "PASS" : "FAIL"} /></td></tr>
-      </tbody></table></div><details><summary>Full validation measurements and failure reasons</summary><pre>{JSON.stringify(validation, null, 2)}</pre></details></section>
-    </div>
-    <section className="c3-card"><h3>Model utility comparison</h3><Fields values={[["Metric", utility.metric], ["Original affected slice", fmt(utility.baseline_score)], ["Authentic weighted candidate", fmt(utility.authentic_control_score)], ["Approved candidate", fmt(utility.candidate_score)], ["Gain over original", pp(utility.utility_gain)], ["Gain over authentic candidate", !authentic && typeof utility.candidate_score === "number" ? pp(utility.candidate_score - utility.authentic_control_score) : null], ["Paired 95% interval", utility.bootstrap_ci_95], ["Sample weights", utility.sample_weight_policy], ["Source retention", output?.source_retention_metrics], ["Overall current before", utility.overall_before], ["Overall current after", utility.overall_after]]} /></section>
-    <section className="c3-card"><h3>Final decision and C4 handoff</h3><Badge value={status} /><p>{output?.reason || progress?.reason || (output ? "All configured gates passed; candidate ready for review." : "Waiting for actual repair results.")}</p><p>C4 adapter: <b>{c4Source || "not available"}</b>. {c4Source === "fake" ? "Stub handoff only. Real C4 retraining and production release are not connected." : "C3 approval is a candidate review decision; deployment belongs to C4."}</p>{approved && output?.download_url && <a className="btn primary" href={output.download_url} download>{authentic ? "Download approved labelled adaptation CSV" : `Download approved synthetic CSV (${output.n_synthetic_rows} rows)`}</a>}<details><summary>C3-to-C4 contract</summary><pre>{output ? JSON.stringify(Object.fromEntries(["repair_dataset_uri", "repair_package_status", "repair_strategy", "generator", "n_synthetic_rows", "augmentation_ratio", "fidelity_score", "utility_score", "privacy_status", "target_coverage", "prescription_confidence", "repair_version", "repair_timestamp"].map(k => [k, output[k]])), null, 2) : "No contract available."}</pre></details></section>
-    <section className="c3-card"><h3>{authentic ? "Authentic adaptation artifact preview" : "Synthetic artifact preview"}</h3>{rows.length ? <div className="c3-preview-scroll"><table className="c3-table"><thead><tr>{columns.map(c => <th key={c}>{c}</th>)}</tr></thead><tbody>{rows.map((row, i) => <tr key={i}>{columns.map(c => <td key={c}>{text(row[c])}</td>)}</tr>)}</tbody></table></div> : <p className="muted">No approved artifact preview for this run.</p>}</section>
-    <section className="c3-card"><h3>Registered model artifacts</h3>{data.registry?.error && <p>{data.registry.error}</p>}{data.registry?.models?.map(m => <div key={m.model_id}><b>{m.model_id}</b> · {m.dataset_id} · {m.algorithm || "Algorithm not loaded"} · <Badge value={m.ready ? "ARTIFACTS AVAILABLE" : "MISSING ARTIFACTS"} /><Fields values={Object.entries(m.artifacts).map(([k, a]) => [k, `${a.path || "not configured"} (${a.available ? "available" : "missing"})`])} /></div>)}</section>
-    <section className="c3-card"><h3>Persisted repair history</h3><p className="small muted">Select a saved run above to inspect its own evidence, stages and artifact. Historical runs retain the policy used at the time.</p>{data.repairs.length ? <div className="c3-preview-scroll"><table className="c3-table"><thead><tr><th>Run</th><th>Model</th><th>Generator</th><th>Generated rows</th><th>Utility gain</th><th>Status</th></tr></thead><tbody>{data.repairs.map(r => <tr key={r.run_id}><td><button className="btn small" onClick={() => { setSelection(r.run_id); setStandalone(null); }}>{r.run_id}</button></td><td>{text(r.result?.model_id || r.progress?.model_id)}</td><td>{text(r.result?.generator)}</td><td>{text(r.result?.provenance?.generated_rows)}</td><td>{pp(r.result?.utility_metrics?.utility_gain)}</td><td><Badge value={r.progress?.status || r.result?.execution_status} /></td></tr>)}</tbody></table></div> : <p>No saved repair runs available.</p>}</section>
-    <details className="c3-card"><summary>Standalone research mode — same real repair engine</summary><p>Supply C1 evidence, C2 diagnosis and exact model/data context. This runs real generation and validation.</p><form onSubmit={runStandalone}><label htmlFor="c3-contract">Three-section contract JSON</label><textarea id="c3-contract" rows={10} value={payload} onChange={e => setPayload(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)" }} required /><button className="btn primary" disabled={busy}>{busy ? "Repair running…" : "Run supplied contract"}</button></form></details>
+
+    <section className="c3-card c3-process">
+      <div className="c3-section-heading c3-process-heading"><div><span className="c3-section-kicker">Live execution</span><h3>Repair stages</h3><p>Each stage appears when the previous work finishes. Only decision-relevant measurements are shown.</p></div><div className="c3-progress-label"><strong>{progressPercent}%</strong><span>{completedStages} of {STAGES.length} complete</span></div></div>
+      <div className="c3-progress-track"><span style={{ width: `${progressPercent}%` }} /></div>
+      <div className="c3-stage-grid">{STAGES.slice(0, visibleStageCount).map((_, index) => <StageCard key={STAGES[index][0]} index={index} event={events[index]} contextData={stageContext} />)}</div>
+    </section>
+
+    {output && <>
+      <div className="c3-result-grid">
+        <section className="c3-card">
+          <div className="c3-section-heading"><div><span className="c3-section-kicker">Selected path</span><h3>Repair strategy</h3></div><Badge value={output.repair_package_status} /></div>
+          <div className="c3-strategy-name">{words(output.repair_strategy || "No repair")}</div>
+          <Facts values={[["Generator", output.generator], ["Requested synthetic rows", config.requested_rows], ["Safe candidate rows", provenance.candidate_rows], ["Approved synthetic rows", output.n_synthetic_rows], ["Prescription confidence", fmt(output.prescription_confidence ?? provenance.prescription_confidence)], ["Label status", context.label_status]]} />
+        </section>
+
+        <section className="c3-card">
+          <div className="c3-section-heading"><div><span className="c3-section-kicker">Safety gates</span><h3>Validation scorecard</h3></div></div>
+          <div className="c3-gate-list">
+            {[
+              ["Structure", validation.structure?.passed ? "Schema valid" : "Not passed", validation.structure?.passed ? "PASS" : validation.structure ? "FAIL" : null],
+              ["Target coverage", authentic ? "Not applicable" : `${fmt(validation.target_coverage)} / ${fmt(thresholds.target_coverage_min)}`, authentic ? "N/A" : validation.target_coverage >= thresholds.target_coverage_min ? "PASS" : "FAIL"],
+              ["Fidelity", authentic ? "Real data" : `KS ${fmt(fidelity?.metrics?.continuous_metrics_summary?.mean_ks_statistic)}`, authentic ? "N/A" : fidelity?.status],
+              ["Privacy", authentic ? "Real labelled data" : `DCR ${fmt(privacy?.metrics?.dcr_metrics?.dcr_p05)}`, authentic ? "PASS" : privacy?.status],
+              ["Utility", `${pp(utility.utility_gain)} gain`, validation.utility?.passed ? "PASS" : "FAIL"],
+            ].map(([label, measured, result]) => <div className="c3-gate" key={label}><div><strong>{label}</strong><span>{measured}</span></div><Badge value={result || "Not evaluated"} /></div>)}
+          </div>
+        </section>
+      </div>
+
+      <section className="c3-card c3-utility">
+        <div className="c3-section-heading"><div><span className="c3-section-kicker">Independent evaluation</span><h3>Model utility</h3></div><Badge value={validation.utility?.passed ? "PASS" : "FAIL"} /></div>
+        <div className="c3-score-flow"><div><span>Original affected slice</span><strong>{fmt(utility.baseline_score)}</strong></div><b>-&gt;</b><div><span>Repair candidate</span><strong>{fmt(utility.candidate_score)}</strong></div><b>-&gt;</b><div className={utility.utility_gain >= (thresholds.minimum_utility_gain || .01) ? "positive" : "negative"}><span>Measured gain</span><strong>{pp(utility.utility_gain)}</strong></div></div>
+        <Facts compact values={[["Required gain", `at least ${pp(thresholds.minimum_utility_gain || .01)}`], ["95% confidence interval", utility.bootstrap_ci_95 ? `${pp(utility.bootstrap_ci_95[0])} to ${pp(utility.bootstrap_ci_95[1])}` : "-"], ["Source retention", output.source_retention_metrics?.delta != null ? pp(output.source_retention_metrics.delta) : "-"], ["Overall performance", utility.overall_after != null ? `${fmt(utility.overall_before)} to ${fmt(utility.overall_after)}` : "-"]]} />
+      </section>
+
+      <section className={`c3-decision ${approved ? "approved" : "rejected"}`}>
+        <div className="c3-decision-mark">{approved ? "OK" : "!"}</div>
+        <div className="c3-decision-copy"><span className="c3-section-kicker">Final decision</span><h2>{approved ? "Repair approved for C4 review" : `${words(status)} - existing model retained`}</h2>{reasons.length ? <ul>{reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul> : <p>The selected repair passed all configured checks.</p>}<p className="c3-c4-note">C4 adapter: <strong>{c4Source || "not available"}</strong>. {c4Source === "fake" ? "This is a test handoff; no production deployment occurred." : "C4 owns retraining and release."}</p></div>
+        {approved && output.download_url && <a className="c3-download-btn" href={output.download_url} download>{authentic ? "Download labelled adaptation" : "Download synthetic repair"}</a>}
+      </section>
+
+      <div className="c3-secondary-grid">
+        <section className="c3-card"><div className="c3-section-heading"><div><span className="c3-section-kicker">C4 package</span><h3>Handoff summary</h3></div></div><Facts compact values={[["Status", output.repair_package_status], ["Strategy", words(output.repair_strategy)], ["Generator", output.generator], ["Synthetic rows", output.n_synthetic_rows], ["Privacy", output.privacy_status], ["Utility gain", pp(output.utility_score)]]} /></section>
+        <section className="c3-card"><div className="c3-section-heading"><div><span className="c3-section-kicker">Model registry</span><h3>Registered artifacts</h3></div></div>{data.registry?.error && <p className="c3-inline-error">{data.registry.error}</p>}{data.registry?.models?.map((model) => <div className="c3-model-row" key={model.model_id}><div><strong>{model.model_id}</strong><span>{model.dataset_id} / {model.algorithm || "Algorithm unavailable"}</span></div><Badge value={model.ready ? "Ready" : "Missing artifacts"} /></div>)}</section>
+      </div>
+    </>}
+
+    <section className="c3-card c3-history">
+      <div className="c3-section-heading"><div><span className="c3-section-kicker">Recent evidence</span><h3>Repair history</h3></div><span className="c3-count">{data.repairs.length} saved runs</span></div>
+      {data.repairs.length ? <div className="c3-table-wrap"><table className="c3-table"><thead><tr><th>Run</th><th>Model</th><th>Strategy</th><th>Utility</th><th>Decision</th></tr></thead><tbody>{data.repairs.slice(0, 8).map((repair) => <tr key={repair.run_id}><td><button className="c3-run-link" onClick={() => { setSelection(repair.run_id); setStandalone(null); }}>{shortId(repair.run_id)}</button></td><td>{repair.result?.model_id || repair.progress?.model_id || "-"}</td><td>{words(repair.result?.repair_strategy || repair.result?.generator)}</td><td>{pp(repair.result?.utility_metrics?.utility_gain)}</td><td><Badge value={repair.progress?.status || repair.result?.execution_status} /></td></tr>)}</tbody></table></div> : <p className="c3-muted">No saved repair runs.</p>}
+    </section>
+
+    <section className="c3-card c3-advanced">
+      <button className="c3-advanced-toggle" onClick={() => setShowAdvanced((shown) => !shown)} aria-expanded={showAdvanced}>{showAdvanced ? "Hide" : "Show"} standalone research input</button>
+      {showAdvanced && <form onSubmit={runStandalone}><p>Supply the C1, C2 and data-context contract JSON.</p><textarea rows={9} value={payload} onChange={(event) => setPayload(event.target.value)} required /><button className="btn primary" disabled={busy}>{busy ? "Repair running..." : "Run supplied contract"}</button></form>}
+    </section>
   </div>;
 }
